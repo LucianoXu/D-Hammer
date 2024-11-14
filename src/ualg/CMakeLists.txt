@@ -38,6 +38,7 @@ add_library(
     term.cpp
     termbank.cpp
     ualgparser.cpp
+    rewrite.cpp
 
     ${ANTLR_UALG_GEN_FILES}
 )

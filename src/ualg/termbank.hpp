@@ -4,6 +4,8 @@
 
 namespace ualg {
 
+    using TermMapping = boost::unordered_map<const Term*, const Term*>;
+
     // The term bank. The signature of the term bank is fixed.
     class TermBank {
     private:
@@ -33,8 +35,8 @@ namespace ualg {
         // mapping: the mapping from the old terms to the new terms
         const Term* _replace_term(
             const Term* term, 
-            const boost::unordered_map<const Term*, const Term*>& mapping,
-            boost::unordered_map<const Term*, const Term*>& cache);
+            const TermMapping& mapping,
+            TermMapping& cache);
 
     public:
 
@@ -43,7 +45,8 @@ namespace ualg {
         // NOTICE: all terms should be in the bank.
         const Term* replace_term(
             const Term* term, 
-            const boost::unordered_map<const Term*, const Term*>& mapping);
+            const TermMapping& mapping);
     };
+
 
 } // namespace ualg

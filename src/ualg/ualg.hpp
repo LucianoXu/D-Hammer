@@ -16,3 +16,4 @@
 #include "term.hpp"
 #include "termbank.hpp"
 #include "ualgparser.hpp"
+#include "rewrite.hpp"

@@ -55,8 +55,8 @@ namespace ualg {
 
     const Term* TermBank::_replace_term(
         const Term* term, 
-        const boost::unordered_map<const Term*, const Term*>& mapping,
-        boost::unordered_map<const Term*, const Term*>& cache) {
+        const TermMapping& mapping,
+        TermMapping& cache) {
 
         // check if the term is within the mapping
         auto p_find_res = mapping.find(term);
@@ -96,9 +96,9 @@ namespace ualg {
 
     const Term* TermBank::replace_term(
         const Term* term, 
-        const boost::unordered_map<const Term*, const Term*>& mapping){
+        const TermMapping& mapping){
         
-        boost::unordered_map<const Term*, const Term*> cache;
+        TermMapping cache;
         return _replace_term(term, mapping, cache);
     }
 

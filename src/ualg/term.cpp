@@ -43,6 +43,9 @@ namespace ualg {
     }
 
     bool NormalTerm::operator == (const Term& other) const {
+        if (this == &other) {
+            return true;
+        }
         if (typeid(other) != typeid(NormalTerm)) {
             return false;
         }
