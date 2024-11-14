@@ -1,0 +1,11 @@
+build
+antlr_generated
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+
+FILE_REF

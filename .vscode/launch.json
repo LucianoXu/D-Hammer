@@ -1,0 +1,16 @@
+{
+   "version": "0.2.0",
+   "configurations": [
+       {
+           "name": "Debug MAIN Project with LLDB",
+           "type": "lldb",
+           "request": "launch",
+           "program": "${workspaceFolder}/build/Debug/MAIN",  // Adjust this path to point to your executable
+           "args": [],  // Optional: add program arguments here
+           "cwd": "${workspaceFolder}",
+           "stopOnEntry": false,
+           "console": "internalConsole",
+           "preLaunchTask": "Compile Debug Version"  // This will trigger the build before debugging
+       }
+   ]
+}

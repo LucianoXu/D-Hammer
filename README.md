@@ -1,0 +1,17 @@
+shell code to generate the ANTLR C++ files:
+
+```
+antlr4 -Dlanguage=Cpp src/ualg/ualg.g4 -o src/ualg/antlr_generated
+```
+
+To compile in VSCode:
+- Install the Boost library (https://www.boost.org/).
+- Generate the ANTLR C++ files using the command above.
+- In VSCode, press`Ctrl + shift + P` or `Cmd + shift + P`, type and select `Tasks: Run Task`, and run the task `Compile Debug Version` or `Compile Release Version`.
+
+## Dependency
+- ANTLR4
+- Boost (https://www.boost.org/)
+
+TODO:
+...

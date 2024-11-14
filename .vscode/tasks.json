@@ -1,0 +1,71 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Debug Version",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B",
+                "build/Debug",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Generated task for building the project in Debug mode."
+        },
+        {
+            "label": "Compile Debug Version",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Debug",
+                "-j"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": "Build Debug Version",
+            "detail": "Generated task for compiling the project in Debug mode."
+        },
+        {
+            "label": "Build Release Version",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B",
+                "build/Release",
+                "-DCMAKE_BUILD_TYPE=Release"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Generated task for building the project in Release mode."
+        },
+        {
+            "label": "Compile Release Version",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Release",
+                "-j"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": "Build Release Version",
+            "detail": "Generated task for compiling the project in Release mode."
+        }
+    ]
+}
