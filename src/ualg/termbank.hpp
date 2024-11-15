@@ -1,15 +1,19 @@
 #pragma once
 
+#include <boost/unordered_set.hpp>
+
 #include "term.hpp"
 
 namespace ualg {
 
-    using TermMapping = boost::unordered_map<const Term*, const Term*>;
+    using TermMapping = std::map<const Term*, const Term*>;
 
     // The term bank. The signature of the term bank is fixed.
     class TermBank {
     private:
         boost::unordered_set<NormalTerm> normal_terms;
+        boost::unordered_set<CTerm> c_terms;
+        boost::unordered_set<ACTerm> ac_terms;
 
     public:
         TermBank() {}
@@ -25,6 +29,18 @@ namespace ualg {
         // The properties of the symbols will be processed here.
         // NOTICE: make sure that all the subterms are already in the bank.
         const NormalTerm* get_normal_term(const std::string& head, const std::vector<const Term*>& args);
+
+
+        // Create a term from bank.
+        const CTerm* get_c_term(const std::string& head, const TermCountMappping& args);
+
+        const CTerm* get_c_term(const std::string& head, TermCountMappping&& args);
+        
+
+        // Create a term from bank.
+        const ACTerm* get_ac_term(const std::string& head, const TermCountMappping& args);
+
+        const ACTerm* get_ac_term(const std::string& head, TermCountMappping&& args);
 
         // Inductively construct a term in the bank. Check every subterms.
         // Inner terms are reconstructed first.

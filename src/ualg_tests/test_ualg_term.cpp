@@ -5,8 +5,20 @@
 using namespace ualg;
 using namespace std;
 
+///////////////////
+// NormalTerm
+TEST(TestTerm, get_term_size) {
+    TermBank bank{};
 
-// Test whether the term are merged correctly
+    auto t = bank.get_normal_term("t", {});
+    auto s = bank.get_normal_term("s", {t});
+    auto r = bank.get_normal_term("r", {t});
+    auto a = bank.get_normal_term("&", {s, r});
+
+    EXPECT_EQ(a->get_term_size(), 4);
+}
+
+
 TEST(TestTermBank, HashConsing) {
     TermBank bank{};
 
@@ -23,7 +35,6 @@ TEST(TestTermBank, HashConsing) {
 }
 
 
-// Test whether the term are merged correctly
 TEST(TestTermBank, construct_term) {
     TermBank bank{};
 
@@ -38,7 +49,6 @@ TEST(TestTermBank, construct_term) {
     EXPECT_EQ(t2->get_term_size(), 2);
 }
 
-// Test whether the term are merged correctly
 TEST(TestTermBank, replace_term) {
     TermBank bank{};
 
@@ -47,11 +57,36 @@ TEST(TestTermBank, replace_term) {
     auto a = bank.get_normal_term("&", {s, s});
 
     // replacement
-    boost::unordered_map<const Term*, const Term*> mapping;
+    std::map<const Term*, const Term*> mapping;
     mapping[s] = t;
     auto actual_res = bank.replace_term(a, mapping);
 
     auto expected_res = bank.get_normal_term("&", {t, t});
 
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+///////////////////////
+// C Terms
+TEST(TestCTerm, operator_eq) {
+    TermBank bank{};
+
+    auto s = bank.get_normal_term("s", {});
+    auto t = bank.get_normal_term("t", {});
+    auto a = bank.get_c_term("&", {{s, 1}, {t, 2}});
+    auto b = bank.get_c_term("&", {{t, 2}, {s, 1}});
+    EXPECT_EQ(a, b);
+}
+
+///////////////////////
+// AC Terms
+TEST(TestACTerm, operator_eq) {
+    TermBank bank{};
+
+    auto s = bank.get_ac_term("s", {});
+    auto t = bank.get_ac_term("t", {});
+    auto a = bank.get_ac_term("&", {{s, 1}, {t, 1}});
+    auto actual_res = bank.get_ac_term("&", {{a, 1}, {t, 1}});
+    auto expected_res = bank.get_ac_term("&", {{s, 1}, {t, 2}});
     EXPECT_EQ(actual_res, expected_res);
 }

@@ -1,14 +1,4 @@
-/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
- * Use of this file is governed by the BSD 3-clause license that
- * can be found in the LICENSE.txt file in the project root.
- */
 
-//
-//  main.cpp
-//  antlr4-cpp-demo
-//
-//  Created by Mike Lischke on 13.03.16.
-//
 
 #include <iostream>
 #include <map>
@@ -21,10 +11,14 @@ using namespace ualg;
 using namespace std;
 
 int main(int , const char **) {
+    TermBank bank{};
 
-  string head = "head";
-  vector<const NormalTerm*> args;
-  auto x = calc_hash_normal(head, {});
-  printf("hash: %lu\n", x);
-  return 0;
+    auto s = bank.get_ac_term("s", {});
+    auto t = bank.get_ac_term("t", {});
+    auto a = bank.get_ac_term("&", {{s, 1}, {t, 1}});
+    auto actual_res = bank.get_ac_term("&", {{a, 1}, {t, 1}});
+    auto expected_res = bank.get_ac_term("&", {{s, 1}, {t, 2}});
+
+    cout << actual_res->to_string() << endl;
+    cout << expected_res->to_string() << endl;
 }
