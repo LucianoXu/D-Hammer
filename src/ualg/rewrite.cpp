@@ -26,6 +26,29 @@ namespace ualg {
                 }
             }
         }
+
+        else if (typeid(*term) == typeid(CTerm)) {
+            const CTerm* c_term = static_cast<const CTerm*>(term);
+
+            for (const auto& [arg, _] : c_term->get_args()) {
+                auto mapping = get_mapping(bank, arg, rules);
+                if (mapping.has_value()) {
+                    return mapping;
+                }
+            }
+        }
+
+        else if (typeid(*term) == typeid(ACTerm)) {
+            const ACTerm* ac_term = static_cast<const ACTerm*>(term);
+
+            for (const auto& [arg, _] : ac_term->get_args()) {
+                auto mapping = get_mapping(bank, arg, rules);
+                if (mapping.has_value()) {
+                    return mapping;
+                }
+            }
+        }
+
         else {
             throw std::runtime_error("Unknown term type.");
         }

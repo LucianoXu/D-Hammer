@@ -2,7 +2,7 @@
 # Tests list
 set(tests
     test_ualg_term
-    test_ualg_parser
+    test_ualg_parsing
     test_ualg_rewrite
 )
 

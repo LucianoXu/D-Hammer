@@ -80,7 +80,9 @@ add_executable(MAIN main.cpp)
 target_link_libraries(
     MAIN 
     PUBLIC 
-    DEPENDENCIES UALG)
+        DEPENDENCIES 
+        UALG
+)
 
 ####################################################
 

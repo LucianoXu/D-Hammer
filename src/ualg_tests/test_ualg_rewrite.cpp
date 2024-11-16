@@ -22,12 +22,16 @@ REWRITE_DEF(rule2, bank, term) {
 
 TEST(TermRewriting, Basics1) {
     TermBank bank{};
+    Signature sig = {
+        {"f", SymbolType::NORMAL},
+        {"g", SymbolType::NORMAL}
+    };
     
     // for variables
-    auto input = parse(bank, "f");
+    auto input = parse(sig, bank, "f");
 
     auto actual_res = rewrite_all(bank, input, {rule1, rule2});
-    auto expected_res = parse(bank, "g");
+    auto expected_res = parse(sig, bank, "g");
 
     EXPECT_EQ(actual_res, expected_res);
 }
@@ -35,12 +39,17 @@ TEST(TermRewriting, Basics1) {
 
 TEST(TermRewriting, Basics2) {
     TermBank bank{};
-    
+    Signature sig = {
+        {"f", SymbolType::NORMAL},
+        {"g", SymbolType::NORMAL},
+        {"h", SymbolType::NORMAL}
+    };
+
     // for variables
-    auto input = parse(bank, "h(f, f, f)");
+    auto input = parse(sig, bank, "h(f f f)");
 
     auto actual_res = rewrite_all(bank, input, {rule1, rule2});
-    auto expected_res = parse(bank, "h(g, g, g)");
+    auto expected_res = parse(sig, bank, "h(g g g)");
     
     EXPECT_EQ(actual_res, expected_res);
 }
@@ -48,9 +57,14 @@ TEST(TermRewriting, Basics2) {
 
 TEST(TermRewriting, Basics3) {
     TermBank bank{};
+    Signature sig = {
+        {"d", SymbolType::NORMAL},
+        {"e", SymbolType::NORMAL},
+        {"h", SymbolType::NORMAL}
+    };
     
     // for variables
-    auto input = parse(bank, "h(d, e, e)");
+    auto input = parse(sig, bank, "h(d e e)");
 
     auto actual_res = rewrite_all(bank, input, {rule1, rule2});
     auto expected_res = std::nullopt;
@@ -61,12 +75,17 @@ TEST(TermRewriting, Basics3) {
 
 TEST(TermRewriting, rewrite_repeated) {
     TermBank bank{};
-    
+    Signature sig = {
+        {"f", SymbolType::NORMAL},
+        {"h", SymbolType::NORMAL},
+        {"l", SymbolType::NORMAL}
+    };
+
     // for variables
-    auto input = parse(bank, "h(f, f, f)");
+    auto input = parse(sig, bank, "h(f f f)");
 
     auto actual_res = rewrite_repeated(bank, input, {rule1, rule2});
-    auto expected_res = parse(bank, "h(l, l, l)");
+    auto expected_res = parse(sig, bank, "h(l l l)");
     
     EXPECT_EQ(actual_res, expected_res);
 }

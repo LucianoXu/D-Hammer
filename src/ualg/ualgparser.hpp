@@ -1,35 +1,21 @@
-#pragma once
-
-#include "antlr4-runtime.h"
-
-#include "UALGLexer.h"
-#include "UALGParser.h"
-#include "UALGBaseListener.h"
-
 #include "term.hpp"
-#include <stack>
+#include "termbank.hpp"
+#include "astparser.hpp"
 
-namespace ualg{
-    
-    class UALGTermBuilder : public UALGBaseListener {
-    private:
-        TermBank& bank;
+// Transform code, or AST, to terms in the bank
 
-    public:
-        UALGTermBuilder(TermBank& bank);
+namespace ualg {
 
-        const Term* get_root();
-
-        // Called when entering a 'Identifier' node
-        void exitIdentifier(UALGParser::IdentifierContext *ctx) override;
-
-        // Called when entering a 'Application' node
-        void exitApplication(UALGParser::ApplicationContext *ctx) override;
-
-    private:
-        std::stack<const Term *> node_stack;
+    enum SymbolType {
+        NORMAL,
+        C,
+        AC
     };
 
-    const Term* parse(TermBank& bank, const std::string& code);
+    using Signature = std::map<std::string, SymbolType>;
+
+    const Term* ast2term(const Signature& sig, TermBank& bank, const astparser::AST& ast);
+
+    const Term* parse(const Signature& sig, TermBank& bank, const std::string& code);
 
 } // namespace ualg

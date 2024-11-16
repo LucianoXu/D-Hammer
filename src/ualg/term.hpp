@@ -6,14 +6,6 @@
 
 namespace ualg {
 
-    enum SymbolType {
-        Normal,
-        C,
-        AC
-    };
-
-    using Signature = std::map<std::string, SymbolType>;
-
     class Term {
     protected:
         std::string head;
