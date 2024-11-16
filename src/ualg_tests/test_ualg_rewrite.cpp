@@ -22,9 +22,12 @@ REWRITE_DEF(string, rule2, bank, term) {
 
 TEST(TermRewriting, Basics1) {
     TermBank<string> bank{};
-    Signature sig = {
-        {"f", SymbolType::NORMAL},
-        {"g", SymbolType::NORMAL}
+    Signature<string> sig = {
+        string_head_mapping,
+        {
+            {"f", SymbolType::NORMAL},
+            {"g", SymbolType::NORMAL}
+        }
     };
     
     // for variables
@@ -39,10 +42,13 @@ TEST(TermRewriting, Basics1) {
 
 TEST(TermRewriting, Basics2) {
     TermBank<string> bank{};
-    Signature sig = {
-        {"f", SymbolType::NORMAL},
-        {"g", SymbolType::NORMAL},
-        {"h", SymbolType::NORMAL}
+    Signature<string> sig = {
+        string_head_mapping,
+        {
+            {"f", SymbolType::NORMAL},
+            {"g", SymbolType::NORMAL},
+            {"h", SymbolType::NORMAL}
+        }
     };
 
     // for variables
@@ -57,10 +63,13 @@ TEST(TermRewriting, Basics2) {
 
 TEST(TermRewriting, Basics3) {
     TermBank<string> bank{};
-    Signature sig = {
-        {"d", SymbolType::NORMAL},
-        {"e", SymbolType::NORMAL},
-        {"h", SymbolType::NORMAL}
+    Signature<string> sig = {
+        string_head_mapping,
+        {
+            {"d", SymbolType::NORMAL},
+            {"e", SymbolType::NORMAL},
+            {"h", SymbolType::NORMAL}
+        }
     };
     
     // for variables
@@ -75,10 +84,13 @@ TEST(TermRewriting, Basics3) {
 
 TEST(TermRewriting, rewrite_repeated) {
     TermBank<string> bank{};
-    Signature sig = {
-        {"f", SymbolType::NORMAL},
-        {"h", SymbolType::NORMAL},
-        {"l", SymbolType::NORMAL}
+    Signature<string> sig = {
+        string_head_mapping,
+        {
+            {"f", SymbolType::NORMAL},
+            {"h", SymbolType::NORMAL},
+            {"l", SymbolType::NORMAL}
+        }
     };
 
     // for variables
