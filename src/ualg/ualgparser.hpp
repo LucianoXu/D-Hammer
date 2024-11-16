@@ -14,8 +14,8 @@ namespace ualg {
 
     using Signature = std::map<std::string, SymbolType>;
 
-    const Term* ast2term(const Signature& sig, TermBank& bank, const astparser::AST& ast);
+    const Term<std::string>* ast2term(const Signature& sig, TermBank<std::string>& bank, const astparser::AST& ast);
 
-    const Term* parse(const Signature& sig, TermBank& bank, const std::string& code);
+    const Term<std::string>* parse(const Signature& sig, TermBank<std::string>& bank, const std::string& code);
 
 } // namespace ualg

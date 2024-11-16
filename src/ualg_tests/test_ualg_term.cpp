@@ -8,7 +8,7 @@ using namespace std;
 ///////////////////
 // NormalTerm
 TEST(TestTerm, get_term_size) {
-    TermBank bank{};
+    TermBank<string> bank{};
 
     auto t = bank.get_normal_term("t", {});
     auto s = bank.get_normal_term("s", {t});
@@ -20,7 +20,7 @@ TEST(TestTerm, get_term_size) {
 
 
 TEST(TestTermBank, HashConsing) {
-    TermBank bank{};
+    TermBank<string> bank{};
 
     // for variables
     auto t1 = bank.get_normal_term("t", {});
@@ -36,12 +36,12 @@ TEST(TestTermBank, HashConsing) {
 
 
 TEST(TestTermBank, construct_term) {
-    TermBank bank{};
+    TermBank<string> bank{};
 
     // for variables
-    auto s1 = NormalTerm("s", {});
-    auto s2 = NormalTerm("s", {});
-    auto t1 = NormalTerm("t", {&s1, &s2});
+    auto s1 = NormalTerm<string>("s", {});
+    auto s2 = NormalTerm<string>("s", {});
+    auto t1 = NormalTerm<string>("t", {&s1, &s2});
     EXPECT_EQ(t1.get_term_size(), 3);
 
     // for normal terms
@@ -50,14 +50,14 @@ TEST(TestTermBank, construct_term) {
 }
 
 TEST(TestTermBank, replace_term) {
-    TermBank bank{};
+    TermBank<string> bank{};
 
     auto s = bank.get_normal_term("s", {});
     auto t = bank.get_normal_term("t", {});
     auto a = bank.get_normal_term("&", {s, s});
 
     // replacement
-    std::map<const Term*, const Term*> mapping;
+    std::map<const Term<string>*, const Term<string>*> mapping;
     mapping[s] = t;
     auto actual_res = bank.replace_term(a, mapping);
 
@@ -69,7 +69,7 @@ TEST(TestTermBank, replace_term) {
 ///////////////////////
 // C Terms
 TEST(TestCTerm, operator_eq) {
-    TermBank bank{};
+    TermBank<string> bank{};
 
     auto s = bank.get_normal_term("s", {});
     auto t = bank.get_normal_term("t", {});
@@ -81,7 +81,7 @@ TEST(TestCTerm, operator_eq) {
 ///////////////////////
 // AC Terms
 TEST(TestACTerm, operator_eq) {
-    TermBank bank{};
+    TermBank<string> bank{};
 
     auto s = bank.get_ac_term("s", {});
     auto t = bank.get_ac_term("t", {});

@@ -5,14 +5,14 @@
 using namespace ualg;
 using namespace std;
 
-REWRITE_DEF(rule1, bank, term) {
+REWRITE_DEF(string, rule1, bank, term) {
     if (term->get_head() == "f") {
         return bank.get_normal_term("g", {});
     }
     return std::nullopt;
 }
 
-REWRITE_DEF(rule2, bank, term) {
+REWRITE_DEF(string, rule2, bank, term) {
     if (term->get_head() == "g") {
         return bank.get_normal_term("l", {});
     }
@@ -21,7 +21,7 @@ REWRITE_DEF(rule2, bank, term) {
 
 
 TEST(TermRewriting, Basics1) {
-    TermBank bank{};
+    TermBank<string> bank{};
     Signature sig = {
         {"f", SymbolType::NORMAL},
         {"g", SymbolType::NORMAL}
@@ -38,7 +38,7 @@ TEST(TermRewriting, Basics1) {
 
 
 TEST(TermRewriting, Basics2) {
-    TermBank bank{};
+    TermBank<string> bank{};
     Signature sig = {
         {"f", SymbolType::NORMAL},
         {"g", SymbolType::NORMAL},
@@ -56,7 +56,7 @@ TEST(TermRewriting, Basics2) {
 
 
 TEST(TermRewriting, Basics3) {
-    TermBank bank{};
+    TermBank<string> bank{};
     Signature sig = {
         {"d", SymbolType::NORMAL},
         {"e", SymbolType::NORMAL},
@@ -74,7 +74,7 @@ TEST(TermRewriting, Basics3) {
 
 
 TEST(TermRewriting, rewrite_repeated) {
-    TermBank bank{};
+    TermBank<string> bank{};
     Signature sig = {
         {"f", SymbolType::NORMAL},
         {"h", SymbolType::NORMAL},

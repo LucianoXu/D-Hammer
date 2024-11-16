@@ -6,7 +6,7 @@ using namespace ualg;
 using namespace std;
 
 TEST(TermParsing, Basics1) {
-    TermBank bank{};
+    TermBank<string> bank{};
     Signature sig = {
         {"f", SymbolType::NORMAL}
     };
@@ -18,7 +18,7 @@ TEST(TermParsing, Basics1) {
 }
 
 TEST(TermParsing, Basics2) {
-    TermBank bank{};
+    TermBank<string> bank{};
     Signature sig = {
         {"f", SymbolType::NORMAL},
         {"g", SymbolType::NORMAL}
@@ -31,7 +31,7 @@ TEST(TermParsing, Basics2) {
 }
 
 TEST(TermParsing, CTerms) {
-    TermBank bank{};
+    TermBank<string> bank{};
     Signature sig = {
         {"f", SymbolType::NORMAL},
         {"g", SymbolType::NORMAL},
@@ -47,7 +47,7 @@ TEST(TermParsing, CTerms) {
 }
 
 TEST(TermParsing, ACTerms) {
-    TermBank bank{};
+    TermBank<string> bank{};
     Signature sig = {
         {"f", SymbolType::NORMAL},
         {"g", SymbolType::NORMAL},

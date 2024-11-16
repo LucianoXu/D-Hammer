@@ -2,10 +2,7 @@
 add_library(
     UALG 
 
-    term.cpp
-    termbank.cpp
     ualgparser.cpp
-    rewrite.cpp
 )
 
 target_link_libraries(
