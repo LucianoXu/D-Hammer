@@ -35,6 +35,27 @@ namespace ualg {
  */
 #define REWRITE_DEF(T, name, bank, term) std::optional<const ualg::Term<T>*> name(ualg::TermBank<T>& bank, const ualg::Term<T>* term)
 
+#define REWRITE_COMPILED_DEF(name, bank, term) std::optional<const ualg::Term<int>*> name(ualg::TermBank<int>& bank, const ualg::Term<int>* term)
+
+
+    /**
+     * @brief Special wrapper to get the rewritten term. It will reduce head(e) to e and preserves head(a, b, ...) to head(a, b, ...).
+     * 
+     * @tparam T 
+     * @param bank 
+     * @param mapping 
+     * @return const Term<T>* 
+     */
+    template <class T>
+    inline const Term<T>* ONE_IDENTITY_REDUCE(TermBank<T>& bank, T head, TermCountMapping<T>&& mapping) {
+        if (mapping.size() == 1 && mapping.begin()->second == 1) {
+            return mapping.begin()->first;
+        }
+        else {
+            return bank.get_ac_term(head, std::move(mapping));
+        }
+    }
+
     /**
      * @brief Find a mapping from the term to the rewritten term using the given rewriting rules.
      * 

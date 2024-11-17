@@ -110,10 +110,10 @@ namespace ualg {
     // TermCountMapping and corresponding functions
 
     template <class T>
-    using TermCountMappping = std::map<const Term<T>*, unsigned int>;
+    using TermCountMapping = std::map<const Term<T>*, unsigned int>;
 
     template <class T>
-    inline void update_TermCountMapping(TermCountMappping<T>& mapping, const Term<T>* term, unsigned int count) {
+    inline void add_TermCountMapping(TermCountMapping<T>& mapping, const Term<T>* term, unsigned int count) {
         if (mapping.find(term) != mapping.end()) {
             mapping[term] += count;
         }
@@ -122,11 +122,21 @@ namespace ualg {
         }
     }
 
+    template <class T>
+    inline void subtract_TermCountMapping(TermCountMapping<T>& mapping, const Term<T>* term, unsigned int count) {
+        if (mapping.find(term) != mapping.end()) {
+            mapping[term] -= count;
+            if (mapping[term] == 0) {
+                mapping.erase(term);
+            }
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////
     // C Terms
 
     template <class T>
-    inline std::size_t calc_hash_c(const T& head, const TermCountMappping<T>& args) {
+    inline std::size_t calc_hash_c(const T& head, const TermCountMapping<T>& args) {
         std::size_t seed = 0;
         boost::hash_combine(seed, hash_value(head));
         for (const auto& arg : args) {
@@ -139,14 +149,14 @@ namespace ualg {
     template <class T>
     class CTerm : public Term<T> {
     private:
-        TermCountMappping<T> args;
+        TermCountMapping<T> args;
 
     public:
         CTerm(const T& head);
-        CTerm(const T& head, const TermCountMappping<T>& c_args);
+        CTerm(const T& head, const TermCountMapping<T>& c_args);
         
 
-        const TermCountMappping<T>& get_args() const;
+        const TermCountMapping<T>& get_args() const;
 
         bool operator == (const Term<T>& other) const;
 
@@ -163,7 +173,7 @@ namespace ualg {
     // AC Terms
 
     template <class T>
-    inline std::size_t calc_hash_ac(const T& head, const TermCountMappping<T>& args) {
+    inline std::size_t calc_hash_ac(const T& head, const TermCountMapping<T>& args) {
         std::size_t seed = 0;
         boost::hash_combine(seed, hash_value(head));
         for (const auto& arg : args) {
@@ -176,14 +186,14 @@ namespace ualg {
     template <class T>
     class ACTerm : public Term<T> {
     private:
-        TermCountMappping<T> args;
+        TermCountMapping<T> args;
 
     public:
         ACTerm(const T& head);
-        ACTerm(const T& head, const TermCountMappping<T>& ac_args);
+        ACTerm(const T& head, const TermCountMapping<T>& ac_args);
         
 
-        const TermCountMappping<T>& get_args() const;
+        const TermCountMapping<T>& get_args() const;
 
         bool operator == (const Term<T>& other) const;
 
@@ -340,14 +350,14 @@ namespace ualg {
     }
 
     template <class T>
-    CTerm<T>::CTerm(const T& head, const TermCountMappping<T>& c_args) {
+    CTerm<T>::CTerm(const T& head, const TermCountMapping<T>& c_args) {
         this->head = head;
         this->args = std::move(c_args);
         this->hvalue = calc_hash_c(head, this->args);
     }
 
     template <class T>
-    const TermCountMappping<T>& CTerm<T>::get_args() const {
+    const TermCountMapping<T>& CTerm<T>::get_args() const {
         return this->args;
     }
 
@@ -401,9 +411,9 @@ namespace ualg {
     }
 
     template <class T>
-    ACTerm<T>::ACTerm(const T& head, const TermCountMappping<T>& ac_args) {
+    ACTerm<T>::ACTerm(const T& head, const TermCountMapping<T>& ac_args) {
         this->head = head;
-        this->args = TermCountMappping<T>{};
+        this->args = TermCountMapping<T>{};
 
         // Check and flatten the arguments
         for (const auto& arg : ac_args) {
@@ -412,18 +422,18 @@ namespace ualg {
                 // cast the term to AC term
                 auto sub_term = static_cast<const ACTerm*>(arg.first);
                 for (const auto& sub_arg : sub_term->get_args()) {
-                    update_TermCountMapping(args, sub_arg.first, arg.second * sub_arg.second);
+                    add_TermCountMapping(args, sub_arg.first, arg.second * sub_arg.second);
                 }
             }
             else {
-                update_TermCountMapping(this->args, arg.first, arg.second);
+                add_TermCountMapping(this->args, arg.first, arg.second);
             }
         }
         this->hvalue = calc_hash_ac(head, this->args);
     }
 
     template <class T>
-    const TermCountMappping<T>& ACTerm<T>::get_args() const {
+    const TermCountMapping<T>& ACTerm<T>::get_args() const {
         return this->args;
     }
 

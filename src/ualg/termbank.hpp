@@ -34,15 +34,15 @@ namespace ualg {
 
 
         // Create a term from bank.
-        const CTerm<T>* get_c_term(const T& head, const TermCountMappping<T>& args);
+        const CTerm<T>* get_c_term(const T& head, const TermCountMapping<T>& args);
 
-        const CTerm<T>* get_c_term(const T& head, TermCountMappping<T>&& args);
+        const CTerm<T>* get_c_term(const T& head, TermCountMapping<T>&& args);
         
 
         // Create a term from bank.
-        const ACTerm<T>* get_ac_term(const T& head, const TermCountMappping<T>& args);
+        const ACTerm<T>* get_ac_term(const T& head, const TermCountMapping<T>& args);
 
-        const ACTerm<T>* get_ac_term(const T& head, TermCountMappping<T>&& args);
+        const ACTerm<T>* get_ac_term(const T& head, TermCountMapping<T>&& args);
 
         // Inductively construct a term in the bank. Check every subterms.
         // Inner terms are reconstructed first.
@@ -98,7 +98,7 @@ namespace ualg {
     }
 
     template <class T>
-    const CTerm<T>* TermBank<T>::get_c_term(const T& head, const TermCountMappping<T>& args) {
+    const CTerm<T>* TermBank<T>::get_c_term(const T& head, const TermCountMapping<T>& args) {
         auto term = CTerm<T>(head, args);
         auto p_find_res = c_terms.find(term);
         if (p_find_res != c_terms.end()) {
@@ -109,7 +109,7 @@ namespace ualg {
     }
 
     template <class T>
-    const CTerm<T>* TermBank<T>::get_c_term(const T& head, TermCountMappping<T>&& args) {
+    const CTerm<T>* TermBank<T>::get_c_term(const T& head, TermCountMapping<T>&& args) {
         auto term = CTerm<T>(head, std::move(args));
         auto p_find_res = c_terms.find(term);
         if (p_find_res != c_terms.end()) {
@@ -120,7 +120,7 @@ namespace ualg {
     }
 
     template <class T>
-    const ACTerm<T>* TermBank<T>::get_ac_term(const T& head, const TermCountMappping<T>& args) {
+    const ACTerm<T>* TermBank<T>::get_ac_term(const T& head, const TermCountMapping<T>& args) {
         auto term = ACTerm<T>(head, args);
         auto p_find_res = ac_terms.find(term);
         if (p_find_res != ac_terms.end()) {
@@ -131,7 +131,7 @@ namespace ualg {
     }
 
     template <class T>
-    const ACTerm<T>* TermBank<T>::get_ac_term(const T& head, TermCountMappping<T>&& args) {
+    const ACTerm<T>* TermBank<T>::get_ac_term(const T& head, TermCountMapping<T>&& args) {
         auto term = ACTerm<T>(head, std::move(args));
         auto p_find_res = ac_terms.find(term);
         if (p_find_res != ac_terms.end()) {
@@ -176,10 +176,10 @@ namespace ualg {
                 return &(*insert_result.first);
             }
 
-            TermCountMappping<T> args;
+            TermCountMapping<T> args;
             for (const auto& arg : c_term.get_args()) {
                 auto sub_construct_res = construct_term(*arg.first);
-                update_TermCountMapping(args, sub_construct_res, arg.second);
+                add_TermCountMapping(args, sub_construct_res, arg.second);
             }
 
             return get_c_term(term.get_head(), std::move(args));
@@ -197,10 +197,10 @@ namespace ualg {
                 return &(*insert_result.first);
             }
 
-            TermCountMappping<T> args;
+            TermCountMapping<T> args;
             for (const auto& arg : ac_term.get_args()) {
                 auto sub_construct_res = construct_term(*arg.first);
-                update_TermCountMapping(args, sub_construct_res, arg.second);
+                add_TermCountMapping(args, sub_construct_res, arg.second);
             }
 
             return get_ac_term(term.get_head(), std::move(args));
@@ -252,10 +252,10 @@ namespace ualg {
         else if (typeid(*term) == typeid(CTerm<T>)) {
             const CTerm<T>* c_term = static_cast<const CTerm<T>*>(term);
 
-            TermCountMappping<T> new_args;
+            TermCountMapping<T> new_args;
             for (const auto& arg : c_term->get_args()) {
                 auto sub_construct_res = _replace_term(arg.first, mapping, cache);
-                update_TermCountMapping(new_args, sub_construct_res, arg.second);
+                add_TermCountMapping(new_args, sub_construct_res, arg.second);
             }
 
             const Term<T>* new_term = get_c_term(c_term->get_head(), std::move(new_args));
@@ -267,10 +267,10 @@ namespace ualg {
         else if (typeid(*term) == typeid(ACTerm<T>)) {
             const ACTerm<T>* ac_term = static_cast<const ACTerm<T>*>(term);
 
-            TermCountMappping<T> new_args;
+            TermCountMapping<T> new_args;
             for (const auto& arg : ac_term->get_args()) {
                 auto sub_construct_res = _replace_term(arg.first, mapping, cache);
-                update_TermCountMapping(new_args, sub_construct_res, arg.second);
+                add_TermCountMapping(new_args, sub_construct_res, arg.second);
             }
 
             const Term<T>* new_term = get_ac_term(ac_term->get_head(), std::move(new_args));

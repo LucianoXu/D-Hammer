@@ -42,13 +42,17 @@ namespace ualg {
     //////////////////////////////////////////////////////////
     // Helper function
 
+    using StringSymbolType = std::vector<std::pair<std::string, SymbolType>>;
+
     /**
      * @brief Complie the Signature from a mapping of symbol names to symbol types.
      * 
      * @param symbol_types 
      * @return Signature<int> 
      */
-    Signature<int> compile_string_sig(const std::map<std::string, SymbolType>& symbol_types);
+    Signature<int> compile_string_sig(const StringSymbolType& symbol_types);
+
+    StringSymbolType extend_string_symbol_list(const StringSymbolType& symbol_types_A, const StringSymbolType& symbol_types_B);
 
     //////////////////////////////////////////////////////////
     // Implementation
@@ -87,10 +91,10 @@ namespace ualg {
                 return bank.get_c_term(head, {});
             }
             else {
-                TermCountMappping<T> args;
+                TermCountMapping<T> args;
                 for (const auto& child : ast.children) {
                     const Term<T>* child_term = ast2term(sig, bank, child);
-                    update_TermCountMapping(args, child_term, 1);
+                    add_TermCountMapping(args, child_term, 1);
                 }
                 return bank.get_c_term(head, std::move(args));
             }
@@ -101,10 +105,10 @@ namespace ualg {
                 return bank.get_ac_term(head, {});
             }
             else {
-                TermCountMappping<T> args;
+                TermCountMapping<T> args;
                 for (const auto& child : ast.children) {
                     const Term<T>* child_term = ast2term(sig, bank, child);
-                    update_TermCountMapping(args, child_term, 1);
+                    add_TermCountMapping(args, child_term, 1);
                 }
                 return bank.get_ac_term(head, std::move(args));
             }

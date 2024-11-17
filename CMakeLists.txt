@@ -82,7 +82,7 @@ target_link_libraries(
     PUBLIC 
         DEPENDENCIES 
         UALG
-        # SCALAR
+        SCALAR
 )
 
 ####################################################
