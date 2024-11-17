@@ -8,7 +8,7 @@ using namespace std;
 TEST(TermParsing, Basics1) {
     TermBank<string> bank{};
     Signature<string> sig = {
-        string_head_mapping,
+        {{"f", "f"}},
         {
             {"f", SymbolType::NORMAL}
         }
@@ -23,7 +23,7 @@ TEST(TermParsing, Basics1) {
 TEST(TermParsing, Basics2) {
     TermBank<string> bank{};
     Signature<string> sig = {
-        string_head_mapping,
+        {{"f", "f"}, {"g", "g"}},
         {
             {"f", SymbolType::NORMAL},
             {"g", SymbolType::NORMAL}
@@ -39,7 +39,7 @@ TEST(TermParsing, Basics2) {
 TEST(TermParsing, CTerms) {
     TermBank<string> bank{};
     Signature<string> sig = {
-        string_head_mapping,
+        {{"f", "f"}, {"g", "g"}, {"&", "&"}},
         {
             {"f", SymbolType::NORMAL},
             {"g", SymbolType::NORMAL},
@@ -58,7 +58,7 @@ TEST(TermParsing, CTerms) {
 TEST(TermParsing, ACTerms) {
     TermBank<string> bank{};
     Signature<string> sig = {
-        string_head_mapping,
+        {{"f", "f"}, {"g", "g"}, {"&", "&"}},
         {
             {"f", SymbolType::NORMAL},
             {"g", SymbolType::NORMAL},
@@ -98,24 +98,10 @@ inline size_t hash_value(const Symbols& data) {
     return static_cast<size_t>(data);
 }
 
-
-std::optional<Symbols> string_head_mapping(const std::string& head) {
-    if (head == "f") {
-        return f;
-    }
-    else if (head == "g") {
-        return g;
-    }
-    else if (head == "&") {
-        return and_;
-    }
-    return std::nullopt;
-}
-
 TEST(TestTerm, other_dtype) {
     TermBank<Symbols> bank{};
     Signature<Symbols> sig = {
-        string_head_mapping,
+        {{"f", f}, {"g", g}, {"&", and_}},
         {
             {f, SymbolType::NORMAL},
             {g, SymbolType::NORMAL},
@@ -130,3 +116,25 @@ TEST(TestTerm, other_dtype) {
     EXPECT_EQ(actual_res1, expected_res);
     EXPECT_EQ(actual_res2, expected_res);
 }
+
+
+
+TEST(TestTerm, compile_string_sig) {
+    TermBank<int> bank{};
+    Signature<int> sig = compile_string_sig(
+        {{"f", SymbolType::NORMAL}, {"g", SymbolType::NORMAL}, {"&", SymbolType::AC}}
+    );
+
+    auto actual_res1 = parse(sig, bank, "&(g f(g) &(g))");
+    auto actual_res2 = parse(sig, bank, "&(f(g) g g)");
+    auto expected_res = bank.get_ac_term(sig.head_mapping["&"], 
+        {
+            {bank.get_normal_term(sig.head_mapping["g"], {}), 2}, 
+            {bank.get_normal_term(sig.head_mapping["f"], {bank.get_normal_term(sig.head_mapping["g"], {})}), 1}
+        });
+
+    EXPECT_EQ(actual_res1, expected_res);
+    EXPECT_EQ(actual_res2, expected_res);
+    EXPECT_EQ(sig.term_to_string(actual_res1), "&(g:2, f(g):1)");
+}
+

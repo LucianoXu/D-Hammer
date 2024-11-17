@@ -16,6 +16,15 @@ namespace ualg {
         return string_hash(str);
     }
 
+    inline std::string data_to_string(const int& i) {
+        return std::to_string(i);
+    }
+
+    inline std::size_t hash_value(const int& i) {
+        return i;
+    }
+
+
     /**
      * @brief The abstract class for terms.
      * 
@@ -40,7 +49,7 @@ namespace ualg {
 
         bool is_atomic() const;
 
-        virtual std::string to_string() const = 0;
+        virtual std::string to_string(std::shared_ptr<const std::map<T, std::string>> head_naming=nullptr) const = 0;
 
         virtual ~Term() = default;
     
@@ -88,7 +97,7 @@ namespace ualg {
 
         bool operator == (const Term<T>& other) const;
 
-        std::string to_string() const;
+        std::string to_string(std::shared_ptr<const std::map<T, std::string>> head_naming=nullptr) const;
 
     };
 
@@ -141,7 +150,7 @@ namespace ualg {
 
         bool operator == (const Term<T>& other) const;
 
-        std::string to_string() const;
+        std::string to_string(std::shared_ptr<const std::map<T, std::string>> head_naming=nullptr) const;
 
     };
 
@@ -178,7 +187,7 @@ namespace ualg {
 
         bool operator == (const Term<T>& other) const;
 
-        std::string to_string() const;
+        std::string to_string(std::shared_ptr<const std::map<T, std::string>> head_naming=nullptr) const;
 
     };
 
@@ -300,12 +309,18 @@ namespace ualg {
     }
 
     template <class T>
-    std::string NormalTerm<T>::to_string() const {
-        std::string str = data_to_string(this->head);
+    std::string NormalTerm<T>::to_string(std::shared_ptr<const std::map<T, std::string>> head_naming) const {
+        std::string str;
+        if (head_naming != nullptr) {
+            str = head_naming->at(this->head);
+        }
+        else {
+            str = data_to_string(this->head);
+        }
         if (args.size() > 0) {
             str += "(";
             for (const auto& arg : this->args) {
-                str += arg->to_string() + ", ";
+                str += arg->to_string(head_naming) + ", ";
             }
             str.pop_back();
             str.pop_back();
@@ -355,12 +370,19 @@ namespace ualg {
     }
 
     template <class T>
-    std::string CTerm<T>::to_string() const {
-        std::string str = data_to_string(this->head);
+    std::string CTerm<T>::to_string(std::shared_ptr<const std::map<T, std::string>> head_naming) const {
+        std::string str;
+        if (head_naming != nullptr) {
+            str = head_naming->at(this->head);
+        }
+        else {
+            str = data_to_string(this->head);
+        }
+
         if (this->args.size() > 0) {
             str += "(";
             for (const auto& arg : this->args) {
-                str += arg.first->to_string() + ":" + std::to_string(arg.second) + ", ";
+                str += arg.first->to_string(head_naming) + ":" + std::to_string(arg.second) + ", ";
             }
             str.pop_back();
             str.pop_back();
@@ -424,12 +446,19 @@ namespace ualg {
     }
 
     template <class T>
-    std::string ACTerm<T>::to_string() const {
-        std::string str = data_to_string(this->head);
+    std::string ACTerm<T>::to_string(std::shared_ptr<const std::map<T, std::string>> head_naming) const {
+        std::string str;
+        if (head_naming != nullptr) {
+            str = head_naming->at(this->head);
+        }
+        else {
+            str = data_to_string(this->head);
+        }
+
         if (args.size() > 0) {
             str += "(";
             for (const auto& arg : this->args) {
-                str += arg.first->to_string() + ":" + std::to_string(arg.second) + ", ";
+                str += arg.first->to_string(head_naming) + ":" + std::to_string(arg.second) + ", ";
             }
             str.pop_back();
             str.pop_back();

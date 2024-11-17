@@ -23,7 +23,7 @@ REWRITE_DEF(string, rule2, bank, term) {
 TEST(TermRewriting, Basics1) {
     TermBank<string> bank{};
     Signature<string> sig = {
-        string_head_mapping,
+        {{"f", "f"}, {"g", "g"}},
         {
             {"f", SymbolType::NORMAL},
             {"g", SymbolType::NORMAL}
@@ -43,7 +43,7 @@ TEST(TermRewriting, Basics1) {
 TEST(TermRewriting, Basics2) {
     TermBank<string> bank{};
     Signature<string> sig = {
-        string_head_mapping,
+        {{"f", "f"}, {"g", "g"}, {"h", "h"}},
         {
             {"f", SymbolType::NORMAL},
             {"g", SymbolType::NORMAL},
@@ -64,7 +64,7 @@ TEST(TermRewriting, Basics2) {
 TEST(TermRewriting, Basics3) {
     TermBank<string> bank{};
     Signature<string> sig = {
-        string_head_mapping,
+        {{"d", "d"}, {"e", "e"}, {"h", "h"}},
         {
             {"d", SymbolType::NORMAL},
             {"e", SymbolType::NORMAL},
@@ -85,7 +85,7 @@ TEST(TermRewriting, Basics3) {
 TEST(TermRewriting, rewrite_repeated) {
     TermBank<string> bank{};
     Signature<string> sig = {
-        string_head_mapping,
+        {{"f", "f"}, {"h", "h"}, {"l", "l"}},
         {
             {"f", SymbolType::NORMAL},
             {"h", SymbolType::NORMAL},
