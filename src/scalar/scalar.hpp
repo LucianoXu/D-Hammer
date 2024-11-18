@@ -20,4 +20,22 @@ namespace scalar {
     // MLTS(a ADDS(b c)) -> ADDS(MLTS(a b) MLTS(a c))
     REWRITE_COMPILED_DEF(R_MLTS2, bank, term);
 
+    // CONJ(0) -> 0
+    REWRITE_COMPILED_DEF(R_CONJ0, bank, term);
+
+    // CONJ(1) -> 1
+    REWRITE_COMPILED_DEF(R_CONJ1, bank, term);
+
+    // CONJ(ADDS(a b)) -> ADDS(CONJ(a) CONJ(b))
+    REWRITE_COMPILED_DEF(R_CONJ2, bank, term);
+
+    // CONJ(MLTS(a b)) -> MLTS(CONJ(a) CONJ(b))
+    REWRITE_COMPILED_DEF(R_CONJ3, bank, term);
+
+    // CONJ(CONJ(a)) -> a
+    REWRITE_COMPILED_DEF(R_CONJ4, bank, term);
+
+    // The scalar rule list.
+    extern const std::vector<ualg::RewritingRule<int>> scalar_rules;
+
 } // namespace scalar

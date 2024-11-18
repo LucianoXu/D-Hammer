@@ -8,8 +8,7 @@ using namespace ualg;
 using namespace std;
 using namespace scalar;
 
-template <class T>
-void SINGLE_RULE_TEST(RewritingRule<T> rule, vector<string> variables, string input, string expected) {
+void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables, string input, string expected) {
     TermBank<int> bank{};
     StringSymbolType variable_symbols;
     for (const auto& var : variables) {
@@ -22,18 +21,16 @@ void SINGLE_RULE_TEST(RewritingRule<T> rule, vector<string> variables, string in
         variable_symbols)
     );
     auto term = parse(sig, bank, input);
-    auto actual_res = rewrite_repeated(bank, term, {rule});
+    auto actual_res = rewrite_repeated(bank, term, rules);
     auto expected_res = parse(sig, bank, expected);
-    
+
     cout << "Actual: "<< sig.term_to_string(actual_res) << endl;
     cout << "Expected: "<< sig.term_to_string(expected_res) << endl;
 }
 
 int main(int , const char **) {
-    
-    SINGLE_RULE_TEST(R_MLTS2, {"a", "b", "c"}, "MLTS(a ADDS(b c) b)", "ADDS(MLTS(a b b) MLTS(a b c))");
 
-    SINGLE_RULE_TEST(R_MLTS2, {"a", "b", "c"}, "MLTS(a ADDS(b c) ADDS(b c))", "ADDS(MLTS(a b b) MLTS(a b c) MLTS(a b c) MLTS(a c c))");
+    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(ADDS(a MLTS(b 0)))", "0");
 
     return 0;
 }
