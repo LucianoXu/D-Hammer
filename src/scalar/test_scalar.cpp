@@ -36,18 +36,18 @@ void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables
 
 
 TEST(TestScalar, R_ADDS0) {
-    TEST_RULE({R_ADDS0}, {"a", "b"}, "ADDS(0 a b)", "ADDS(a b)");
-    TEST_RULE({R_ADDS0}, {"b"}, "ADDS(0 b)", "b");
+    TEST_RULE({R_ADDSID, R_ADDS0}, {"a", "b"}, "ADDS(0 a b)", "ADDS(a b)");
+    TEST_RULE({R_ADDSID, R_ADDS0}, {"b"}, "ADDS(0 b)", "b");
 }
 
 
 TEST(TestScalar, R_MLTS0) {
-    TEST_RULE({R_MLTS0}, {"a", "b"}, "MLTS(0 a b)", "0");
+    TEST_RULE({R_MLTSID, R_MLTS0}, {"a", "b"}, "MLTS(0 a b)", "0");
 }
 
 TEST(TestScalar, R_MLTS1) {
-    TEST_RULE({R_MLTS1}, {"a", "b"}, "MLTS(1 a b)", "MLTS(a b)");
-    TEST_RULE({R_MLTS1}, {"b"}, "MLTS(1 b)", "b");
+    TEST_RULE({R_MLTSID, R_MLTS1}, {"a", "b"}, "MLTS(1 a b)", "MLTS(a b)");
+    TEST_RULE({R_MLTSID, R_MLTS1}, {"b"}, "MLTS(1 b)", "b");
 }
 
 TEST(TestScalar, R_MLTS2) {

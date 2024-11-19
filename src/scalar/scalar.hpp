@@ -8,6 +8,16 @@ namespace scalar {
 
     extern ualg::Signature<int> reserved_sig;
 
+    //////////////// properties of the symbols
+
+    // ADDS(a) -> a
+    REWRITE_COMPILED_DEF(R_ADDSID, bank, term);
+    // MLTS(a) -> a
+    REWRITE_COMPILED_DEF(R_MLTSID, bank, term);
+
+
+    //////////////// rewriting rules
+
     // ADDS(a 0) -> a
     REWRITE_COMPILED_DEF(R_ADDS0, bank, term);
 

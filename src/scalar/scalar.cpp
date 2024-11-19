@@ -32,19 +32,43 @@ namespace scalar {
     int MLTS = reserved_sig.head_mapping["MLTS"];
 
     /////////////////////////////////////////////////////////////////////////
+    // Properties
+    REWRITE_COMPILED_DEF(R_ADDSID, bank, term) {
+        TermCountMapping<int> args;
+        if (match_ac_head(term, ADDS, args)) {
+            if (args.size() == 1 && args.begin()->second == 1) {
+                return args.begin()->first;
+            }
+        }
+        return std::nullopt;
+    }
+
+    REWRITE_COMPILED_DEF(R_MLTSID, bank, term) {
+        TermCountMapping<int> args;
+        if (match_ac_head(term, MLTS, args)) {
+            if (args.size() == 1 && args.begin()->second == 1) {
+                return args.begin()->first;
+            }
+        }
+        return std::nullopt;
+    }
+
+    /////////////////////////////////////////////////////////////////////////
     // Rewriting Rules
 
     // ADDS(a 0) -> a
     REWRITE_COMPILED_DEF(R_ADDS0, bank, term) {
         auto zero_term = bank.get_normal_term(ZERO, {});
 
-        if (term->get_head() == ADDS) {
-            const ACTerm<int>& ac_term = static_cast<const ACTerm<int>&>(*term);
-            if (ac_term.get_args().find(zero_term) != ac_term.get_args().end()) {
-                auto new_args = TermCountMapping<int>(ac_term.get_args());
+        TermCountMapping<int> args_ADDS_a_0;
+        if (match_ac_head(term, ADDS, args_ADDS_a_0)) {
+            if (args_ADDS_a_0.find(zero_term) != args_ADDS_a_0.end()) {
+
+                // remove the zero term
+                auto new_args = TermCountMapping<int>(args_ADDS_a_0);
                 new_args.erase(zero_term);
 
-                return ONE_IDENTITY_REDUCE(bank, ADDS, std::move(new_args));
+                return bank.get_ac_term(ADDS, std::move(new_args));
             }
         }
 
@@ -55,9 +79,9 @@ namespace scalar {
     REWRITE_COMPILED_DEF(R_MLTS0, bank, term) {
         auto zero_term = bank.get_normal_term(ZERO, {});
 
-        if (term->get_head() == MLTS) {
-            const ACTerm<int>& ac_term = static_cast<const ACTerm<int>&>(*term);
-            if (ac_term.get_args().find(zero_term) != ac_term.get_args().end()) {
+        TermCountMapping<int> args_MLTS_a_0;
+        if (match_ac_head(term, MLTS, args_MLTS_a_0)) {
+            if (args_MLTS_a_0.find(zero_term) != args_MLTS_a_0.end()) {
                 return zero_term;
             }
         }
@@ -69,13 +93,15 @@ namespace scalar {
     REWRITE_COMPILED_DEF(R_MLTS1, bank, term) {
         auto one_term = bank.get_normal_term(ONE, {});
 
-        if (term->get_head() == MLTS) {
-            const ACTerm<int>& ac_term = static_cast<const ACTerm<int>&>(*term);
-            if (ac_term.get_args().find(one_term) != ac_term.get_args().end()) {
-                auto new_args = TermCountMapping<int>(ac_term.get_args());
+        TermCountMapping<int> args_MLTS_a_1;
+        if (match_ac_head(term, MLTS, args_MLTS_a_1)) {
+            if (args_MLTS_a_1.find(one_term) != args_MLTS_a_1.end()) {
+
+                // remove the one term
+                auto new_args = TermCountMapping<int>(args_MLTS_a_1);
                 new_args.erase(one_term);
 
-                return ONE_IDENTITY_REDUCE(bank, MLTS, std::move(new_args));
+                return bank.get_ac_term(MLTS, std::move(new_args));
             }
         }
 
@@ -86,30 +112,26 @@ namespace scalar {
     // MLTS(a ADDS(b c)) -> ADDS(MLTS(a b) MLTS(a c))
     REWRITE_COMPILED_DEF(R_MLTS2, bank, term) {
 
-        // match MLTS(...)
-        if (term->get_head() == MLTS) {
-            const ACTerm<int>& ac_term = static_cast<const ACTerm<int>&>(*term);
-            auto args = ac_term.get_args();
+        TermCountMapping<int> args_MLTS_a_ADDS_b_c;
+        if (match_ac_head(term, MLTS, args_MLTS_a_ADDS_b_c)) {
 
-            for (const auto& [arg, count] : args) {
-                // match ADDS(b c)
-                if (arg->get_head() == ADDS) {
-                    const ACTerm<int>& inner_ac_term = static_cast<const ACTerm<int>&>(*arg);
-
+            for (const auto& [arg, count] : args_MLTS_a_ADDS_b_c) {
+                TermCountMapping<int> args_ADDS_b_c;
+                if (match_ac_head(arg, ADDS, args_ADDS_b_c)) {
+                    
                     // get the arguments
-                    auto rest_args = TermCountMapping<int>(args);
-                    subtract_TermCountMapping(rest_args, arg, 1);
+                    auto resarg_MLTS = TermCountMapping<int>(args_MLTS_a_ADDS_b_c);
+                    subtract_TermCountMapping(resarg_MLTS, arg, 1);
 
-                    // start creating
-                    auto new_args = TermCountMapping<int>();
+                    auto resarg_ADDS = TermCountMapping<int>();
 
-                    for (const auto& [inner_arg, inner_count] : inner_ac_term.get_args()) {
-                        auto new_inner_args = TermCountMapping<int>(rest_args);
-                        add_TermCountMapping(new_inner_args, inner_arg, inner_count);
-                        new_args[bank.get_ac_term(MLTS, std::move(new_inner_args))] = 1;
+                    for (const auto& [arg, count]: args_ADDS_b_c) {
+                        auto resarg_inner_MLTS = TermCountMapping<int>(resarg_MLTS);
+                        add_TermCountMapping(resarg_inner_MLTS, arg, 1);
+                        resarg_ADDS[bank.get_ac_term(MLTS, std::move(resarg_inner_MLTS))] = count;
                     }
 
-                    return bank.get_ac_term(ADDS, std::move(new_args));
+                    return bank.get_ac_term(ADDS, std::move(resarg_ADDS));
                 }
             }
         }
@@ -143,18 +165,16 @@ namespace scalar {
 
     // CONJ(ADDS(a b)) -> ADDS(CONJ(a) CONJ(b))
     REWRITE_COMPILED_DEF(R_CONJ2, bank, term) {
-        if (term->get_head() == CONJ) {
-            const NormalTerm<int>& term_CONJ_ADDS_a_b = static_cast<const NormalTerm<int>&>(*term);
-            auto args_CONJ_ADDS_a_b = term_CONJ_ADDS_a_b.get_args();
-            if (args_CONJ_ADDS_a_b[0]->get_head() == ADDS) {
-                const ACTerm<int>& term_ADDS_a_b = static_cast<const ACTerm<int>&>(*args_CONJ_ADDS_a_b[0]);
-                auto args_ADDS_a_b = term_ADDS_a_b.get_args();
 
-                auto args_CONJ_a_CONJ_b = TermCountMapping<int>();
+        std::vector<const Term<int>*> args_CONJ_ADDS_a_b;
+        if (match_normal_head(term, CONJ, args_CONJ_ADDS_a_b)) {
+            TermCountMapping<int> args_ADDS_a_b;
+            if (match_ac_head(args_CONJ_ADDS_a_b[0], ADDS, args_ADDS_a_b)) {
+                TermCountMapping<int> new_args;
                 for (const auto& [arg, count] : args_ADDS_a_b) {
-                    args_CONJ_a_CONJ_b[bank.get_normal_term(CONJ, {arg})] = count;
+                    add_TermCountMapping(new_args, bank.get_normal_term(CONJ, {arg}), count);
                 }
-                return bank.get_ac_term(ADDS, std::move(args_CONJ_a_CONJ_b));
+                return bank.get_ac_term(ADDS, std::move(new_args));
             }
         }
 
@@ -163,18 +183,16 @@ namespace scalar {
 
     // CONJ(MLTS(a b)) -> MLTS(CONJ(a) CONJ(b))
     REWRITE_COMPILED_DEF(R_CONJ3, bank, term) {
-        if (term->get_head() == CONJ) {
-            const NormalTerm<int>& term_CONJ_MLTS_a_b = static_cast<const NormalTerm<int>&>(*term);
-            auto args_CONJ_MLTS_a_b = term_CONJ_MLTS_a_b.get_args();
-            if (args_CONJ_MLTS_a_b[0]->get_head() == MLTS) {
-                const ACTerm<int>& term_MLTS_a_b = static_cast<const ACTerm<int>&>(*args_CONJ_MLTS_a_b[0]);
-                auto args_MLTS_a_b = term_MLTS_a_b.get_args();
+        std::vector<const Term<int>*> args_CONJ_MLTS_a_b;
 
-                auto args_CONJ_a_CONJ_b = TermCountMapping<int>();
+        if (match_normal_head(term, CONJ, args_CONJ_MLTS_a_b)) {
+            TermCountMapping<int> args_MLTS_a_b;
+            if (match_ac_head(args_CONJ_MLTS_a_b[0], MLTS, args_MLTS_a_b)) {
+                TermCountMapping<int> new_args;
                 for (const auto& [arg, count] : args_MLTS_a_b) {
-                    args_CONJ_a_CONJ_b[bank.get_normal_term(CONJ, {arg})] = count;
+                    add_TermCountMapping(new_args, bank.get_normal_term(CONJ, {arg}), count);
                 }
-                return bank.get_ac_term(MLTS, std::move(args_CONJ_a_CONJ_b));
+                return bank.get_ac_term(MLTS, std::move(new_args));
             }
         }
 
@@ -183,12 +201,10 @@ namespace scalar {
 
     // CONJ(CONJ(a)) -> a
     REWRITE_COMPILED_DEF(R_CONJ4, bank, term) {
-        if (term->get_head() == CONJ) {
-            const NormalTerm<int>& term_CONJ_CONJ_a = static_cast<const NormalTerm<int>&>(*term);
-            auto args_CONJ_CONJ_a = term_CONJ_CONJ_a.get_args();
-            if (args_CONJ_CONJ_a[0]->get_head() == CONJ) {
-                const NormalTerm<int>& term_CONJ_a = static_cast<const NormalTerm<int>&>(*args_CONJ_CONJ_a[0]);
-                auto args_CONJ_a = term_CONJ_a.get_args();
+        std::vector<const Term<int>*> args_CONJ_CONJ_a;
+        if (match_normal_head(term, CONJ, args_CONJ_CONJ_a)) {
+            std::vector<const Term<int>*> args_CONJ_a;
+            if (match_normal_head(args_CONJ_CONJ_a[0], CONJ, args_CONJ_a)) {
                 return args_CONJ_a[0];
             }
         }
@@ -199,6 +215,8 @@ namespace scalar {
     //////////////////////////////////////////
     // define the rule list
     const std::vector<RewritingRule<int>> scalar_rules = {
+        R_ADDSID,
+        R_MLTSID,
         R_ADDS0,
         R_MLTS0,
         R_MLTS1,

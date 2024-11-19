@@ -130,6 +130,9 @@ namespace ualg {
                 mapping.erase(term);
             }
         }
+        else {
+            throw std::runtime_error("Term not found in the mapping.");
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////

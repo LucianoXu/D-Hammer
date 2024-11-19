@@ -38,23 +38,41 @@ namespace ualg {
 #define REWRITE_COMPILED_DEF(name, bank, term) std::optional<const ualg::Term<int>*> name(ualg::TermBank<int>& bank, const ualg::Term<int>* term)
 
 
-    /**
-     * @brief Special wrapper to get the rewritten term. It will reduce head(e) to e and preserves head(a, b, ...) to head(a, b, ...).
-     * 
-     * @tparam T 
-     * @param bank 
-     * @param mapping 
-     * @return const Term<T>* 
-     */
+    //////////////////////////////////////////////////////////////////////////
+    // Some helper functions for struturize the rewriting rules
     template <class T>
-    inline const Term<T>* ONE_IDENTITY_REDUCE(TermBank<T>& bank, T head, TermCountMapping<T>&& mapping) {
-        if (mapping.size() == 1 && mapping.begin()->second == 1) {
-            return mapping.begin()->first;
+    inline bool match_normal_head(const Term<T>* term, const T& head, std::vector<const Term<T>*>& args) {
+        if (term->get_head() == head) {
+            // cast into the normal term
+            const NormalTerm<T>* normal_term = static_cast<const NormalTerm<T>*>(term);
+            args = normal_term->get_args();
+            return true;
         }
-        else {
-            return bank.get_ac_term(head, std::move(mapping));
-        }
+        return false;
     }
+
+    template <class T>
+    inline bool match_c_head(const Term<T>* term, const T& head, TermCountMapping<T>& args) {
+        if (term->get_head() == head) {
+            // cast into the c term
+            const CTerm<T>* c_term = static_cast<const CTerm<T>*>(term);
+            args = c_term->get_args();
+            return true;
+        }
+        return false;
+    }
+
+    template <class T>
+    inline bool match_ac_head(const Term<T>* term, const T& head, TermCountMapping<T>& args) {
+        if (term->get_head() == head) {
+            // cast into the ac term
+            const ACTerm<T>* ac_term = static_cast<const ACTerm<T>*>(term);
+            args = ac_term->get_args();
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * @brief Find a mapping from the term to the rewritten term using the given rewriting rules.
