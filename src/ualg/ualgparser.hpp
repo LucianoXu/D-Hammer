@@ -78,7 +78,7 @@ namespace ualg {
                 return bank.get_normal_term(head, {});
             }
             else {
-                std::vector<const Term<T>*> args;
+                ListArgs<T> args;
                 for (const auto& child : ast.children) {
                     args.push_back(ast2term(sig, bank, child));
                 }

@@ -166,7 +166,7 @@ namespace scalar {
     // CONJ(ADDS(a b)) -> ADDS(CONJ(a) CONJ(b))
     REWRITE_COMPILED_DEF(R_CONJ2, bank, term) {
 
-        std::vector<const Term<int>*> args_CONJ_ADDS_a_b;
+        ListArgs<int> args_CONJ_ADDS_a_b;
         if (match_normal_head(term, CONJ, args_CONJ_ADDS_a_b)) {
             TermCountMapping<int> args_ADDS_a_b;
             if (match_ac_head(args_CONJ_ADDS_a_b[0], ADDS, args_ADDS_a_b)) {
@@ -183,7 +183,7 @@ namespace scalar {
 
     // CONJ(MLTS(a b)) -> MLTS(CONJ(a) CONJ(b))
     REWRITE_COMPILED_DEF(R_CONJ3, bank, term) {
-        std::vector<const Term<int>*> args_CONJ_MLTS_a_b;
+        ListArgs<int> args_CONJ_MLTS_a_b;
 
         if (match_normal_head(term, CONJ, args_CONJ_MLTS_a_b)) {
             TermCountMapping<int> args_MLTS_a_b;
@@ -201,9 +201,9 @@ namespace scalar {
 
     // CONJ(CONJ(a)) -> a
     REWRITE_COMPILED_DEF(R_CONJ4, bank, term) {
-        std::vector<const Term<int>*> args_CONJ_CONJ_a;
+        ListArgs<int> args_CONJ_CONJ_a;
         if (match_normal_head(term, CONJ, args_CONJ_CONJ_a)) {
-            std::vector<const Term<int>*> args_CONJ_a;
+            ListArgs<int> args_CONJ_a;
             if (match_normal_head(args_CONJ_CONJ_a[0], CONJ, args_CONJ_a)) {
                 return args_CONJ_a[0];
             }

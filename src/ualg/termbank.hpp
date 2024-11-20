@@ -25,12 +25,12 @@ namespace ualg {
         // Create a term from bank.
         // The properties of the symbols will be processed here.
         // NOTICE: make sure that all the subterms are already in the bank.
-        const NormalTerm<T>* get_normal_term(const T& head, std::vector<const Term<T>*>&& args);
+        const NormalTerm<T>* get_normal_term(const T& head, ListArgs<T>&& args);
 
         // Create a term from bank.
         // The properties of the symbols will be processed here.
         // NOTICE: make sure that all the subterms are already in the bank.
-        const NormalTerm<T>* get_normal_term(const T& head, const std::vector<const Term<T>*>& args);
+        const NormalTerm<T>* get_normal_term(const T& head, const ListArgs<T>& args);
 
 
         // Create a term from bank.
@@ -76,7 +76,7 @@ namespace ualg {
     }
 
     template <class T>
-    const NormalTerm<T>* TermBank<T>::get_normal_term(const T& head, std::vector<const Term<T>*>&& args) {
+    const NormalTerm<T>* TermBank<T>::get_normal_term(const T& head, ListArgs<T>&& args) {
         auto term = NormalTerm<T>(head, std::move(args));
         auto p_find_res = normal_terms.find(term);
         if (p_find_res != normal_terms.end()) {
@@ -87,7 +87,7 @@ namespace ualg {
     }
 
     template <class T>
-    const NormalTerm<T>* TermBank<T>::get_normal_term(const T& head, const std::vector<const Term<T>*>& args) {
+    const NormalTerm<T>* TermBank<T>::get_normal_term(const T& head, const ListArgs<T>& args) {
         auto term = NormalTerm<T>(head, args);
         auto p_find_res = normal_terms.find(term);
         if (p_find_res != normal_terms.end()) {
@@ -156,7 +156,7 @@ namespace ualg {
             }
 
 
-            std::vector<const Term<T>*> args;
+            ListArgs<T> args;
             for (const auto& arg : normal_term.get_args()) {
                 args.push_back(const_cast<const Term<T>*>(construct_term(*arg)));
             }
@@ -238,7 +238,7 @@ namespace ualg {
         if (typeid(*term) == typeid(NormalTerm<T>)) {
             const NormalTerm<T>* normal_term = static_cast<const NormalTerm<T>*>(term);
 
-            std::vector<const Term<T>*> new_args;
+            ListArgs<T> new_args;
             for (const auto& arg : normal_term->get_args()) {
                 new_args.push_back(_replace_term(arg, mapping, cache));
             }

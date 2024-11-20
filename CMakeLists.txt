@@ -83,6 +83,7 @@ target_link_libraries(
         DEPENDENCIES 
         UALG
         SCALAR
+        SCALAR_VEC
 )
 
 ####################################################

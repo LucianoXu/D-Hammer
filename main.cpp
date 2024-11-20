@@ -2,11 +2,12 @@
 
 #include "ualg.hpp"
 #include "scalar.hpp"
+#include "scalar_vec.hpp"
 
 
 using namespace ualg;
 using namespace std;
-using namespace scalar;
+using namespace scalar_vec;
 
 void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables, string input, string expected) {
     TermBank<int> bank{};
@@ -30,7 +31,8 @@ void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables
 
 int main(int , const char **) {
 
-    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(ADDS(a MLTS(b 0)))", "0");
+    TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(a ADDS(b c))", "ADDS(MLTS(a b) MLTS(a c))");
+    TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(a ADDS(b c) b)", "ADDS(MLTS(a b b) MLTS(a b c))");
 
     return 0;
 }

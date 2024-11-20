@@ -74,7 +74,10 @@ namespace ualg {
     // Normal Terms
 
     template <class T>
-    inline std::size_t calc_hash_normal(const T& head, const std::vector<const Term<T>*>& args) {
+    using ListArgs = std::vector<const Term<T>*>;
+
+    template <class T>
+    inline std::size_t calc_hash_normal(const T& head, const ListArgs<T>& args) {
         std::size_t seed = 0;
         boost::hash_combine(seed, hash_value(head));
         for (const auto& arg : args) {
@@ -86,14 +89,14 @@ namespace ualg {
     template <class T>
     class NormalTerm : public Term<T> {
     private:
-        std::vector<const Term<T>*> args;
+        ListArgs<T> args;
 
     public:
         NormalTerm(const T& head);
-        NormalTerm(const T& head, const std::vector<const Term<T>*>& normal_args);
-        NormalTerm(const T& head, std::vector<const Term<T>*>&& normal_args);
+        NormalTerm(const T& head, const ListArgs<T>& normal_args);
+        NormalTerm(const T& head, ListArgs<T>&& normal_args);
 
-        const std::vector<const Term<T>*>& get_args() const;
+        const ListArgs<T>& get_args() const;
 
         bool operator == (const Term<T>& other) const;
 
@@ -285,21 +288,21 @@ namespace ualg {
     }
 
     template <class T>
-    NormalTerm<T>::NormalTerm(const T& head, const std::vector<const Term<T>*>& normal_args) {
+    NormalTerm<T>::NormalTerm(const T& head, const ListArgs<T>& normal_args) {
         this->head = head;
         this->args = normal_args;
         this->hvalue = calc_hash_normal(head, this->args);
     }
 
     template <class T>
-    NormalTerm<T>::NormalTerm(const T& head, std::vector<const Term<T>*>&& normal_args) {
+    NormalTerm<T>::NormalTerm(const T& head, ListArgs<T>&& normal_args) {
         this->head = head;
         this->args = std::move(normal_args);
         this->hvalue = calc_hash_normal(head, this->args);
     }
 
     template <class T>
-    const std::vector<const Term<T>*>& NormalTerm<T>::get_args() const {
+    const ListArgs<T>& NormalTerm<T>::get_args() const {
         return this->args;
     }
 

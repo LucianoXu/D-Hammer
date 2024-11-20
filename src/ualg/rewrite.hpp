@@ -41,7 +41,7 @@ namespace ualg {
     //////////////////////////////////////////////////////////////////////////
     // Some helper functions for struturize the rewriting rules
     template <class T>
-    inline bool match_normal_head(const Term<T>* term, const T& head, std::vector<const Term<T>*>& args) {
+    inline bool match_normal_head(const Term<T>* term, const T& head, ListArgs<T>& args) {
         if (term->get_head() == head) {
             // cast into the normal term
             const NormalTerm<T>* normal_term = static_cast<const NormalTerm<T>*>(term);
