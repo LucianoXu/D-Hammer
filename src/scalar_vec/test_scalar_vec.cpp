@@ -44,7 +44,6 @@ TEST(TestScalarVec, R_ADDS0) {
     TEST_RULE({R_ADDSID, R_ADDS0}, {"b"}, "ADDS(0 b)", "b");
 }
 
-
 TEST(TestScalarVec, R_MLTS0) {
     TEST_RULE({R_MLTSID, R_MLTS0}, {"a", "b"}, "MLTS(0 a b)", "0");
 }
@@ -100,4 +99,33 @@ TEST(TestScalarVec, Combined1) {
 // (b * 0)^*^* -> 0
 TEST(TestScalarVec, Combined2) {
     TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(CONJ(MLTS(b 0)))", "0");
+}
+
+//////////////////////////////////////////////////////
+// Normalization Tests
+TEST(TestScalarVec, Normalization) {
+
+    vector<string> variables = {"a", "b", "c"};
+    string inputA = "MLTS(a ADDS(b c) b 1 ADDS(a b 0))";
+    TermBank<int> bank{};
+
+    StringSymbolType variable_symbols;
+    for (const auto& var : variables) {
+        variable_symbols.push_back({var, SymbolType::NORMAL});
+    }
+
+    Signature<int> sig = compile_string_sig(
+        extend_string_symbol_list(
+        symbols,
+        variable_symbols)
+    );
+    auto term = parse(sig, bank, inputA);
+
+    cout << "Initial term: " << sig.term_to_string(term) << endl;
+    RewritingTrace<int> trace;
+    auto res_term = normalize(bank, term, &trace);
+    cout << "Normalized term: " << sig.term_to_string(res_term) << endl;
+
+    auto cmd = trace_to_string(sig, trace, scalar_printer);
+    cout << "Trace: \n" << cmd << endl;
 }

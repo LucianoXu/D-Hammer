@@ -53,11 +53,38 @@ namespace ualg {
     struct CProofInstruct {
         using PermutationSeq = std::vector<std::pair<unsigned, CProofInstruct>>;
         
-        bool E;
         PermutationSeq ls;
 
-        CProofInstruct() : E(true) {}
-        CProofInstruct(const PermutationSeq& ls) : E(false), ls(ls) {}
+        CProofInstruct() {}
+        CProofInstruct(const PermutationSeq& ls) {
+            this->ls = ls;
+        }
+
+        // assign operator
+        CProofInstruct& operator = (const CProofInstruct& other) {
+            this->ls = other.ls;
+            return *this;
+        }
+
+        // move assign operator
+        CProofInstruct& operator = (CProofInstruct&& other) {
+            this->ls = std::move(other.ls);
+            return *this;
+        }
+
+        // copy constructor
+        CProofInstruct(const CProofInstruct& other) {
+            this->ls = other.ls;
+        }
+
+        // move constructor
+        CProofInstruct(CProofInstruct&& other) {
+            this->ls = std::move(other.ls);
+        }
+
+        inline bool E() const {
+            return this->ls.size() == 0;
+        }
 
         std::string to_string() const;
         CProofInstruct compose(const CProofInstruct& other) const;
@@ -66,7 +93,7 @@ namespace ualg {
 
     template <class T>
     const NormalTerm<T>* apply_CInstruct(const NormalTerm<T>* term, const CProofInstruct& instruct, TermBank<T>& bank) {
-        if (instruct.E) return term;
+        if (instruct.E()) return term;
 
         const ListArgs<T>& args = term->get_args();
         ListArgs<T> new_args;

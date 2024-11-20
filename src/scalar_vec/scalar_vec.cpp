@@ -14,6 +14,7 @@ Signature:
 namespace scalar_vec {
 
     using namespace ualg;
+    using namespace std;
 
     StringSymbolType symbols = {
         {"0", SymbolType::NORMAL},
@@ -248,5 +249,54 @@ namespace scalar_vec {
         R_CONJ3,
         R_CONJ4
     };
+
+    REWRITE_COMPILED_DEF(R_C_EQ, bank, term) {
+        throw std::runtime_error("NOT CALLABLE");
+    }
+
+    const Term<int>* normalize(TermBank<int>& bank, const Term<int>* term, RewritingTrace<int>* trace) {
+
+        // rewrite the term
+        auto rewriten_term = static_cast<const NormalTerm<int>*>(rewrite_repeated(bank, term, scalar_rules, trace));
+
+        // AC normalization
+        auto res = sort_CInstruct(rewriten_term, bank, ac_symbols);
+
+        trace->push_back({R_C_EQ, res.first, res.second});
+
+        return res.first;
+    }
+
+    const map<RewritingRule<int>, string> scalar_rule_names = {
+        {R_FLATTEN, "R_FLATTEN"},
+        {R_ADDSID, "R_ADDSID"},
+        {R_MLTSID, "R_MLTSID"},
+        {R_ADDS0, "R_ADDS0"},
+        {R_MLTS0, "R_MLTS0"},
+        {R_MLTS1, "R_MLTS1"},
+        {R_MLTS2, "R_MLTS2"},
+        {R_CONJ0, "R_CONJ0"},
+        {R_CONJ1, "R_CONJ1"},
+        {R_CONJ2, "R_CONJ2"},
+        {R_CONJ3, "R_CONJ3"},
+        {R_CONJ4, "R_CONJ4"},
+        {R_C_EQ, "R_C_EQ"}
+    };
+
+    string scalar_printer(const Signature<int>& sig, const RewritingRecord<int>& record) {
+        std::string res = "";
+        res += scalar_rule_names.at(record.rule) + " ";
+        if (record.rule == R_C_EQ) {
+            auto instruct = record.get_parameter<CProofInstruct>();
+            res += instruct.to_string();
+        }
+        else {
+            res += sig.term_to_string(record.term);
+        }
+        res += ".\n";
+        return res;
+    }
+
+        
 
 } // namespace scalar

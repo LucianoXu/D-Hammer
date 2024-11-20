@@ -58,4 +58,13 @@ namespace scalar_vec {
     // The scalar rule list.
     extern const std::vector<ualg::RewritingRule<int>> scalar_rules;
 
-} // namespace scalar
+    // The dummy rule for the equality.
+    REWRITE_COMPILED_DEF(R_C_EQ, bank, term);
+
+    const ualg::Term<int>* normalize(ualg::TermBank<int>& bank, const ualg::Term<int>* term, ualg::RewritingTrace<int>* trace=nullptr);
+
+    // facilities for output
+    extern const std::map<ualg::RewritingRule<int>, std::string> scalar_rule_names;
+    std::string scalar_printer(const ualg::Signature<int>& sig, const ualg::RewritingRecord<int>& record);
+
+} // namespace scalar_vec

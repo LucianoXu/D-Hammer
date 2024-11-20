@@ -5,7 +5,7 @@ namespace ualg {
     // Implementation
 
     std::string CProofInstruct::to_string() const {
-        if (E) {
+        if (this->ls.size()==0) {
             return "E";
         }
         std::string str = "[";
@@ -19,10 +19,10 @@ namespace ualg {
 
 
     CProofInstruct CProofInstruct::compose(const CProofInstruct& other) const {
-        if (E) {
+        if (this->ls.size()==0) {
             return other;
         }
-        if (other.E) {
+        if (other.ls.size()==0) {
             return *this;
         }
 
@@ -43,7 +43,7 @@ namespace ualg {
 
 
     CProofInstruct CProofInstruct::inverse() const{
-        if (E) {
+        if (this->ls.size()==0) {
             return *this;
         }
         CProofInstruct::PermutationSeq seq{this->ls.size()};
