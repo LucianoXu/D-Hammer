@@ -134,6 +134,11 @@ namespace scalar_vec {
         ListArgs<int> args_MLTS_a_ADDS_b_c;
         if (match_normal_head(term, MLTS, args_MLTS_a_ADDS_b_c)) {
 
+            // Does not match MLTS(ADDS(...))
+            if (args_MLTS_a_ADDS_b_c.size() == 1) {
+                return std::nullopt;
+            }
+
             for (auto i = 0; i != args_MLTS_a_ADDS_b_c.size(); ++i) {
                 ListArgs<int> args_ADDS_b_c;
                 if (match_normal_head(args_MLTS_a_ADDS_b_c[i], ADDS, args_ADDS_b_c)) {

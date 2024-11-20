@@ -60,6 +60,10 @@ TEST(TestScalarVec, R_MLTS2) {
     TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(a ADDS(b c) b)", "ADDS(MLTS(a b b) MLTS(a c b))");
 }
 
+TEST(TestScalarVec, R_MLTS2_nasty) {
+    TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(ADDS(b c))", "MLTS(ADDS(b c))");
+}
+
 TEST(TestScalarVec, R_CONJ0) {
     TEST_RULE({R_CONJ0}, {}, "CONJ(0)", "0");
     TEST_RULE({R_CONJ0}, {"a"}, "ADDS(CONJ(0) a)", "ADDS(0 a)");
