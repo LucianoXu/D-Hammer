@@ -34,35 +34,9 @@ namespace scalar_vec {
     std::set<int> ac_symbols = {ADDS, MLTS};
     
 
-    const Term<int>* flatten(const Term<int>* term, TermBank<int>& bank) {
-        const NormalTerm<int>* normal_term = static_cast<const NormalTerm<int>*>(term);
-
-
-        // If the term is atomic or not an AC symbol, return the term
-        if (term->is_atomic() || ac_symbols.find(term->get_head()) == ac_symbols.end()) return term;
-
-        const ListArgs<int>& args = normal_term->get_args();
-        ListArgs<int> new_args;
-
-        for (const auto& arg : args) {
-            // flatten the subterm first
-            const auto new_arg = flatten(arg, bank);
-            ListArgs<int> arg_args;
-
-            // check whether the subterm is the same AC symbol
-            if (match_normal_head(new_arg, term->get_head(), arg_args)) {
-                new_args.insert(new_args.end(), arg_args.begin(), arg_args.end());
-            } else {
-                new_args.push_back(new_arg);
-            }
-        }
-
-        return bank.get_normal_term(term->get_head(), std::move(new_args));
-    }
-
     //////////////// Flattening AC symbols
     REWRITE_COMPILED_DEF(R_FLATTEN, bank, term) {
-        auto res = flatten(term, bank);
+        auto res = flatten<int>(term, bank, ac_symbols);
         if (res != term) {
             return res;
         }

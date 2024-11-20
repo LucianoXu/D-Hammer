@@ -45,6 +45,8 @@ namespace ualg {
 
         bool operator != (const Term& other) const;
 
+        virtual bool operator < (const Term& other) const = 0;
+
         std::size_t get_term_size() const;
 
         bool is_atomic() const;
@@ -99,6 +101,7 @@ namespace ualg {
         const ListArgs<T>& get_args() const;
 
         bool operator == (const Term<T>& other) const;
+        bool operator < (const Term<T>& other) const;
 
         std::string to_string(std::shared_ptr<const std::map<T, std::string>> head_naming=nullptr) const;
 
@@ -165,6 +168,7 @@ namespace ualg {
         const TermCountMapping<T>& get_args() const;
 
         bool operator == (const Term<T>& other) const;
+        bool operator < (const Term<T>& other) const;
 
         std::string to_string(std::shared_ptr<const std::map<T, std::string>> head_naming=nullptr) const;
 
@@ -202,6 +206,7 @@ namespace ualg {
         const TermCountMapping<T>& get_args() const;
 
         bool operator == (const Term<T>& other) const;
+        bool operator < (const Term<T>& other) const;
 
         std::string to_string(std::shared_ptr<const std::map<T, std::string>> head_naming=nullptr) const;
 
@@ -325,6 +330,24 @@ namespace ualg {
     }
 
     template <class T>
+    bool NormalTerm<T>::operator < (const Term<T>& other) const {
+        if (this->hvalue < other.hash_value()) {
+            return true;
+        }
+
+        if (typeid(other) != typeid(NormalTerm<T>)) {
+            return typeid(*this).before(typeid(other));
+        }
+
+        const NormalTerm<T>& other_term = static_cast<const NormalTerm<T>&>(other);
+
+        if (this->head != other_term.head) {
+            return this->head < other_term.head;
+        }
+        return this->args < other_term.args;
+    }
+
+    template <class T>
     std::string NormalTerm<T>::to_string(std::shared_ptr<const std::map<T, std::string>> head_naming) const {
         std::string str;
         if (head_naming != nullptr) {
@@ -336,9 +359,8 @@ namespace ualg {
         if (args.size() > 0) {
             str += "(";
             for (const auto& arg : this->args) {
-                str += arg->to_string(head_naming) + ", ";
+                str += arg->to_string(head_naming) + " ";
             }
-            str.pop_back();
             str.pop_back();
             str += ")";
         }
@@ -386,6 +408,24 @@ namespace ualg {
     }
 
     template <class T>
+    bool CTerm<T>::operator < (const Term<T>& other) const {
+        if (this->hvalue < other.hash_value()) {
+            return true;
+        }
+
+        if (typeid(other) != typeid(CTerm<T>)) {
+            return typeid(*this).before(typeid(other));
+        }
+
+        const CTerm<T>& other_term = static_cast<const CTerm<T>&>(other);
+
+        if (this->head != other_term.head) {
+            return this->head < other_term.head;
+        }
+        return this->args < other_term.args;
+    }
+
+    template <class T>
     std::string CTerm<T>::to_string(std::shared_ptr<const std::map<T, std::string>> head_naming) const {
         std::string str;
         if (head_naming != nullptr) {
@@ -398,9 +438,8 @@ namespace ualg {
         if (this->args.size() > 0) {
             str += "(";
             for (const auto& arg : this->args) {
-                str += arg.first->to_string(head_naming) + ":" + std::to_string(arg.second) + ", ";
+                str += arg.first->to_string(head_naming) + ":" + std::to_string(arg.second) + " ";
             }
-            str.pop_back();
             str.pop_back();
             str += ")";
         }
@@ -462,6 +501,24 @@ namespace ualg {
     }
 
     template <class T>
+    bool ACTerm<T>::operator < (const Term<T>& other) const {
+        if (this->hvalue < other.hash_value()) {
+            return true;
+        }
+
+        if (typeid(other) != typeid(ACTerm<T>)) {
+            return typeid(*this).before(typeid(other));
+        }
+
+        const ACTerm<T>& other_term = static_cast<const ACTerm<T>&>(other);
+
+        if (this->head != other_term.head) {
+            return this->head < other_term.head;
+        }
+        return this->args < other_term.args;
+    }
+
+    template <class T>
     std::string ACTerm<T>::to_string(std::shared_ptr<const std::map<T, std::string>> head_naming) const {
         std::string str;
         if (head_naming != nullptr) {
@@ -474,9 +531,8 @@ namespace ualg {
         if (args.size() > 0) {
             str += "(";
             for (const auto& arg : this->args) {
-                str += arg.first->to_string(head_naming) + ":" + std::to_string(arg.second) + ", ";
+                str += arg.first->to_string(head_naming) + ":" + std::to_string(arg.second) + " ";
             }
-            str.pop_back();
             str.pop_back();
             str += ")";
         }

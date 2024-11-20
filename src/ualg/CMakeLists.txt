@@ -2,6 +2,7 @@
 add_library(
     UALG 
 
+    AC_by_vec.cpp
     ualgparser.cpp
 )
 

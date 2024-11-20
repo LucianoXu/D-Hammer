@@ -135,6 +135,6 @@ TEST(TestTerm, compile_string_sig) {
 
     EXPECT_EQ(actual_res1, expected_res);
     EXPECT_EQ(actual_res2, expected_res);
-    EXPECT_TRUE(sig.term_to_string(actual_res1) == "&(g:2, f(g):1)" || sig.term_to_string(actual_res1) == "&(f(g):1, g:2)");
+    EXPECT_TRUE(sig.term_to_string(actual_res1) == "&(g:2 f(g):1)" || sig.term_to_string(actual_res1) == "&(f(g):1 g:2)");
 }
 

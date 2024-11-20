@@ -3,6 +3,7 @@
 set(tests
     test_ualg_term
     test_ualg_parsing
+    test_AC_by_vec
     test_ualg_rewrite
 )
 
