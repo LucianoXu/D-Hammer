@@ -61,21 +61,10 @@ int main(int , const char **) {
     
     Kernel kernel(CoC_sig);
 
-    auto& bank = kernel.get_bank();
-    auto& sig = kernel.get_sig();
-
-    auto actual_res = kernel.parse("forall(x y apply(z x))");
+    // (Const)
+    kernel.local_def(kernel.register_symbol("f"), kernel.parse("fun (x Type x)"));
     
-    auto expected_res = bank.get_normal_term(
-        sig.get_repr("forall"), {
-            bank.get_normal_term(sig.get_repr("x"), {}),
-            bank.get_normal_term(sig.get_repr("y"), {}),
-            bank.get_normal_term(sig.get_repr("apply"), {
-                bank.get_normal_term(sig.get_repr("z"), {}),
-                bank.get_normal_term(sig.get_repr("x"), {})
-            })
-        }
-    );
+    cout << kernel.context_to_string() << endl;
 
 
     return 0;

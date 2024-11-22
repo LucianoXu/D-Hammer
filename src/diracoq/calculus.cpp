@@ -36,8 +36,34 @@ namespace diracoq {
         return ualg::parse(sig, bank, code);
     }
 
-    string Kernel::term_to_string(const Term<int>* term) {
+    string Kernel::term_to_string(const Term<int>* term) const {
         return sig.term_to_string(term);
+    }
+
+    string Kernel::env_to_string() const {
+        string res = "";
+        for (const auto& [sym, def] : env) {
+            if (def.is_def()) {
+                res += sig.get_name(sym) + " := " + term_to_string(*def.def) + " : " + term_to_string(def.type) + "\n";
+            }
+            else {
+                res += sig.get_name(sym) + " : " + term_to_string(def.type) + "\n";
+            }
+        }
+        return res;
+    }
+
+    string Kernel::context_to_string() const {
+        string res = "";
+        for (const auto& [sym, def] : context) {
+            if (def.is_def()) {
+                res += sig.get_name(sym) + " := " + term_to_string(*def.def) + " : " + term_to_string(def.type) + "\n";
+            }
+            else {
+                res += sig.get_name(sym) + " : " + term_to_string(def.type) + "\n";
+            }
+        }
+        return res;
     }
 
     bool Kernel::is_sort(const Term<int>* term) {
@@ -81,6 +107,11 @@ namespace diracoq {
         }
 
         if (term->is_atomic()) {
+            // check the reserved symbols
+            if (CoC_sig.find_name(term->get_head()) != std::nullopt) {
+                throw std::runtime_error("Typing error: the symbol '" + sig.term_to_string(term) + "' is reserved.");
+            }
+
             // (Var)
             auto context_find = find_in_context(term->get_head());
             if (context_find != std::nullopt) {
@@ -130,7 +161,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the lambda term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the lambda term " + sig.term_to_string(term_forall) + " is not a well-typed type.");
             }
 
-            return type_forall;
+            return term_forall;
         }
 
         // (App) apply(f x)
@@ -195,11 +226,14 @@ namespace diracoq {
     }
 
     bool Kernel::type_check(const Term<int>* term, const Term<int>* type) {
-        return calc_type(term) == type;
+        return subtyping(calc_type(term), type);
     }
 
 
     void Kernel::local_assum(int symbol, const Term<int>* type) {
+        if (CoC_sig.find_name(symbol) != std::nullopt) {
+            throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
+        }
         if (find_in_context(symbol) != std::nullopt) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is already in the context.");
         }
@@ -210,6 +244,9 @@ namespace diracoq {
     }
 
     void Kernel::local_def(int symbol, const Term<int>* term, std::optional<const ualg::Term<int>*> type) {
+        if (CoC_sig.find_name(symbol) != std::nullopt) {
+            throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
+        }
         if (find_in_context(symbol) != std::nullopt) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is already in the context."); 
         }
@@ -225,6 +262,9 @@ namespace diracoq {
     }
 
     void Kernel::global_assum(int symbol, const Term<int>* type) {
+        if (CoC_sig.find_name(symbol) != std::nullopt) {
+            throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
+        }
         if (context.size() > 0) {
             throw std::runtime_error("The global assumption should be made in the empty context.");
         }
@@ -238,6 +278,9 @@ namespace diracoq {
     }
 
     void Kernel::gloabl_def(int symbol, const Term<int>* term, std::optional<const ualg::Term<int>*> type) {
+        if (CoC_sig.find_name(symbol) != std::nullopt) {
+            throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
+        }
         if (context.size() > 0) {
             throw std::runtime_error("The global definition should be made in the empty context.");
         }

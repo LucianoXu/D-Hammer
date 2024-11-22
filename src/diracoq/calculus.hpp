@@ -72,7 +72,11 @@ namespace diracoq {
          * @param term 
          * @return string 
          */
-        std::string term_to_string(const ualg::Term<int>* term);
+        std::string term_to_string(const ualg::Term<int>* term) const;
+
+        std::string env_to_string() const;
+
+        std::string context_to_string() const;
 
         /**
          * @brief Checks if the term is a sort.
