@@ -12,6 +12,7 @@ include(FetchContent)
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip  # Use the latest stable release
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 # Prevent GoogleTest from installing
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -84,6 +85,7 @@ target_link_libraries(
         UALG
         SCALAR
         SCALAR_VEC
+        DIRACOQ
 )
 
 ####################################################

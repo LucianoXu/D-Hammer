@@ -2,7 +2,7 @@
 
 namespace ualg {
 
-    IntSignature compile_string_sig(const StringSymbolType& symbol_types) {
+    Signature<int> compile_string_sig(const StringSymbolType& symbol_types) {
         std::map<std::string, int> head_mapping;
         std::map<int, SymbolType> symbol_type_mapping;
 

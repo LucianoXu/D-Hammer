@@ -6,7 +6,7 @@ namespace scalar {
 
     extern ualg::StringSymbolType symbols;
 
-    extern const ualg::IntSignature reserved_sig;
+    extern const ualg::Signature<int> reserved_sig;
 
     //////////////// properties of the symbols
 

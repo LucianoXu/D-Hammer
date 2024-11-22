@@ -36,6 +36,18 @@ TEST(TermParsing, Basics2) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
+TEST(TermParsing, AutomaticRegistration) {
+    TermBank<string> bank{};
+    Signature<string> sig = {
+        {}, {}
+    };
+
+    auto actual_res = parse(sig, bank, "f(g g)");
+    auto expected_res = bank.get_normal_term("f", {bank.get_normal_term("g", {}), bank.get_normal_term("g", {})});
+
+    EXPECT_EQ(actual_res, expected_res);
+}
+
 TEST(TermParsing, CTerms) {
     TermBank<string> bank{};
     Signature<string> sig = {

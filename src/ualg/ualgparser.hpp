@@ -17,6 +17,7 @@ namespace ualg {
     protected:
         // The mapping from inner representations to head names
         std::map<T, std::string> head_naming;
+
         // The mapping from head names to inner representations
         std::map<std::string, T> head_mapping;
 
@@ -39,6 +40,36 @@ namespace ualg {
             head_naming = other.head_naming;
             head_mapping = other.head_mapping;
             symbol_types = other.symbol_types;
+        }
+
+        inline T register_symbol(const std::string& name) {
+            if constexpr(std::is_same_v<T, int>) {
+                auto find = head_mapping.find(name);
+                if (find == head_mapping.end()) {
+                    int repr = head_mapping.size();
+                    add_symbol(name, repr, SymbolType::NORMAL);
+                    return repr;
+                }
+
+                return find->second;
+            }
+            else if constexpr(std::is_same_v<T, std::string>) {
+                auto find = head_mapping.find(name);
+                if (find == head_mapping.end()) {
+                    std::string repr = name;
+                    add_symbol(name, repr, SymbolType::NORMAL);
+                    return repr;
+                }
+
+                return find->second;
+            }
+            else {
+                auto find = head_mapping.find(name);
+                if (find == head_mapping.end()) {
+                    throw std::runtime_error("Unknown symbol: " + name);
+                }
+                return find->second;
+            }
         }
 
         inline std::optional<T> find_repr(const std::string& name) const {
@@ -90,39 +121,10 @@ namespace ualg {
     };
 
     template <class T>
-    const Term<T>* ast2term(const Signature<T>& sig, TermBank<T>& bank, const astparser::AST& ast);
+    const Term<T>* ast2term(Signature<T>& sig, TermBank<T>& bank, const astparser::AST& ast);
 
     template <class T>
-    const Term<T>* parse(const Signature<T>& sig, TermBank<T>& bank, const std::string& code);
-
-
-    class IntSignature : public Signature<int> {
-    public:
-        IntSignature(
-            std::map<std::string, int> head_mapping,
-            std::map<int, SymbolType> symbol_types
-        ) : Signature<int>(head_mapping, symbol_types) {}
-        
-        /**
-         * @brief Get the symbol repr.
-         * 
-         * It will add the symbol to the signature if it does not exist.
-         * 
-         * @param name 
-         * @return int , the symbol representation.
-         */
-        int get_symbol_repr(const std::string& name) {
-            auto find = head_mapping.find(name);
-            if (find == head_mapping.end()) {
-                int repr = head_mapping.size();
-                add_symbol(name, repr, SymbolType::NORMAL);
-                return repr;
-            }
-
-            return find->second;
-        }
-
-    };
+    const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const std::string& code);
 
     using StringSymbolType = std::vector<std::pair<std::string, SymbolType>>;
 
@@ -132,18 +134,26 @@ namespace ualg {
      * @param symbol_types 
      * @return Signature<int> 
      */
-    IntSignature compile_string_sig(const StringSymbolType& symbol_types);
+    Signature<int> compile_string_sig(const StringSymbolType& symbol_types);
 
     //////////////////////////////////////////////////////////
     // Implementation
 
+    /**
+     * @brief Transform the AST to a term in the bank.
+     * 
+     * Note that it will try to register new symbols (head of the terms) in the signature, using signature.register_symbol.
+     * 
+     * @tparam T 
+     * @param sig 
+     * @param bank 
+     * @param ast 
+     * @return const Term<T>* 
+     */
     template <class T>
-    const Term<T>* ast2term(const Signature<T>& sig, TermBank<T>& bank, const astparser::AST& ast) {
-        auto repr_find = sig.find_repr(ast.head);
-        if (repr_find == std::nullopt) {
-            throw std::runtime_error("Unknown symbol: " + ast.head);
-        }
-        auto head = *repr_find;
+    const Term<T>* ast2term(Signature<T>& sig, TermBank<T>& bank, const astparser::AST& ast) {
+        
+        auto head = sig.register_symbol(ast.head);
 
         auto symbol_type = sig.get_symbol_type(head);
 
@@ -196,7 +206,7 @@ namespace ualg {
     }
 
     template <class T>
-    const Term<T>* parse(const Signature<T>& sig, TermBank<T>& bank, const std::string& code) {
+    const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const std::string& code) {
         auto ast = astparser::parse(code);
         return ast2term(sig, bank, ast);
     }

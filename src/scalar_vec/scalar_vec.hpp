@@ -6,7 +6,7 @@ namespace scalar_vec {
 
     extern ualg::StringSymbolType symbols;
 
-    extern const ualg::IntSignature reserved_sig;
+    extern const ualg::Signature<int> reserved_sig;
 
     extern std::set<int> ac_symbols;
 

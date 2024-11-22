@@ -18,9 +18,9 @@ using namespace scalar_vec;
 void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables, string input, string expected) {
     TermBank<int> bank{};
 
-    IntSignature sig = reserved_sig;
+    Signature<int> sig = reserved_sig;
     for (const auto& var : variables) {
-        sig.get_symbol_repr(var);
+        sig.register_symbol(var);
     }
 
     auto term = parse(sig, bank, input);
@@ -105,12 +105,12 @@ TEST(TestScalarVec, Normalization) {
     string inputA = "MLTS(a ADDS(b c) b 1 ADDS(a b 0))";
     TermBank<int> bank{};
 
-    IntSignature sig = reserved_sig;
+    Signature<int> sig = reserved_sig;
 
     for (const auto& var : variables) {
-        sig.get_symbol_repr(var);
+        sig.register_symbol(var);
     }
-    
+
     auto term = parse(sig, bank, inputA);
 
     cout << "Initial term: " << sig.term_to_string(term) << endl;

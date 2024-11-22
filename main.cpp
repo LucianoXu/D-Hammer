@@ -3,18 +3,20 @@
 #include "ualg.hpp"
 #include "scalar.hpp"
 #include "scalar_vec.hpp"
+#include "diracoq.hpp"
 
 
 using namespace ualg;
 using namespace std;
 using namespace scalar_vec;
+using namespace diracoq;
 
 void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables, string input, string expected) {
     TermBank<int> bank{};
-    IntSignature sig = reserved_sig;
+    Signature<int> sig = reserved_sig;
 
     for (const auto& var : variables) {
-        sig.get_symbol_repr(var);
+        sig.register_symbol(var);
     }
     
     auto term = parse(sig, bank, input);
@@ -25,7 +27,7 @@ void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables
     cout << "Expected: "<< sig.term_to_string(expected_res) << endl;
 }
 
-int main(int , const char **) {
+void demo1() {
 
     ////////////////////////////////////////////////////
     // speicify the variables
@@ -36,12 +38,12 @@ int main(int , const char **) {
     string inputA = "MLTS(a ADDS(b c) b 1 ADDS(a b 0))";
 
     TermBank<int> bank{};
-    IntSignature sig = reserved_sig;
+    Signature<int> sig = reserved_sig;
 
     for (const auto& var : variables) {
-        sig.get_symbol_repr(var);
+        sig.register_symbol(var);
     }
-    
+
     auto term = parse(sig, bank, inputA);
 
     cout << "Initial term:\n" << sig.term_to_string(term) << endl << endl;
@@ -52,6 +54,29 @@ int main(int , const char **) {
 
     auto cmd = trace_to_string(sig, trace, scalar_printer);
     cout << "Trace:\n" << cmd << endl;
+
+}
+
+int main(int , const char **) {
+    
+    Kernel kernel(CoC_sig);
+
+    auto& bank = kernel.get_bank();
+    auto& sig = kernel.get_sig();
+
+    auto actual_res = kernel.parse("forall(x y apply(z x))");
+    
+    auto expected_res = bank.get_normal_term(
+        sig.get_repr("forall"), {
+            bank.get_normal_term(sig.get_repr("x"), {}),
+            bank.get_normal_term(sig.get_repr("y"), {}),
+            bank.get_normal_term(sig.get_repr("apply"), {
+                bank.get_normal_term(sig.get_repr("z"), {}),
+                bank.get_normal_term(sig.get_repr("x"), {})
+            })
+        }
+    );
+
 
     return 0;
 }

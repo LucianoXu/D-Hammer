@@ -23,7 +23,7 @@ namespace scalar {
         {"MLTS", SymbolType::AC}
     };
 
-    const IntSignature reserved_sig = compile_string_sig(symbols);
+    const Signature<int> reserved_sig = compile_string_sig(symbols);
 
     int ZERO = reserved_sig.get_repr("0");
     int ONE = reserved_sig.get_repr("1");
