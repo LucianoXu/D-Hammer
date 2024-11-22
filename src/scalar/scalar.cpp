@@ -23,13 +23,13 @@ namespace scalar {
         {"MLTS", SymbolType::AC}
     };
 
-    Signature<int> reserved_sig = compile_string_sig(symbols);
+    const IntSignature reserved_sig = compile_string_sig(symbols);
 
-    int ZERO = reserved_sig.head_mapping["0"];
-    int ONE = reserved_sig.head_mapping["1"];
-    int CONJ = reserved_sig.head_mapping["CONJ"];
-    int ADDS = reserved_sig.head_mapping["ADDS"];
-    int MLTS = reserved_sig.head_mapping["MLTS"];
+    int ZERO = reserved_sig.get_repr("0");
+    int ONE = reserved_sig.get_repr("1");
+    int CONJ = reserved_sig.get_repr("CONJ");
+    int ADDS = reserved_sig.get_repr("ADDS");
+    int MLTS = reserved_sig.get_repr("MLTS");
 
     /////////////////////////////////////////////////////////////////////////
     // Properties

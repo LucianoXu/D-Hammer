@@ -127,10 +127,10 @@ TEST(TestTerm, compile_string_sig) {
 
     auto actual_res1 = parse(sig, bank, "&(g f(g) &(g))");
     auto actual_res2 = parse(sig, bank, "&(f(g) g g)");
-    auto expected_res = bank.get_ac_term(sig.head_mapping["&"], 
+    auto expected_res = bank.get_ac_term(sig.get_repr("&"), 
         {
-            {bank.get_normal_term(sig.head_mapping["g"], {}), 2}, 
-            {bank.get_normal_term(sig.head_mapping["f"], {bank.get_normal_term(sig.head_mapping["g"], {})}), 1}
+            {bank.get_normal_term(sig.get_repr("g"), {}), 2}, 
+            {bank.get_normal_term(sig.get_repr("f"), {bank.get_normal_term(sig.get_repr("g"), {})}), 1}
         });
 
     EXPECT_EQ(actual_res1, expected_res);

@@ -17,16 +17,11 @@ using namespace scalar;
  */
 void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables, string input, string expected) {
     TermBank<int> bank{};
-    StringSymbolType variable_symbols;
+    IntSignature sig = reserved_sig;
     for (const auto& var : variables) {
-        variable_symbols.push_back({var, SymbolType::NORMAL});
+        sig.get_symbol_repr(var);
     }
 
-    Signature<int> sig = compile_string_sig(
-        extend_string_symbol_list(
-        symbols,
-        variable_symbols)
-    );
     auto term = parse(sig, bank, input);
     auto actual_res = rewrite_repeated(bank, term, rules);
     auto expected_res = parse(sig, bank, expected);

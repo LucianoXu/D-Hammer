@@ -11,16 +11,12 @@ using namespace scalar_vec;
 
 void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables, string input, string expected) {
     TermBank<int> bank{};
-    StringSymbolType variable_symbols;
-    for (const auto& var : variables) {
-        variable_symbols.push_back({var, SymbolType::NORMAL});
-    }
+    IntSignature sig = reserved_sig;
 
-    Signature<int> sig = compile_string_sig(
-        extend_string_symbol_list(
-        symbols,
-        variable_symbols)
-    );
+    for (const auto& var : variables) {
+        sig.get_symbol_repr(var);
+    }
+    
     auto term = parse(sig, bank, input);
     auto actual_res = rewrite_repeated(bank, term, rules);
     auto expected_res = parse(sig, bank, expected);
@@ -40,16 +36,12 @@ int main(int , const char **) {
     string inputA = "MLTS(a ADDS(b c) b 1 ADDS(a b 0))";
 
     TermBank<int> bank{};
-    StringSymbolType variable_symbols;
-    for (const auto& var : variables) {
-        variable_symbols.push_back({var, SymbolType::NORMAL});
-    }
+    IntSignature sig = reserved_sig;
 
-    Signature<int> sig = compile_string_sig(
-        extend_string_symbol_list(
-        symbols,
-        variable_symbols)
-    );
+    for (const auto& var : variables) {
+        sig.get_symbol_repr(var);
+    }
+    
     auto term = parse(sig, bank, inputA);
 
     cout << "Initial term:\n" << sig.term_to_string(term) << endl << endl;
