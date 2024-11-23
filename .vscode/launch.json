@@ -5,9 +5,9 @@
            "name": "Debug MAIN Project with LLDB",
            "type": "lldb",
            "request": "launch",
-           "program": "${workspaceFolder}/build/Debug/MAIN",  // Adjust this path to point to your executable
+           "program": "${workspaceFolder}/cpp/build/Debug/MAIN",  // Adjust this path to point to your executable
            "args": [],  // Optional: add program arguments here
-           "cwd": "${workspaceFolder}",
+           "cwd": "${workspaceFolder}/cpp",
            "stopOnEntry": false,
            "console": "internalConsole",
            "preLaunchTask": "Compile Debug Version"  // This will trigger the build before debugging

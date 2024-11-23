@@ -16,6 +16,9 @@
             "problemMatcher": [
                 "$gcc"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/cpp"
+            },
             "detail": "Generated task for building the project in Debug mode."
         },
         {
@@ -32,6 +35,9 @@
                 "$gcc"
             ],
             "dependsOn": "Build Debug Version",
+            "options": {
+                "cwd": "${workspaceFolder}/cpp"
+            },
             "detail": "Generated task for compiling the project in Debug mode."
         },
         {
@@ -49,6 +55,9 @@
             "problemMatcher": [
                 "$gcc"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/cpp"
+            },
             "detail": "Generated task for building the project in Release mode."
         },
         {
@@ -65,6 +74,9 @@
                 "$gcc"
             ],
             "dependsOn": "Build Release Version",
+            "options": {
+                "cwd": "${workspaceFolder}/cpp"
+            },
             "detail": "Generated task for compiling the project in Release mode."
         }
     ]

@@ -1,3 +1,7 @@
+# Diracoq Project
+GitHub: https://github.com/LucianoXu/diracoq
+
+
 shell code to generate the ANTLR C++ files:
 
 ```
