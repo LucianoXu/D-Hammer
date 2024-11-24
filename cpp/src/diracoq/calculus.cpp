@@ -5,23 +5,11 @@ namespace diracoq {
     using namespace std;
     using namespace ualg;
 
-    StringSymbolType CoC_symbols = {
-        {"Type", SymbolType::NORMAL},
-        {"forall", SymbolType::NORMAL},
-        {"fun", SymbolType::NORMAL},
-        {"apply", SymbolType::NORMAL},
-        
-        {"Base", SymbolType::NORMAL}
-    };
-
-    const Signature<int> CoC_sig = compile_string_sig(CoC_symbols);
-
     auto TYPE = CoC_sig.get_repr("Type");
     auto FORALL = CoC_sig.get_repr("forall");
     auto FUN = CoC_sig.get_repr("fun");
     auto APPLY = CoC_sig.get_repr("apply");
     auto BASE = CoC_sig.get_repr("Base");
-
 
     std::optional<Definition> Kernel::find_in_context(int symbol) {
         for (const auto& [sym, def] : context) {
@@ -32,8 +20,21 @@ namespace diracoq {
         return std::nullopt;
     }
 
+    std::optional<Definition> Kernel::find_in_env(int symbol) {
+        for (const auto& [sym, def] : env) {
+            if (sym == symbol) {
+                return def;
+            }
+        }
+        return std::nullopt;
+    }
+
     const Term<int>* Kernel::parse(const std::string& code) {
         return ualg::parse(sig, bank, code);
+    }
+
+    const Term<int>* Kernel::parse(const astparser::AST& ast) {
+        return ualg::parse(sig, bank, ast);
     }
 
     string Kernel::term_to_string(const Term<int>* term) const {
@@ -108,7 +109,7 @@ namespace diracoq {
 
         if (term->is_atomic()) {
             // check the reserved symbols
-            if (CoC_sig.find_name(term->get_head()) != std::nullopt) {
+            if (is_reserved(term->get_head())) {
                 throw std::runtime_error("Typing error: the symbol '" + sig.term_to_string(term) + "' is reserved.");
             }
 
@@ -119,9 +120,9 @@ namespace diracoq {
             }
 
             // (Const)
-            auto env_find = env.find(term->get_head());
-            if (env_find != env.end()) {
-                return env_find->second.type;
+            auto env_find = find_in_env(term->get_head());
+            if (env_find != std::nullopt) {
+                return env_find->type;
             }
 
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not assumed or defined.");
@@ -231,7 +232,7 @@ namespace diracoq {
 
 
     void Kernel::local_assum(int symbol, const Term<int>* type) {
-        if (CoC_sig.find_name(symbol) != std::nullopt) {
+        if (is_reserved(symbol)) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
         }
         if (find_in_context(symbol) != std::nullopt) {
@@ -244,7 +245,7 @@ namespace diracoq {
     }
 
     void Kernel::local_def(int symbol, const Term<int>* term, std::optional<const ualg::Term<int>*> type) {
-        if (CoC_sig.find_name(symbol) != std::nullopt) {
+        if (is_reserved(symbol)) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
         }
         if (find_in_context(symbol) != std::nullopt) {
@@ -262,29 +263,29 @@ namespace diracoq {
     }
 
     void Kernel::global_assum(int symbol, const Term<int>* type) {
-        if (CoC_sig.find_name(symbol) != std::nullopt) {
+        if (is_reserved(symbol)) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
         }
         if (context.size() > 0) {
             throw std::runtime_error("The global assumption should be made in the empty context.");
         }
-        if (env.find(symbol) != env.end()) {
+        if (find_in_env(symbol) != std::nullopt) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is already in the environment.");
         }
         if (!is_sort(calc_type(type))) {
             throw std::runtime_error("The type of the symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is not a well-typed type.");
         }
-        env[symbol] = {std::nullopt, type};
+        env.push_back({symbol, {std::nullopt, type}});
     }
 
     void Kernel::gloabl_def(int symbol, const Term<int>* term, std::optional<const ualg::Term<int>*> type) {
-        if (CoC_sig.find_name(symbol) != std::nullopt) {
+        if (is_reserved(symbol)) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
         }
         if (context.size() > 0) {
             throw std::runtime_error("The global definition should be made in the empty context.");
         }
-        if (env.find(symbol) != env.end()) {
+        if (find_in_env(symbol) != std::nullopt) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is already in the environment."); 
         }
         if (type.has_value()) {
@@ -295,7 +296,7 @@ namespace diracoq {
         else {
             type = calc_type(term);
         }
-        env[symbol] = {term, type.value()};
+        env.push_back({symbol, {term, type.value()}});
     }
 
     void Kernel::local_pop() {

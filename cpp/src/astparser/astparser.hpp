@@ -39,6 +39,22 @@ namespace astparser {
 
             return true;
         }
+
+        std::string to_string() const {
+            if (children.size() == 0) {
+                return head;
+            }
+
+            std::string res = head + "(";
+            for (size_t i = 0; i < children.size(); ++i) {
+                res += children[i].to_string();
+                if (i < children.size() - 1) {
+                    res += " ";
+                }
+            }
+            res += ")";
+            return res;
+        }
     };
 
     /**
@@ -47,6 +63,6 @@ namespace astparser {
      * @param code 
      * @return AST 
      */
-    AST parse(const std::string& code);
+    std::optional<AST> parse(const std::string& code);
 
 } // namespace ast

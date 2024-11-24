@@ -2,6 +2,7 @@
 # Tests list
 set(tests
     test_calculus
+    test_prover
 )
 
 foreach(test ${tests})

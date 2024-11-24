@@ -1,13 +1,10 @@
 #pragma once
 
+#include "reserved.hpp"
 #include "ualg.hpp"
 #include <boost/unordered_map.hpp>
 
 namespace diracoq {
-
-    extern ualg::StringSymbolType CoC_symbols;
-
-    extern const ualg::Signature<int> CoC_sig;
 
     struct Definition {
         std::optional<const ualg::Term<int>*> def;
@@ -28,7 +25,7 @@ namespace diracoq {
     protected:
         ualg::TermBank<int> bank;
         ualg::Signature<int> sig;
-        boost::unordered_map<int, Definition> env;
+        std::vector<std::pair<int, Definition>> env;
         std::vector<std::pair<int, Definition>> context;
 
     protected:
@@ -39,9 +36,18 @@ namespace diracoq {
          * @return std::optional<Definition> If the symbol is not found, return `std::nullopt`.
          */
         std::optional<Definition> find_in_context(int symbol);
+
+
+        /**
+         * @brief Find the assumption/definition of the symbol in the env.
+         * 
+         * @param symbol 
+         * @return std::optional<Definition> If the symbol is not found, return `std::nullopt`.
+         */
+        std::optional<Definition> find_in_env(int symbol);
     
     public:
-        Kernel(const ualg::Signature<int>& sig) : sig(sig) {}
+        Kernel() : sig(CoC_sig) {}
 
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);
@@ -65,6 +71,14 @@ namespace diracoq {
          */
         const ualg::Term<int>* parse(const std::string& code);
 
+
+        /**
+         * @brief Parse the code and return the term.
+         * 
+         * @param ast 
+         * @return const ualg::Term<int>* 
+         */
+        const ualg::Term<int>* parse(const astparser::AST& ast);
 
         /**
          * @brief Transform the term to a string.

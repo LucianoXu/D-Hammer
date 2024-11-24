@@ -8,7 +8,7 @@ using namespace diracoq;
 
 TEST(DiracoqParsing, Basics1) {
     
-    Kernel kernel(CoC_sig);
+    Kernel kernel;
 
     auto& bank = kernel.get_bank();
     auto& sig = kernel.get_sig();
@@ -32,7 +32,7 @@ TEST(DiracoqParsing, Basics1) {
 
 TEST(DiracoqParsing, Basics2) {
     
-    Kernel kernel(CoC_sig);
+    Kernel kernel;
 
     EXPECT_EQ(kernel.term_to_string(kernel.parse("Type")), "Type");
     EXPECT_EQ(kernel.term_to_string(kernel.parse("Type(Type)")), "Type(Type)");
@@ -42,7 +42,7 @@ TEST(DiracoqParsing, Basics2) {
 }
 
 TEST(DiracoqTypeCalc, successes) {
-    Kernel kernel(CoC_sig);
+    Kernel kernel;
 
 
     // (Ax-Type)
@@ -65,7 +65,7 @@ TEST(DiracoqTypeCalc, successes) {
 }
 
 TEST(DiracoqTypeCalc, errors) {
-    Kernel kernel(CoC_sig);
+    Kernel kernel;
 
     EXPECT_THROW(kernel.local_pop(), std::runtime_error);
 

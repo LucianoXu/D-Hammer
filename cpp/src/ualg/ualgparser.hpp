@@ -205,9 +205,29 @@ namespace ualg {
         }
     }
 
+    /**
+     * @brief Parse the code into a term in the bank.
+     * 
+     * @throws std::runtime_error if the code is not valid.
+     * 
+     * @tparam T 
+     * @param sig 
+     * @param bank 
+     * @param code 
+     * @return const Term<T>* 
+     */
     template <class T>
     const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const std::string& code) {
         auto ast = astparser::parse(code);
+        if (!ast.has_value()) {
+            throw std::runtime_error("Error: the code is not valid.");
+        }
+
+        return ast2term(sig, bank, ast.value());
+    }
+
+    template <class T>
+    const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const astparser::AST& ast) {
         return ast2term(sig, bank, ast);
     }
 

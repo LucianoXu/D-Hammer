@@ -58,14 +58,18 @@ void demo1() {
 }
 
 int main(int , const char **) {
+
+    Prover prover;
+
+    while (true) {
+        string code;
+        cout << "> ";
+        getline(cin, code);
+        if (code == "exit") {
+            break;
+        }
+        prover.process(code);
+    }
     
-    Kernel kernel(CoC_sig);
-
-    // (Const)
-    kernel.local_def(kernel.register_symbol("f"), kernel.parse("fun (x Type x)"));
-    
-    cout << kernel.context_to_string() << endl;
-
-
     return 0;
 }

@@ -62,7 +62,7 @@ namespace astparser {
     }
 
 
-    AST parse(const std::string& code) {
+    std::optional<AST> parse(const std::string& code) {
         using namespace antlr4;
         
         ANTLRInputStream input(code);
@@ -78,8 +78,14 @@ namespace astparser {
         ASTTermBuilder treeBuilder;
         antlr4::tree::ParseTreeWalker::DEFAULT.walk(&treeBuilder, tree);
 
-        // Retrieve the root of the custom tree
-        return treeBuilder.get_root();
+        // Check for errors
+        if (parser.getNumberOfSyntaxErrors() == 0) {
+            // Retrieve the root of the custom tree
+            return treeBuilder.get_root();            
+        } else {
+            return std::nullopt;
+        }
+
     }
 
 } // namespace ualg
