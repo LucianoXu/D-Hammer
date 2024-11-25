@@ -6,12 +6,12 @@
 
 namespace diracoq {
 
-    extern ualg::StringSymbolType CoC_symbols;
+    extern ualg::StringSymbolType diracoq_symbols;
 
-    extern const ualg::Signature<int> CoC_sig;
+    extern const ualg::Signature<int> diracoq_sig;
 
     inline bool is_reserved(int symbol) {
-        return CoC_sig.find_name(symbol) != std::nullopt;
+        return diracoq_sig.find_name(symbol) != std::nullopt;
     }
 
 } // namespace diracoq

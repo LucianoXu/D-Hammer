@@ -18,7 +18,7 @@ namespace diracoq {
 
                     auto name = ast.children[0].head;
                     auto term = kernel.parse(ast.children[1]);
-                    kernel.gloabl_def(kernel.register_symbol(name), term);
+                    kernel.def(kernel.register_symbol(name), term);
                     return true;
                 }
                 // Def(x t T)
@@ -28,7 +28,7 @@ namespace diracoq {
                     auto name = ast.children[0].head;
                     auto term = kernel.parse(ast.children[1]);
                     auto type = kernel.parse(ast.children[2]);
-                    kernel.gloabl_def(kernel.register_symbol(name), term, type);
+                    kernel.def(kernel.register_symbol(name), term, type);
                     return true;
                 }
                 else {
@@ -45,7 +45,7 @@ namespace diracoq {
                     
                     auto name = ast.children[0].head;
                     auto type = kernel.parse(ast.children[1]);
-                    kernel.global_assum(kernel.register_symbol(name), type);
+                    kernel.assum(kernel.register_symbol(name), type);
                     return true;
                 }
                 else {
@@ -95,8 +95,6 @@ namespace diracoq {
                 if (ast.children.size() == 0) {
                     output << "Environment:" << std::endl;
                     output << kernel.env_to_string() << std::endl;
-                    output << "Context:" << std::endl;
-                    output << kernel.context_to_string() << std::endl;
                     return true;
                 }
                 else {
@@ -110,7 +108,7 @@ namespace diracoq {
             output << "Error: " << e.what() << std::endl;
             return false;
         }
-        
+
         // bad command
         output << "Error: the command is not valid." << std::endl;
         output << "In the command: " << ast.to_string() << std::endl;

@@ -44,22 +44,17 @@ TEST(DiracoqParsing, Basics2) {
 TEST(DiracoqTypeCalc, successes) {
     Kernel kernel;
 
-
-    // (Ax-Type)
-    EXPECT_EQ(kernel.calc_type(kernel.parse("Type")), kernel.parse("Type(Type)"));
-    EXPECT_EQ(kernel.calc_type(kernel.parse("Type(Type)")), kernel.parse("Type(Type(Type))"));
-
-    // (Var)
-    kernel.local_assum(kernel.register_symbol("x"), kernel.parse("Type"));
+    // (Assum)
+    kernel.assum(kernel.register_symbol("x"), kernel.parse("Type"));
     EXPECT_EQ(kernel.calc_type(kernel.parse("x")), kernel.parse("Type"));
-    kernel.local_pop();
+    kernel.env_pop();
 
-    // (Const)
-    kernel.local_def(kernel.register_symbol("f"), kernel.parse("fun (x Type x)"), kernel.parse("forall(x Type Type)"));
-    EXPECT_EQ(kernel.calc_type(kernel.parse("f")), kernel.parse("forall(x Type Type)"));
+    // (Def)
+    kernel.def(kernel.register_symbol("f"), kernel.parse("fun (x Type x)"), kernel.parse("Arrow(Type Type)"));
+    EXPECT_EQ(kernel.calc_type(kernel.parse("f")), kernel.parse("Arrow(Type Type)"));
 
     // (App)
-    kernel.local_assum(kernel.register_symbol("x"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("x"), kernel.parse("Type"));
     EXPECT_EQ(kernel.calc_type(kernel.parse("apply(f x)")), kernel.parse("Type"));
 
 }
@@ -67,9 +62,7 @@ TEST(DiracoqTypeCalc, successes) {
 TEST(DiracoqTypeCalc, errors) {
     Kernel kernel;
 
-    EXPECT_THROW(kernel.local_pop(), std::runtime_error);
+    EXPECT_THROW(kernel.env_pop(), std::runtime_error);
 
-    EXPECT_THROW(kernel.calc_type(kernel.parse("Type(x)")), std::runtime_error);
-
-    EXPECT_THROW(kernel.calc_type(kernel.parse("Type(x)")), std::runtime_error);
+    EXPECT_THROW(kernel.calc_type(kernel.parse("Type")), std::runtime_error);
 }

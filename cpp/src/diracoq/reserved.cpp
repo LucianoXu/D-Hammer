@@ -4,7 +4,7 @@ namespace diracoq {
 
     using namespace ualg;
 
-    StringSymbolType CoC_symbols = {
+    StringSymbolType diracoq_symbols = {
         {"Group", SymbolType::NORMAL},
         {"Def", SymbolType::NORMAL},
         {"Var", SymbolType::NORMAL},
@@ -13,13 +13,17 @@ namespace diracoq {
 
 
         {"Type", SymbolType::NORMAL},
-        {"forall", SymbolType::NORMAL},
+        {"Arrow", SymbolType::NORMAL},
         {"fun", SymbolType::NORMAL},
         {"apply", SymbolType::NORMAL},
         
-        {"Base", SymbolType::NORMAL}
+        {"Base", SymbolType::NORMAL},
+        {"SType", SymbolType::NORMAL},
+        {"KType", SymbolType::NORMAL},
+        {"BType", SymbolType::NORMAL},
+        {"OType", SymbolType::NORMAL},
     };
 
-    const Signature<int> CoC_sig = compile_string_sig(CoC_symbols);
+    const Signature<int> diracoq_sig = compile_string_sig(diracoq_symbols);
 
 } // namespace diracoq

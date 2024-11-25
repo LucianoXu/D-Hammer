@@ -22,12 +22,32 @@ target_link_libraries(
         DIRACOQ
 )
 
-####################################################
-
 # Add the "run" target to execute the built executable
 add_custom_target(run
     COMMAND ./MAIN
     DEPENDS MAIN
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running the MAIN executable"
+)
+
+####################################################
+
+add_executable(TOP toplevel.cpp)
+
+target_link_libraries(
+    TOP
+    PUBLIC
+        DEPENDENCIES
+        UALG
+        SCALAR
+        SCALAR_VEC
+        DIRACOQ
+)
+
+
+add_custom_target(toplevel
+    COMMAND ./TOP
+    DEPENDS TOP
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Running the TOPLEVEL executable"
 )
