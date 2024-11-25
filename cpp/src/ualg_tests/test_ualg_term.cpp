@@ -18,6 +18,18 @@ TEST(TestTerm, get_term_size) {
     EXPECT_EQ(a->get_term_size(), 4);
 }
 
+TEST(TestTerm, get_subterm) {
+    TermBank<string> bank{};
+
+    auto t = bank.get_normal_term("t", {});
+    auto s = bank.get_normal_term("s", {t});
+    auto r = bank.get_normal_term("r", {t});
+    auto a = bank.get_normal_term("&", {s, r});
+
+    auto subterm = a->get_subterm({0});
+    EXPECT_EQ(subterm, s);
+}
+
 
 TEST(TestTermBank, HashConsing) {
     TermBank<string> bank{};
@@ -62,6 +74,21 @@ TEST(TestTermBank, replace_term) {
     auto actual_res = bank.replace_term(a, mapping);
 
     auto expected_res = bank.get_normal_term("&", {t, t});
+
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+TEST(TestTermBank, replace_term_pos) {
+    TermBank<string> bank{};
+
+    auto s = bank.get_normal_term("s", {});
+    auto t = bank.get_normal_term("t", {});
+    auto a = bank.get_normal_term("&", {s, s});
+
+    // replacement
+    auto actual_res = bank.replace_term(a, {0}, t);
+
+    auto expected_res = bank.get_normal_term("&", {t, s});
 
     EXPECT_EQ(actual_res, expected_res);
 }

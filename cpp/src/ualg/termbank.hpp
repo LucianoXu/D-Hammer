@@ -64,6 +64,11 @@ namespace ualg {
         const Term<T>* replace_term(
             const Term<T>* term, 
             const TermMapping<T>& mapping);
+
+        const NormalTerm<T>* replace_term(
+            const NormalTerm<T>* term,
+            const NormalTermPos& pos,
+            const NormalTerm<T>* new_subterm);
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -291,6 +296,34 @@ namespace ualg {
         
         TermMapping<T> cache;
         return _replace_term(term, mapping, cache);
+    }
+
+
+    template <class T>
+    const NormalTerm<T>* TermBank<T>::replace_term(
+        const NormalTerm<T>* term,
+        const NormalTermPos& pos,
+        const NormalTerm<T>* new_subterm) {
+
+        if (pos.size() == 0) {
+            return new_subterm;
+        }
+
+        ListArgs<T> new_args;
+        for (unsigned int i = 0; i < term->get_args().size(); i++) {
+            if (i == pos[0]) {
+                auto new_term = replace_term(
+                    static_cast<const NormalTerm<T>*>(term->get_args()[i]),
+                    NormalTermPos(pos.begin() + 1, pos.end()),
+                    new_subterm);
+
+                new_args.push_back(new_term);
+            }
+            else {
+                new_args.push_back(term->get_args()[i]);
+            }
+        }
+        return get_normal_term(term->get_head(), std::move(new_args));
     }
 
 

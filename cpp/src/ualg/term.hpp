@@ -88,12 +88,16 @@ namespace ualg {
         return seed;
     }
 
+    using NormalTermPos = std::vector<unsigned int>;
+
     template <class T>
     class NormalTerm : public Term<T> {
     private:
         ListArgs<T> args;
 
     public:
+        // The data type for the position of the argument in the term. Positions are lists of indices indicating the order of the subterm. Indices start from 0.
+
         NormalTerm(const T& head);
         NormalTerm(const T& head, const ListArgs<T>& normal_args);
         NormalTerm(const T& head, ListArgs<T>&& normal_args);
@@ -105,6 +109,7 @@ namespace ualg {
 
         std::string to_string(std::shared_ptr<const std::map<T, std::string>> head_naming=nullptr) const;
 
+        const NormalTerm<T>* get_subterm(const NormalTermPos& pos) const;
     };
 
     template <class T>
@@ -365,6 +370,19 @@ namespace ualg {
             str += ")";
         }
         return str;
+    }
+
+    template <class T>
+    const NormalTerm<T>* NormalTerm<T>::get_subterm(const NormalTermPos& pos) const {
+        if (pos.size() == 0) {
+            return this;
+        }
+
+        if (pos[0] >= this->args.size()) {
+            throw std::runtime_error("Position out of range.");
+        }
+
+        return static_cast<const NormalTerm<T>*>(this->args[pos[0]]);
     }
 
 

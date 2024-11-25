@@ -5,17 +5,6 @@ namespace diracoq {
     using namespace std;
     using namespace ualg;
 
-    const auto TYPE = diracoq_sig.get_repr("Type");
-    const auto ARROW = diracoq_sig.get_repr("Arrow");
-    const auto FUN = diracoq_sig.get_repr("fun");
-    const auto APPLY = diracoq_sig.get_repr("apply");
-
-    const auto BASE = diracoq_sig.get_repr("Base");
-    const auto SType = diracoq_sig.get_repr("SType");
-    const auto KType = diracoq_sig.get_repr("KType");
-    const auto BType = diracoq_sig.get_repr("BType");
-    const auto OType = diracoq_sig.get_repr("OType");
-
     std::optional<Declaration> Kernel::find_in_env(int symbol) {
         for (const auto& [sym, def] : env) {
             if (sym == symbol) {
