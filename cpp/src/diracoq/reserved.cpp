@@ -9,6 +9,7 @@ namespace diracoq {
         {"Def", SymbolType::NORMAL},
         {"Var", SymbolType::NORMAL},
         {"Check", SymbolType::NORMAL},
+        {"Show", SymbolType::NORMAL},
         {"ShowAll", SymbolType::NORMAL},
 
 

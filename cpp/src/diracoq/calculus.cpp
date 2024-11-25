@@ -16,7 +16,7 @@ namespace diracoq {
     const auto BType = diracoq_sig.get_repr("BType");
     const auto OType = diracoq_sig.get_repr("OType");
 
-    std::optional<Definition> Kernel::find_in_env(int symbol) {
+    std::optional<Declaration> Kernel::find_in_env(int symbol) {
         for (const auto& [sym, def] : env) {
             if (sym == symbol) {
                 return def;
@@ -24,6 +24,16 @@ namespace diracoq {
         }
         return std::nullopt;
     }
+
+    std::string Kernel::dec_to_string(const std::string& name, const Declaration& dec) const {
+        if (dec.is_def()) {
+            return name + " := " + term_to_string(*dec.def) + " : " + term_to_string(dec.type);
+        }
+        else {
+            return name + " : " + term_to_string(dec.type);
+        }
+    }
+
 
     const Term<int>* Kernel::parse(const std::string& code) {
         return ualg::parse(sig, bank, code);
@@ -40,12 +50,7 @@ namespace diracoq {
     string Kernel::env_to_string() const {
         string res = "";
         for (const auto& [sym, def] : env) {
-            if (def.is_def()) {
-                res += sig.get_name(sym) + " := " + term_to_string(*def.def) + " : " + term_to_string(def.type) + "\n";
-            }
-            else {
-                res += sig.get_name(sym) + " : " + term_to_string(def.type) + "\n";
-            }
+            res += dec_to_string(sig.get_name(sym), def) + "\n";
         }
         return res;
     }

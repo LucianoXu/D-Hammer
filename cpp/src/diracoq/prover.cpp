@@ -57,14 +57,10 @@ namespace diracoq {
             else if (ast.head == "Check") {
                 // Check(x)
                 if (ast.children.size() == 1) {
-                    if (!check_id(ast.children[0])) return false;
-
-                    
-                    auto name = ast.children[0].head;
-                    auto term = kernel.parse(name);
                     try {
+                        auto term = kernel.parse(ast.children[0]);
                         auto type = kernel.calc_type(term);
-                        output << name << " : " << kernel.term_to_string(type) << std::endl;
+                        output << kernel.term_to_string(term) << " : " << kernel.term_to_string(type) << std::endl;
                         return true;
                     }
                     catch (const std::exception& e) {
@@ -72,20 +68,25 @@ namespace diracoq {
                         return false;
                     }
                 }
-                // Check(x T)
-                else if (ast.children.size() == 2) {
+            }
+            // Show(x)
+            else if (ast.head == "Show") {
+                if (ast.children.size() == 1) {
                     if (!check_id(ast.children[0])) return false;
 
-                    
                     auto name = ast.children[0].head;
-                    auto term = kernel.parse(name);
-                    auto type = kernel.parse(ast.children[1]);
-                    if (kernel.type_check(term, type)) {
-                        output << name << " : " << kernel.term_to_string(type) << std::endl;
+                    try {
+                        // get the definition in the env
+                        auto find_def = kernel.find_in_env(kernel.register_symbol(name));
+                        if (find_def == std::nullopt) {
+                            output << "Error: the symbol '" << name << "' is not defined." << std::endl;
+                            return false;
+                        }
+                        output << kernel.dec_to_string(name, find_def.value()) << std::endl;
                         return true;
                     }
-                    else {
-                        output << "The term " << name << " is not well-typed with the type " << kernel.term_to_string(type) << std::endl;
+                    catch (const std::exception& e) {
+                        output << "Error: " << e.what() << std::endl;
                         return false;
                     }
                 }

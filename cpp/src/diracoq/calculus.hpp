@@ -6,7 +6,7 @@
 
 namespace diracoq {
 
-    struct Definition {
+    struct Declaration {
         std::optional<const ualg::Term<int>*> def;
         const ualg::Term<int>* type;
 
@@ -25,18 +25,8 @@ namespace diracoq {
     protected:
         ualg::TermBank<int> bank;
         ualg::Signature<int> sig;
-        std::vector<std::pair<int, Definition>> env;
+        std::vector<std::pair<int, Declaration>> env;
 
-    protected:
-
-        /**
-         * @brief Find the assumption/definition of the symbol in the env.
-         * 
-         * @param symbol 
-         * @return std::optional<Definition> If the symbol is not found, return `std::nullopt`.
-         */
-        std::optional<Definition> find_in_env(int symbol);
-    
     public:
         Kernel() : sig(diracoq_sig) {}
 
@@ -52,6 +42,16 @@ namespace diracoq {
             return sig;
         }
 
+        /**
+         * @brief Find the assumption/definition of the symbol in the env.
+         * 
+         * @param symbol 
+         * @return std::optional<Declaration> If the symbol is not found, return `std::nullopt`.
+         */
+        std::optional<Declaration> find_in_env(int symbol);
+
+        std::string dec_to_string(const std::string& name, const Declaration& dec) const;
+    
         /**
          * @brief Parse the code and return the term.
          * 
@@ -131,5 +131,12 @@ namespace diracoq {
          * 
          */
         void env_pop();
+
+        /**
+         * @brief Apply all reduction rules on the term and output the result.
+         * 
+         * @param term 
+         */
+        void normalize(const ualg::Term<int>* term);
     };
 } // namespace diracoq
