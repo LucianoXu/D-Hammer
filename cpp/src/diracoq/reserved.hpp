@@ -25,4 +25,12 @@ namespace diracoq {
     extern const int BType;
     extern const int OType;
 
+    extern const int ZERO;
+    extern const int ONE;
+    extern const int CONJ;
+    extern const int ADDS;
+    extern const int MLTS;
+
+    extern const std::set<int> ac_symbols;
+
 } // namespace diracoq

@@ -1,6 +1,7 @@
 #include "diracoq.hpp"
 
 namespace diracoq {
+    using namespace ualg;
 
     bool Prover::process(const astparser::AST& ast) {
         // Group ( ... )
@@ -103,6 +104,21 @@ namespace diracoq {
                     output << "In the command: " << ast.to_string() << std::endl;
                     return false;
                 }
+            }
+            else if (ast.head == "Normalize") {
+                if (ast.children.size() != 1) {
+                    output << "Error: Normalize command should have one argument." << std::endl;
+                    return false;
+                }
+                // calculate the normalized term
+                auto term = static_cast<const NormalTerm<int>*>(kernel.parse(ast.children[0]));
+                auto normalized_term = pos_rewrite_repeated(kernel, term, rules);
+
+                auto type = kernel.calc_type(normalized_term);
+                
+                // Output the normalized term
+                output << kernel.term_to_string(normalized_term) + " : " + kernel.term_to_string(type)  << std::endl;
+                return true;
             }
         }
         catch (const std::exception& e) {

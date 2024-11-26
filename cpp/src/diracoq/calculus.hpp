@@ -131,12 +131,5 @@ namespace diracoq {
          * 
          */
         void env_pop();
-
-        /**
-         * @brief Apply all reduction rules on the term and output the result.
-         * 
-         * @param term 
-         */
-        void normalize(const ualg::Term<int>* term);
     };
 } // namespace diracoq

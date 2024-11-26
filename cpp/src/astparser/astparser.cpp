@@ -76,10 +76,10 @@ namespace astparser {
 
         // Create the tree builder
         ASTTermBuilder treeBuilder;
-        antlr4::tree::ParseTreeWalker::DEFAULT.walk(&treeBuilder, tree);
-
         // Check for errors
         if (parser.getNumberOfSyntaxErrors() == 0) {
+            antlr4::tree::ParseTreeWalker::DEFAULT.walk(&treeBuilder, tree);
+
             // Retrieve the root of the custom tree
             return treeBuilder.get_root();            
         } else {

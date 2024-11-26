@@ -58,17 +58,6 @@ namespace diracoq {
     const Term<int>* Kernel::calc_type(const Term<int>* term) {
         ListArgs<int> args;
 
-        if (term->is_atomic()) {
-
-            // (Const)
-            auto env_find = find_in_env(term->get_head());
-            if (env_find != std::nullopt) {
-                return env_find->type;
-            }
-
-            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not assumed or defined.");
-        }
-
         // (Arrow)
         if (match_normal_head(term, ARROW, args)) {
             if (args.size() != 2) {
@@ -122,9 +111,73 @@ namespace diracoq {
 
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the function " + sig.term_to_string(args[0]) + " is not an arrow type.");
         }
-        else {
-            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' cannot be typed.");
+        // (Type-Scalar)
+        if (match_normal_head(term, SType, args)) {
+            if (args.size() != 0) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has arguments.");
+            }
+            return bank.get_normal_term(TYPE, {});
         }
+        // (Sca-0)
+        if (match_normal_head(term, ZERO, args)) {
+            return bank.get_normal_term(SType, {});
+        }
+        // (Sca-1)
+        if (match_normal_head(term, ONE, args)) {
+            return bank.get_normal_term(SType, {});
+        }
+        // (Sca-Delta) TODO
+        // (Sca-Add)
+        if (match_normal_head(term, ADDS, args)) {
+            auto SType_term = bank.get_normal_term(SType, {});
+            if (args.size() == 0) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has no arguments.");
+            }
+            for (const auto& arg : args) {
+                if (!type_check(arg, SType_term)) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(arg) + " is not of type SType.");
+                }
+            }
+            return SType_term;
+        }
+        // (Sca-Mul)
+        if (match_normal_head(term, MLTS, args)) {
+            auto SType_term = bank.get_normal_term(SType, {});
+            if (args.size() == 0) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has no arguments.");
+            }
+            for (const auto& arg : args) {
+                if (!type_check(arg, SType_term)) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(arg) + " is not of type SType.");
+                }
+            }
+            return SType_term;
+        }
+        // (Sca-Conj)
+        if (match_normal_head(term, CONJ, args)) {
+            auto SType_term = bank.get_normal_term(SType, {});
+            if (args.size() != 1) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument number is not 1.");
+            }
+            if (!type_check(args[0], SType_term)) {
+                throw runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type SType.");
+            }
+            return SType_term;
+        }
+        // (Sca-Dot) TODO
+
+        if (term->is_atomic()) {
+
+            // (Const)
+            auto env_find = find_in_env(term->get_head());
+            if (env_find != std::nullopt) {
+                return env_find->type;
+            }
+
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not assumed or defined.");
+        }
+
+        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' cannot be typed.");
     }
 
     bool Kernel::type_check(const Term<int>* term, const Term<int>* type) {
