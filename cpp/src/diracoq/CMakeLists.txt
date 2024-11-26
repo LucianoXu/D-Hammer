@@ -4,6 +4,7 @@ add_library(
 
     reserved.cpp
     calculus.cpp
+    reduction.cpp
     prover.cpp
 )
 

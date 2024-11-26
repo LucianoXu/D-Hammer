@@ -13,10 +13,10 @@ TEST(DiracoqParsing, Basics1) {
     auto& bank = kernel.get_bank();
     auto& sig = kernel.get_sig();
 
-    auto actual_res = kernel.parse("forall(x y apply(z x))");
+    auto actual_res = kernel.parse("fun(x y apply(z x))");
     
     auto expected_res = bank.get_normal_term(
-        sig.get_repr("forall"), {
+        sig.get_repr("fun"), {
             bank.get_normal_term(sig.get_repr("x"), {}),
             bank.get_normal_term(sig.get_repr("y"), {}),
             bank.get_normal_term(sig.get_repr("apply"), {
