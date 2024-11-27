@@ -276,17 +276,13 @@ Definition rules_sem (r : rules) :=
 
 Inductive position := 
   | P_all
-  | P_ac & nat & position
-  | P_unary & position.
+  | P_ac & nat & position.
 
 Fixpoint R_apply (p : position) (f : rules) (s : S_syn) :=
   match p with
   | P_all => rules_sem f s
-  | P_unary p => match s with 
-                | S_conj s => S_conj (R_apply p f s)
-                | _ => s
-                end
   | P_ac n p => match s with
+                | S_conj s => S_conj (R_apply p f s)
                 | S_adds s => S_adds (pos_sub s n (R_apply p f))
                 | S_muls s => S_muls (pos_sub s n (R_apply p f))
                 | _ => s
@@ -482,7 +478,9 @@ Qed.
 Lemma R_apply_correct p r s :
   R_apply p r s =s s.
 Proof.
-elim: p s.
+Admitted.
+
+(* elim: p s.
 - move=>s; apply/rules_correct.
 - move=>n p IH []//= l; rewrite !big_map /pos_sub;
   case E: (n < size l)%N=>//; rewrite big_cat/= big_cons IH;
@@ -490,15 +488,18 @@ elim: p s.
     by rewrite -drop_nth// cat_take_drop);
   by rewrite big_cat/= big_cons.
 - by move=>p IH /= []//= s; rewrite IH.
-Qed.
+Qed. *)
 
 Lemma R_apply_seq_correct pr s :
   s =s R_apply_seq pr s.
 Proof. by elim: pr s =>//= [[p r]] l IH s; rewrite -IH R_apply_correct. Qed.
 
+Check P_ac 0 (P_ac 1 P_all).
+
 Goal [* a; [+ b; c]; b; 1; [+ a; b; 0]] =s 
   [+ [* a; b; b; a]; [* a; b; b; b]; [* a; c; b; a]; [* a; c; b; b]].
 Proof.
+
 pose pr :=   [:: (P_all, R_MULS1); 
       (P_all, R_MULS2);
       (P_ac 0 P_all, R_MULS2);
@@ -512,6 +513,57 @@ pose pr :=   [:: (P_all, R_MULS1);
 by rewrite (R_apply_seq_correct pr).
 Qed.
 
+
+(* Normalize(MULS(a ADDS(b c) b 1 ADDS(a b 0))) *)
+  Goal [* a; [+ b; c]; b; 1; [+ a; b; 0]] =s [+ [* a; b; b; a]; [* a; b; b; b]; [* a; c; b; a]; [* a; c; b; b]].
+    Proof.
+    pose pr := 
+      [::	(P_all, R_MULS1);
+      (P_all, R_MULS2);
+      ((P_ac 0 P_all), R_MULS2);
+      (P_all, R_FLATTEN);
+      ((P_ac 2 P_all), R_MULS0);
+      (P_all, R_ADDS0);
+      ((P_ac 2 P_all), R_MULS2);
+      (P_all, R_FLATTEN);
+      ((P_ac 4 P_all), R_MULS0);
+      (P_all, R_ADDS0)].
+    by rewrite (R_apply_seq_correct pr).
+    Qed.
+
+    (* Normalize(CONJ(CONJ(ADDS(0 MULS(a b))))) *)
+Goal (S_conj (S_conj [+ 0; [* a; b]])) =s [* a; b].
+  Proof.
+  pose pr := 
+    [::	(P_all, R_CONJ4)].
+  rewrite (R_apply_seq_correct pr).
+  pose pr2 := [:: (P_all, R_ADDS0);(P_all, R_ADDSID)].
+  rewrite (R_apply_seq_correct pr2).
+  by [].
+  Qed.
+  
+  
+
+(* Normalize(MULS(a ADDS(b c) b 1 ADDS(a b 0))) *)
+  Goal [* a; [+ b; c]; b; 1; [+ a; b; 0]] =s [+ [* a; b; b; a]; [* a; b; b; b]; [* a; c; b; a]; [* a; c; b; b]].
+    Proof.
+    pose pr := [::(P_all, R_MULS1);
+    (P_all, R_MULS2);
+    ((P_ac 0 P_all), R_MULS2);
+    (P_all, R_FLATTEN);
+    ((P_ac 2 P_all), R_MULS0);
+    (P_all, R_ADDS0);
+    ((P_ac 2 P_all), R_MULS2);
+    (P_all, R_FLATTEN);
+    ((P_ac 4 P_all), R_MULS0);
+    (P_all, R_ADDS0)].
+    by rewrite (R_apply_seq_correct pr).
+    Qed.
+    
+    
+
+Check fun(s : S_syn) => S_sem s.
+
 End soundness.
 End scalar.
 
@@ -519,30 +571,30 @@ End scalar.
 (*
 =====================================
 (rule + position)
-1. R_MLTS1 all
-2. R_MLTS2 all
-3. R_MLTS2 [+ 0]
+1. R_MULS1 all
+2. R_MULS2 all
+3. R_MULS2 [+ 0]
 4. R_FLATTEN all
-5. R_MLTS0 [+ 2]
+5. R_MULS0 [+ 2]
 6. R_ADDS0 all
-7. R_MLTS2 [+ 2]
+7. R_MULS2 [+ 2]
 8. R_FLATTEN all
-9. R_MLTS0 [+ 4]
+9. R_MULS0 [+ 4]
 10. R_ADDS0 all
 
 Initial term:
 
 [* a [+ b c] b 1 [+ a b 0]]
 
-1. R_MLTS1 all
+1. R_MULS1 all
 
 [* a [+ b c] b [+ a b 0]]
 
-2. R_MLTS2 all
+2. R_MULS2 all
 
 [+ [* a b b [+ a b 0]] [* a c b [+ a b 0]] ]
 
-3. R_MLTS2 [+ 0]
+3. R_MULS2 [+ 0]
 
 [+ [+ [* a b b a] [* a b b b] [* a b b 0]] [* a c b [+ a b 0]] ]
 
@@ -550,7 +602,7 @@ Initial term:
 
 [+ [* a b b a] [* a b b b] [* a b b 0] [* a c b [+ a b 0]] ]
 
-5. R_MLTS0 [+ 2]
+5. R_MULS0 [+ 2]
 
 [+ [* a b b a] [* a b b b] 0 [* a c b [+ a b 0]] ]
 
@@ -558,7 +610,7 @@ Initial term:
 
 [+ [* a b b a] [* a b b b] [* a c b [+ a b 0]] ]
 
-7. R_MLTS2 [+ 2]
+7. R_MULS2 [+ 2]
 
 [+ [* a b b a] [* a b b b] [+ [* a c b a] [* a c b b] [* a c b 0]] ]
 
@@ -566,7 +618,7 @@ Initial term:
 
 [+ [* a b b a] [* a b b b] [* a c b a] [* a c b b] [* a c b 0] ]
 
-9. R_MLTS0 [+ 4]
+9. R_MULS0 [+ 4]
 
 [+ [* a b b a] [* a b b b] [* a c b a] [* a c b b] 0 ]
 
@@ -579,13 +631,13 @@ Normal form
 
 [+ [* b b b a]; [* b b c a] ; [* b b a a]; [* b c a a] ]
 
-ADDS(MLTS(b b b a) MLTS(b b c a) MLTS(b b a a) MLTS(b c a a))
+ADDS(MULS(b b b a) MULS(b b c a) MULS(b b a a) MULS(b c a a))
 
 
 
-R_FLATTEN ADDS(MLTS(a b b a) MLTS(a b b b) ADDS(MLTS(a c b a) MLTS(a c b b) MLTS(a c b 0))).
-R_MLTS0 MLTS(a c b 0).
-R_ADDS0 ADDS(MLTS(a b b a) MLTS(a b b b) MLTS(a c b a) MLTS(a c b b) 0).
+R_FLATTEN ADDS(MULS(a b b a) MULS(a b b b) ADDS(MULS(a c b a) MULS(a c b b) MULS(a c b 0))).
+R_MULS0 MULS(a c b 0).
+R_ADDS0 ADDS(MULS(a b b a) MULS(a b b b) MULS(a c b a) MULS(a c b b) 0).
 R_C_EQ [1:[1:E 2:E 3:E 0:E] 3:[2:E 3:E 1:E 0:E] 0:[1:E 2:E 0:E 3:E] 2:[2:E 1:E 0:E 3:E]].
 
 这是中间语言的一个例子

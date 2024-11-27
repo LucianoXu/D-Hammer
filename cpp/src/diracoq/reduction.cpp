@@ -111,9 +111,9 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    DIRACOQ_RULE_DEF(R_MLTSID, kernel, term) {
+    DIRACOQ_RULE_DEF(R_MULSID, kernel, term) {
         ListArgs<int> args;
-        if (match_normal_head(term, MLTS, args)) {
+        if (match_normal_head(term, MULS, args)) {
             if (args.size() == 1) {
                 return args[0];
             }
@@ -149,14 +149,14 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // MLTS(a 0) -> 0
-    DIRACOQ_RULE_DEF(R_MLTS0, kernel, term) {
+    // MULS(a 0) -> 0
+    DIRACOQ_RULE_DEF(R_MULS0, kernel, term) {
         auto& bank = kernel.get_bank();
         auto zero_term = bank.get_normal_term(ZERO, {});
 
-        ListArgs<int> args_MLTS_a_0;
-        if (match_normal_head(term, MLTS, args_MLTS_a_0)) {
-            for (const auto& arg : args_MLTS_a_0) {
+        ListArgs<int> args_MULS_a_0;
+        if (match_normal_head(term, MULS, args_MULS_a_0)) {
+            for (const auto& arg : args_MULS_a_0) {
                 if (arg == zero_term) {
                     return zero_term;
                 }
@@ -166,16 +166,16 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // MLTS(a 1) -> a
-    DIRACOQ_RULE_DEF(R_MLTS1, kernel, term) {
+    // MULS(a 1) -> a
+    DIRACOQ_RULE_DEF(R_MULS1, kernel, term) {
         auto& bank = kernel.get_bank();
 
         auto one_term = bank.get_normal_term(ONE, {});
 
-        ListArgs<int> args_MLTS_a_1;
-        if (match_normal_head(term, MLTS, args_MLTS_a_1)) {
+        ListArgs<int> args_MULS_a_1;
+        if (match_normal_head(term, MULS, args_MULS_a_1)) {
             ListArgs<int> new_args;
-            for (const auto& arg : args_MLTS_a_1) {
+            for (const auto& arg : args_MULS_a_1) {
                 if (arg == one_term) {
                     continue;
                 }
@@ -184,8 +184,8 @@ namespace diracoq {
             if (new_args.empty()) {
                 new_args.push_back(one_term);
             }
-            if (new_args.size() < args_MLTS_a_1.size()) {
-                return bank.get_normal_term(MLTS, std::move(new_args));
+            if (new_args.size() < args_MULS_a_1.size()) {
+                return bank.get_normal_term(MULS, std::move(new_args));
             }
         }
 
@@ -193,30 +193,30 @@ namespace diracoq {
     }
 
 
-    // MLTS(a ADDS(b c)) -> ADDS(MLTS(a b) MLTS(a c))
-    DIRACOQ_RULE_DEF(R_MLTS2, kernel, term) {
+    // MULS(a ADDS(b c)) -> ADDS(MULS(a b) MULS(a c))
+    DIRACOQ_RULE_DEF(R_MULS2, kernel, term) {
         auto& bank = kernel.get_bank();
 
-        ListArgs<int> args_MLTS_a_ADDS_b_c;
-        if (match_normal_head(term, MLTS, args_MLTS_a_ADDS_b_c)) {
+        ListArgs<int> args_MULS_a_ADDS_b_c;
+        if (match_normal_head(term, MULS, args_MULS_a_ADDS_b_c)) {
 
-            // Does not match MLTS(ADDS(...))
-            if (args_MLTS_a_ADDS_b_c.size() == 1) {
+            // Does not match MULS(ADDS(...))
+            if (args_MULS_a_ADDS_b_c.size() == 1) {
                 return std::nullopt;
             }
 
-            for (auto i = 0; i != args_MLTS_a_ADDS_b_c.size(); ++i) {
+            for (auto i = 0; i != args_MULS_a_ADDS_b_c.size(); ++i) {
                 ListArgs<int> args_ADDS_b_c;
-                if (match_normal_head(args_MLTS_a_ADDS_b_c[i], ADDS, args_ADDS_b_c)) {
+                if (match_normal_head(args_MULS_a_ADDS_b_c[i], ADDS, args_ADDS_b_c)) {
                     
-                    ListArgs<int> newargs_ADDS_MLTS;
+                    ListArgs<int> newargs_ADDS_MULS;
                     for (const auto& adds_arg : args_ADDS_b_c) {
-                        ListArgs<int> newargs_MLTS{args_MLTS_a_ADDS_b_c};
-                        newargs_MLTS[i] = adds_arg;
-                        newargs_ADDS_MLTS.push_back(bank.get_normal_term(MLTS, std::move(newargs_MLTS)));
+                        ListArgs<int> newargs_MULS{args_MULS_a_ADDS_b_c};
+                        newargs_MULS[i] = adds_arg;
+                        newargs_ADDS_MULS.push_back(bank.get_normal_term(MULS, std::move(newargs_MULS)));
                     }
 
-                    return bank.get_normal_term(ADDS, std::move(newargs_ADDS_MLTS));
+                    return bank.get_normal_term(ADDS, std::move(newargs_ADDS_MULS));
                 }
             }
         }
@@ -272,20 +272,20 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // CONJ(MLTS(a b)) -> MLTS(CONJ(a) CONJ(b))
+    // CONJ(MULS(a b)) -> MULS(CONJ(a) CONJ(b))
     DIRACOQ_RULE_DEF(R_CONJ3, kernel, term) {
         auto& bank = kernel.get_bank();
 
-        ListArgs<int> args_CONJ_MLTS_a_b;
+        ListArgs<int> args_CONJ_MULS_a_b;
 
-        if (match_normal_head(term, CONJ, args_CONJ_MLTS_a_b)) {
-            ListArgs<int> args_MLTS_a_b;
-            if (match_normal_head(args_CONJ_MLTS_a_b[0], MLTS, args_MLTS_a_b)) {
-                ListArgs<int> newargs_MLTS_CONJ;
-                for (const auto& arg : args_MLTS_a_b) {
-                    newargs_MLTS_CONJ.push_back(bank.get_normal_term(CONJ, {arg}));
+        if (match_normal_head(term, CONJ, args_CONJ_MULS_a_b)) {
+            ListArgs<int> args_MULS_a_b;
+            if (match_normal_head(args_CONJ_MULS_a_b[0], MULS, args_MULS_a_b)) {
+                ListArgs<int> newargs_MULS_CONJ;
+                for (const auto& arg : args_MULS_a_b) {
+                    newargs_MULS_CONJ.push_back(bank.get_normal_term(CONJ, {arg}));
                 }
-                return bank.get_normal_term(MLTS, std::move(newargs_MLTS_CONJ));
+                return bank.get_normal_term(MULS, std::move(newargs_MULS_CONJ));
             }
         }
 
@@ -312,11 +312,11 @@ namespace diracoq {
         ETA,
         R_FLATTEN,
         R_ADDSID,
-        R_MLTSID,
+        R_MULSID,
         R_ADDS0,
-        R_MLTS0,
-        R_MLTS1,
-        R_MLTS2,
+        R_MULS0,
+        R_MULS1,
+        R_MULS2,
         R_CONJ0,
         R_CONJ1,
         R_CONJ2,

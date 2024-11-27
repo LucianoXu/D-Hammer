@@ -19,8 +19,8 @@ namespace scalar_vec {
 
     // ADDS(a) -> a
     REWRITE_COMPILED_DEF(R_ADDSID, bank, term);
-    // MLTS(a) -> a
-    REWRITE_COMPILED_DEF(R_MLTSID, bank, term);
+    // MULS(a) -> a
+    REWRITE_COMPILED_DEF(R_MULSID, bank, term);
 
 
     //////////////// rewriting rules
@@ -29,16 +29,16 @@ namespace scalar_vec {
     // This rule removes all 0s from the subterm
     REWRITE_COMPILED_DEF(R_ADDS0, bank, term);
 
-    // MLTS(a 0) -> 0
-    REWRITE_COMPILED_DEF(R_MLTS0, bank, term);
+    // MULS(a 0) -> 0
+    REWRITE_COMPILED_DEF(R_MULS0, bank, term);
 
-    // MLTS(a 1) -> a
+    // MULS(a 1) -> a
     // This rule removes all 0s from the subterm
-    REWRITE_COMPILED_DEF(R_MLTS1, bank, term);
+    REWRITE_COMPILED_DEF(R_MULS1, bank, term);
 
-    // MLTS((seq1: __) ADDS(a1 a2 ... an) (seq2: __)) -> ADDS(MLTS(seq1 a1 seq2) MLTS(seq1 a2 seq2) ... MLTS(seq1 an seq2))
+    // MULS((seq1: __) ADDS(a1 a2 ... an) (seq2: __)) -> ADDS(MULS(seq1 a1 seq2) MULS(seq1 a2 seq2) ... MULS(seq1 an seq2))
     // This rule expands on the first ocurrence of ADDS in the subterm
-    REWRITE_COMPILED_DEF(R_MLTS2, bank, term);
+    REWRITE_COMPILED_DEF(R_MULS2, bank, term);
 
     // CONJ(0) -> 0
     REWRITE_COMPILED_DEF(R_CONJ0, bank, term);
@@ -49,7 +49,7 @@ namespace scalar_vec {
     // CONJ(ADDS(a b)) -> ADDS(CONJ(a) CONJ(b))
     REWRITE_COMPILED_DEF(R_CONJ2, bank, term);
 
-    // CONJ(MLTS(a b)) -> MLTS(CONJ(a) CONJ(b))
+    // CONJ(MULS(a b)) -> MULS(CONJ(a) CONJ(b))
     REWRITE_COMPILED_DEF(R_CONJ3, bank, term);
 
     // CONJ(CONJ(a)) -> a

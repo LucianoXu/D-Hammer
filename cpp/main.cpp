@@ -35,7 +35,7 @@ void demo1() {
 
     ////////////////////////////////////////////////////
     // specify the term
-    string inputA = "MLTS(a ADDS(b c) b 1 ADDS(a b 0))";
+    string inputA = "MULS(a ADDS(b c) b 1 ADDS(a b 0))";
 
     TermBank<int> bank{};
     Signature<int> sig = reserved_sig;

@@ -11,9 +11,33 @@ using namespace std;
 using namespace scalar_vec;
 using namespace diracoq;
 
-int main(int , const char **) {
+#include <csignal>
 
-    Prover prover;
+void signalHandler(int signum) {
+    std::cout << "Interrupt signal (" << signum << ") received.\n";
+    // Add cleanup logic here (e.g., close files, release resources, etc.)
+    exit(signum);
+}
+
+int main(int argc, const char **argv) {
+    // Register signal handler
+    signal(SIGINT, signalHandler);
+
+
+    Prover* prover;
+
+    if (argc == 1) {
+        prover = new Prover{std::cout, false};
+    }
+
+    else if (argc == 2) {
+        prover = new Prover{std::cout, true, argv[1]};
+    }
+
+    else {
+        cout << "Too many arguments." << endl;
+        return 1;
+    }
 
     cout << "Diracoq Prover top level built by Yingte Xu." << endl;
 
@@ -22,11 +46,10 @@ int main(int , const char **) {
         cout << "> ";
         getline(cin, code);
 
-        if (code == "exit") {
-            break;
-        }
-        prover.process(code);
+        prover->process(code);
     }
+
+    delete prover;
 
     return 0;
 }

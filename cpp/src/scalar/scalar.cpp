@@ -7,7 +7,7 @@ The scalar module.
 Signature: 
     - Constants: 0, 1
     - Unary Symbols: CONJ
-    - AC Symbols: ADDS, MLTS
+    - AC Symbols: ADDS, MULS
 
 */
 
@@ -20,7 +20,7 @@ namespace scalar {
         {"1", SymbolType::NORMAL},
         {"CONJ", SymbolType::NORMAL},
         {"ADDS", SymbolType::AC},
-        {"MLTS", SymbolType::AC}
+        {"MULS", SymbolType::AC}
     };
 
     const Signature<int> reserved_sig = compile_string_sig(symbols);
@@ -29,7 +29,7 @@ namespace scalar {
     int ONE = reserved_sig.get_repr("1");
     int CONJ = reserved_sig.get_repr("CONJ");
     int ADDS = reserved_sig.get_repr("ADDS");
-    int MLTS = reserved_sig.get_repr("MLTS");
+    int MULS = reserved_sig.get_repr("MULS");
 
     /////////////////////////////////////////////////////////////////////////
     // Properties
@@ -43,9 +43,9 @@ namespace scalar {
         return std::nullopt;
     }
 
-    REWRITE_COMPILED_DEF(R_MLTSID, bank, term) {
+    REWRITE_COMPILED_DEF(R_MULSID, bank, term) {
         TermCountMapping<int> args;
-        if (match_ac_head(term, MLTS, args)) {
+        if (match_ac_head(term, MULS, args)) {
             if (args.size() == 1 && args.begin()->second == 1) {
                 return args.begin()->first;
             }
@@ -75,13 +75,13 @@ namespace scalar {
         return std::nullopt;
     }
 
-    // MLTS(a 0) -> 0
-    REWRITE_COMPILED_DEF(R_MLTS0, bank, term) {
+    // MULS(a 0) -> 0
+    REWRITE_COMPILED_DEF(R_MULS0, bank, term) {
         auto zero_term = bank.get_normal_term(ZERO, {});
 
-        TermCountMapping<int> args_MLTS_a_0;
-        if (match_ac_head(term, MLTS, args_MLTS_a_0)) {
-            if (args_MLTS_a_0.find(zero_term) != args_MLTS_a_0.end()) {
+        TermCountMapping<int> args_MULS_a_0;
+        if (match_ac_head(term, MULS, args_MULS_a_0)) {
+            if (args_MULS_a_0.find(zero_term) != args_MULS_a_0.end()) {
                 return zero_term;
             }
         }
@@ -89,19 +89,19 @@ namespace scalar {
         return std::nullopt;
     }
 
-    // MLTS(a 1) -> a
-    REWRITE_COMPILED_DEF(R_MLTS1, bank, term) {
+    // MULS(a 1) -> a
+    REWRITE_COMPILED_DEF(R_MULS1, bank, term) {
         auto one_term = bank.get_normal_term(ONE, {});
 
-        TermCountMapping<int> args_MLTS_a_1;
-        if (match_ac_head(term, MLTS, args_MLTS_a_1)) {
-            if (args_MLTS_a_1.find(one_term) != args_MLTS_a_1.end()) {
+        TermCountMapping<int> args_MULS_a_1;
+        if (match_ac_head(term, MULS, args_MULS_a_1)) {
+            if (args_MULS_a_1.find(one_term) != args_MULS_a_1.end()) {
 
                 // remove the one term
-                auto new_args = TermCountMapping<int>(args_MLTS_a_1);
+                auto new_args = TermCountMapping<int>(args_MULS_a_1);
                 new_args.erase(one_term);
 
-                return bank.get_ac_term(MLTS, std::move(new_args));
+                return bank.get_ac_term(MULS, std::move(new_args));
             }
         }
 
@@ -109,26 +109,26 @@ namespace scalar {
     }
 
 
-    // MLTS(a ADDS(b c)) -> ADDS(MLTS(a b) MLTS(a c))
-    REWRITE_COMPILED_DEF(R_MLTS2, bank, term) {
+    // MULS(a ADDS(b c)) -> ADDS(MULS(a b) MULS(a c))
+    REWRITE_COMPILED_DEF(R_MULS2, bank, term) {
 
-        TermCountMapping<int> args_MLTS_a_ADDS_b_c;
-        if (match_ac_head(term, MLTS, args_MLTS_a_ADDS_b_c)) {
+        TermCountMapping<int> args_MULS_a_ADDS_b_c;
+        if (match_ac_head(term, MULS, args_MULS_a_ADDS_b_c)) {
 
-            for (const auto& [arg, count] : args_MLTS_a_ADDS_b_c) {
+            for (const auto& [arg, count] : args_MULS_a_ADDS_b_c) {
                 TermCountMapping<int> args_ADDS_b_c;
                 if (match_ac_head(arg, ADDS, args_ADDS_b_c)) {
                     
                     // get the arguments
-                    auto resarg_MLTS = TermCountMapping<int>(args_MLTS_a_ADDS_b_c);
-                    subtract_TermCountMapping(resarg_MLTS, arg, 1);
+                    auto resarg_MULS = TermCountMapping<int>(args_MULS_a_ADDS_b_c);
+                    subtract_TermCountMapping(resarg_MULS, arg, 1);
 
                     auto resarg_ADDS = TermCountMapping<int>();
 
                     for (const auto& [arg, count]: args_ADDS_b_c) {
-                        auto resarg_inner_MLTS = TermCountMapping<int>(resarg_MLTS);
-                        add_TermCountMapping(resarg_inner_MLTS, arg, 1);
-                        resarg_ADDS[bank.get_ac_term(MLTS, std::move(resarg_inner_MLTS))] = count;
+                        auto resarg_inner_MULS = TermCountMapping<int>(resarg_MULS);
+                        add_TermCountMapping(resarg_inner_MULS, arg, 1);
+                        resarg_ADDS[bank.get_ac_term(MULS, std::move(resarg_inner_MULS))] = count;
                     }
 
                     return bank.get_ac_term(ADDS, std::move(resarg_ADDS));
@@ -181,18 +181,18 @@ namespace scalar {
         return std::nullopt;
     }
 
-    // CONJ(MLTS(a b)) -> MLTS(CONJ(a) CONJ(b))
+    // CONJ(MULS(a b)) -> MULS(CONJ(a) CONJ(b))
     REWRITE_COMPILED_DEF(R_CONJ3, bank, term) {
-        ListArgs<int> args_CONJ_MLTS_a_b;
+        ListArgs<int> args_CONJ_MULS_a_b;
 
-        if (match_normal_head(term, CONJ, args_CONJ_MLTS_a_b)) {
-            TermCountMapping<int> args_MLTS_a_b;
-            if (match_ac_head(args_CONJ_MLTS_a_b[0], MLTS, args_MLTS_a_b)) {
+        if (match_normal_head(term, CONJ, args_CONJ_MULS_a_b)) {
+            TermCountMapping<int> args_MULS_a_b;
+            if (match_ac_head(args_CONJ_MULS_a_b[0], MULS, args_MULS_a_b)) {
                 TermCountMapping<int> new_args;
-                for (const auto& [arg, count] : args_MLTS_a_b) {
+                for (const auto& [arg, count] : args_MULS_a_b) {
                     add_TermCountMapping(new_args, bank.get_normal_term(CONJ, {arg}), count);
                 }
-                return bank.get_ac_term(MLTS, std::move(new_args));
+                return bank.get_ac_term(MULS, std::move(new_args));
             }
         }
 
@@ -216,11 +216,11 @@ namespace scalar {
     // define the rule list
     const std::vector<RewritingRule<int>> scalar_rules = {
         R_ADDSID,
-        R_MLTSID,
+        R_MULSID,
         R_ADDS0,
-        R_MLTS0,
-        R_MLTS1,
-        R_MLTS2,
+        R_MULS0,
+        R_MULS1,
+        R_MULS2,
         R_CONJ0,
         R_CONJ1,
         R_CONJ2,

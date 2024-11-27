@@ -36,18 +36,18 @@ TEST(TestScalar, R_ADDS0) {
 }
 
 
-TEST(TestScalar, R_MLTS0) {
-    TEST_RULE({R_MLTSID, R_MLTS0}, {"a", "b"}, "MLTS(0 a b)", "0");
+TEST(TestScalar, R_MULS0) {
+    TEST_RULE({R_MULSID, R_MULS0}, {"a", "b"}, "MULS(0 a b)", "0");
 }
 
-TEST(TestScalar, R_MLTS1) {
-    TEST_RULE({R_MLTSID, R_MLTS1}, {"a", "b"}, "MLTS(1 a b)", "MLTS(a b)");
-    TEST_RULE({R_MLTSID, R_MLTS1}, {"b"}, "MLTS(1 b)", "b");
+TEST(TestScalar, R_MULS1) {
+    TEST_RULE({R_MULSID, R_MULS1}, {"a", "b"}, "MULS(1 a b)", "MULS(a b)");
+    TEST_RULE({R_MULSID, R_MULS1}, {"b"}, "MULS(1 b)", "b");
 }
 
-TEST(TestScalar, R_MLTS2) {
-    TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(a ADDS(b c))", "ADDS(MLTS(a b) MLTS(a c))");
-    TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(a ADDS(b c) b)", "ADDS(MLTS(a b b) MLTS(a b c))");
+TEST(TestScalar, R_MULS2) {
+    TEST_RULE({R_MULS2}, {"a", "b", "c"}, "MULS(a ADDS(b c))", "ADDS(MULS(a b) MULS(a c))");
+    TEST_RULE({R_MULS2}, {"a", "b", "c"}, "MULS(a ADDS(b c) b)", "ADDS(MULS(a b b) MULS(a b c))");
 }
 
 TEST(TestScalar, R_CONJ0) {
@@ -66,8 +66,8 @@ TEST(TestScalar, R_CONJ2) {
 }
 
 TEST(TestScalar, R_CONJ3) {
-    TEST_RULE({R_CONJ3}, {"a", "b"}, "CONJ(MLTS(a b))", "MLTS(CONJ(a) CONJ(b))");
-    TEST_RULE({R_CONJ3}, {"a", "b", "c"}, "CONJ(MLTS(a b c))", "MLTS(CONJ(a) CONJ(b) CONJ(c))");
+    TEST_RULE({R_CONJ3}, {"a", "b"}, "CONJ(MULS(a b))", "MULS(CONJ(a) CONJ(b))");
+    TEST_RULE({R_CONJ3}, {"a", "b", "c"}, "CONJ(MULS(a b c))", "MULS(CONJ(a) CONJ(b) CONJ(c))");
 }
 
 TEST(TestScalar, R_CONJ4) {
@@ -80,10 +80,10 @@ TEST(TestScalar, R_CONJ4) {
 
 // (a + (b * 0))^* -> 0
 TEST(TestScalar, Combined1) {
-    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(ADDS(a MLTS(b 0)))", "CONJ(a)");
+    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(ADDS(a MULS(b 0)))", "CONJ(a)");
 }
 
 // (b * 0)^*^* -> 0
 TEST(TestScalar, Combined2) {
-    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(CONJ(MLTS(b 0)))", "0");
+    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(CONJ(MULS(b 0)))", "0");
 }

@@ -7,7 +7,7 @@ The scalar module.
 Signature: 
     - Constants: 0, 1
     - Unary Symbols: CONJ
-    - AC Symbols: ADDS, MLTS
+    - AC Symbols: ADDS, MULS
 
 */
 
@@ -21,7 +21,7 @@ namespace scalar_vec {
         {"1", SymbolType::NORMAL},
         {"CONJ", SymbolType::NORMAL},
         {"ADDS", SymbolType::NORMAL},
-        {"MLTS", SymbolType::NORMAL}
+        {"MULS", SymbolType::NORMAL}
     };
 
     const Signature<int> reserved_sig = compile_string_sig(symbols);
@@ -30,9 +30,9 @@ namespace scalar_vec {
     int ONE = reserved_sig.get_repr("1");
     int CONJ = reserved_sig.get_repr("CONJ");
     int ADDS = reserved_sig.get_repr("ADDS");
-    int MLTS = reserved_sig.get_repr("MLTS");
+    int MULS = reserved_sig.get_repr("MULS");
 
-    std::set<int> ac_symbols = {ADDS, MLTS};
+    std::set<int> ac_symbols = {ADDS, MULS};
     
 
     //////////////// Flattening AC symbols
@@ -57,9 +57,9 @@ namespace scalar_vec {
         return std::nullopt;
     }
 
-    REWRITE_COMPILED_DEF(R_MLTSID, bank, term) {
+    REWRITE_COMPILED_DEF(R_MULSID, bank, term) {
         ListArgs<int> args;
-        if (match_normal_head(term, MLTS, args)) {
+        if (match_normal_head(term, MULS, args)) {
             if (args.size() == 1) {
                 return args[0];
             }
@@ -91,13 +91,13 @@ namespace scalar_vec {
         return std::nullopt;
     }
 
-    // MLTS(a 0) -> 0
-    REWRITE_COMPILED_DEF(R_MLTS0, bank, term) {
+    // MULS(a 0) -> 0
+    REWRITE_COMPILED_DEF(R_MULS0, bank, term) {
         auto zero_term = bank.get_normal_term(ZERO, {});
 
-        ListArgs<int> args_MLTS_a_0;
-        if (match_normal_head(term, MLTS, args_MLTS_a_0)) {
-            for (const auto& arg : args_MLTS_a_0) {
+        ListArgs<int> args_MULS_a_0;
+        if (match_normal_head(term, MULS, args_MULS_a_0)) {
+            for (const auto& arg : args_MULS_a_0) {
                 if (arg == zero_term) {
                     return zero_term;
                 }
@@ -107,21 +107,21 @@ namespace scalar_vec {
         return std::nullopt;
     }
 
-    // MLTS(a 1) -> a
-    REWRITE_COMPILED_DEF(R_MLTS1, bank, term) {
+    // MULS(a 1) -> a
+    REWRITE_COMPILED_DEF(R_MULS1, bank, term) {
         auto one_term = bank.get_normal_term(ONE, {});
 
-        ListArgs<int> args_MLTS_a_1;
-        if (match_normal_head(term, MLTS, args_MLTS_a_1)) {
+        ListArgs<int> args_MULS_a_1;
+        if (match_normal_head(term, MULS, args_MULS_a_1)) {
             ListArgs<int> new_args;
-            for (const auto& arg : args_MLTS_a_1) {
+            for (const auto& arg : args_MULS_a_1) {
                 if (arg == one_term) {
                     continue;
                 }
                 new_args.push_back(arg);
             }
-            if (new_args.size() < args_MLTS_a_1.size()) {
-                return bank.get_normal_term(MLTS, std::move(new_args));
+            if (new_args.size() < args_MULS_a_1.size()) {
+                return bank.get_normal_term(MULS, std::move(new_args));
             }
         }
 
@@ -129,29 +129,29 @@ namespace scalar_vec {
     }
 
 
-    // MLTS(a ADDS(b c)) -> ADDS(MLTS(a b) MLTS(a c))
-    REWRITE_COMPILED_DEF(R_MLTS2, bank, term) {
+    // MULS(a ADDS(b c)) -> ADDS(MULS(a b) MULS(a c))
+    REWRITE_COMPILED_DEF(R_MULS2, bank, term) {
 
-        ListArgs<int> args_MLTS_a_ADDS_b_c;
-        if (match_normal_head(term, MLTS, args_MLTS_a_ADDS_b_c)) {
+        ListArgs<int> args_MULS_a_ADDS_b_c;
+        if (match_normal_head(term, MULS, args_MULS_a_ADDS_b_c)) {
 
-            // Does not match MLTS(ADDS(...))
-            if (args_MLTS_a_ADDS_b_c.size() == 1) {
+            // Does not match MULS(ADDS(...))
+            if (args_MULS_a_ADDS_b_c.size() == 1) {
                 return std::nullopt;
             }
 
-            for (auto i = 0; i != args_MLTS_a_ADDS_b_c.size(); ++i) {
+            for (auto i = 0; i != args_MULS_a_ADDS_b_c.size(); ++i) {
                 ListArgs<int> args_ADDS_b_c;
-                if (match_normal_head(args_MLTS_a_ADDS_b_c[i], ADDS, args_ADDS_b_c)) {
+                if (match_normal_head(args_MULS_a_ADDS_b_c[i], ADDS, args_ADDS_b_c)) {
                     
-                    ListArgs<int> newargs_ADDS_MLTS;
+                    ListArgs<int> newargs_ADDS_MULS;
                     for (const auto& adds_arg : args_ADDS_b_c) {
-                        ListArgs<int> newargs_MLTS{args_MLTS_a_ADDS_b_c};
-                        newargs_MLTS[i] = adds_arg;
-                        newargs_ADDS_MLTS.push_back(bank.get_normal_term(MLTS, std::move(newargs_MLTS)));
+                        ListArgs<int> newargs_MULS{args_MULS_a_ADDS_b_c};
+                        newargs_MULS[i] = adds_arg;
+                        newargs_ADDS_MULS.push_back(bank.get_normal_term(MULS, std::move(newargs_MULS)));
                     }
 
-                    return bank.get_normal_term(ADDS, std::move(newargs_ADDS_MLTS));
+                    return bank.get_normal_term(ADDS, std::move(newargs_ADDS_MULS));
                 }
             }
         }
@@ -202,18 +202,18 @@ namespace scalar_vec {
         return std::nullopt;
     }
 
-    // CONJ(MLTS(a b)) -> MLTS(CONJ(a) CONJ(b))
+    // CONJ(MULS(a b)) -> MULS(CONJ(a) CONJ(b))
     REWRITE_COMPILED_DEF(R_CONJ3, bank, term) {
-        ListArgs<int> args_CONJ_MLTS_a_b;
+        ListArgs<int> args_CONJ_MULS_a_b;
 
-        if (match_normal_head(term, CONJ, args_CONJ_MLTS_a_b)) {
-            ListArgs<int> args_MLTS_a_b;
-            if (match_normal_head(args_CONJ_MLTS_a_b[0], MLTS, args_MLTS_a_b)) {
-                ListArgs<int> newargs_MLTS_CONJ;
-                for (const auto& arg : args_MLTS_a_b) {
-                    newargs_MLTS_CONJ.push_back(bank.get_normal_term(CONJ, {arg}));
+        if (match_normal_head(term, CONJ, args_CONJ_MULS_a_b)) {
+            ListArgs<int> args_MULS_a_b;
+            if (match_normal_head(args_CONJ_MULS_a_b[0], MULS, args_MULS_a_b)) {
+                ListArgs<int> newargs_MULS_CONJ;
+                for (const auto& arg : args_MULS_a_b) {
+                    newargs_MULS_CONJ.push_back(bank.get_normal_term(CONJ, {arg}));
                 }
-                return bank.get_normal_term(MLTS, std::move(newargs_MLTS_CONJ));
+                return bank.get_normal_term(MULS, std::move(newargs_MULS_CONJ));
             }
         }
 
@@ -238,11 +238,11 @@ namespace scalar_vec {
     const std::vector<RewritingRule<int>> scalar_rules = {
         R_FLATTEN,
         R_ADDSID,
-        R_MLTSID,
+        R_MULSID,
         R_ADDS0,
-        R_MLTS0,
-        R_MLTS1,
-        R_MLTS2,
+        R_MULS0,
+        R_MULS1,
+        R_MULS2,
         R_CONJ0,
         R_CONJ1,
         R_CONJ2,
@@ -270,11 +270,11 @@ namespace scalar_vec {
     const map<RewritingRule<int>, string> scalar_rule_names = {
         {R_FLATTEN, "R_FLATTEN"},
         {R_ADDSID, "R_ADDSID"},
-        {R_MLTSID, "R_MLTSID"},
+        {R_MULSID, "R_MULSID"},
         {R_ADDS0, "R_ADDS0"},
-        {R_MLTS0, "R_MLTS0"},
-        {R_MLTS1, "R_MLTS1"},
-        {R_MLTS2, "R_MLTS2"},
+        {R_MULS0, "R_MULS0"},
+        {R_MULS1, "R_MULS1"},
+        {R_MULS2, "R_MULS2"},
         {R_CONJ0, "R_CONJ0"},
         {R_CONJ1, "R_CONJ1"},
         {R_CONJ2, "R_CONJ2"},

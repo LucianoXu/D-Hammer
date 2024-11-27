@@ -5,6 +5,7 @@ add_library(
     reserved.cpp
     calculus.cpp
     reduction.cpp
+    trace2coq.cpp
     prover.cpp
 )
 

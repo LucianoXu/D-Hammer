@@ -29,7 +29,7 @@ namespace diracoq {
     extern const int ONE;
     extern const int CONJ;
     extern const int ADDS;
-    extern const int MLTS;
+    extern const int MULS;
 
     extern const std::set<int> ac_symbols;
 

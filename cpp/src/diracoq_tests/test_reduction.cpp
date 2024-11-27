@@ -76,8 +76,8 @@ void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expec
 }
 
 TEST(DiracoqReduction, R_FLATTEN) {
-    TEST_RULE({R_FLATTEN}, "MLTS(a MLTS(a b) b)", "MLTS(a a b b)");
-    TEST_RULE({R_FLATTEN}, "MLTS(a ADDS(a b) b)", "MLTS(a ADDS(a b) b)");
+    TEST_RULE({R_FLATTEN}, "MULS(a MULS(a b) b)", "MULS(a a b b)");
+    TEST_RULE({R_FLATTEN}, "MULS(a ADDS(a b) b)", "MULS(a ADDS(a b) b)");
 }
 
 TEST(DiracoqReduction, R_ADDS0) {
@@ -88,25 +88,25 @@ TEST(DiracoqReduction, R_ADDS0) {
     TEST_RULE({R_ADDS0}, "ADDS(0)", "ADDS(0)");
 }
 
-TEST(DiracoqReduction, R_MLTS0) {
-    TEST_RULE({R_MLTSID, R_MLTS0}, "MLTS(0 a b)", "0");
+TEST(DiracoqReduction, R_MULS0) {
+    TEST_RULE({R_MULSID, R_MULS0}, "MULS(0 a b)", "0");
 }
 
-TEST(DiracoqReduction, R_MLTS1) {
-    TEST_RULE({R_MLTSID, R_MLTS1}, "MLTS(1 a b)", "MLTS(a b)");
-    TEST_RULE({R_MLTSID, R_MLTS1}, "MLTS(1 a 1 b 1)", "MLTS(a b)");
-    TEST_RULE({R_MLTSID, R_MLTS1}, "MLTS(1 b)", "b");
-    TEST_RULE({R_MLTS1}, "MLTS(1 1)", "MLTS(1)");
-    TEST_RULE({R_MLTS1}, "MLTS(1)", "MLTS(1)");
+TEST(DiracoqReduction, R_MULS1) {
+    TEST_RULE({R_MULSID, R_MULS1}, "MULS(1 a b)", "MULS(a b)");
+    TEST_RULE({R_MULSID, R_MULS1}, "MULS(1 a 1 b 1)", "MULS(a b)");
+    TEST_RULE({R_MULSID, R_MULS1}, "MULS(1 b)", "b");
+    TEST_RULE({R_MULS1}, "MULS(1 1)", "MULS(1)");
+    TEST_RULE({R_MULS1}, "MULS(1)", "MULS(1)");
 }
 
-TEST(DiracoqReduction, R_MLTS2) {
-    TEST_RULE({R_MLTS2}, "MLTS(a ADDS(b c))", "ADDS(MLTS(a b) MLTS(a c))");
-    TEST_RULE({R_MLTS2}, "MLTS(a ADDS(b c) b)", "ADDS(MLTS(a b b) MLTS(a c b))");
+TEST(DiracoqReduction, R_MULS2) {
+    TEST_RULE({R_MULS2}, "MULS(a ADDS(b c))", "ADDS(MULS(a b) MULS(a c))");
+    TEST_RULE({R_MULS2}, "MULS(a ADDS(b c) b)", "ADDS(MULS(a b b) MULS(a c b))");
 }
 
-TEST(DiracoqReduction, R_MLTS2_nasty) {
-    TEST_RULE({R_MLTS2}, "MLTS(ADDS(b c))", "MLTS(ADDS(b c))");
+TEST(DiracoqReduction, R_MULS2_nasty) {
+    TEST_RULE({R_MULS2}, "MULS(ADDS(b c))", "MULS(ADDS(b c))");
 }
 
 TEST(DiracoqReduction, R_CONJ0) {
@@ -125,8 +125,8 @@ TEST(DiracoqReduction, R_CONJ2) {
 }
 
 TEST(DiracoqReduction, R_CONJ3) {
-    TEST_RULE({R_CONJ3}, "CONJ(MLTS(a b))", "MLTS(CONJ(a) CONJ(b))");
-    TEST_RULE({R_CONJ3}, "CONJ(MLTS(a b c))", "MLTS(CONJ(a) CONJ(b) CONJ(c))");
+    TEST_RULE({R_CONJ3}, "CONJ(MULS(a b))", "MULS(CONJ(a) CONJ(b))");
+    TEST_RULE({R_CONJ3}, "CONJ(MULS(a b c))", "MULS(CONJ(a) CONJ(b) CONJ(c))");
 }
 
 TEST(DiracoqReduction, R_CONJ4) {
@@ -139,10 +139,10 @@ TEST(DiracoqReduction, R_CONJ4) {
 
 // (a + (b * 0))^* -> 0
 TEST(DiracoqReduction, Combined1) {
-    TEST_RULE(rules, "CONJ(ADDS(a MLTS(b 0)))", "CONJ(a)");
+    TEST_RULE(rules, "CONJ(ADDS(a MULS(b 0)))", "CONJ(a)");
 }
 
 // (b * 0)^*^* -> 0
 TEST(DiracoqReduction, Combined2) {
-    TEST_RULE(rules, "CONJ(CONJ(MLTS(b 0)))", "0");
+    TEST_RULE(rules, "CONJ(CONJ(MULS(b 0)))", "0");
 }

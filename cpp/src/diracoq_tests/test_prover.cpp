@@ -6,8 +6,23 @@ using namespace ualg;
 using namespace std;
 using namespace diracoq;
 
-TEST(DiracoqProver, Basics1) { 
+TEST(DiracoqProver, ShowAll) { 
     Prover prover;
-    prover.process("ShowAll");
+    EXPECT_TRUE(prover.process("ShowAll"));
 }
-    
+
+TEST(DiracoqProver, Var) {
+    Prover prover;
+    EXPECT_TRUE(prover.process("Var(x Type)"));
+    EXPECT_FALSE(prover.process("Var(x Type)"));
+}
+
+TEST(DiracoqProver, Normalize) {
+    Prover prover;
+    EXPECT_TRUE(prover.process("\
+        Group(\n\
+            Var(a SType) Var(b SType) Var(c SType)\n\
+            Normalize(MULS(a ADDS(b c) b 1 ADDS(a b 0)))\n\
+        )")
+    );
+}

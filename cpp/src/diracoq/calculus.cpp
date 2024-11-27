@@ -141,7 +141,7 @@ namespace diracoq {
             return SType_term;
         }
         // (Sca-Mul)
-        if (match_normal_head(term, MLTS, args)) {
+        if (match_normal_head(term, MULS, args)) {
             auto SType_term = bank.get_normal_term(SType, {});
             if (args.size() == 0) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has no arguments.");

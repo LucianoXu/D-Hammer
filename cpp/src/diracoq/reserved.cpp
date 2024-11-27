@@ -29,7 +29,7 @@ namespace diracoq {
         {"1", SymbolType::NORMAL},
         {"CONJ", SymbolType::NORMAL},
         {"ADDS", SymbolType::NORMAL},
-        {"MLTS", SymbolType::NORMAL}
+        {"MULS", SymbolType::NORMAL}
     };
 
     const Signature<int> diracoq_sig = compile_string_sig(diracoq_symbols);
@@ -49,9 +49,9 @@ namespace diracoq {
     const auto ONE = diracoq_sig.get_repr("1");
     const auto CONJ = diracoq_sig.get_repr("CONJ");
     const auto ADDS = diracoq_sig.get_repr("ADDS");
-    const auto MLTS = diracoq_sig.get_repr("MLTS");
+    const auto MULS = diracoq_sig.get_repr("MULS");
 
-    const std::set<int> ac_symbols = {ADDS, MLTS};
+    const std::set<int> ac_symbols = {ADDS, MULS};
 
 
 } // namespace diracoq

@@ -59,8 +59,8 @@ namespace diracoq {
 
     // ADDS(a) -> a
     DIRACOQ_RULE_DEF(R_ADDSID, kernel, term);
-    // MLTS(a) -> a
-    DIRACOQ_RULE_DEF(R_MLTSID, kernel, term);
+    // MULS(a) -> a
+    DIRACOQ_RULE_DEF(R_MULSID, kernel, term);
 
 
     //////////////// rewriting rules
@@ -69,16 +69,16 @@ namespace diracoq {
     // This rule removes all 0s from the subterm
     DIRACOQ_RULE_DEF(R_ADDS0, kernel, term);
 
-    // MLTS(a 0) -> 0
-    DIRACOQ_RULE_DEF(R_MLTS0, kernel, term);
+    // MULS(a 0) -> 0
+    DIRACOQ_RULE_DEF(R_MULS0, kernel, term);
 
-    // MLTS(a 1) -> a
+    // MULS(a 1) -> a
     // This rule removes all 0s from the subterm
-    DIRACOQ_RULE_DEF(R_MLTS1, kernel, term);
+    DIRACOQ_RULE_DEF(R_MULS1, kernel, term);
 
-    // MLTS((seq1: __) ADDS(a1 a2 ... an) (seq2: __)) -> ADDS(MLTS(seq1 a1 seq2) MLTS(seq1 a2 seq2) ... MLTS(seq1 an seq2))
+    // MULS((seq1: __) ADDS(a1 a2 ... an) (seq2: __)) -> ADDS(MULS(seq1 a1 seq2) MULS(seq1 a2 seq2) ... MULS(seq1 an seq2))
     // This rule expands on the first ocurrence of ADDS in the subterm
-    DIRACOQ_RULE_DEF(R_MLTS2, kernel, term);
+    DIRACOQ_RULE_DEF(R_MULS2, kernel, term);
 
     // CONJ(0) -> 0
     DIRACOQ_RULE_DEF(R_CONJ0, kernel, term);
@@ -89,7 +89,7 @@ namespace diracoq {
     // CONJ(ADDS(a b)) -> ADDS(CONJ(a) CONJ(b))
     DIRACOQ_RULE_DEF(R_CONJ2, kernel, term);
 
-    // CONJ(MLTS(a b)) -> MLTS(CONJ(a) CONJ(b))
+    // CONJ(MULS(a b)) -> MULS(CONJ(a) CONJ(b))
     DIRACOQ_RULE_DEF(R_CONJ3, kernel, term);
 
     // CONJ(CONJ(a)) -> a

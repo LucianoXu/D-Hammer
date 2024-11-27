@@ -30,8 +30,8 @@ void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables
 }
 
 TEST(TestScalarVec, R_FLATTEN) {
-    TEST_RULE({R_FLATTEN}, {"a", "b"}, "MLTS(a MLTS(a b) b)", "MLTS(a a b b)");
-    TEST_RULE({R_FLATTEN}, {"a", "b"}, "MLTS(a ADDS(a b) b)", "MLTS(a ADDS(a b) b)");
+    TEST_RULE({R_FLATTEN}, {"a", "b"}, "MULS(a MULS(a b) b)", "MULS(a a b b)");
+    TEST_RULE({R_FLATTEN}, {"a", "b"}, "MULS(a ADDS(a b) b)", "MULS(a ADDS(a b) b)");
 }
 
 TEST(TestScalarVec, R_ADDS0) {
@@ -40,23 +40,23 @@ TEST(TestScalarVec, R_ADDS0) {
     TEST_RULE({R_ADDSID, R_ADDS0}, {"b"}, "ADDS(0 b)", "b");
 }
 
-TEST(TestScalarVec, R_MLTS0) {
-    TEST_RULE({R_MLTSID, R_MLTS0}, {"a", "b"}, "MLTS(0 a b)", "0");
+TEST(TestScalarVec, R_MULS0) {
+    TEST_RULE({R_MULSID, R_MULS0}, {"a", "b"}, "MULS(0 a b)", "0");
 }
 
-TEST(TestScalarVec, R_MLTS1) {
-    TEST_RULE({R_MLTSID, R_MLTS1}, {"a", "b"}, "MLTS(1 a b)", "MLTS(a b)");
-    TEST_RULE({R_MLTSID, R_MLTS1}, {"a", "b"}, "MLTS(1 a 1 b 1)", "MLTS(a b)");
-    TEST_RULE({R_MLTSID, R_MLTS1}, {"b"}, "MLTS(1 b)", "b");
+TEST(TestScalarVec, R_MULS1) {
+    TEST_RULE({R_MULSID, R_MULS1}, {"a", "b"}, "MULS(1 a b)", "MULS(a b)");
+    TEST_RULE({R_MULSID, R_MULS1}, {"a", "b"}, "MULS(1 a 1 b 1)", "MULS(a b)");
+    TEST_RULE({R_MULSID, R_MULS1}, {"b"}, "MULS(1 b)", "b");
 }
 
-TEST(TestScalarVec, R_MLTS2) {
-    TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(a ADDS(b c))", "ADDS(MLTS(a b) MLTS(a c))");
-    TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(a ADDS(b c) b)", "ADDS(MLTS(a b b) MLTS(a c b))");
+TEST(TestScalarVec, R_MULS2) {
+    TEST_RULE({R_MULS2}, {"a", "b", "c"}, "MULS(a ADDS(b c))", "ADDS(MULS(a b) MULS(a c))");
+    TEST_RULE({R_MULS2}, {"a", "b", "c"}, "MULS(a ADDS(b c) b)", "ADDS(MULS(a b b) MULS(a c b))");
 }
 
-TEST(TestScalarVec, R_MLTS2_nasty) {
-    TEST_RULE({R_MLTS2}, {"a", "b", "c"}, "MLTS(ADDS(b c))", "MLTS(ADDS(b c))");
+TEST(TestScalarVec, R_MULS2_nasty) {
+    TEST_RULE({R_MULS2}, {"a", "b", "c"}, "MULS(ADDS(b c))", "MULS(ADDS(b c))");
 }
 
 TEST(TestScalarVec, R_CONJ0) {
@@ -75,8 +75,8 @@ TEST(TestScalarVec, R_CONJ2) {
 }
 
 TEST(TestScalarVec, R_CONJ3) {
-    TEST_RULE({R_CONJ3}, {"a", "b"}, "CONJ(MLTS(a b))", "MLTS(CONJ(a) CONJ(b))");
-    TEST_RULE({R_CONJ3}, {"a", "b", "c"}, "CONJ(MLTS(a b c))", "MLTS(CONJ(a) CONJ(b) CONJ(c))");
+    TEST_RULE({R_CONJ3}, {"a", "b"}, "CONJ(MULS(a b))", "MULS(CONJ(a) CONJ(b))");
+    TEST_RULE({R_CONJ3}, {"a", "b", "c"}, "CONJ(MULS(a b c))", "MULS(CONJ(a) CONJ(b) CONJ(c))");
 }
 
 TEST(TestScalarVec, R_CONJ4) {
@@ -89,12 +89,12 @@ TEST(TestScalarVec, R_CONJ4) {
 
 // (a + (b * 0))^* -> 0
 TEST(TestScalarVec, Combined1) {
-    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(ADDS(a MLTS(b 0)))", "CONJ(a)");
+    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(ADDS(a MULS(b 0)))", "CONJ(a)");
 }
 
 // (b * 0)^*^* -> 0
 TEST(TestScalarVec, Combined2) {
-    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(CONJ(MLTS(b 0)))", "0");
+    TEST_RULE(scalar_rules, {"a", "b"}, "CONJ(CONJ(MULS(b 0)))", "0");
 }
 
 //////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ TEST(TestScalarVec, Combined2) {
 TEST(TestScalarVec, Normalization) {
 
     vector<string> variables = {"a", "b", "c"};
-    string inputA = "MLTS(a ADDS(b c) b 1 ADDS(a b 0))";
+    string inputA = "MULS(a ADDS(b c) b 1 ADDS(a b 0))";
     TermBank<int> bank{};
 
     Signature<int> sig = reserved_sig;
