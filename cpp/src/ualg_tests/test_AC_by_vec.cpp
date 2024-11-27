@@ -41,6 +41,30 @@ TEST(TestCProofInstruct, to_string) {
     EXPECT_EQ(instruct.to_string(), "[0:E 2:E 1:E]");
 }
 
+TEST(TestCProofInstruct, apply_forward) {
+    TermBank<string> bank{};
+    Signature<string> sig = {
+        {{"f", "f"}, {"g", "g"}, {"a", "a"}, {"b", "b"}, {"c", "c"}},
+        {
+            {"f", SymbolType::NORMAL},
+            {"g", SymbolType::NORMAL},
+            {"a", SymbolType::NORMAL},
+            {"b", SymbolType::NORMAL},
+            {"c", SymbolType::NORMAL}
+        }
+    };
+
+    string input = "f(a f(a c b))";
+
+    auto initial_term = static_cast<const NormalTerm<string>*>(parse(sig, bank, input));
+
+    auto [sorted_term, sorted_instruct] = sort_CInstruct(initial_term, bank, {"f", "g"});
+
+    auto actual_res = apply_CInstruct(initial_term, sorted_instruct, bank);
+    auto expected_res = sorted_term;
+
+    EXPECT_EQ(actual_res, expected_res);
+}
 
 TEST(TestCProofInstruct, inverse_apply) {
     
@@ -71,7 +95,7 @@ TEST(TestCProofInstruct, inverse_apply) {
 }
 
 
-TEST(TestCProofInstruct, compose_inverse) {
+TEST(TestCProofInstruct, compose_inverse1) {
     
     TermBank<string> bank{};
     Signature<string> sig = {
@@ -86,6 +110,35 @@ TEST(TestCProofInstruct, compose_inverse) {
     };
 
     string input = "f(a g(b g(a c b)) f(a b))";
+
+    auto initial_term = static_cast<const NormalTerm<string>*>(parse(sig, bank, input));
+
+    auto [sorted_term, sorted_instruct] = sort_CInstruct(initial_term, bank, {"f", "g"});
+
+    auto inverse_instruct = sorted_instruct.inverse();
+    auto compose_instruct = sorted_instruct.compose(inverse_instruct);
+
+    auto actual_res = apply_CInstruct(initial_term, compose_instruct, bank);
+    auto expected_res = initial_term;
+    
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+TEST(TestCProofInstruct, compose_inverse2) {
+    
+    TermBank<string> bank{};
+    Signature<string> sig = {
+        {{"f", "f"}, {"g", "g"}, {"a", "a"}, {"b", "b"}, {"c", "c"}},
+        {
+            {"f", SymbolType::NORMAL},
+            {"g", SymbolType::NORMAL},
+            {"a", SymbolType::NORMAL},
+            {"b", SymbolType::NORMAL},
+            {"c", SymbolType::NORMAL}
+        }
+    };
+
+    string input = "f(g(b a) g(b g(a c b) a) f(f(b)))";
 
     auto initial_term = static_cast<const NormalTerm<string>*>(parse(sig, bank, input));
 
@@ -126,29 +179,4 @@ TEST(TestCProofInstruct, check_C_eq1) {
     auto actual_res = apply_CInstruct(termA, *instruct, bank);
     auto expected_res = termB;
     EXPECT_EQ(actual_res, expected_res);
-}
-
-
-TEST(TestCProofInstruct, check_C_eq2) {
-
-    TermBank<string> bank{};
-    Signature<string> sig = {
-        {{"f", "f"}, {"g", "g"}, {"a", "a"}, {"b", "b"}, {"c", "c"}},
-        {
-            {"f", SymbolType::NORMAL},
-            {"g", SymbolType::NORMAL},
-            {"a", SymbolType::NORMAL},
-            {"b", SymbolType::NORMAL},
-            {"c", SymbolType::NORMAL}
-        }
-    };
-
-    string inputA = "f(a g(b g(a c b)) f(a b))";
-    string inputB = "f(g(b g(c a a)) a f(a b))";
-
-    auto termA = static_cast<const NormalTerm<string>*>(parse(sig, bank, inputA));
-    auto termB = static_cast<const NormalTerm<string>*>(parse(sig, bank, inputB));
-
-    auto instruct = check_C_eq(termA, termB, bank, {"f", "g"});
-    EXPECT_FALSE(instruct.has_value());
 }

@@ -32,10 +32,8 @@ namespace ualg {
 
         CProofInstruct::PermutationSeq seq{this->ls.size()};
         for (int i = 0; i < this->ls.size(); ++i) {
-            seq[i] = {
-                this->ls[other.ls[i].first].first, 
-                this->ls[other.ls[i].first].second.compose(other.ls[i].second)
-            };
+            seq[i].first = this->ls[other.ls[i].first].first;
+            seq[this->ls[i].first].second = this->ls[this->ls[i].first].second.compose(other.ls[i].second);
         }
 
         return CProofInstruct{seq};   
@@ -48,7 +46,7 @@ namespace ualg {
         }
         CProofInstruct::PermutationSeq seq{this->ls.size()};
         for (int i = 0; i < this->ls.size(); ++i) {
-            seq[this->ls[i].first] = {i, this->ls[i].second.inverse()};
+            seq[this->ls[i].first] = {i, this->ls[this->ls[this->ls[i].first].first].second.inverse()};
         }
 
         return CProofInstruct{seq};

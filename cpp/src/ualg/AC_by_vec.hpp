@@ -98,8 +98,11 @@ namespace ualg {
         const ListArgs<T>& args = term->get_args();
         ListArgs<T> new_args;
 
-        for (const auto& [i, sub_instruct] : instruct.ls) {
-            new_args.push_back(apply_CInstruct(static_cast<const NormalTerm<T>*>(args[i]), sub_instruct, bank));
+        for (int i = 0; i < args.size(); ++i) {
+            const auto& idx = instruct.ls[i].first;
+            const auto& sub_instruct = instruct.ls[idx].second;
+            
+            new_args.push_back(apply_CInstruct(static_cast<const NormalTerm<T>*>(args[idx]), sub_instruct, bank));
         }
 
         return bank.get_normal_term(term->get_head(), std::move(new_args));
@@ -113,13 +116,15 @@ namespace ualg {
         const ListArgs<T>& args = term->get_args();
         
         // sort within the arguments
-        std::vector<std::pair<const NormalTerm<T>*, std::pair<unsigned, CProofInstruct>>> res_subterm_sort;
+        std::vector<std::pair<const NormalTerm<T>*, unsigned>> res_subterm_sort;
+        std::vector<CProofInstruct> subterm_instructs;
         for (unsigned i = 0; i < args.size(); ++i) {
             auto [sorted_arg, instruct] = sort_CInstruct(
                 static_cast<const NormalTerm<T>*>(args[i]),
                 bank, c_symbols
             );
-            res_subterm_sort.push_back({sorted_arg, {i, instruct}});
+            subterm_instructs.push_back(instruct);
+            res_subterm_sort.push_back({sorted_arg, i});
         }
 
         // sort the arguments for AC symbols
@@ -133,9 +138,10 @@ namespace ualg {
 
         ListArgs<T> new_args;
         CProofInstruct::PermutationSeq seq;
-        for (const auto& [arg, idx_instruct] : res_subterm_sort) {
+        for (int i = 0; i < res_subterm_sort.size(); ++i) {
+            const auto& [arg, idx] = res_subterm_sort[i];
             new_args.push_back(arg);
-            seq.push_back(idx_instruct);
+            seq.push_back({idx, std::move(subterm_instructs[i])});
         }
 
         auto res = bank.get_normal_term(term->get_head(), std::move(new_args));
