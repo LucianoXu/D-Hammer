@@ -12,6 +12,7 @@ namespace diracoq {
         {"Show", SymbolType::NORMAL},
         {"ShowAll", SymbolType::NORMAL},
         {"Normalize", SymbolType::NORMAL},
+        {"CheckEq", SymbolType::NORMAL},
 
 
         {"Type", SymbolType::NORMAL},

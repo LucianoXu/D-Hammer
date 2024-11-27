@@ -161,7 +161,8 @@ namespace diracoq {
 
                 // calculate the normalized term
                 vector<PosReplaceRecord> trace;
-                auto normalized_term = pos_rewrite_repeated(kernel, term, rules, &trace);
+                auto temp = pos_rewrite_repeated(kernel, term, rules, &trace);
+                auto [normalized_term, instruct] = sort_CInstruct(temp, kernel.get_bank(), ac_symbols);
 
                 auto type = kernel.calc_type(normalized_term);
                 
@@ -172,10 +173,60 @@ namespace diracoq {
                 // generate Coq code
                 if (gen_coq) {
                     append_coq_code("(* " + ast.to_string() + " *)\n");
-                    append_coq_code(normalize_to_coq(kernel, term, normalized_term, trace) + "\n\n");
+                    append_coq_code(normalize_to_coq(kernel, term, normalized_term, trace, instruct) + "\n\n");
                 }
 
                 return true;
+            }
+            else if (ast.head == "CheckEq") {
+                if (ast.children.size() != 2) {
+                    output << "Error: CheckEq command should have two arguments." << endl;
+                    return false;
+                }
+
+                // Typecheck the terms
+                auto termA = static_cast<const NormalTerm<int>*>(kernel.parse(ast.children[0]));
+                auto termB = static_cast<const NormalTerm<int>*>(kernel.parse(ast.children[1]));
+                auto typeA = kernel.calc_type(termA);
+                auto typeB = kernel.calc_type(termB);
+                if (typeA != typeB) {
+                    output << "The two terms have different types and are not equal." << endl;
+                    return true;
+                }
+
+                // calculate the normalized term
+                vector<PosReplaceRecord> traceA;
+                auto tempA = pos_rewrite_repeated(kernel, termA, rules, &traceA);
+                auto [normalized_termA, instructA] = sort_CInstruct(tempA, kernel.get_bank(), ac_symbols);
+
+                vector<PosReplaceRecord> traceB;
+                auto tempB = pos_rewrite_repeated(kernel, termB, rules, &traceB);
+                auto [normalized_termB, instructB] = sort_CInstruct(tempB, kernel.get_bank(), ac_symbols);
+
+                auto type_resA = kernel.calc_type(normalized_termA);
+                auto type_resB = kernel.calc_type(normalized_termB);
+                
+                // Output the result
+                if (normalized_termA == normalized_termB) {
+                    output << "The two terms are equal." << endl;
+                    output << "[Normalized Term] " << kernel.term_to_string(normalized_termA) << " : " << kernel.term_to_string(type_resA) << endl;
+
+
+                    // generate Coq code
+                    if (gen_coq) {
+                        append_coq_code("(* " + ast.to_string() + " *)\n");
+                        append_coq_code(checkeq_to_coq(kernel, termA, termB, traceA, traceB, instructA, instructB, normalized_termA) + "\n\n");
+                    }
+
+                    return true;
+                }
+                else {
+                    output << "The two terms are not equal." << endl;
+                    output << "[Normalized Term A] " << kernel.term_to_string(normalized_termA) << " : " << kernel.term_to_string(type_resA) << endl;
+                    output << "[Normalized Term B] " << kernel.term_to_string(normalized_termB) << " : " << kernel.term_to_string(type_resB) << endl;
+                    return true;
+                }
+
             }
         }
         catch (const exception& e) {

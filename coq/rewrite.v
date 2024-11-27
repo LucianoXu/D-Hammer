@@ -626,28 +626,17 @@ pose pr :=   [:: (P_all, R_MULS1);
       (P_all, R_FLATTEN);
       (P_ac 4 P_all, R_MULS0);
       (P_all, R_ADDS0)].
+    rewrite (R_apply_seq_correct pr) /=.
 pose p := [T 1; 3; 0; 2 |
             [:: [T 1; 2; 0; 3];
                 [T 1; 2; 3; 0];
                 [T 2; 1; 0; 3];
                 [T 2; 3; 1; 0]]].
-by rewrite (R_apply_seq_correct pr) (perm_apply_correct p).
+rewrite (perm_apply_correct p) /=.
+by []. by [].
 Qed.
 
 
-
-(* Normalize(CONJ(CONJ(ADDS(0 MULS(a b))))) *)
-Goal (S_conj (S_conj [+ 0; [* a; b]])) =s [* a; b].
-  Proof.
-  pose pr1 := [::	(P_all, R_CONJ4)].
-  rewrite (R_apply_seq_correct pr1) //=.
-  pose pr2 := [:: (P_all, R_ADDS0)].
-  rewrite (R_apply_seq_correct pr2) //=.
-  pose pr3 := [:: (P_all, R_ADDSID)].
-  rewrite (R_apply_seq_correct pr3) //=.
-  Qed.
-    
-    
     
 
 

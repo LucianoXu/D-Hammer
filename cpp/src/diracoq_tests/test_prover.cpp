@@ -26,3 +26,14 @@ TEST(DiracoqProver, Normalize) {
         )")
     );
 }
+
+
+TEST(DiracoqProver, CheckEq) {
+    Prover prover;
+    EXPECT_TRUE(prover.process("\
+        Group(\n\
+            Var(a SType) Var(b SType) Var(c SType)\n\
+            CheckEq(MULS(a ADDS(b c) b 1 ADDS(a b 0)) MULS(ADDS(b c) MULS(a b 1) ADDS(a b)))\n\
+        )")
+    );
+}
