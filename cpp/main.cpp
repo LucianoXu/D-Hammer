@@ -58,19 +58,6 @@ void demo1() {
 }
 
 int main(int , const char **) {
-    Kernel kernel;
-
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T T)"));
-
-    auto term = kernel.parse("fun(x T apply(f x))");
-    auto normal_term = static_cast<const NormalTerm<int>*>(term);
-
-    auto actual_res = pos_rewrite_repeated(kernel, normal_term, rules);
-    auto expected_res = kernel.parse("f");
-
-    cout << kernel.term_to_string(actual_res) << endl;
-    cout << kernel.term_to_string(expected_res) << endl;
     
     return 0;
 }

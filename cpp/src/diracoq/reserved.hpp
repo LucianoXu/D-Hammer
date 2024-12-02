@@ -19,17 +19,11 @@ namespace diracoq {
     extern const int FUN;
     extern const int APPLY;
 
-    extern const int BASE;
-    extern const int SType;
-    extern const int KType;
-    extern const int BType;
-    extern const int OType;
+    extern const int PAIR;
 
-    extern const int ZERO;
-    extern const int ONE;
-    extern const int CONJ;
-    extern const int ADDS;
-    extern const int MULS;
+    extern const int BASE,SType, KType, BType, OType, Prod;
+
+    extern const int ZERO, ONE, ADDS, MULS, CONJ, DELTA, ZEROK, ZEROB, ZEROO, ONEO, KET, BRA, ADJ, SCR, ADD, TSR, DOT, MULK, MULB, OUTER, MULO;
 
     extern const std::set<int> ac_symbols;
 

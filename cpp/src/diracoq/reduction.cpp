@@ -56,7 +56,7 @@ namespace diracoq {
 
     //////////////// Rules
 
-    DIRACOQ_RULE_DEF(BETA, kernel, term) {
+    DIRACOQ_RULE_DEF(R_BETA, kernel, term) {
         ListArgs<int> args;
         if (match_normal_head(term, APPLY, args)) {
             ListArgs<int> fun_args;
@@ -67,7 +67,7 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    DIRACOQ_RULE_DEF(DELTA, kernel, term) {
+    DIRACOQ_RULE_DEF(R_DELTA, kernel, term) {
         auto find_res = kernel.find_in_env(term->get_head());
         if (find_res != std::nullopt and find_res->is_def()) {
             return find_res->def.value();
@@ -75,7 +75,7 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    DIRACOQ_RULE_DEF(ETA, kernel, term) {
+    DIRACOQ_RULE_DEF(R_ETA, kernel, term) {
         ListArgs<int> args;
         if (match_normal_head(term, FUN, args)) {
             ListArgs<int> fun_args;
@@ -307,9 +307,9 @@ namespace diracoq {
     }
 
     const std::vector<PosRewritingRule> rules = {
-        BETA,
-        DELTA,
-        ETA,
+        R_BETA,
+        R_DELTA,
+        R_ETA,
         R_FLATTEN,
         R_ADDSID,
         R_MULSID,

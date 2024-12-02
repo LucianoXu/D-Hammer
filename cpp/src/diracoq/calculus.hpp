@@ -27,6 +27,18 @@ namespace diracoq {
         ualg::Signature<int> sig;
         std::vector<std::pair<int, Declaration>> env;
 
+        inline void arg_number_check(const ualg::ListArgs<int>& args, int num) {
+            if (args.size() != num) {
+                throw std::runtime_error("Typing error: the term is not well-typed, because the argument number is not " + std::to_string(num) + ".");
+            }
+        }
+
+        // inline void arg_type_check(const ualg::Term<int>* term, const ualg::Term<int>* type) {
+        //     if (!type_check(term, type)) {
+        //         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed with the type '" + sig.term_to_string(type) + "'.");
+        //     }
+        // }
+
     public:
         Kernel() : sig(diracoq_sig) {}
 
@@ -101,13 +113,25 @@ namespace diracoq {
         const ualg::Term<int>* calc_type(const ualg::Term<int>* term);
 
         /**
+         * @brief Check whether typeA is a subtype of typeB.
+         * 
+         * @param typeA 
+         * @param typeB 
+         * @return true 
+         * @return false 
+         */
+        bool is_subtype(const ualg::Term<int>* typeA, const ualg::Term<int>* typeB);
+
+        /**
          * @brief Check if the term is well-formed and well-typed.
          * 
          * @param term 
          * @return true 
          * @return false 
          */
-        bool type_check(const ualg::Term<int>* term, const ualg::Term<int>* type);
+        bool type_check(const ualg::Term<int>* term, const ualg::Term<int>* type) {
+            return is_subtype(calc_type(term), type);
+        }
 
         /**
          * @brief Make an assumption in the environment.

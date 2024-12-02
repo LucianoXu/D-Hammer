@@ -92,14 +92,14 @@ UNEXPECTED_ERROR:
 
     std::string pos_replace_record_to_string(Kernel& kernel, const PosReplaceRecord& record) {
         string res = "";
-        if (record.rule == BETA) {
-            throw runtime_error("NOT IMPLEMENTED");
+        if (record.rule == R_BETA) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_BETA" + ")";
         }
-        if (record.rule == DELTA) {
-            throw runtime_error("NOT IMPLEMENTED");
+        if (record.rule == R_DELTA) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_DELTA" + ")";
         }
-        if (record.rule == ETA) {
-            throw runtime_error("NOT IMPLEMENTED");
+        if (record.rule == R_ETA) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_ETA" + ")";
         }
         if (record.rule == R_FLATTEN) {
             return "(" + pos_to_string(record.pos) + ", " + "R_FLATTEN" + ")";

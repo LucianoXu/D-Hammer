@@ -44,11 +44,11 @@ namespace diracoq {
     //////////////// Rules
 
     // beta reduction
-    DIRACOQ_RULE_DEF(BETA, kernel, term);
+    DIRACOQ_RULE_DEF(R_BETA, kernel, term);
     // delta reduction
-    DIRACOQ_RULE_DEF(DELTA, kernel, term);
+    DIRACOQ_RULE_DEF(R_DELTA, kernel, term);
     // eta reduction
-    DIRACOQ_RULE_DEF(ETA, kernel, term);
+    DIRACOQ_RULE_DEF(R_ETA, kernel, term);
 
 
     //////////////// Flattening AC symbols
