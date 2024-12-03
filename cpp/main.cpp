@@ -11,20 +11,19 @@ using namespace std;
 using namespace scalar_vec;
 using namespace diracoq;
 
-void TEST_RULE(const vector<RewritingRule<int>>& rules, vector<string> variables, string input, string expected) {
-    TermBank<int> bank{};
-    Signature<int> sig = reserved_sig;
+void TEST_RULE(Kernel& kernel, const vector<PosRewritingRule>& rules, string input, string expected) {
+    auto term = static_cast<const NormalTerm<int>*>(kernel.parse(input));
+    auto actual_res = pos_rewrite_repeated(kernel, term, rules);
+    auto expected_res = static_cast<const NormalTerm<int>*>(kernel.parse(expected));
 
-    for (const auto& var : variables) {
-        sig.register_symbol(var);
-    }
-    
-    auto term = parse(sig, bank, input);
-    auto actual_res = rewrite_repeated(bank, term, rules);
-    auto expected_res = parse(sig, bank, expected);
+    cout << "Actual: "<< kernel.term_to_string(actual_res) << endl;
+    cout << "Expected: "<< kernel.term_to_string(expected_res) << endl;
+}
 
-    cout << "Actual: "<< sig.term_to_string(actual_res) << endl;
-    cout << "Expected: "<< sig.term_to_string(expected_res) << endl;
+
+void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expected) {
+    Kernel kernel;
+    TEST_RULE(kernel, rules, input, expected);
 }
 
 void demo1() {
