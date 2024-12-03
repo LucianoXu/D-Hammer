@@ -82,6 +82,7 @@ void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expec
 TEST(DiracoqReduction, R_FLATTEN) {
     TEST_RULE({R_FLATTEN}, "MULS(a MULS(a b) b)", "MULS(a a b b)");
     TEST_RULE({R_FLATTEN}, "MULS(a ADDS(a b) b)", "MULS(a ADDS(a b) b)");
+    TEST_RULE({R_FLATTEN}, "ADD(a ADD(b c) d)", "ADD(a b c d)");
 }
 
 TEST(DiracoqReduction, R_ADDS0) {

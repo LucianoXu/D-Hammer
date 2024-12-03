@@ -17,8 +17,6 @@ target_link_libraries(
     PUBLIC 
         DEPENDENCIES 
         UALG
-        SCALAR
-        SCALAR_VEC
         DIRACOQ
 )
 
@@ -39,8 +37,6 @@ target_link_libraries(
     PUBLIC
         DEPENDENCIES
         UALG
-        SCALAR
-        SCALAR_VEC
         DIRACOQ
 )
 

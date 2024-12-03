@@ -79,6 +79,29 @@ namespace diracoq {
         }
 
         bool process(const astparser::AST& ast);
+
+        inline bool check_eq(const std::string& codeA, const std::string& codeB) {
+            auto astA = astparser::parse(codeA);
+            auto astB = astparser::parse(codeB);
+            if (astA.has_value() and astB.has_value()) {
+                return check_eq(astA.value(), astB.value());
+            }
+            else{
+                output << "Error: the code is not valid." << std::endl;
+                return false;
+            }
+
+        }
+        
+        /**
+         * @brief Checks whether the two terms are equal. Return the result as a boolean.
+         * 
+         * @param codeA 
+         * @param codeB 
+         * @return true 
+         * @return false 
+         */
+        bool check_eq(const astparser::AST& codeA, const astparser::AST& codeB);
     };
 
 } // namespace diracoq

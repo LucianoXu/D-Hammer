@@ -91,7 +91,7 @@ namespace diracoq {
 
     //////////////// Flattening AC symbols
     DIRACOQ_RULE_DEF(R_FLATTEN, kernel, term) {
-        auto res = flatten<int>(term, kernel.get_bank(), ac_symbols);
+        auto res = flatten<int>(term, kernel.get_bank(), a_symbols);
         if (res != term) {
             return res;
         }

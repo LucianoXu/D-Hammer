@@ -25,6 +25,7 @@ namespace diracoq {
 
     extern const int ZERO, ONE, ADDS, MULS, CONJ, DELTA, ZEROK, ZEROB, ZEROO, ONEO, KET, BRA, ADJ, SCR, ADD, TSR, DOT, MULK, MULB, OUTER, MULO;
 
-    extern const std::set<int> ac_symbols;
+    extern const std::set<int> a_symbols;
+    extern const std::set<int> c_symbols;
 
 } // namespace diracoq

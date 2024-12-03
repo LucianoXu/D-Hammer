@@ -94,7 +94,8 @@ namespace diracoq {
     const auto OUTER = diracoq_sig.get_repr("OUTER");
     const auto MULO = diracoq_sig.get_repr("MULO");
 
-    const std::set<int> ac_symbols = {ADDS, MULS};
+    const std::set<int> a_symbols = {ADDS, MULS, ADD};
+    const std::set<int> c_symbols = {ADDS, MULS, DELTA, ADD};
 
 
 } // namespace diracoq
