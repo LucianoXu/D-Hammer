@@ -54,6 +54,33 @@ namespace diracoq {
         return current_term;
     }
 
+    const NormalTerm<int>* _alpha_normalize(Kernel& kernel, const NormalTerm<int>* term, int bound_depth) {
+        if (term->is_atomic()) return term;
+
+        auto& bank = kernel.get_bank();
+        ListArgs<int> args;
+        
+        if (match_normal_head(term, FUN, args)) {
+            auto new_bound = bank.get_normal_term(kernel.register_symbol("$" + to_string(bound_depth)), {});
+            // get the new body
+            auto new_term = static_cast<const NormalTerm<int>*>(bank.replace_term(args[2], {{args[0], new_bound}}));
+
+            return bank.get_normal_term(FUN, {new_bound, args[1], _alpha_normalize(kernel, new_term, bound_depth + 1)});
+
+        }
+        else {
+            ListArgs<int> new_args;
+            for (const auto& arg : term->get_args()) {
+                new_args.push_back(_alpha_normalize(kernel, static_cast<const NormalTerm<int>*>(arg), bound_depth));
+            }
+            return bank.get_normal_term(term->get_head(), std::move(new_args));
+        }
+    }
+
+    const NormalTerm<int>* alpha_normalize(Kernel& kernel, const NormalTerm<int>* term) {
+        return _alpha_normalize(kernel, term, 0);
+    }
+
 
     //////////////// Rules
 
@@ -64,7 +91,6 @@ namespace diracoq {
 #define MATCH_HEAD(term, head, subterm) \
     ListArgs<int> subterm;\
     if (!match_normal_head(term, head, subterm)) return std::nullopt;
-
 
     DIRACOQ_RULE_DEF(R_BETA, kernel, term) {
         MATCH_HEAD(term, APPLY, args)

@@ -41,6 +41,18 @@ namespace diracoq {
     std::vector<PosReplaceRecord>* trace = nullptr);
 
 
+
+    /**
+     * @brief Iterate through the whole term and rename the bound variables.
+     * 
+     * This function should be used in the end of the rewriting process, on the whole term, to ensure that the bound variables are correctly renamed.
+     * 
+     * @param kernel 
+     * @param term 
+     * @return const ualg::NormalTerm<int>* 
+     */
+    const ualg::NormalTerm<int>* alpha_normalize(Kernel& kernel, const ualg::NormalTerm<int>* term);
+
     //////////////// Rules
 
     // beta reduction

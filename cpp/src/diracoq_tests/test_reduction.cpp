@@ -7,6 +7,23 @@ using namespace std;
 using namespace diracoq;
 
 
+TEST(DiracoqReduction, alpha_normalize) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("T"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("T"));
+
+    auto term = kernel.parse("fun(x T apply(fun(y T y) x))");
+    auto normal_term = static_cast<const NormalTerm<int>*>(term);
+
+    auto actual_res = alpha_normalize(kernel, normal_term);
+    auto expected_res = kernel.parse("fun($0 T apply(fun($1 T $1) $0))");
+
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+
 TEST(DiracoqReduction, R_BETA) {
     Kernel kernel;
 

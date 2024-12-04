@@ -77,6 +77,8 @@ namespace diracoq {
         if (term->is_atomic()) {
             return kernel.term_to_string(term);
         }
+        throw std::runtime_error("Unimplemented term_to_coq for term " + kernel.term_to_string(term) + ".");
+        
 UNEXPECTED_ERROR:
         throw std::runtime_error("Unexpected error in 'term_to_coq' on term " + kernel.term_to_string(term) + ".");
     }

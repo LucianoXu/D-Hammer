@@ -162,7 +162,9 @@ namespace diracoq {
                 // calculate the normalized term
                 vector<PosReplaceRecord> trace;
                 auto temp = pos_rewrite_repeated(kernel, term, rules, &trace);
-                auto [normalized_term, instruct] = sort_CInstruct(temp, kernel.get_bank(), c_symbols);
+                auto [sorted_term, instruct] = sort_CInstruct(temp, kernel.get_bank(), c_symbols);
+                auto normalized_term = alpha_normalize(kernel, sorted_term);
+                
 
                 auto type = kernel.calc_type(normalized_term);
                 
@@ -213,11 +215,13 @@ namespace diracoq {
         // calculate the normalized term
         vector<PosReplaceRecord> traceA;
         auto tempA = pos_rewrite_repeated(kernel, termA, rules, &traceA);
-        auto [normalized_termA, instructA] = sort_CInstruct(tempA, kernel.get_bank(), c_symbols);
+        auto [sorted_termA, instructA] = sort_CInstruct(tempA, kernel.get_bank(), c_symbols);
+        auto normalized_termA = alpha_normalize(kernel, sorted_termA);
 
         vector<PosReplaceRecord> traceB;
         auto tempB = pos_rewrite_repeated(kernel, termB, rules, &traceB);
-        auto [normalized_termB, instructB] = sort_CInstruct(tempB, kernel.get_bank(), c_symbols);
+        auto [sorted_termB, instructB] = sort_CInstruct(tempB, kernel.get_bank(), c_symbols);
+        auto normalized_termB = alpha_normalize(kernel, sorted_termB);
 
         auto type_resA = kernel.calc_type(normalized_termA);
         auto type_resB = kernel.calc_type(normalized_termB);
