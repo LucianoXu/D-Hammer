@@ -116,6 +116,14 @@ TEST(DiracoqTypeCheck, Type_Scalar) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SType"), kernel.parse("Type")));
 }
 
+
+TEST(DiracoqTypeCheck, Type_Set) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("Set(T)"), kernel.parse("Type")));
+}
+
 TEST(DiracoqTypeCheck, Sca_0) {
     Kernel kernel;
 
@@ -458,4 +466,69 @@ TEST(DiracoqTypeCheck, Opt_Tsr) {
     kernel.assum(kernel.register_symbol("O2"), kernel.parse("OType(T3 T4)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("TSR(O1 O2)"), kernel.parse("OType(Prod(T1 T3) Prod(T2 T4))")));
+}
+
+TEST(DiracoqTypeCheck, Set_U) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    
+    EXPECT_TRUE(kernel.type_check(kernel.parse("USET(T)"), kernel.parse("Set(T)")));
+}
+
+TEST(DiracoqTypeCheck, Set_Prod) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+
+    kernel.assum(kernel.register_symbol("S1"), kernel.parse("Set(T1)"));
+    kernel.assum(kernel.register_symbol("S2"), kernel.parse("Set(T2)"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("CATPROD(S1 S2)"), kernel.parse("Set(Prod(T1 T2))")));
+}
+
+TEST(DiracoqTypeCheck, Sum_Scalar) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("s"), kernel.parse("Set(T)"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T SType)"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("SType")));
+}
+
+TEST(DiracoqTypeCheck, Sum_Ket) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("s"), kernel.parse("Set(T)"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T KType(sigma))"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("KType(sigma)")));
+}
+
+TEST(DiracoqTypeCheck, Sum_Bra) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("s"), kernel.parse("Set(T)"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T BType(sigma))"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("BType(sigma)")));
+}
+
+
+TEST(DiracoqTypeCheck, Sum_Opt) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("tau"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("s"), kernel.parse("Set(T)"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T OType(sigma tau))"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("OType(sigma tau)")));
 }

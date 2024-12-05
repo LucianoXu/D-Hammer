@@ -21,9 +21,11 @@ namespace diracoq {
 
     extern const int PAIR;
 
-    extern const int BASE,SType, KType, BType, OType, Prod;
+    extern const int BASE, SType, KType, BType, OType, Prod, Set;
 
     extern const int ZERO, ONE, ADDS, MULS, CONJ, DELTA, ZEROK, ZEROB, ZEROO, ONEO, KET, BRA, ADJ, SCR, ADD, TSR, DOT, MULK, MULB, OUTER, MULO;
+
+    extern const int USET, CATPROD, SUM;
 
     extern const std::set<int> a_symbols;
     extern const std::set<int> c_symbols;

@@ -145,6 +145,16 @@ namespace diracoq {
 
             return bank.get_normal_term(TYPE, {});
         }
+        // (Type-Set)
+        if (match_normal_head(term, Set, args)) {
+            arg_number_check(args, 1);
+
+            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
+            }
+
+            return bank.get_normal_term(TYPE, {});
+        }
         // (Sca-0)
         if (match_normal_head(term, ZERO, args)) {
             arg_number_check(args, 0);
@@ -509,6 +519,67 @@ namespace diracoq {
             }
 
             return bank.get_normal_term(OType, {args_O1[0], args_O2[1]});
+        }
+
+        // (Set-U)
+        if (match_normal_head(term, USET, args)) {
+            arg_number_check(args, 1);
+
+            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
+            }
+
+            return bank.get_normal_term(Set, {args[0]});
+        }
+
+        // (Set-Prod)
+        if (match_normal_head(term, CATPROD, args)) {
+            arg_number_check(args, 2);
+
+            auto type_a = calc_type(args[0]);
+            auto type_b = calc_type(args[1]);
+
+            ListArgs<int> args_a;
+            ListArgs<int> args_b;
+            if (!match_normal_head(type_a, Set, args_a) || !match_normal_head(type_b, Set, args_b)) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type Set.");
+            }
+            
+            return bank.get_normal_term(
+                Set, {
+                    bank.get_normal_term(Prod, {args_a[0], args_b[0]})
+                }
+            );
+        }
+
+        // (Sum-Scalar), (Sum-Ket), (Sum-Bra), (Sum-Opt)
+        if (match_normal_head(term, SUM, args)) {
+            arg_number_check(args, 2);
+
+            auto type_s = calc_type(args[0]);
+            auto type_f = calc_type(args[1]);
+
+            ListArgs<int> args_s;
+            ListArgs<int> args_f;
+            if (!match_normal_head(type_s, Set, args_s)) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type Set.");
+            }
+
+            if (!match_normal_head(type_f, ARROW, args_f)) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type Arrow.");
+            }
+
+            if (args_s[0] != args_f[0]) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not the same as the first argument of the second argument " + sig.term_to_string(args[1]) + ".");
+            }
+
+            if (args_f[1]->get_head() == SType || args_f[1]->get_head() == KType || args_f[1]->get_head() == BType || args_f[1]->get_head() == OType) {
+                return args_f[1];
+            }
+
+            else {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type SType, KType, BType or OType.");
+            }
         }
 
         if (term->is_atomic()) {

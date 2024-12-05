@@ -23,6 +23,7 @@ namespace diracoq {
      */
     class Kernel {
     protected:
+        unsigned long long unique_var_id = 0;
         ualg::TermBank<int> bank;
         ualg::Signature<int> sig;
         std::vector<std::pair<int, Declaration>> env;
@@ -44,6 +45,10 @@ namespace diracoq {
 
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);
+        }
+
+        inline const ualg::Term<int>* unique_var() {
+            return parse("@" + std::to_string(unique_var_id++));
         }
 
         inline ualg::TermBank<int>& get_bank() {

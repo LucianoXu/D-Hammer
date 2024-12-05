@@ -26,6 +26,7 @@ namespace diracoq {
         {"BType", SymbolType::NORMAL},
         {"OType", SymbolType::NORMAL},
         {"Prod", SymbolType::NORMAL},
+        {"Set", SymbolType::NORMAL},
         
         {"PAIR", SymbolType::NORMAL},
 
@@ -51,7 +52,11 @@ namespace diracoq {
         {"MULK", SymbolType::NORMAL},
         {"MULB", SymbolType::NORMAL},
         {"OUTER", SymbolType::NORMAL},
-        {"MULO", SymbolType::NORMAL}
+        {"MULO", SymbolType::NORMAL},
+
+        {"USET", SymbolType::NORMAL},
+        {"CATPROD", SymbolType::NORMAL},
+        {"SUM", SymbolType::NORMAL},
     };
 
     const Signature<int> diracoq_sig = compile_string_sig(diracoq_symbols);
@@ -67,6 +72,7 @@ namespace diracoq {
     const auto BType = diracoq_sig.get_repr("BType");
     const auto OType = diracoq_sig.get_repr("OType");
     const auto Prod = diracoq_sig.get_repr("Prod");
+    const auto Set = diracoq_sig.get_repr("Set");
 
     const auto PAIR = diracoq_sig.get_repr("PAIR");
 
@@ -93,6 +99,10 @@ namespace diracoq {
     const auto MULB = diracoq_sig.get_repr("MULB");
     const auto OUTER = diracoq_sig.get_repr("OUTER");
     const auto MULO = diracoq_sig.get_repr("MULO");
+
+    const auto USET = diracoq_sig.get_repr("USET");
+    const auto CATPROD = diracoq_sig.get_repr("CATPROD");
+    const auto SUM = diracoq_sig.get_repr("SUM");
 
     const std::set<int> a_symbols = {ADDS, MULS, ADD};
     const std::set<int> c_symbols = {ADDS, MULS, DELTA, ADD};
