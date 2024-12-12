@@ -13,6 +13,18 @@ namespace diracoq {
         inline bool is_def() const {
             return def.has_value();
         }
+
+        inline bool is_index_assum() const {
+            return !is_def() && type->get_head() == INDEX;
+        }
+
+        inline bool is_type_assum() const {
+            return !is_def() && type->get_head() == TYPE;
+        }
+
+        inline bool is_term() const {
+            return type->get_head() != INDEX && type->get_head() != TYPE;
+        }
     };
 
     /** 
@@ -27,6 +39,7 @@ namespace diracoq {
         ualg::TermBank<int> bank;
         ualg::Signature<int> sig;
         std::vector<std::pair<int, Declaration>> env;
+        std::vector<const ualg::Term<int>*> ctx;
 
         inline void arg_number_check(const ualg::ListArgs<int>& args, int num) {
             if (args.size() != num) {
@@ -99,7 +112,16 @@ namespace diracoq {
         std::string env_to_string() const;
 
         /**
-         * @brief Checks if the term is a type.
+         * @brief Checks if the expression is a index.
+         * 
+         * @param term a well-typed term.
+         * @return true 
+         * @return false 
+         */
+        bool is_index(const ualg::Term<int>* term);
+
+        /**
+         * @brief Checks if the expression is a type.
          * 
          * @param term a well-typed term.
          * @return true 
@@ -118,16 +140,6 @@ namespace diracoq {
         const ualg::Term<int>* calc_type(const ualg::Term<int>* term);
 
         /**
-         * @brief Check whether typeA is a subtype of typeB.
-         * 
-         * @param typeA 
-         * @param typeB 
-         * @return true 
-         * @return false 
-         */
-        bool is_subtype(const ualg::Term<int>* typeA, const ualg::Term<int>* typeB);
-
-        /**
          * @brief Check if the term is well-formed and well-typed.
          * 
          * @param term 
@@ -135,7 +147,7 @@ namespace diracoq {
          * @return false 
          */
         bool type_check(const ualg::Term<int>* term, const ualg::Term<int>* type) {
-            return is_subtype(calc_type(term), type);
+            return calc_type(term) == type;
         }
 
         /**
@@ -160,5 +172,16 @@ namespace diracoq {
          * 
          */
         void env_pop();
+
+        void context_push(const ualg::Term<int>* term);
+
+        void context_pop();
+
+        inline const ualg::Term<int>* context_at_i(int i) const {
+            if (i >= ctx.size()) {
+                throw std::runtime_error("Bound variable index out of range: the context has only " + std::to_string(ctx.size()) + " elements, but the bound variable is $" + std::to_string(i) + ".");
+            }
+            return ctx[ctx.size() - 1 - i];
+        }
     };
 } // namespace diracoq

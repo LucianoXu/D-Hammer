@@ -1,6 +1,7 @@
 #################################
 # Tests list
 set(tests
+    test_deBruijn
     test_calculus
     test_reduction
     test_special_eq

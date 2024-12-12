@@ -41,22 +41,21 @@ TEST(DiracoqParsing, Basics2) {
 
 }
 
-TEST(DiracoqTypeCalc, successes) {
+TEST(DiracoqTypeCalc, assum) {
     Kernel kernel;
 
     // (Assum)
     kernel.assum(kernel.register_symbol("x"), kernel.parse("Type"));
     EXPECT_EQ(kernel.calc_type(kernel.parse("x")), kernel.parse("Type"));
-    kernel.env_pop();
+}
+
+TEST(DiracoqTypeCalc, def_fun) {
+    Kernel kernel;
 
     // (Def)
-    kernel.def(kernel.register_symbol("f"), kernel.parse("fun (x Type x)"), kernel.parse("Arrow(Type Type)"));
-    EXPECT_EQ(kernel.calc_type(kernel.parse("f")), kernel.parse("Arrow(Type Type)"));
-
-    // (App)
-    kernel.assum(kernel.register_symbol("x"), kernel.parse("Type"));
-    EXPECT_EQ(kernel.calc_type(kernel.parse("apply(f x)")), kernel.parse("Type"));
-
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
+    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(T $0)"), kernel.parse("Arrow(T T)"));
+    EXPECT_EQ(kernel.calc_type(kernel.parse("f")), kernel.parse("Arrow(T T)"));
 }
 
 TEST(DiracoqTypeCalc, errors) {
@@ -67,23 +66,56 @@ TEST(DiracoqTypeCalc, errors) {
     EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("Type")));
 }
 
-TEST(DiracoqTypeCheck, Type_Base) {
-    Kernel kernel;
+// Typing Test
 
-    EXPECT_TRUE(kernel.type_check(kernel.parse("Base"), kernel.parse("Type")));
+
+TEST(DiracoqTypeCheck, Index_Var) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("sigma"), kernel.parse("Index")));
 }
 
-TEST(DiracoqTypeCheck, Base_Subtype) {
+TEST(DiracoqTypeCheck, Index_Prod) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("tau"), kernel.parse("Index"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("Prod(sigma tau)"), kernel.parse("Index")));
+}
+
+TEST(DiracoqTypeCheck, Type_Context_Var) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
-    EXPECT_TRUE(kernel.type_check(kernel.parse("T"), kernel.parse("Type")));
+    kernel.context_push(kernel.parse("Index"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("$0"), kernel.parse("Index")));
 }
+
+TEST(DiracoqTypeCheck, Type_Arrow) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Type"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("Arrow(T1 T2)"), kernel.parse("Type")));
+}
+
+TEST(DiracoqTypeCheck, Type_Index) {
+    Kernel kernel;
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("Forall(KType($0))"), kernel.parse("Type")));
+
+    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("Forall(KType($1))"), kernel.parse("Type")));
+}
+
+TEST(DiracoqTypeCheck, Type_Basis) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("Basis(sigma)"), kernel.parse("Type")));
+}
+
 
 TEST(DiracoqTypeCheck, Type_Ket) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("KType(A)"), kernel.parse("Type")));
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
@@ -93,7 +125,7 @@ TEST(DiracoqTypeCheck, Type_Ket) {
 TEST(DiracoqTypeCheck, Type_Bra) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("BType(A)"), kernel.parse("Type")));
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
@@ -103,7 +135,7 @@ TEST(DiracoqTypeCheck, Type_Bra) {
 TEST(DiracoqTypeCheck, Type_Opt) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("OType(A A)"), kernel.parse("Type")));
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
@@ -120,8 +152,63 @@ TEST(DiracoqTypeCheck, Type_Scalar) {
 TEST(DiracoqTypeCheck, Type_Set) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("Set(T)"), kernel.parse("Type")));
+}
+
+TEST(DiracoqTypeCheck, Term_Var1) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("x"), kernel.parse("Type"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("x"), kernel.parse("Type")));
+}
+
+TEST(DiracoqTypeCheck, Term_Var2) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
+    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(T $0)"), kernel.parse("Arrow(T T)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("f"), kernel.parse("Arrow(T T)")));
+}
+
+TEST(DiracoqTypeCheck, Lam) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("fun(T $0)"), kernel.parse("Arrow(T T)")));
+}
+
+TEST(DiracoqTypeCheck, Index) {
+    Kernel kernel;
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("fun(0K($0))"), kernel.parse("Forall(KType($0))")));
+}
+
+TEST(DiracoqTypeCheck, App_Arrow) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T T)"));
+    kernel.assum(kernel.register_symbol("x"), kernel.parse("T"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("apply(f x)"), kernel.parse("T")));
+}
+
+TEST(DiracoqTypeCheck, App_Index) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(KType($0))"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("apply(f sigma)"), kernel.parse("KType(sigma)")));
+}
+
+TEST(DiracoqTypeCheck, Pair_Base) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("t1"), kernel.parse("Basis(A)"));
+    kernel.assum(kernel.register_symbol("t2"), kernel.parse("Basis(B)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("PAIR(t1 t2)"), kernel.parse("Basis(Prod(A B))")));
 }
 
 TEST(DiracoqTypeCheck, Sca_0) {
@@ -138,13 +225,13 @@ TEST(DiracoqTypeCheck, Sca_1) {
 
 TEST(DiracoqTypeCheck, Sca_Delta) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("a1"), kernel.parse("A"));
-    kernel.assum(kernel.register_symbol("a2"), kernel.parse("A"));
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a1"), kernel.parse("Basis(A)"));
+    kernel.assum(kernel.register_symbol("a2"), kernel.parse("Basis(A)"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("DELTA(a1 a2)"), kernel.parse("SType")));
 
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("b"), kernel.parse("B"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("Basis(B)"));
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("DELTA(a1 b)"), kernel.parse("SType")));
 }
 
@@ -184,42 +271,21 @@ TEST(DiracoqTypeCheck, Sca_Conj) {
 
 TEST(DiracoqTypeCheck, Sca_Dot) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("K1"), kernel.parse("KType(T1)"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T1)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("DOT(B K1)"), kernel.parse("SType")));
 
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("K2"), kernel.parse("KType(T2)"));
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("DOT(B K2)"), kernel.parse("SType")));
-}
-
-TEST(DiracoqTypeCheck, Base_Prod) {
-    Kernel kernel;
-
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("Base"));
-    EXPECT_TRUE(kernel.type_check(kernel.parse("Prod(A B)"), kernel.parse("Type")));
-
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("Prod(T B)"), kernel.parse("Type")));
-}
-
-TEST(DiracoqTypeCheck, Pair_Base) {
-    Kernel kernel;
-
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("t1"), kernel.parse("A"));
-    kernel.assum(kernel.register_symbol("t2"), kernel.parse("B"));
-    EXPECT_TRUE(kernel.type_check(kernel.parse("PAIR(t1 t2)"), kernel.parse("Prod(A B)")));
 }
 
 TEST(DiracoqTypeCheck, Ket_0) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("0K(T)"), kernel.parse("KType(T)")));
     EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("0K(T T)")));
@@ -228,20 +294,16 @@ TEST(DiracoqTypeCheck, Ket_0) {
 TEST(DiracoqTypeCheck, Ket_Base) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("t"), kernel.parse("T"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("t"), kernel.parse("Basis(T)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("KET(t)"), kernel.parse("KType(T)")));
-
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("t2"), kernel.parse("T2"));
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("KET(t2)"), kernel.parse("KType(T2)")));
 }
 
 TEST(DiracoqTypeCheck, Ket_Adj) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADJ(B)"), kernel.parse("KType(T)")));
@@ -251,7 +313,7 @@ TEST(DiracoqTypeCheck, Ket_Scr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("SCR(a K)"), kernel.parse("KType(T)")));
@@ -260,7 +322,7 @@ TEST(DiracoqTypeCheck, Ket_Scr) {
 TEST(DiracoqTypeCheck, Ket_Add) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("K1"), kernel.parse("KType(T)"));
     kernel.assum(kernel.register_symbol("K2"), kernel.parse("KType(T)"));
     kernel.assum(kernel.register_symbol("K3"), kernel.parse("KType(T)"));
@@ -271,8 +333,8 @@ TEST(DiracoqTypeCheck, Ket_Add) {
 TEST(DiracoqTypeCheck, Ket_MulK) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
 
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OType(T1 T2)"));
     kernel.assum(kernel.register_symbol("K1"), kernel.parse("KType(T2)"));
@@ -286,8 +348,8 @@ TEST(DiracoqTypeCheck, Ket_MulK) {
 TEST(DiracoqTypeCheck, Ket_Tsr) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
 
     kernel.assum(kernel.register_symbol("K1"), kernel.parse("KType(T1)"));
     kernel.assum(kernel.register_symbol("K2"), kernel.parse("KType(T2)"));
@@ -298,7 +360,7 @@ TEST(DiracoqTypeCheck, Ket_Tsr) {
 TEST(DiracoqTypeCheck, Bra_0) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("0B(T)"), kernel.parse("BType(T)")));
     EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("0B(T T)")));
@@ -307,20 +369,16 @@ TEST(DiracoqTypeCheck, Bra_0) {
 TEST(DiracoqTypeCheck, Bra_Base) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("t"), kernel.parse("T"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("t"), kernel.parse("Basis(T)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("BRA(t)"), kernel.parse("BType(T)")));
-
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("t2"), kernel.parse("T2"));
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("BRA(t2)"), kernel.parse("BType(T2)")));
 }
 
 TEST(DiracoqTypeCheck, Bra_Adj) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADJ(K)"), kernel.parse("BType(T)")));
@@ -330,7 +388,7 @@ TEST(DiracoqTypeCheck, Bra_Scr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("SCR(a B)"), kernel.parse("BType(T)")));
@@ -339,7 +397,7 @@ TEST(DiracoqTypeCheck, Bra_Scr) {
 TEST(DiracoqTypeCheck, Bra_Add) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("B1"), kernel.parse("BType(T)"));
     kernel.assum(kernel.register_symbol("B2"), kernel.parse("BType(T)"));
     kernel.assum(kernel.register_symbol("B3"), kernel.parse("BType(T)"));
@@ -350,8 +408,8 @@ TEST(DiracoqTypeCheck, Bra_Add) {
 TEST(DiracoqTypeCheck, Bra_MulB) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
 
     kernel.assum(kernel.register_symbol("B1"), kernel.parse("BType(T1)"));
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OType(T1 T2)"));
@@ -365,8 +423,8 @@ TEST(DiracoqTypeCheck, Bra_MulB) {
 TEST(DiracoqTypeCheck, Bra_Tsr) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("B1"), kernel.parse("BType(T1)"));
     kernel.assum(kernel.register_symbol("B2"), kernel.parse("BType(T2)"));
 
@@ -376,8 +434,8 @@ TEST(DiracoqTypeCheck, Bra_Tsr) {
 TEST(DiracoqTypeCheck, Opt_0) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("0O(T1 T2)"), kernel.parse("OType(T1 T2)")));
     EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("0O(T1)")));
@@ -386,8 +444,8 @@ TEST(DiracoqTypeCheck, Opt_0) {
 TEST(DiracoqTypeCheck, Opt_1) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("1O(T1)"), kernel.parse("OType(T1 T1)")));
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("1O(T1 T2)"), kernel.parse("OType(T1 T1)")));
@@ -396,8 +454,8 @@ TEST(DiracoqTypeCheck, Opt_1) {
 TEST(DiracoqTypeCheck, Opt_Adj) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADJ(O)"), kernel.parse("OType(T2 T1)")));
@@ -407,8 +465,8 @@ TEST(DiracoqTypeCheck, Opt_Scr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("SCR(a O)"), kernel.parse("OType(T1 T2)")));
@@ -417,8 +475,8 @@ TEST(DiracoqTypeCheck, Opt_Scr) {
 TEST(DiracoqTypeCheck, Opt_Add) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OType(T1 T2)"));
     kernel.assum(kernel.register_symbol("O2"), kernel.parse("OType(T1 T2)"));
     kernel.assum(kernel.register_symbol("O3"), kernel.parse("OType(T1 T2)"));
@@ -432,8 +490,8 @@ TEST(DiracoqTypeCheck, Opt_Add) {
 TEST(DiracoqTypeCheck, Opt_Outer) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T1)"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T2)"));
 
@@ -443,9 +501,9 @@ TEST(DiracoqTypeCheck, Opt_Outer) {
 TEST(DiracoqTypeCheck, Opt_MulO) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OType(T1 T2)"));
     kernel.assum(kernel.register_symbol("O2"), kernel.parse("OType(T2 T3)"));
 
@@ -458,10 +516,10 @@ TEST(DiracoqTypeCheck, Opt_MulO) {
 TEST(DiracoqTypeCheck, Opt_Tsr) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T4"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T4"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OType(T1 T2)"));
     kernel.assum(kernel.register_symbol("O2"), kernel.parse("OType(T3 T4)"));
 
@@ -471,7 +529,7 @@ TEST(DiracoqTypeCheck, Opt_Tsr) {
 TEST(DiracoqTypeCheck, Set_U) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     
     EXPECT_TRUE(kernel.type_check(kernel.parse("USET(T)"), kernel.parse("Set(T)")));
 }
@@ -479,8 +537,8 @@ TEST(DiracoqTypeCheck, Set_U) {
 TEST(DiracoqTypeCheck, Set_Prod) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
 
     kernel.assum(kernel.register_symbol("S1"), kernel.parse("Set(T1)"));
     kernel.assum(kernel.register_symbol("S2"), kernel.parse("Set(T2)"));
@@ -491,9 +549,9 @@ TEST(DiracoqTypeCheck, Set_Prod) {
 TEST(DiracoqTypeCheck, Sum_Scalar) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("s"), kernel.parse("Set(T)"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T SType)"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(Basis(T) SType)"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("SType")));
 }
@@ -501,10 +559,10 @@ TEST(DiracoqTypeCheck, Sum_Scalar) {
 TEST(DiracoqTypeCheck, Sum_Ket) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("s"), kernel.parse("Set(T)"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T KType(sigma))"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(Basis(T) KType(sigma))"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("KType(sigma)")));
 }
@@ -512,10 +570,10 @@ TEST(DiracoqTypeCheck, Sum_Ket) {
 TEST(DiracoqTypeCheck, Sum_Bra) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("s"), kernel.parse("Set(T)"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T BType(sigma))"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(Basis(T) BType(sigma))"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("BType(sigma)")));
 }
@@ -524,11 +582,11 @@ TEST(DiracoqTypeCheck, Sum_Bra) {
 TEST(DiracoqTypeCheck, Sum_Opt) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Base"));
-    kernel.assum(kernel.register_symbol("tau"), kernel.parse("Base"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("tau"), kernel.parse("Index"));
     kernel.assum(kernel.register_symbol("s"), kernel.parse("Set(T)"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T OType(sigma tau))"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(Basis(T) OType(sigma tau))"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("OType(sigma tau)")));
 }

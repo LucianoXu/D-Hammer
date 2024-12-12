@@ -44,10 +44,20 @@ namespace diracoq {
         return res;
     }
 
+    bool Kernel::is_index(const Term<int>* term) {
+        auto type = calc_type(term);
+
+        if (type->get_head() == INDEX) {
+            return true;
+        }
+
+        return false;
+    }
+
     bool Kernel::is_type(const Term<int>* term) {
         auto type = calc_type(term);
 
-        if (type->get_head() == TYPE || type->get_head() == BASE) {
+        if (type->get_head() == TYPE) {
             return true;
         }
 
@@ -55,10 +65,35 @@ namespace diracoq {
     }
 
 
+
+
     const Term<int>* Kernel::calc_type(const Term<int>* term) {
         ListArgs<int> args;
+        // (Index-Prod)
+        if (match_normal_head(term, Prod, args)) {
+            arg_number_check(args, 2);
 
-        // (Arrow)
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not an index.");
+            }
+
+            if (!is_index(args[1])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not an index.");
+            }
+
+            return bank.get_normal_term(INDEX, {});
+        }
+
+        // (Type-Context-Var) 
+        if (is_deBruijn_index(term->get_head())) {
+            if (static_cast<const NormalTerm<int>*>(term) -> get_args().size() != 0) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it is a de Bruijn index with arguments.");
+            }
+
+            return context_at_i(term->get_head());
+        }
+
+        // (Type-Arrow)
         if (match_normal_head(term, ARROW, args)) {
             arg_number_check(args, 2);
 
@@ -72,23 +107,132 @@ namespace diracoq {
             return bank.get_normal_term(TYPE, {});
         }
 
-        // (Lam)
-        if (match_normal_head(term, FUN, args)) {
-            arg_number_check(args, 3);
+        // (Type-Index)
+        if (match_normal_head(term, FORALL, args)) {
+            arg_number_check(args, 1);
 
-            // try to add the definition
-            assum(args[0]->get_head(), args[1]);
-            
-            // calculate the type of the body
-            auto type_body = calc_type(args[2]);
-            env.pop_back();
+            context_push(bank.get_normal_term(INDEX, {}));
 
-            return bank.get_normal_term(ARROW, {args[1], type_body});
+            try {
+                if (!is_type(args[0])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the body " + sig.term_to_string(args[1]) + " is not a well-typed type.");
+                }
+
+                ctx.pop_back();
+                return bank.get_normal_term(TYPE, {});
+            }
+            catch (const std::runtime_error& e) {
+                ctx.pop_back();
+                throw e;
+            }
         }
 
-        // (App)
+        // (Type-Basis) 
+        if (match_normal_head(term, BASIS, args)) {
+            arg_number_check(args, 1);
+
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
+            }
+            return bank.get_normal_term(TYPE, {});
+        }
+        // (Type-Ket)
+        if (match_normal_head(term, KType, args)) {
+            arg_number_check(args, 1);
+            
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
+            }
+            return bank.get_normal_term(TYPE, {});
+        }
+        // (Type-Bra)
+        if (match_normal_head(term, BType, args)) {
+            arg_number_check(args, 1);
+
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
+            }
+            return bank.get_normal_term(TYPE, {});
+        }
+        // (Type-Opt)
+        if (match_normal_head(term, OType, args)) {
+            arg_number_check(args, 2);
+            
+            if (!(is_index(args[0]) && is_index(args[1]))) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not indices.");
+            }
+            return bank.get_normal_term(TYPE, {});
+        }
+        // (Type-Scalar)
+        if (match_normal_head(term, SType, args)) {
+            arg_number_check(args, 0);
+
+            return bank.get_normal_term(TYPE, {});
+        }
+        // (Type-Set)
+        if (match_normal_head(term, Set, args)) {
+            arg_number_check(args, 1);
+
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
+            }
+
+            return bank.get_normal_term(TYPE, {});
+        }
+
+        if (match_normal_head(term, FUN, args)) {
+            // (Lam)
+            if (args.size() == 2) {
+
+                // try to add to the context
+                context_push(args[0]);
+
+                try {
+                    // calculate the type of the body
+                    auto type_body = calc_type(args[1]);
+
+                    if (!is_type(type_body)) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the body " + sig.term_to_string(args[2]) + " is not a well-typed type.");
+                    }
+
+                    ctx.pop_back();
+                    return bank.get_normal_term(ARROW, {args[0], type_body});
+                }
+                catch (const std::runtime_error& e) {
+                    // pop the definition
+                    ctx.pop_back();
+                    throw e;
+                }
+            }
+
+            // (Index)
+            else if (args.size() == 1) {
+                // try to add the definition
+                ctx.push_back(bank.get_normal_term(INDEX, {}));
+
+                try {
+                    // calculate the type of the body
+                    auto type_body = calc_type(args[0]);
+
+                    if (!is_type(type_body)) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the body " + sig.term_to_string(args[1]) + " is not a well-typed type.");
+                    }
+
+                    ctx.pop_back();
+                    return bank.get_normal_term(FORALL, {type_body});
+                }
+                catch (const std::runtime_error& e) {
+                    // pop the definition
+                    ctx.pop_back();
+                    throw e;
+                }
+            }
+        }
+
+        // (App-Arrow), (App-Index)
         if (match_normal_head(term, APPLY, args)) {
             arg_number_check(args, 2);
+
 
             // calculate the type of f, which should be Arrow(T, U)
             auto type_f = calc_type(args[0]);
@@ -104,57 +248,38 @@ namespace diracoq {
                 return args_f[1];
             }
 
-            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the function " + sig.term_to_string(args[0]) + " is not an arrow type.");
-        }
-        // (Type-Base)
-        if (match_normal_head(term, BASE, args)) {
-            arg_number_check(args, 0);
+            else if (match_normal_head(type_f, FORALL, args_f)) {
+                // check whether the type of u is Index
+                if (!is_index(args[1])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the argument " + sig.term_to_string(args[1]) + " is not an index.");
+                }
 
-            return bank.get_normal_term(TYPE, {});
-        }
-        // (Type-Ket)
-        if (match_normal_head(term, KType, args)) {
-            arg_number_check(args, 1);
-            
-            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
+                // return the instantiated type
+                return instantiate(bank, 
+                    static_cast<const NormalTerm<int>*>(args_f[0]), 
+                    static_cast<const NormalTerm<int>*>(args[1]));
             }
-            return bank.get_normal_term(TYPE, {});
-        }
-        // (Type-Bra)
-        if (match_normal_head(term, BType, args)) {
-            arg_number_check(args, 1);
 
-            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
-            }
-            return bank.get_normal_term(TYPE, {});
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the function " + sig.term_to_string(args[0]) + " is not an arrow type or forall type.");
         }
-        // (Type-Opt)
-        if (match_normal_head(term, OType, args)) {
+
+        // (Pair-Base)
+        if (match_normal_head(term, PAIR, args)) {
             arg_number_check(args, 2);
-            
-            if (!(type_check(args[0], bank.get_normal_term(BASE, {})) && type_check(args[1], bank.get_normal_term(BASE, {})))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type Base.");
-            }
-            return bank.get_normal_term(TYPE, {});
-        }
-        // (Type-Scalar)
-        if (match_normal_head(term, SType, args)) {
-            arg_number_check(args, 0);
 
-            return bank.get_normal_term(TYPE, {});
-        }
-        // (Type-Set)
-        if (match_normal_head(term, Set, args)) {
-            arg_number_check(args, 1);
+            auto type_a = calc_type(args[0]);
+            auto type_b = calc_type(args[1]);
 
-            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
+            ListArgs<int> args_a;
+            ListArgs<int> args_b;
+
+            if (!(match_normal_head(type_a, BASIS, args_a)) || !(match_normal_head(type_b, BASIS, args_b)) ) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the types of the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type Basis.");
             }
 
-            return bank.get_normal_term(TYPE, {});
+            return bank.get_normal_term(BASIS, {bank.get_normal_term(Prod, {args_a[0], args_b[0]})});
         }
+
         // (Sca-0)
         if (match_normal_head(term, ZERO, args)) {
             arg_number_check(args, 0);
@@ -174,9 +299,11 @@ namespace diracoq {
             // Calculate the type of the first argument
             auto type_a = calc_type(args[0]);
             
+            ListArgs<int> args_a;
+
             // Check whether it is Base
-            if (!(type_check(type_a, bank.get_normal_term(BASE, {})))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of first argument " + sig.term_to_string(type_a) + " is not of type Base.");
+            if (!match_normal_head(type_a, BASIS, args_a)) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type Basis.");
             }
 
             // Check whether b is of type type_a
@@ -244,31 +371,6 @@ namespace diracoq {
             }
 
             return bank.get_normal_term(SType, {});
-        }
-
-        // (Base-Prod)
-        if (match_normal_head(term, Prod, args)) {
-            arg_number_check(args, 2);
-
-            if (!(type_check(args[0], bank.get_normal_term(BASE, {}))) || !(type_check(args[1], bank.get_normal_term(BASE, {}))) ) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type Base.");
-            }
-
-            return bank.get_normal_term(TYPE, {});
-        }
-
-        // (Pair-Base)
-        if (match_normal_head(term, PAIR, args)) {
-            arg_number_check(args, 2);
-
-            auto type_a = calc_type(args[0]);
-            auto type_b = calc_type(args[1]);
-
-            if (!(type_check(type_a, bank.get_normal_term(BASE, {}))) || !(type_check(type_b, bank.get_normal_term(BASE, {}))) ) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type Base.");
-            }
-
-            return bank.get_normal_term(Prod, {type_a, type_b});
         }
 
         // (Ket-Adj), (Bra-Adj), (Opt-Adj)
@@ -362,9 +464,9 @@ namespace diracoq {
         // (Ket-0)
         if (match_normal_head(term, ZEROK, args)) {
             arg_number_check(args, 1);
-
-            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
+            
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
             return bank.get_normal_term(KType, {args[0]});
@@ -375,12 +477,12 @@ namespace diracoq {
             arg_number_check(args, 1);
 
             auto type_t = calc_type(args[0]);
-
-            if (!type_check(type_t, bank.get_normal_term(BASE, {}))) {
+            ListArgs<int> args_t;
+            if (!match_normal_head(type_t, BASIS, args_t)) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
             }
 
-            return bank.get_normal_term(KType, {type_t});
+            return bank.get_normal_term(KType, {args_t[0]});
         }
 
         // (Ket-MulK)
@@ -411,8 +513,8 @@ namespace diracoq {
         if (match_normal_head(term, ZEROB, args)) {
             arg_number_check(args, 1);
 
-            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
             return bank.get_normal_term(BType, {args[0]});
@@ -423,12 +525,12 @@ namespace diracoq {
             arg_number_check(args, 1);
 
             auto type_t = calc_type(args[0]);
-
-            if (!type_check(type_t, bank.get_normal_term(BASE, {}))) {
+            ListArgs<int> args_t;
+            if (!match_normal_head(type_t, BASIS, args_t)) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
             }
 
-            return bank.get_normal_term(BType, {type_t});
+            return bank.get_normal_term(BType, {args_t[0]});
         }
 
         // (Bra-MulB)
@@ -459,8 +561,8 @@ namespace diracoq {
         if (match_normal_head(term, ZEROO, args)) {
             arg_number_check(args, 2);
 
-            if (!(type_check(args[0], bank.get_normal_term(BASE, {})) && type_check(args[1], bank.get_normal_term(BASE, {}))) ) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type Base.");
+            if (!(is_index(args[0]) && is_index(args[1]))) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not indices.");
             }
 
             return bank.get_normal_term(OType, {args[0], args[1]});
@@ -469,9 +571,9 @@ namespace diracoq {
         // (Opt-1)
         if (match_normal_head(term, ONEO, args)) {
             arg_number_check(args, 1);
-
-            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
+            
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
             return bank.get_normal_term(OType, {args[0], args[0]});
@@ -525,8 +627,8 @@ namespace diracoq {
         if (match_normal_head(term, USET, args)) {
             arg_number_check(args, 1);
 
-            if (!type_check(args[0], bank.get_normal_term(BASE, {}))) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
+            if (!is_index(args[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
             return bank.get_normal_term(Set, {args[0]});
@@ -569,8 +671,13 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type Arrow.");
             }
 
-            if (args_s[0] != args_f[0]) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not the same as the first argument of the second argument " + sig.term_to_string(args[1]) + ".");
+            ListArgs<int> args_f_basis;
+            if (!match_normal_head(args_f[0], BASIS, args_f_basis)) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument of the second argument " + sig.term_to_string(args[1]) + " is not of type Basis.");
+            }
+
+            if (args_s[0] != args_f_basis[0]) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the first argument of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
             if (args_f[1]->get_head() == SType || args_f[1]->get_head() == KType || args_f[1]->get_head() == BType || args_f[1]->get_head() == OType) {
@@ -596,20 +703,9 @@ namespace diracoq {
         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' cannot be typed.");
     }
 
-    bool Kernel::is_subtype(const ualg::Term<int>* typeA, const ualg::Term<int>* typeB) {
-        if (typeA == typeB) {
-            return true;
-        }        
-        // (Base-Subtype)
-        if (typeB->get_head() == TYPE && typeA->get_head() == BASE) {
-            return true;
-        }
-
-        return false;
-    }
-
     void Kernel::assum(int symbol, const Term<int>* type) {
         auto TYPE_term = bank.get_normal_term(TYPE, {});
+        auto INDEX_term = bank.get_normal_term(INDEX, {});
 
         if (is_reserved(symbol)) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is reserved.");
@@ -618,14 +714,19 @@ namespace diracoq {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is already in the environment.");
         }
 
+        // W-Assum-Index
+        if (type == INDEX_term) {
+            env.push_back({symbol, {std::nullopt, type}});
+        }
+
         // W-Assum-Type
-        if (type == TYPE_term) {
+        else if (type == TYPE_term) {
             env.push_back({symbol, {std::nullopt, type}});
         }
 
         // W-Assum-Term
         else {
-            if (!type_check(type, bank.get_normal_term(TYPE, {}))) {
+            if (!is_type(type)) {
                 throw std::runtime_error("The type of the symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is not a well-typed type.");
             }
             env.push_back({symbol, {std::nullopt, type}});
@@ -639,22 +740,49 @@ namespace diracoq {
         if (find_in_env(symbol) != std::nullopt) {
             throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_normal_term(symbol, {})) + "' is already in the environment."); 
         }
+
+        auto deducted_type = calc_type(term);
+        if (!is_type(deducted_type)) {
+            throw std::runtime_error("The term '" + sig.term_to_string(term) + "' is not well-typed.");
+        }
+
         if (type.has_value()) {
             if (!type_check(term, type.value())) {
                 throw std::runtime_error("The term '" + sig.term_to_string(term) + "' is not well-typed with the type '" + sig.term_to_string(type.value()) + "'.");
             }
-        }
-        else {
-            type = calc_type(term);
         }
         env.push_back({symbol, {term, type.value()}});
     }
 
     void Kernel::env_pop() {
         if (env.size() == 0) {
-            throw std::runtime_error("The context is empty.");
+            throw std::runtime_error("The environment is empty.");
         }
         env.pop_back();
     }
+
+
+    void Kernel::context_push(const ualg::Term<int>* term) {
+        auto normal_term = static_cast<const ualg::NormalTerm<int>*>(term);
+        if (term->get_head() == INDEX && normal_term->get_args().size() == 0) {
+            ctx.push_back(term);
+            return;
+        }
+
+        if (is_type(term)) {
+            ctx.push_back(term);
+            return;
+        }
+
+        throw std::runtime_error("The term '" + sig.term_to_string(term) + "' is not a valid type for bound index.");
+    }
+
+    void Kernel::context_pop() {
+        if (ctx.size() == 0) {
+            throw std::runtime_error("The context is empty.");
+        }
+        ctx.pop_back();
+    }
+
 
 } // namespace diracoq

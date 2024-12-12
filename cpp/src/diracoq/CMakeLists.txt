@@ -3,6 +3,7 @@ add_library(
     DIRACOQ
 
     reserved.cpp
+    deBruijn.cpp
     calculus.cpp
     reduction.cpp
     trace2coq.cpp
