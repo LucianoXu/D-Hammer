@@ -90,11 +90,13 @@ TEST(Diraqcoq_deBruijn, swap2) {
 
     Kernel kernel;
 
-    auto expr = kernel.parse("apply($0 fun($2 $0))");
+    auto expr = kernel.parse("apply($0 fun($1 $0))");
 
     auto actual_res = deBruijn_swap(kernel.get_bank(), expr, 0, 1);
 
-    auto expected_res = kernel.parse("apply($1 fun($1 $0))");
+    cout << kernel.term_to_string(actual_res) << endl;
+
+    auto expected_res = kernel.parse("apply($1 fun($0 $0))");
 
     EXPECT_EQ(actual_res, expected_res);
 }

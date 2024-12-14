@@ -39,17 +39,20 @@ namespace diracoq {
         }
 
         ListArgs<int> new_args;
-        const NormalTerm<int>* new_t = norm_t;
-
-        unsigned new_index = index;
+        auto& args = norm_term->get_args();
         if (term_head == FUN || term_head == FORALL) {
-            new_index++; 
-            new_t = _bound_index_push(bank, norm_t);
+            if (args.size() == 2) {
+                new_args.push_back(deBruijn_replace(bank, args[0], index, t));
+                new_args.push_back(deBruijn_replace(bank, args[1], index+1, _bound_index_push(bank, norm_t)));
+            }
+            else {
+                new_args.push_back(deBruijn_replace(bank, args[0], index+1, _bound_index_push(bank, norm_t)));
+            }
         }
-
-
-        for (const auto& arg : norm_term->get_args()) {
-            new_args.push_back(deBruijn_replace(bank, arg, new_index, new_t));
+        else {
+            for (const auto& arg : norm_term->get_args()) {
+                new_args.push_back(deBruijn_replace(bank, arg, index, t));
+            }
         }
 
         return bank.get_normal_term(term_head, std::move(new_args));
@@ -57,23 +60,32 @@ namespace diracoq {
 
     const NormalTerm<int>* deBruijn_adjust(TermBank<int>& bank, const Term<int>* term, int index, int adjustment) {
         auto term_head = term->get_head();
+        auto norm_term = static_cast<const NormalTerm<int>*>(term);
         if (is_deBruijn_index(term_head)) {
             if (term_head >= index) {
                 return bank.get_normal_term(term_head + adjustment, {});
             }
             else {
-                return static_cast<const NormalTerm<int>*>(term);
+                return norm_term;
             }
         }
 
-        auto new_index = index;
-        if (term_head == FUN || term_head == FORALL) {
-            new_index++;
-        }
-
+        auto& args = norm_term->get_args();
         ListArgs<int> new_args;
-        for (const auto& arg : static_cast<const NormalTerm<int>*>(term)->get_args()) {
-            new_args.push_back(deBruijn_adjust(bank, static_cast<const NormalTerm<int>*>(arg), new_index, adjustment));
+
+        if (term_head == FUN || term_head == FORALL) {
+            if (args.size() == 2) {
+                new_args.push_back(deBruijn_adjust(bank, args[0], index, adjustment));
+                new_args.push_back(deBruijn_adjust(bank, args[1], index+1, adjustment));
+            }
+            else {
+                new_args.push_back(deBruijn_adjust(bank, args[0], index+1, adjustment));
+            }
+        }
+        else {
+            for (const auto& arg : norm_term->get_args()) {
+                new_args.push_back(deBruijn_adjust(bank, arg, index, adjustment));
+            }
         }
 
         return bank.get_normal_term(term_head, std::move(new_args));
@@ -100,16 +112,31 @@ namespace diracoq {
             return term->get_head() != index;
         }
 
-        int new_index = index;
+        auto norm_term = static_cast<const NormalTerm<int>*>(term);
+        auto& args = norm_term->get_args();
         if (term->get_head() == FUN || term->get_head() == FORALL) {
-            new_index++;
-        }
-
-        for (const auto& arg : static_cast<const NormalTerm<int>*>(term)->get_args()) {
-            if (!deBruijn_index_free_in(new_index, arg)) {
-                return false;
+            if (args.size() == 2) {
+                if (!deBruijn_index_free_in(index, args[0])) {
+                    return false;
+                }
+                if (!deBruijn_index_free_in(index+1, args[1])) {
+                    return false;
+                }
+            }
+            else {
+                if (!deBruijn_index_free_in(index+1, args[0])) {
+                    return false;
+                }
             }
         }
+        else {
+            for (const auto& arg : args) {
+                if (!deBruijn_index_free_in(index, arg)) {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -129,15 +156,21 @@ namespace diracoq {
         }
 
         ListArgs<int> new_args;
-        auto new_i = i;
-        auto new_j = j;
+        auto norm_term = static_cast<const NormalTerm<int>*>(term);
+        auto& args = norm_term->get_args();
         if (term_head == FUN || term_head == FORALL) {
-            new_i++;
-            new_j++;
+            if (args.size() == 2) {
+                new_args.push_back(deBruijn_swap(bank, args[0], i, j));
+                new_args.push_back(deBruijn_swap(bank, args[1], i+1, j+1));
+            }
+            else {
+                new_args.push_back(deBruijn_swap(bank, args[0], i+1, j+1));
+            }
         }
-
-        for (const auto& arg : static_cast<const NormalTerm<int>*>(term)->get_args()) {
-            new_args.push_back(deBruijn_swap(bank, arg, new_i, new_j));
+        else {
+            for (const auto& arg : args) {
+                new_args.push_back(deBruijn_swap(bank, arg, i, j));
+            }
         }
 
         return bank.get_normal_term(term_head, std::move(new_args));

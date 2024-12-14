@@ -567,6 +567,13 @@ TEST(DiracoqTypeCheck, Sum_Ket) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM(s f)"), kernel.parse("KType(sigma)")));
 }
 
+TEST(DiracoqTypeCheck, Sum_Ket_2) {
+    Kernel kernel;
+
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("fun(fun(KType($0) SUM(USET($1) fun(Basis($1) 0K($2)))))"), kernel.parse("Forall(Arrow(KType($0) KType($0)))")));
+}
+
 TEST(DiracoqTypeCheck, Sum_Bra) {
     Kernel kernel;
 

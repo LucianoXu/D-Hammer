@@ -1,0 +1,1 @@
+Def(TPO fun(fun(KType($1) SUM(USET($1) fun(Basis($2) SCR(DOT(BRA($0) $1) BRA($0))))))) 

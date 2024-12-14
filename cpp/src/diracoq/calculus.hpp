@@ -39,7 +39,7 @@ namespace diracoq {
         ualg::TermBank<int> bank;
         ualg::Signature<int> sig;
         std::vector<std::pair<int, Declaration>> env;
-        std::vector<const ualg::Term<int>*> ctx;
+        std::vector<std::vector<const ualg::Term<int>*>> ctx_stack;
 
         inline void arg_number_check(const ualg::ListArgs<int>& args, int num) {
             if (args.size() != num) {
@@ -54,7 +54,7 @@ namespace diracoq {
         // }
 
     public:
-        Kernel() : sig(diracoq_sig) {}
+        Kernel() : sig(diracoq_sig), ctx_stack({{}}) {}
 
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);
@@ -66,6 +66,10 @@ namespace diracoq {
 
         inline ualg::TermBank<int>& get_bank() {
             return bank;
+        }
+
+        inline const std::vector<const ualg::Term<int>*>& get_ctx() const{
+            return ctx_stack.back();
         }
 
         inline const ualg::Signature<int>& get_sig() {
@@ -177,7 +181,9 @@ namespace diracoq {
 
         void context_pop();
 
+
         inline const ualg::Term<int>* context_at_i(int i) const {
+            auto& ctx = ctx_stack.back();
             if (i >= ctx.size()) {
                 throw std::runtime_error("Bound variable index out of range: the context has only " + std::to_string(ctx.size()) + " elements, but the bound variable is $" + std::to_string(i) + ".");
             }
