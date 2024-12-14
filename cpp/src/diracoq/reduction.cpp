@@ -92,10 +92,19 @@ namespace diracoq {
     ListArgs<int> subterm;\
     if (!match_normal_head(term, head, subterm)) return std::nullopt;
 
-    DIRACOQ_RULE_DEF(R_BETA, kernel, term) {
+
+    DIRACOQ_RULE_DEF(R_BETA_ARROW, kernel, term) {
         MATCH_HEAD(term, APPLY, args)
         MATCH_HEAD(args[0], FUN, fun_args)
-        return kernel.get_bank().replace_term(fun_args[2], {{fun_args[0], args[1]}});
+        if (fun_args.size() != 2) return std::nullopt;
+        return instantiate(kernel.get_bank(), fun_args[1], 0, args[1]);
+    }
+
+    DIRACOQ_RULE_DEF(R_BETA_INDEX, kernel, term) {
+        MATCH_HEAD(term, APPLY, args)
+        MATCH_HEAD(args[0], FUN, fun_args)
+        if (fun_args.size() != 1) return std::nullopt;
+        return instantiate(kernel.get_bank(), fun_args[0], 0, args[1]);
     }
 
     DIRACOQ_RULE_DEF(R_DELTA, kernel, term) {
@@ -106,10 +115,22 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    DIRACOQ_RULE_DEF(R_ETA, kernel, term) {
+    DIRACOQ_RULE_DEF(R_ETA_ARROW, kernel, term) {
         MATCH_HEAD(term, FUN, args)
-        MATCH_HEAD(args[2], APPLY, fun_args)
-        if (fun_args[1] != args[0]) return std::nullopt;
+        if (args.size() != 2) return std::nullopt;
+        MATCH_HEAD(args[1], APPLY, fun_args)
+        // check whether the argument is $0
+        if (fun_args[1] != kernel.get_bank().get_normal_term(0, {})) return std::nullopt;
+
+        return fun_args[0];
+    }
+
+    DIRACOQ_RULE_DEF(R_ETA_INDEX, kernel, term) {
+        MATCH_HEAD(term, FUN, args)
+        if (args.size() != 1) return std::nullopt;
+        MATCH_HEAD(args[0], APPLY, fun_args)
+        // check whether the argument is $0
+        if (fun_args[1] !=kernel.get_bank().get_normal_term(0, {})) return std::nullopt;
 
         return fun_args[0];
     }
@@ -2033,69 +2054,68 @@ namespace diracoq {
         return bank.get_normal_term(USET, {bank.get_normal_term(Prod, {args_USET_T1[0], args_USET_T2[0]})});
     }
 
-    // SUM(s fun(x T 0)) -> 0
+    // SUM(s fun(T 0)) -> 0
     DIRACOQ_RULE_DEF(R_SUM_CONST0, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T_0)
 
         MATCH_HEAD(args_SUM_s_fun_x_T_0[1], FUN, args_FUN_x_T_0)
 
-        if (args_FUN_x_T_0[2]->get_head() != ZERO) return std::nullopt;
+        if (args_FUN_x_T_0[1]->get_head() != ZERO) return std::nullopt;
 
-        return args_FUN_x_T_0[2];
+        return args_FUN_x_T_0[1];
     }
 
-    // SUM(s fun(x T1 0K(T2))) -> 0K(T2)
+    // SUM(s fun(T1 0K(T2))) -> 0K(T2)
     DIRACOQ_RULE_DEF(R_SUM_CONST1, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0K_T2)
 
         MATCH_HEAD(args_SUM_s_fun_x_T1_0K_T2[1], FUN, args_FUN_x_T1_0K_T2)
 
-        if (args_FUN_x_T1_0K_T2[2]->get_head() != ZEROK) return std::nullopt;
+        if (args_FUN_x_T1_0K_T2[1]->get_head() != ZEROK) return std::nullopt;
 
-        return args_FUN_x_T1_0K_T2[2];
+        return args_FUN_x_T1_0K_T2[1];
     }
 
-    // SUM(s fun(x T1 0B(T2))) -> 0B(T2)
+    // SUM(s fun(T1 0B(T2))) -> 0B(T2)
     DIRACOQ_RULE_DEF(R_SUM_CONST2, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0B_T2)
 
         MATCH_HEAD(args_SUM_s_fun_x_T1_0B_T2[1], FUN, args_FUN_x_T1_0B_T2)
 
-        if (args_FUN_x_T1_0B_T2[2]->get_head() != ZEROB) return std::nullopt;
+        if (args_FUN_x_T1_0B_T2[1]->get_head() != ZEROB) return std::nullopt;
 
-        return args_FUN_x_T1_0B_T2[2];
+        return args_FUN_x_T1_0B_T2[1];
     }
 
-    // SUM(s fun(x T1 0O(T2 T3))) -> 0O(T2 T3)
+    // SUM(s fun(T1 0O(T2 T3))) -> 0O(T2 T3)
     DIRACOQ_RULE_DEF(R_SUM_CONST3, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0O_T2_T3)
 
         MATCH_HEAD(args_SUM_s_fun_x_T1_0O_T2_T3[1], FUN, args_FUN_x_T1_0O_T2_T3)
 
-        if (args_FUN_x_T1_0O_T2_T3[2]->get_head() != ZEROO) return std::nullopt;
+        if (args_FUN_x_T1_0O_T2_T3[1]->get_head() != ZEROO) return std::nullopt;
 
-        return args_FUN_x_T1_0O_T2_T3[2];
+        return args_FUN_x_T1_0O_T2_T3[1];
     }
 
-    // 1O(T) -> SUM(USET(T) fun(i T OUTER(KET(i) BRA(i))))
+    // 1O(T) -> SUM(USET(T) fun(T OUTER(KET(i) BRA(i))))
     DIRACOQ_RULE_DEF(R_SUM_CONST4, kernel, term) {
         auto &bank = kernel.get_bank();
 
         MATCH_HEAD(term, ONEO, args_ONEO_T)
 
-        auto new_var = kernel.unique_var();
+        auto bound_var = bank.get_normal_term(0, {});
 
         return bank.get_normal_term(SUM, 
             {
                 bank.get_normal_term(USET, {args_ONEO_T[0]}),
                 bank.get_normal_term(FUN, 
                     {
-                        new_var,
                         args_ONEO_T[0],
                         bank.get_normal_term(OUTER, 
                             {
-                                bank.get_normal_term(KET, {new_var}),
-                                bank.get_normal_term(BRA, {new_var})
+                                bank.get_normal_term(KET, {bound_var}),
+                                bank.get_normal_term(BRA, {bound_var})
                             }
                         )
                     }
@@ -2104,17 +2124,19 @@ namespace diracoq {
         );
     }
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... DELTA(i t) ...))) -> SUM(... 1 ...)
+    // $i free in t => SUM(USET(T) fun(T SUM(... DELTA($i t) ...))) -> SUM(... 1 ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM0, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_i_T_SUM_DELTA_i_t)
+        MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_T_SUM_DELTA_i_t)
 
-        MATCH_HEAD(args_SUM_USET_T_fun_i_T_SUM_DELTA_i_t[0], USET, args_USET_T)
+        MATCH_HEAD(args_SUM_USET_T_fun_T_SUM_DELTA_i_t[0], USET, args_USET_T)
 
-        MATCH_HEAD(args_SUM_USET_T_fun_i_T_SUM_DELTA_i_t[1], FUN, args_FUN_i_T_SUM_DELTA_i_t)
+        MATCH_HEAD(args_SUM_USET_T_fun_T_SUM_DELTA_i_t[1], FUN, args_FUN_T_SUM_DELTA_i_t)
 
-        const Term<int>* inner_term = args_FUN_i_T_SUM_DELTA_i_t[2];
+        const Term<int>* inner_term = args_FUN_T_SUM_DELTA_i_t[1];
+
+        int i = 0;
 
         while (true) {
             if (inner_term->get_head() == DELTA) break;
@@ -2122,7 +2144,8 @@ namespace diracoq {
             ListArgs<int> args;
             if (match_normal_head(inner_term, SUM, args)) {
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
-                inner_term = ars_fun_inside[2];
+                inner_term = ars_fun_inside[1];
+                i++;
             }
             else {
                 return std::nullopt;
@@ -2131,14 +2154,12 @@ namespace diracoq {
 
         MATCH_HEAD(inner_term, DELTA, args_DELTA_i_t)
 
-        const Term<int> *i, *t;
+        const Term<int> *t;
         // Check delta_{i, t} and whether i is free in t
-        if (args_DELTA_i_t[0] == args_FUN_i_T_SUM_DELTA_i_t[0]) {
-            i = args_DELTA_i_t[0];
+        if (args_DELTA_i_t[0]->get_head() == i) {
             t = args_DELTA_i_t[1];
         }
-        else if (args_DELTA_i_t[1] == args_FUN_i_T_SUM_DELTA_i_t[0]) {
-            i = args_DELTA_i_t[1];
+        else if (args_DELTA_i_t[1]->get_head() == i) {
             t = args_DELTA_i_t[0];
         }
         else {
@@ -2146,23 +2167,24 @@ namespace diracoq {
         }
             
 
-        auto t_nodes = get_all_nodes(t);
-        if (t_nodes.find(i) != t_nodes.end()) return std::nullopt;
+        if (!deBruijn_index_free_in(i, t)) return std::nullopt;
 
-        return bank.replace_term(args_FUN_i_T_SUM_DELTA_i_t[2], {{inner_term, bank.get_normal_term(ONE, {})}});  
+        return bank.replace_term(args_FUN_T_SUM_DELTA_i_t[1], {{inner_term, bank.get_normal_term(ONE, {})}});  
     }
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... MULS(a1 ... DELTA(i t) ... an) ...))) -> SUM(... MULS(a1{i/t} ... an{i/t}) ...)
+    // $i free in t => SUM(USET(T) fun(T SUM(... MULS(a1 ... DELTA($i t) ... an) ...))) -> SUM(... MULS(a1{$i/t} ... an{$i/t}) ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM1, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_i_T_SUM_a1_DELTA_i_t_an)
+        MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_T_SUM_a1_DELTA_i_t_an)
 
-        MATCH_HEAD(args_SUM_USET_T_fun_i_T_SUM_a1_DELTA_i_t_an[0], USET, args_USET_T)
+        MATCH_HEAD(args_SUM_USET_T_fun_T_SUM_a1_DELTA_i_t_an[0], USET, args_USET_T)
 
-        MATCH_HEAD(args_SUM_USET_T_fun_i_T_SUM_a1_DELTA_i_t_an[1], FUN, args_FUN_i_T_SUM_a1_DELTA_i_t_an)
+        MATCH_HEAD(args_SUM_USET_T_fun_T_SUM_a1_DELTA_i_t_an[1], FUN, args_fun_T_SUM_a1_DELTA_i_t_an)
 
-        const Term<int>* inner_term = args_FUN_i_T_SUM_a1_DELTA_i_t_an[2];
+        const Term<int>* inner_term = args_fun_T_SUM_a1_DELTA_i_t_an[1];
+
+        int i = 0;
 
         while (true) {
             if (inner_term->get_head() == MULS) break;
@@ -2170,7 +2192,8 @@ namespace diracoq {
             ListArgs<int> args;
             if (match_normal_head(inner_term, SUM, args)) {
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
-                inner_term = ars_fun_inside[2];
+                inner_term = ars_fun_inside[1];
+                i++;
             }
             else {
                 return std::nullopt;
@@ -2186,22 +2209,19 @@ namespace diracoq {
             ListArgs<int> args_DELTA_i_t;
             if (match_normal_head(args_MULS_a1_DELTA_i_t_an[idx_i], DELTA, args_DELTA_i_t)) {
 
-                const Term<int> *i, *t;
+                const Term<int> *t;
                 // Check delta_{i, t} and whether i is free in t
-                if (args_DELTA_i_t[0] == args_FUN_i_T_SUM_a1_DELTA_i_t_an[0]) {
-                    i = args_DELTA_i_t[0];
+                if (args_DELTA_i_t[0]->get_head() == i) {
                     t = args_DELTA_i_t[1];
                 }
-                else if (args_DELTA_i_t[1] == args_FUN_i_T_SUM_a1_DELTA_i_t_an[0]) {
-                    i = args_DELTA_i_t[1];
+                else if (args_DELTA_i_t[1]->get_head() == i) {
                     t = args_DELTA_i_t[0];
                 }
                 else {
                     continue;
                 }
                     
-                auto t_nodes = get_all_nodes(t);
-                if (t_nodes.find(i) != t_nodes.end()) continue;
+                if (!deBruijn_index_free_in(i, t)) continue;
 
                 ListArgs<int> new_mul_args;
                 for (int j = 0; j < args_MULS_a1_DELTA_i_t_an.size(); j++) {
@@ -2209,12 +2229,14 @@ namespace diracoq {
                         continue;
                     }
                     else {
-                        new_mul_args.push_back(bank.replace_term(args_MULS_a1_DELTA_i_t_an[j], {{i, t}}));
+                        new_mul_args.push_back(
+                            instantiate(bank, args_MULS_a1_DELTA_i_t_an[j], i, t)
+                        );
                     }
                 }
 
 
-                return bank.replace_term(args_FUN_i_T_SUM_a1_DELTA_i_t_an[2], {{inner_term, bank.get_normal_term(MULS, std::move(new_mul_args))}});  
+                return bank.replace_term(args_fun_T_SUM_a1_DELTA_i_t_an[1], {{inner_term, bank.get_normal_term(MULS, std::move(new_mul_args))}});  
 
             }
         }
@@ -2222,17 +2244,19 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... SCR(DELTA(i t) A) ...))) -> SUM(... A{i/t} ...)
+    // $i free in t => SUM(USET(T) fun(T SUM(... SCR(DELTA($i t) A) ...))) -> SUM(... A{$i/t} ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM2, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_i_T_SUM_SCR_DELTA_i_t_A)
+        MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_T_SUM_SCR_DELTA_i_t_A)
 
-        MATCH_HEAD(args_SUM_USET_T_fun_i_T_SUM_SCR_DELTA_i_t_A[0], USET, args_USET_T)
+        MATCH_HEAD(args_SUM_USET_T_fun_T_SUM_SCR_DELTA_i_t_A[0], USET, args_USET_T)
 
-        MATCH_HEAD(args_SUM_USET_T_fun_i_T_SUM_SCR_DELTA_i_t_A[1], FUN, args_FUN_i_T_SUM_SCR_DELTA_i_t_A)
+        MATCH_HEAD(args_SUM_USET_T_fun_T_SUM_SCR_DELTA_i_t_A[1], FUN, args_fun_T_SUM_SCR_DELTA_i_t_A)
 
-        const Term<int>* inner_term = args_FUN_i_T_SUM_SCR_DELTA_i_t_A[2];
+        const Term<int>* inner_term = args_fun_T_SUM_SCR_DELTA_i_t_A[1];
+
+        int i = 0;
 
         while (true) {
             if (inner_term->get_head() == SCR) break;
@@ -2240,7 +2264,8 @@ namespace diracoq {
             ListArgs<int> args;
             if (match_normal_head(inner_term, SUM, args)) {
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
-                inner_term = ars_fun_inside[2];
+                inner_term = ars_fun_inside[1];
+                i++;
             }
             else {
                 return std::nullopt;
@@ -2251,42 +2276,41 @@ namespace diracoq {
 
         MATCH_HEAD(args_SCR_DELTA_i_t_A[0], DELTA, args_DELTA_i_t)
 
-        const Term<int> *i, *t;
+        const Term<int> *t;
         // Check delta_{i, t} and whether i is free in t
-        if (args_DELTA_i_t[0] == args_FUN_i_T_SUM_SCR_DELTA_i_t_A[0]) {
-            i = args_DELTA_i_t[0];
+        if (args_DELTA_i_t[0]->get_head() == i) {
             t = args_DELTA_i_t[1];
         }
-        else if (args_DELTA_i_t[1] == args_FUN_i_T_SUM_SCR_DELTA_i_t_A[0]) {
-            i = args_DELTA_i_t[1];
+        else if (args_DELTA_i_t[1]->get_head() == i) {
             t = args_DELTA_i_t[0];
         }
         else {
             return std::nullopt;
         }
             
-        auto t_nodes = get_all_nodes(t);
-        if (t_nodes.find(i) != t_nodes.end()) return std::nullopt;
+        if (!deBruijn_index_free_in(i, t)) return std::nullopt;
 
         return bank.replace_term(
-            args_FUN_i_T_SUM_SCR_DELTA_i_t_A[2], 
+            args_fun_T_SUM_SCR_DELTA_i_t_A[1], 
             {{
-                inner_term, bank.replace_term(args_SCR_DELTA_i_t_A[1], {{i, t}})
+                inner_term, instantiate(bank, args_SCR_DELTA_i_t_A[1], i, t)
             }}
         );
     }
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... SCR(MULS(a1 ... DELTA(i t) ... an) A) ...))) -> SUM(... SCR(MULS(a1{i/t} ... an{i/t}) A{i/t}) ...)
+    // $i free in t => SUM(USET(T) fun(T SUM(... SCR(MULS(a1 ... DELTA($i t) ... an) A) ...))) -> SUM(... SCR(MULS(a1{$i/t} ... an{$i/t}) A{$i/t}) ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM3, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A)
+        MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A)
 
-        MATCH_HEAD(args_SUM_USET_T_fun_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[0], USET, args_USET_T)
+        MATCH_HEAD(args_SUM_USET_T_fun_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[0], USET, args_USET_T)
 
-        MATCH_HEAD(args_SUM_USET_T_fun_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[1], FUN, args_FUN_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A)
+        MATCH_HEAD(args_SUM_USET_T_fun_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[1], FUN, args_fun_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A)
 
-        const Term<int>* inner_term = args_FUN_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[2];
+        const Term<int>* inner_term = args_fun_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[1];
+
+        int i = 0;
 
         while (true) {
             if (inner_term->get_head() == SCR) break;
@@ -2294,7 +2318,8 @@ namespace diracoq {
             ListArgs<int> args;
             if (match_normal_head(inner_term, SUM, args)) {
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
-                inner_term = ars_fun_inside[2];
+                inner_term = ars_fun_inside[1];
+                i++;
             }
             else {
                 return std::nullopt;
@@ -2311,23 +2336,19 @@ namespace diracoq {
             ListArgs<int> args_DELTA_i_t;
             if (match_normal_head(args_MULS_a1_DELTA_i_t_an[idx_i], DELTA, args_DELTA_i_t)) {
 
-                const Term<int> *i, *t;
+                const Term<int> *t;
                 // Check delta_{i, t} and whether i is free in t
-                if (args_DELTA_i_t[0] == args_FUN_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[0]) {
-                    i = args_DELTA_i_t[0];
+                if (args_DELTA_i_t[0]->get_head() == i) {
                     t = args_DELTA_i_t[1];
                 }
-                else if (args_DELTA_i_t[1] == args_FUN_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[0]) {
-                    i = args_DELTA_i_t[1];
+                else if (args_DELTA_i_t[1]->get_head() == i) {
                     t = args_DELTA_i_t[0];
                 }
                 else {
                     continue;
                 }
-
-                auto t_nodes = get_all_nodes(t);
                 
-                if (t_nodes.find(i) != t_nodes.end()) continue;
+                if (!deBruijn_index_free_in(i, t)) continue;
 
                 ListArgs<int> new_mul_args;
                 for (int j = 0; j < args_MULS_a1_DELTA_i_t_an.size(); j++) {
@@ -2335,18 +2356,20 @@ namespace diracoq {
                         continue;
                     }
                     else {
-                        new_mul_args.push_back(bank.replace_term(args_MULS_a1_DELTA_i_t_an[j], {{i, t}}));
+                        new_mul_args.push_back(
+                            instantiate(bank, args_MULS_a1_DELTA_i_t_an[j], i, t)
+                        );
                     }
                 }
 
                 return bank.replace_term(
-                    args_FUN_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[2], 
+                    args_fun_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[1], 
                     {{
                         inner_term, 
                         bank.get_normal_term(SCR, 
                             {
                                 bank.get_normal_term(MULS, std::move(new_mul_args)), 
-                                bank.replace_term(args_SCR_MULS_a1_DELTA_i_t_an_A[1], {{i, t}})
+                                instantiate(bank, args_SCR_MULS_a1_DELTA_i_t_an_A[1], i, t)
                             }
                         )
                     }}
@@ -2357,23 +2380,25 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... DELTA(i j) ...))))) -> SUM(M fun(j T SUM(... 1 ...)))
+    // SUM(M fun(T SUM(M fun(T SUM(... DELTA($(i+1) $i) ...))))) -> SUM(M fun(T SUM(... 1 ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM4, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j)
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_T_SUM_M_fun_T_SUM_DELTA_i_j)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[1], FUN, args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j)
+        MATCH_HEAD(args_SUM_M_fun_T_SUM_M_fun_T_SUM_DELTA_i_j[1], FUN, args_FUN_T_SUM_M_fun_T_SUM_DELTA_i_j)
 
-        MATCH_HEAD(args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[2], SUM, args_SUM_M_fun_j_T_SUM_DELTA_i_j)
+        MATCH_HEAD(args_FUN_T_SUM_M_fun_T_SUM_DELTA_i_j[1], SUM, args_SUM_M_fun_T_SUM_DELTA_i_j)
 
         // Check that the summation set is the same
 
-        if (args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0] != args_SUM_M_fun_j_T_SUM_DELTA_i_j[0]) return std::nullopt;
+        if (args_SUM_M_fun_T_SUM_M_fun_T_SUM_DELTA_i_j[0] != args_SUM_M_fun_T_SUM_DELTA_i_j[0]) return std::nullopt;
 
-        MATCH_HEAD(args_SUM_M_fun_j_T_SUM_DELTA_i_j[1], FUN, args_FUN_j_T_SUM_DELTA_i_j)
+        MATCH_HEAD(args_SUM_M_fun_T_SUM_DELTA_i_j[1], FUN, args_FUN_T_SUM_DELTA_i_j)
 
-        const Term<int>* inner_term = args_FUN_j_T_SUM_DELTA_i_j[2];
+        const Term<int>* inner_term = args_FUN_T_SUM_DELTA_i_j[1];
+
+        int i = 0;
 
         while (true) {
             if (inner_term->get_head() == DELTA) break;
@@ -2381,7 +2406,8 @@ namespace diracoq {
             ListArgs<int> args;
             if (match_normal_head(inner_term, SUM, args)) {
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
-                inner_term = ars_fun_inside[2];
+                inner_term = ars_fun_inside[1];
+                i++;
             }
             else {
                 return std::nullopt;
@@ -2391,29 +2417,32 @@ namespace diracoq {
         MATCH_HEAD(inner_term, DELTA, args_DELTA_i_j)
 
         // Check whether delta variables i and j match the bound variables
-        if (!((args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0] && args_DELTA_i_j[1] == args_FUN_j_T_SUM_DELTA_i_j[0]) || 
-            (args_DELTA_i_j[1] == args_FUN_j_T_SUM_DELTA_i_j[0] && args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0]))) return std::nullopt;
+        if (!((args_DELTA_i_j[0]->get_head() == i+1 && args_DELTA_i_j[1]->get_head() == i) || 
+            (args_DELTA_i_j[1]->get_head() == i+1 && args_DELTA_i_j[0]->get_head() == i))) return std::nullopt;
 
-        return bank.replace_term(args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[2], {{inner_term, bank.get_normal_term(ONE, {})}});
+        return bank.replace_term(args_FUN_T_SUM_M_fun_T_SUM_DELTA_i_j[1], 
+            {{inner_term, bank.get_normal_term(ONE, {})}});
     }
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... MULS(a1 ... DELTA(i j) ... an) ...))))) -> SUM(M fun(j T SUM(... MULS(a1{j/i} ... an{j/i}) ...)))
+    // SUM(M fun(T SUM(M fun(T SUM(... MULS(a1 ... DELTA($(i+1) $i) ... an) ...))))) -> SUM(M fun(T SUM(... MULS(a1{$i/$(i+1)} ... an{$i/$(i+1)}) ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM5, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an)
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_T_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[1], FUN, args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an)
+        MATCH_HEAD(args_SUM_M_fun_T_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an[1], FUN, args_FUN_T_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an)
 
-        MATCH_HEAD(args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[2], SUM, args_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an)
+        MATCH_HEAD(args_FUN_T_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an[1], SUM, args_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an)
 
         // Check that the summation set is the same
 
-        if (args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0] != args_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0]) return std::nullopt;
+        if (args_SUM_M_fun_T_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an[0] != args_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an[0]) return std::nullopt;
 
-        MATCH_HEAD(args_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[1], FUN, args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an)
+        MATCH_HEAD(args_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an[1], FUN, args_FUN_T_SUM_MULS_a1_DELTA_i_j_an)
 
-        const Term<int>* inner_term = args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[2];
+        const Term<int>* inner_term = args_FUN_T_SUM_MULS_a1_DELTA_i_j_an[1];
+
+        int i = 0;
 
         while (true) {
             if (inner_term->get_head() == MULS) break;
@@ -2421,7 +2450,8 @@ namespace diracoq {
             ListArgs<int> args;
             if (match_normal_head(inner_term, SUM, args)) {
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
-                inner_term = ars_fun_inside[2];
+                inner_term = ars_fun_inside[1];
+                i++;
             }
             else {
                 return std::nullopt;
@@ -2437,8 +2467,8 @@ namespace diracoq {
             if (match_normal_head(args_MULS_a1_DELTA_i_j_an[idx_i], DELTA, args_DELTA_i_j)) {
 
                 // Check whether delta variables i and j match the bound variables
-                if (!((args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0] && args_DELTA_i_j[1] == args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0]) || 
-                    (args_DELTA_i_j[1] == args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0] && args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0]))) continue;
+                if (!((args_DELTA_i_j[0]->get_head() == i+1 && args_DELTA_i_j[1]->get_head() == i) || 
+                    (args_DELTA_i_j[1]->get_head() == i+1 && args_DELTA_i_j[0]->get_head() == i))) continue;
 
                 ListArgs<int> new_mul_args;
                 for (int j = 0; j < args_MULS_a1_DELTA_i_j_an.size(); j++) {
@@ -2446,12 +2476,14 @@ namespace diracoq {
                         continue;
                     }
                     else {
-                        new_mul_args.push_back(bank.replace_term(args_MULS_a1_DELTA_i_j_an[j], {{args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0], args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0]}}));
+                        new_mul_args.push_back(
+                            instantiate(bank, args_MULS_a1_DELTA_i_j_an[j], i, bank.get_normal_term(i+1, {}))
+                        );
                     }
                 }
 
                 return bank.replace_term(
-                    args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[2], 
+                    args_FUN_T_SUM_M_fun_T_SUM_MULS_a1_DELTA_i_j_an[1], 
                     {{
                         inner_term, 
                         bank.get_normal_term(MULS, std::move(new_mul_args))
@@ -2463,23 +2495,25 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... SCR(DELTA(i j) A) ...))))) -> SUM(M fun(j T SUM(... A{j/i} ...)))
+    // SUM(M fun(T SUM(M fun(T SUM(... SCR(DELTA($(i+1) $i) A) ...))))) -> SUM(M fun(T SUM(... A{$i/$(i+1)} ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM6, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A)
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_T_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[1], FUN, args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A)
+        MATCH_HEAD(args_SUM_M_fun_T_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A[1], FUN, args_FUN_T_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A)
 
-        MATCH_HEAD(args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[2], SUM, args_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A)
+        MATCH_HEAD(args_FUN_T_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A[1], SUM, args_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A)
 
         // Check that the summation set is the same
 
-        if (args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0] != args_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0]) return std::nullopt;
+        if (args_SUM_M_fun_T_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A[0] != args_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A[0]) return std::nullopt;
 
-        MATCH_HEAD(args_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[1], FUN, args_FUN_j_T_SUM_DELTA_i_j_A)
+        MATCH_HEAD(args_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A[1], FUN, args_FUN_T_SUM_DELTA_i_j_A)
 
-        const Term<int>* inner_term = args_FUN_j_T_SUM_DELTA_i_j_A[2];
+        const Term<int>* inner_term = args_FUN_T_SUM_DELTA_i_j_A[1];
+
+        int i = 0;
 
         while (true) {
             if (inner_term->get_head() == SCR) break;
@@ -2487,7 +2521,8 @@ namespace diracoq {
             ListArgs<int> args;
             if (match_normal_head(inner_term, SUM, args)) {
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
-                inner_term = ars_fun_inside[2];
+                inner_term = ars_fun_inside[1];
+                i++;
             }
             else {
                 return std::nullopt;
@@ -2499,35 +2534,37 @@ namespace diracoq {
         MATCH_HEAD(args_SCR_DELTA_i_j_A[0], DELTA, args_DELTA_i_j)
 
         // Check whether delta variables i and j match the bound variables
-        if (!((args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0] && args_DELTA_i_j[1] == args_FUN_j_T_SUM_DELTA_i_j_A[0]) || 
-            (args_DELTA_i_j[1] == args_FUN_j_T_SUM_DELTA_i_j_A[0] && args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0]))) return std::nullopt;
+        if (!((args_DELTA_i_j[0]->get_head() == i+1 && args_DELTA_i_j[1]->get_head() == i) || 
+            (args_DELTA_i_j[1]->get_head() == i+1 && args_DELTA_i_j[0]->get_head() == i))) return std::nullopt;
 
         return bank.replace_term(
-            args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[2], 
+            args_FUN_T_SUM_M_fun_T_SUM_SCR_DELTA_i_j_A[1], 
             {{
                 inner_term, 
-                bank.replace_term(args_SCR_DELTA_i_j_A[1], {{args_FUN_j_T_SUM_DELTA_i_j_A[0], args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0]}})
+                instantiate(bank, args_SCR_DELTA_i_j_A[1], i, bank.get_normal_term(i+1, {}))
             }}
         );
     }
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... SCR(MULS(a1 ... DELTA(i j) ... an) A) ...))))) -> SUM(M fun(j T SUM(... SCR(MULS(a1{j/i} ... an{j/i}) A{j/i}) ...)))
+    // SUM(M fun(T SUM(M fun(T SUM(... SCR(MULS(a1 ... DELTA($(i+1) $i) ... an) A) ...))))) -> SUM(M fun(T SUM(... SCR(MULS(a1{$i/$(i+1)} ... an{$i/$(i+1)}) A{$i/$(i+1)}) ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM7, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A)
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_T_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[1], FUN, args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A)
+        MATCH_HEAD(args_SUM_M_fun_T_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[1], FUN, args_FUN_T_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A)
 
-        MATCH_HEAD(args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[2], SUM, args_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A)
+        MATCH_HEAD(args_FUN_T_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[1], SUM, args_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A)
 
         // Check that the summation set is the same
 
-        if (args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] != args_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]) return std::nullopt;
+        if (args_SUM_M_fun_T_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] != args_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]) return std::nullopt;
 
-        MATCH_HEAD(args_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[1], FUN, args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A)
+        MATCH_HEAD(args_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[1], FUN, args_FUN_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A)
 
-        const Term<int>* inner_term = args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[2];
+        const Term<int>* inner_term = args_FUN_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[1];
+
+        int i = 0;
 
         while (true) {
             if (inner_term->get_head() == SCR) break;
@@ -2535,7 +2572,8 @@ namespace diracoq {
             ListArgs<int> args;
             if (match_normal_head(inner_term, SUM, args)) {
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
-                inner_term = ars_fun_inside[2];
+                inner_term = ars_fun_inside[1];
+                i++;
             }
             else {
                 return std::nullopt;
@@ -2553,8 +2591,8 @@ namespace diracoq {
             if (match_normal_head(args_MULS_a1_DELTA_i_j_an[idx_i], DELTA, args_DELTA_i_j)) {
 
                 // Check whether delta variables i and j match the bound variables
-                if (!((args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] && args_DELTA_i_j[1] == args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]) || 
-                    (args_DELTA_i_j[1] == args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] && args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]))) continue;
+                if (!((args_DELTA_i_j[0]->get_head() == i+1 && args_DELTA_i_j[1]->get_head() == i) || 
+                    (args_DELTA_i_j[1]->get_head() == i+1 && args_DELTA_i_j[0]->get_head() == i))) continue;
 
                 ListArgs<int> new_mul_args;
                 for (int j = 0; j < args_MULS_a1_DELTA_i_j_an.size(); j++) {
@@ -2562,18 +2600,20 @@ namespace diracoq {
                         continue;
                     }
                     else {
-                        new_mul_args.push_back(bank.replace_term(args_MULS_a1_DELTA_i_j_an[j], {{args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0], args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]}}));
+                        new_mul_args.push_back(
+                            instantiate(bank, args_MULS_a1_DELTA_i_j_an[j], i, bank.get_normal_term(i+1, {}))
+                        );
                     }
                 }
 
                 return bank.replace_term(
-                    args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[2], 
+                    args_FUN_T_SUM_M_fun_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[1], 
                     {{
                         inner_term, 
                         bank.get_normal_term(SCR, 
                             {
                                 bank.get_normal_term(MULS, std::move(new_mul_args)), 
-                                bank.replace_term(args_SCR_MULS_a1_DELTA_i_j_an_A[1], {{args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0], args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]}})
+                                instantiate(bank, args_SCR_MULS_a1_DELTA_i_j_an_A[1], i, bank.get_normal_term(i+1, {}))
                             }
                         )
                     }}
@@ -2584,38 +2624,37 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // MULS(b1 ... SUM(M fun(i T a)) ... bn) -> SUM(M fun(i T MULS(b1 ... a ... bn)))
+    // MULS(b1 ... SUM(M fun(T a)) ... bn) -> SUM(M fun(T MULS(b1 ... a ... bn)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH0, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, MULS, args_MULS_b1_SUM_M_fun_i_T_a_bn)
+        MATCH_HEAD(term, MULS, args_MULS_b1_SUM_M_fun_T_a_bn)
 
-        if (args_MULS_b1_SUM_M_fun_i_T_a_bn.size() == 1) return std::nullopt;
+        if (args_MULS_b1_SUM_M_fun_T_a_bn.size() == 1) return std::nullopt;
 
-        for (int idx_i = 0; idx_i < args_MULS_b1_SUM_M_fun_i_T_a_bn.size(); idx_i++) {
-            ListArgs<int> args_SUM_M_fun_i_T_a;
-            if (!match_normal_head(args_MULS_b1_SUM_M_fun_i_T_a_bn[idx_i], SUM, args_SUM_M_fun_i_T_a)) continue;
+        for (int idx_i = 0; idx_i < args_MULS_b1_SUM_M_fun_T_a_bn.size(); idx_i++) {
+            ListArgs<int> args_SUM_M_fun_T_a;
+            if (!match_normal_head(args_MULS_b1_SUM_M_fun_T_a_bn[idx_i], SUM, args_SUM_M_fun_T_a)) continue;
             
-            ListArgs<int> args_fun_i_T_a;
-            if (!match_normal_head(args_SUM_M_fun_i_T_a[1], FUN, args_fun_i_T_a)) continue;
+            ListArgs<int> args_fun_T_a;
+            if (!match_normal_head(args_SUM_M_fun_T_a[1], FUN, args_fun_T_a)) continue;
 
             ListArgs<int> new_mul_args;
-            for (int j = 0; j < args_MULS_b1_SUM_M_fun_i_T_a_bn.size(); j++) {
+            for (int j = 0; j < args_MULS_b1_SUM_M_fun_T_a_bn.size(); j++) {
                 if (j == idx_i) {
-                    new_mul_args.push_back(args_fun_i_T_a[2]);
+                    new_mul_args.push_back(args_fun_T_a[1]);
                 }
                 else {
-                    new_mul_args.push_back(args_MULS_b1_SUM_M_fun_i_T_a_bn[j]);
+                    new_mul_args.push_back(args_MULS_b1_SUM_M_fun_T_a_bn[j]);
                 }
             }
 
             return bank.get_normal_term(SUM, 
                 {
-                    args_SUM_M_fun_i_T_a[0],
+                    args_SUM_M_fun_T_a[0],
                     bank.get_normal_term(FUN, 
                         {
-                            args_fun_i_T_a[0],
-                            args_fun_i_T_a[1],
+                            args_fun_T_a[0],
                             bank.get_normal_term(MULS, std::move(new_mul_args))
                         }
                     )
@@ -2626,96 +2665,92 @@ namespace diracoq {
         return std::nullopt;          
     }
 
-    // CONJ(SUM(M fun(i T a))) -> SUM(M fun(i T CONJ(a)))
+    // CONJ(SUM(M fun(T a))) -> SUM(M fun(T CONJ(a)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH1, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, CONJ, args_CONJ_SUM_M_fun_i_T_a)
+        MATCH_HEAD(term, CONJ, args_CONJ_SUM_M_fun_T_a)
 
-        MATCH_HEAD(args_CONJ_SUM_M_fun_i_T_a[0], SUM, args_SUM_M_fun_i_T_a)
+        MATCH_HEAD(args_CONJ_SUM_M_fun_T_a[0], SUM, args_SUM_M_fun_T_a)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_a[1], FUN, args_FUN_i_T_a)
+        MATCH_HEAD(args_SUM_M_fun_T_a[1], FUN, args_FUN_T_a)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_a[0],
+                args_SUM_M_fun_T_a[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_a[0],
-                        args_FUN_i_T_a[1],
-                        bank.get_normal_term(CONJ, {args_FUN_i_T_a[2]})
+                        args_FUN_T_a[0],
+                        bank.get_normal_term(CONJ, {args_FUN_T_a[1]})
                     }
                 )
             }
         );
     }
 
-    // ADJ(SUM(M fun(i T X))) -> SUM(M fun(i T ADJ(X)))
+    // ADJ(SUM(M fun(T X))) -> SUM(M fun(T ADJ(X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH2, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, ADJ, args_ADJ_SUM_M_fun_i_T_X)
+        MATCH_HEAD(term, ADJ, args_ADJ_SUM_M_fun_T_X)
 
-        MATCH_HEAD(args_ADJ_SUM_M_fun_i_T_X[0], SUM, args_SUM_M_fun_i_T_X)
+        MATCH_HEAD(args_ADJ_SUM_M_fun_T_X[0], SUM, args_SUM_M_fun_T_X)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_X[1], FUN, args_FUN_i_T_X)
+        MATCH_HEAD(args_SUM_M_fun_T_X[1], FUN, args_FUN_T_X)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_X[0],
+                args_SUM_M_fun_T_X[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_X[0],
-                        args_FUN_i_T_X[1],
-                        bank.get_normal_term(ADJ, {args_FUN_i_T_X[2]})
+                        args_FUN_T_X[0],
+                        bank.get_normal_term(ADJ, {args_FUN_T_X[1]})
                     }
                 )
             }
         );
     }
 
-    // SCR(a SUM(M fun(i T X))) -> SUM(M fun(i T SCR(a X)))
+    // SCR(a SUM(M fun(T X))) -> SUM(M fun(T SCR(a X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH3, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SCR, args_SCR_a_SUM_M_fun_i_T_X)
+        MATCH_HEAD(term, SCR, args_SCR_a_SUM_M_fun_T_X)
 
-        MATCH_HEAD(args_SCR_a_SUM_M_fun_i_T_X[1], SUM, args_SUM_M_fun_i_T_X)
+        MATCH_HEAD(args_SCR_a_SUM_M_fun_T_X[1], SUM, args_SUM_M_fun_T_X)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_X[1], FUN, args_FUN_i_T_X)
+        MATCH_HEAD(args_SUM_M_fun_T_X[1], FUN, args_FUN_T_X)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_X[0],
+                args_SUM_M_fun_T_X[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_X[0],
-                        args_FUN_i_T_X[1],
-                        bank.get_normal_term(SCR, {args_SCR_a_SUM_M_fun_i_T_X[0], args_FUN_i_T_X[2]})
+                        args_FUN_T_X[0],
+                        bank.get_normal_term(SCR, {args_SCR_a_SUM_M_fun_T_X[0], args_FUN_T_X[1]})
                     }
                 )
             }
         );
     }
 
-    // SCR(SUM(M fun(i T a)) X) -> SUM(M fun(i T SCR(a X)))
+    // SCR(SUM(M fun(T a)) X) -> SUM(M fun(T SCR(a X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH4, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SCR, args_SCR_SUM_M_fun_i_T_a_X)
+        MATCH_HEAD(term, SCR, args_SCR_SUM_M_fun_T_a_X)
 
-        MATCH_HEAD(args_SCR_SUM_M_fun_i_T_a_X[0], SUM, args_SUM_M_fun_i_T_a)
+        MATCH_HEAD(args_SCR_SUM_M_fun_T_a_X[0], SUM, args_SUM_M_fun_T_a)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_a[1], FUN, args_FUN_i_T_a)
+        MATCH_HEAD(args_SUM_M_fun_T_a[1], FUN, args_FUN_T_a)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_a[0],
+                args_SUM_M_fun_T_a[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_a[0],
-                        args_FUN_i_T_a[1],
-                        bank.get_normal_term(SCR, {args_FUN_i_T_a[2], args_SCR_SUM_M_fun_i_T_a_X[1]})
+                        args_FUN_T_a[0],
+                        bank.get_normal_term(SCR, {args_FUN_T_a[1], args_SCR_SUM_M_fun_T_a_X[1]})
                     }
                 )
             }
@@ -2723,120 +2758,115 @@ namespace diracoq {
     }
 
 
-    // DOT(SUM(M fun(i T B)) K) -> SUM(M fun(i T DOT(B K)))
+    // DOT(SUM(M fun(T B)) K) -> SUM(M fun(T DOT(B K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH5, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, DOT, args_DOT_SUM_M_fun_i_T_B_K)
+        MATCH_HEAD(term, DOT, args_DOT_SUM_M_fun_T_B_K)
 
-        MATCH_HEAD(args_DOT_SUM_M_fun_i_T_B_K[0], SUM, args_SUM_M_fun_i_T_B)
+        MATCH_HEAD(args_DOT_SUM_M_fun_T_B_K[0], SUM, args_SUM_M_fun_T_B)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_B[1], FUN, args_FUN_i_T_B)
+        MATCH_HEAD(args_SUM_M_fun_T_B[1], FUN, args_fun_T_B)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_B[0],
+                args_SUM_M_fun_T_B[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_B[0],
-                        args_FUN_i_T_B[1],
-                        bank.get_normal_term(DOT, {args_FUN_i_T_B[2], args_DOT_SUM_M_fun_i_T_B_K[1]})
+                        args_fun_T_B[0],
+                        bank.get_normal_term(DOT, {args_fun_T_B[1], args_DOT_SUM_M_fun_T_B_K[1]})
                     }
                 )
             }
         );
     }
 
-    // MULK(SUM(M fun(i T O)) K) -> SUM(M fun(i T MULK(O K)))
+    // MULK(SUM(M fun(T O)) K) -> SUM(M fun(T MULK(O K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH6, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, MULK, args_MULK_SUM_M_fun_i_T_O_K)
+        MATCH_HEAD(term, MULK, args_MULK_SUM_M_fun_T_O_K)
 
-        MATCH_HEAD(args_MULK_SUM_M_fun_i_T_O_K[0], SUM, args_SUM_M_fun_i_T_O)
+        MATCH_HEAD(args_MULK_SUM_M_fun_T_O_K[0], SUM, args_SUM_M_fun_T_O)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_O[1], FUN, args_FUN_i_T_O)
+        MATCH_HEAD(args_SUM_M_fun_T_O[1], FUN, args_fun_T_O)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_O[0],
+                args_SUM_M_fun_T_O[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_O[0],
-                        args_FUN_i_T_O[1],
-                        bank.get_normal_term(MULK, {args_FUN_i_T_O[2], args_MULK_SUM_M_fun_i_T_O_K[1]})
+                        args_fun_T_O[0],
+                        bank.get_normal_term(MULK, {args_fun_T_O[1], args_MULK_SUM_M_fun_T_O_K[1]})
                     }
                 )
             }
         );
     }
 
-    // MULB(SUM(M fun(i T B)) O) -> SUM(M fun(i T MULB(B O)))
+    // MULB(SUM(M fun(T B)) O) -> SUM(M fun(T MULB(B O)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH7, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, MULB, args_MULB_SUM_M_fun_i_T_B_O)
+        MATCH_HEAD(term, MULB, args_MULB_SUM_M_fun_T_B_O)
 
-        MATCH_HEAD(args_MULB_SUM_M_fun_i_T_B_O[0], SUM, args_SUM_M_fun_i_T_B)
+        MATCH_HEAD(args_MULB_SUM_M_fun_T_B_O[0], SUM, args_SUM_M_fun_T_B)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_B[1], FUN, args_FUN_i_T_B)
+        MATCH_HEAD(args_SUM_M_fun_T_B[1], FUN, args_fun_T_B)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_B[0],
+                args_SUM_M_fun_T_B[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_B[0],
-                        args_FUN_i_T_B[1],
-                        bank.get_normal_term(MULB, {args_FUN_i_T_B[2], args_MULB_SUM_M_fun_i_T_B_O[1]})
+                        args_fun_T_B[0],
+                        bank.get_normal_term(MULB, {args_fun_T_B[1], args_MULB_SUM_M_fun_T_B_O[1]})
                     }
                 )
             }
         );
     }
     
-    // OUTER(SUM(M fun(i T K)) B) -> SUM(M fun(i T OUTER(K B)))
+    // OUTER(SUM(M fun(T K)) B) -> SUM(M fun(T OUTER(K B)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH8, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, OUTER, args_OUTER_SUM_M_fun_i_T_K_B)
+        MATCH_HEAD(term, OUTER, args_OUTER_SUM_M_fun_T_K_B)
 
-        MATCH_HEAD(args_OUTER_SUM_M_fun_i_T_K_B[0], SUM, args_SUM_M_fun_i_T_K)
+        MATCH_HEAD(args_OUTER_SUM_M_fun_T_K_B[0], SUM, args_SUM_M_fun_T_K)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_K[1], FUN, args_FUN_i_T_K)
+        MATCH_HEAD(args_SUM_M_fun_T_K[1], FUN, args_fun_T_K)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_K[0],
+                args_SUM_M_fun_T_K[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_K[0],
-                        args_FUN_i_T_K[1],
-                        bank.get_normal_term(OUTER, {args_FUN_i_T_K[2], args_OUTER_SUM_M_fun_i_T_K_B[1]})
+                        args_fun_T_K[0],
+                        bank.get_normal_term(OUTER, {args_fun_T_K[1], args_OUTER_SUM_M_fun_T_K_B[1]})
                     }
                 )
             }
         );
     }
     
-    // MULO(SUM(M fun(i T O1)) O2) -> SUM(M fun(i T MULO(O1 O2)))
+    // MULO(SUM(M fun(T O1)) O2) -> SUM(M fun(T MULO(O1 O2)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH9, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, MULO, args_MULO_SUM_M_fun_i_T_O1_O2)
+        MATCH_HEAD(term, MULO, args_MULO_SUM_M_fun_T_O1_O2)
 
-        MATCH_HEAD(args_MULO_SUM_M_fun_i_T_O1_O2[0], SUM, args_SUM_M_fun_i_T_O1)
+        MATCH_HEAD(args_MULO_SUM_M_fun_T_O1_O2[0], SUM, args_SUM_M_fun_T_O1)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_O1[1], FUN, args_FUN_i_T_O1)
+        MATCH_HEAD(args_SUM_M_fun_T_O1[1], FUN, args_fun_T_O1)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_O1[0],
+                args_SUM_M_fun_T_O1[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_O1[0],
-                        args_FUN_i_T_O1[1],
-                        bank.get_normal_term(MULO, {args_FUN_i_T_O1[2], args_MULO_SUM_M_fun_i_T_O1_O2[1]})
+                        args_fun_T_O1[0],
+                        bank.get_normal_term(MULO, {args_fun_T_O1[1], args_MULO_SUM_M_fun_T_O1_O2[1]})
                     }
                 )
             }
@@ -2844,120 +2874,115 @@ namespace diracoq {
     }
 
 
-    // DOT(B SUM(M fun(i T K))) -> SUM(M fun(i T DOT(B K)))
+    // DOT(B SUM(M fun(T K))) -> SUM(M fun(T DOT(B K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH10, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, DOT, args_DOT_B_SUM_M_fun_i_T_K)
+        MATCH_HEAD(term, DOT, args_DOT_B_SUM_M_fun_T_K)
 
-        MATCH_HEAD(args_DOT_B_SUM_M_fun_i_T_K[1], SUM, args_SUM_M_fun_i_T_K)
+        MATCH_HEAD(args_DOT_B_SUM_M_fun_T_K[1], SUM, args_SUM_M_fun_T_K)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_K[1], FUN, args_FUN_i_T_K)
+        MATCH_HEAD(args_SUM_M_fun_T_K[1], FUN, args_fun_T_K)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_K[0],
+                args_SUM_M_fun_T_K[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_K[0],
-                        args_FUN_i_T_K[1],
-                        bank.get_normal_term(DOT, {args_DOT_B_SUM_M_fun_i_T_K[0], args_FUN_i_T_K[2]})
+                        args_fun_T_K[0],
+                        bank.get_normal_term(DOT, {args_DOT_B_SUM_M_fun_T_K[0], args_fun_T_K[1]})
                     }
                 )
             }
         );
     }
 
-    // MULK(O SUM(M fun(i T K))) -> SUM(M fun(i T MULK(O K)))
+    // MULK(O SUM(M fun(T K))) -> SUM(M fun(T MULK(O K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH11, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, MULK, args_MULK_O_SUM_M_fun_i_T_K)
+        MATCH_HEAD(term, MULK, args_MULK_O_SUM_M_fun_T_K)
 
-        MATCH_HEAD(args_MULK_O_SUM_M_fun_i_T_K[1], SUM, args_SUM_M_fun_i_T_K)
+        MATCH_HEAD(args_MULK_O_SUM_M_fun_T_K[1], SUM, args_SUM_M_fun_T_K)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_K[1], FUN, args_FUN_i_T_K)
+        MATCH_HEAD(args_SUM_M_fun_T_K[1], FUN, args_fun_T_K)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_K[0],
+                args_SUM_M_fun_T_K[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_K[0],
-                        args_FUN_i_T_K[1],
-                        bank.get_normal_term(MULK, {args_MULK_O_SUM_M_fun_i_T_K[0], args_FUN_i_T_K[2]})
+                        args_fun_T_K[0],
+                        bank.get_normal_term(MULK, {args_MULK_O_SUM_M_fun_T_K[0], args_fun_T_K[1]})
                     }
                 )
             }
         );
     }
 
-    // MULB(B SUM(M fun(i T O))) -> SUM(M fun(i T MULB(B O)))
+    // MULB(B SUM(M fun(T O))) -> SUM(M fun(T MULB(B O)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH12, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, MULB, args_MULB_B_SUM_M_fun_i_T_O)
+        MATCH_HEAD(term, MULB, args_MULB_B_SUM_M_fun_T_O)
 
-        MATCH_HEAD(args_MULB_B_SUM_M_fun_i_T_O[1], SUM, args_SUM_M_fun_i_T_O)
+        MATCH_HEAD(args_MULB_B_SUM_M_fun_T_O[1], SUM, args_SUM_M_fun_T_O)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_O[1], FUN, args_FUN_i_T_O)
+        MATCH_HEAD(args_SUM_M_fun_T_O[1], FUN, args_fun_T_O)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_O[0],
+                args_SUM_M_fun_T_O[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_O[0],
-                        args_FUN_i_T_O[1],
-                        bank.get_normal_term(MULB, {args_MULB_B_SUM_M_fun_i_T_O[0], args_FUN_i_T_O[2]})
+                        args_fun_T_O[0],
+                        bank.get_normal_term(MULB, {args_MULB_B_SUM_M_fun_T_O[0], args_fun_T_O[1]})
                     }
                 )
             }
         );
     }
 
-    // OUTER(K SUM(M fun(i T B))) -> SUM(M fun(i T OUTER(K B)))
+    // OUTER(K SUM(M fun(T B))) -> SUM(M fun(T OUTER(K B)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH13, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, OUTER, args_OUTER_K_SUM_M_fun_i_T_B)
+        MATCH_HEAD(term, OUTER, args_OUTER_K_SUM_M_fun_T_B)
 
-        MATCH_HEAD(args_OUTER_K_SUM_M_fun_i_T_B[1], SUM, args_SUM_M_fun_i_T_B)
+        MATCH_HEAD(args_OUTER_K_SUM_M_fun_T_B[1], SUM, args_SUM_M_fun_T_B)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_B[1], FUN, args_FUN_i_T_B)
+        MATCH_HEAD(args_SUM_M_fun_T_B[1], FUN, args_fun_T_B)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_B[0],
+                args_SUM_M_fun_T_B[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_B[0],
-                        args_FUN_i_T_B[1],
-                        bank.get_normal_term(OUTER, {args_OUTER_K_SUM_M_fun_i_T_B[0], args_FUN_i_T_B[2]})
+                        args_fun_T_B[0],
+                        bank.get_normal_term(OUTER, {args_OUTER_K_SUM_M_fun_T_B[0], args_fun_T_B[1]})
                     }
                 )
             }
         );
     }
 
-    // MULO(O1 SUM(M fun(i T O2)) -> SUM(M fun(i T MULO(O1 O2)))
+    // MULO(O1 SUM(M fun(T O2)) -> SUM(M fun(T MULO(O1 O2)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH14, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, MULO, args_MULO_O1_SUM_M_fun_i_T_O2)
+        MATCH_HEAD(term, MULO, args_MULO_O1_SUM_M_fun_T_O2)
 
-        MATCH_HEAD(args_MULO_O1_SUM_M_fun_i_T_O2[1], SUM, args_SUM_M_fun_i_T_O2)
+        MATCH_HEAD(args_MULO_O1_SUM_M_fun_T_O2[1], SUM, args_SUM_M_fun_T_O2)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_O2[1], FUN, args_FUN_i_T_O2)
+        MATCH_HEAD(args_SUM_M_fun_T_O2[1], FUN, args_fun_T_O2)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_O2[0],
+                args_SUM_M_fun_T_O2[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_O2[0],
-                        args_FUN_i_T_O2[1],
-                        bank.get_normal_term(MULO, {args_MULO_O1_SUM_M_fun_i_T_O2[0], args_FUN_i_T_O2[2]})
+                        args_fun_T_O2[0],
+                        bank.get_normal_term(MULO, {args_MULO_O1_SUM_M_fun_T_O2[0], args_fun_T_O2[1]})
                     }
                 )
             }
@@ -2965,48 +2990,46 @@ namespace diracoq {
     }
 
 
-    // TSR(SUM(M fun(i T X)) Y) -> SUM(M fun(i T TSR(X Y)))
+    // TSR(SUM(M fun(T X)) Y) -> SUM(M fun(T TSR(X Y)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH15, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, TSR, args_TSR_SUM_M_fun_i_T_X_Y)
+        MATCH_HEAD(term, TSR, args_TSR_SUM_M_fun_T_X_Y)
 
-        MATCH_HEAD(args_TSR_SUM_M_fun_i_T_X_Y[0], SUM, args_SUM_M_fun_i_T_X)
+        MATCH_HEAD(args_TSR_SUM_M_fun_T_X_Y[0], SUM, args_SUM_M_fun_T_X)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_X[1], FUN, args_FUN_i_T_X)
+        MATCH_HEAD(args_SUM_M_fun_T_X[1], FUN, args_fun_T_X)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_X[0],
+                args_SUM_M_fun_T_X[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_X[0],
-                        args_FUN_i_T_X[1],
-                        bank.get_normal_term(TSR, {args_FUN_i_T_X[2], args_TSR_SUM_M_fun_i_T_X_Y[1]})
+                        args_fun_T_X[0],
+                        bank.get_normal_term(TSR, {args_fun_T_X[1], args_TSR_SUM_M_fun_T_X_Y[1]})
                     }
                 )
             }
         );
     }
 
-    // TSR(X SUM(M fun(i T Y))) -> SUM(M fun(i T TSR(X Y)))
+    // TSR(X SUM(M fun(T Y))) -> SUM(M fun(T TSR(X Y)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH16, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, TSR, args_TSR_X_SUM_M_fun_i_T_Y)
+        MATCH_HEAD(term, TSR, args_TSR_X_SUM_M_fun_T_Y)
 
-        MATCH_HEAD(args_TSR_X_SUM_M_fun_i_T_Y[1], SUM, args_SUM_M_fun_i_T_Y)
+        MATCH_HEAD(args_TSR_X_SUM_M_fun_T_Y[1], SUM, args_SUM_M_fun_T_Y)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_Y[1], FUN, args_FUN_i_T_Y)
+        MATCH_HEAD(args_SUM_M_fun_T_Y[1], FUN, args_fun_T_Y)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M_fun_i_T_Y[0],
+                args_SUM_M_fun_T_Y[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_i_T_Y[0],
-                        args_FUN_i_T_Y[1],
-                        bank.get_normal_term(TSR, {args_TSR_X_SUM_M_fun_i_T_Y[0], args_FUN_i_T_Y[2]})
+                        args_fun_T_Y[0],
+                        bank.get_normal_term(TSR, {args_TSR_X_SUM_M_fun_T_Y[0], args_fun_T_Y[1]})
                     }
                 )
             }
@@ -3014,25 +3037,24 @@ namespace diracoq {
     }
 
 
-    // SUM(M fun(i T ADDS(a1 ... an))) -> ADDS(SUM(M fun(i T a1)) ... SUM(M fun(i T an)))
+    // SUM(M fun(T ADDS(a1 ... an))) -> ADDS(SUM(M fun(T a1)) ... SUM(M fun(T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADDS0, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_ADDS_a1_an)
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_T_ADDS_a1_an)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_ADDS_a1_an[1], FUN, args_FUN_i_T_ADDS_a1_an)
+        MATCH_HEAD(args_SUM_M_fun_T_ADDS_a1_an[1], FUN, args_fun_T_ADDS_a1_an)
 
-        MATCH_HEAD(args_FUN_i_T_ADDS_a1_an[2], ADDS, args_ADDS_a1_an)
+        MATCH_HEAD(args_fun_T_ADDS_a1_an[1], ADDS, args_ADDS_a1_an)
 
         ListArgs<int> new_sum_args;
         for (const auto &arg : args_ADDS_a1_an) {
             new_sum_args.push_back(bank.get_normal_term(SUM, 
                 {
-                    args_SUM_M_fun_i_T_ADDS_a1_an[0],
+                    args_SUM_M_fun_T_ADDS_a1_an[0],
                     bank.get_normal_term(FUN, 
                         {
-                            args_FUN_i_T_ADDS_a1_an[0],
-                            args_FUN_i_T_ADDS_a1_an[1],
+                            args_fun_T_ADDS_a1_an[0],
                             arg
                         }
                     )
@@ -3043,25 +3065,24 @@ namespace diracoq {
         return bank.get_normal_term(ADDS, std::move(new_sum_args));
     }
 
-    // SUM(M fun(i T ADD(a1 ... an))) -> ADD(SUM(M fun(i T a1)) ... SUM(M fun(i T an)))
+    // SUM(M fun(T ADD(a1 ... an))) -> ADD(SUM(M fun(T a1)) ... SUM(M fun(T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADD0, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_ADD_a1_an)
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_T_ADD_a1_an)
 
-        MATCH_HEAD(args_SUM_M_fun_i_T_ADD_a1_an[1], FUN, args_FUN_i_T_ADD_a1_an)
+        MATCH_HEAD(args_SUM_M_fun_T_ADD_a1_an[1], FUN, args_fun_T_ADD_a1_an)
 
-        MATCH_HEAD(args_FUN_i_T_ADD_a1_an[2], ADD, args_ADD_a1_an)
+        MATCH_HEAD(args_fun_T_ADD_a1_an[1], ADD, args_ADD_a1_an)
 
         ListArgs<int> new_sum_args;
         for (const auto &arg : args_ADD_a1_an) {
             new_sum_args.push_back(bank.get_normal_term(SUM, 
                 {
-                    args_SUM_M_fun_i_T_ADD_a1_an[0],
+                    args_SUM_M_fun_T_ADD_a1_an[0],
                     bank.get_normal_term(FUN, 
                         {
-                            args_FUN_i_T_ADD_a1_an[0],
-                            args_FUN_i_T_ADD_a1_an[1],
+                            args_fun_T_ADD_a1_an[0],
                             arg
                         }
                     )
@@ -3072,35 +3093,46 @@ namespace diracoq {
         return bank.get_normal_term(ADD, std::move(new_sum_args));
     }
 
-    // SUM(USET(Prod(T1 T2)) fun(i Prod(T1 T2) X)) -> SUM(USET(T1) fun(j T1 SUM(USET(T2) fun(k T2 X{i/PAIR(j k)}))))
+    // SUM(USET(Prod(T1 T2)) fun(Prod(T1 T2) X)) -> SUM(USET(T1) fun(T1 SUM(USET(T2) fun(T2 adjust(X, 1, 2){$0/PAIR($2 $1)}))))
     DIRACOQ_RULE_DEF(R_SUM_INDEX0, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_USET_Prod_T1_T2_fun_i_Prod_T1_T2_X)
+        MATCH_HEAD(term, SUM, args_SUM_USET_Prod_T1_T2_fun_Prod_T1_T2_X)
 
-        MATCH_HEAD(args_SUM_USET_Prod_T1_T2_fun_i_Prod_T1_T2_X[0], USET, args_USET_Prod_T1_T2)
+        MATCH_HEAD(args_SUM_USET_Prod_T1_T2_fun_Prod_T1_T2_X[0], USET, args_USET_Prod_T1_T2)
 
         MATCH_HEAD(args_USET_Prod_T1_T2[0], Prod, args_Prod_T1_T2)
 
-        MATCH_HEAD(args_SUM_USET_Prod_T1_T2_fun_i_Prod_T1_T2_X[1], FUN, args_FUN_i_Prod_T1_T2_X)
+        MATCH_HEAD(args_SUM_USET_Prod_T1_T2_fun_Prod_T1_T2_X[1], FUN, args_fun_Prod_T1_T2_X)
 
-        const Term<int> *j = kernel.unique_var(), *k = kernel.unique_var();
+        auto temp =                                         deBruijn_replace(
+                                            bank,
+                                            deBruijn_adjust(bank, args_fun_Prod_T1_T2_X[1], 1, 1),
+                                            0,
+                                            bank.get_normal_term(PAIR, 
+                                                {bank.get_normal_term(2, {}), bank.get_normal_term(1, {})})
+                                        );
+        cout<<kernel.term_to_string(temp)<<endl;
 
         return bank.get_normal_term(SUM, 
             {
                 bank.get_normal_term(USET, {args_Prod_T1_T2[0]}),
                 bank.get_normal_term(FUN, 
                     {
-                        j,
                         args_Prod_T1_T2[0],
                         bank.get_normal_term(SUM, 
                             {
                                 bank.get_normal_term(USET, {args_Prod_T1_T2[1]}),
                                 bank.get_normal_term(FUN, 
                                     {
-                                        k,
                                         args_Prod_T1_T2[1],
-                                        bank.replace_term(args_FUN_i_Prod_T1_T2_X[2], {{args_FUN_i_Prod_T1_T2_X[0], bank.get_normal_term(PAIR, {j, k})}})
+                                        deBruijn_replace(
+                                            bank,
+                                            deBruijn_adjust(bank, args_fun_Prod_T1_T2_X[1], 1, 2),
+                                            0,
+                                            bank.get_normal_term(PAIR, 
+                                                {bank.get_normal_term(2, {}), bank.get_normal_term(1, {})})
+                                        )
                                     }
                                 )
                             }
@@ -3111,35 +3143,37 @@ namespace diracoq {
         );              
     }
 
-    // SUM(CATPROD(M1 M2) fun(i Prod(T1 T2) X)) -> SUM(M1 fun(j T1 SUM(M2 fun(k T2 X{i/PAIR(j k)})))
+    // SUM(CATPROD(M1 M2) fun(Prod(T1 T2) X)) -> SUM(M1 fun(T1 SUM(M2 fun(T2 adjust(X, 1, 2){$0/PAIR($2 $1)})))
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_CATPROD_M1_M2_fun_i_Prod_T1_T2_X)
+        MATCH_HEAD(term, SUM, args_SUM_CATPROD_M1_M2_fun_Prod_T1_T2_X)
 
-        MATCH_HEAD(args_SUM_CATPROD_M1_M2_fun_i_Prod_T1_T2_X[0], CATPROD, args_CATPROD_M1_M2)
+        MATCH_HEAD(args_SUM_CATPROD_M1_M2_fun_Prod_T1_T2_X[0], CATPROD, args_CATPROD_M1_M2)
 
-        MATCH_HEAD(args_SUM_CATPROD_M1_M2_fun_i_Prod_T1_T2_X[1], FUN, args_FUN_i_Prod_T1_T2_X)
+        MATCH_HEAD(args_SUM_CATPROD_M1_M2_fun_Prod_T1_T2_X[1], FUN, args_fun_Prod_T1_T2_X)
 
-        MATCH_HEAD(args_FUN_i_Prod_T1_T2_X[1], Prod, args_Prod_T1_T2_X)
-
-        const Term<int> *j = kernel.unique_var(), *k = kernel.unique_var();
+        MATCH_HEAD(args_fun_Prod_T1_T2_X[0], Prod, args_Prod_T1_T2_X)
 
         return bank.get_normal_term(SUM, 
             {
                 args_CATPROD_M1_M2[0], 
                 bank.get_normal_term(FUN, 
                     {
-                        j,
                         args_Prod_T1_T2_X[0],
                         bank.get_normal_term(SUM, 
                             {
                                 args_CATPROD_M1_M2[1],
                                 bank.get_normal_term(FUN, 
                                     {
-                                        k,
                                         args_Prod_T1_T2_X[1],
-                                        bank.replace_term(args_FUN_i_Prod_T1_T2_X[2], {{args_FUN_i_Prod_T1_T2_X[0], bank.get_normal_term(PAIR, {j, k})}})
+                                        deBruijn_replace(
+                                            bank,
+                                            deBruijn_adjust(bank, args_fun_Prod_T1_T2_X[1], 1, 2),
+                                            0,
+                                            bank.get_normal_term(PAIR, 
+                                                {bank.get_normal_term(2, {}), bank.get_normal_term(1, {})})
+                                        )
                                     }
                                 )
                             }
@@ -3150,35 +3184,33 @@ namespace diracoq {
         );
     }
 
-    // M1 < M2 => SUM(M2 fun(i T1 SUM(M1 fun(j T2 X))) -> SUM(M1 fun(j T2 SUM(M2 fun(i T1 X))))
+    // M1 < M2 => SUM(M2 fun(T1 SUM(M1 fun(T2 X))) -> SUM(M1 fun(T2 SUM(M2 fun(T1 swap01(X)))))
     DIRACOQ_RULE_DEF(R_SUM_SWAP, kernel, term) {
         auto &bank = kernel.get_bank();
 
-        MATCH_HEAD(term, SUM, args_SUM_M2_fun_i_T1_SUM_M1_fun_j_T2_X)
+        MATCH_HEAD(term, SUM, args_SUM_M2_fun_T1_SUM_M1_fun_T2_X)
 
-        MATCH_HEAD(args_SUM_M2_fun_i_T1_SUM_M1_fun_j_T2_X[1], FUN, args_FUN_i_T1_SUM_M1_fun_j_T2_X)
+        MATCH_HEAD(args_SUM_M2_fun_T1_SUM_M1_fun_T2_X[1], FUN, args_FUN_T1_SUM_M1_fun_T2_X)
 
-        MATCH_HEAD(args_FUN_i_T1_SUM_M1_fun_j_T2_X[2], SUM, args_SUM_M1_fun_j_T2_X)
+        MATCH_HEAD(args_FUN_T1_SUM_M1_fun_T2_X[1], SUM, args_SUM_M1_fun_T2_X)
 
-        if (!(args_SUM_M1_fun_j_T2_X[0]<args_SUM_M2_fun_i_T1_SUM_M1_fun_j_T2_X[0])) return std::nullopt;
+        if (!(args_SUM_M1_fun_T2_X[0]<args_SUM_M2_fun_T1_SUM_M1_fun_T2_X[0])) return std::nullopt;
 
-        MATCH_HEAD(args_SUM_M1_fun_j_T2_X[1], FUN, args_FUN_j_T2_X)
+        MATCH_HEAD(args_SUM_M1_fun_T2_X[1], FUN, args_FUN_T2_X)
 
         return bank.get_normal_term(SUM, 
             {
-                args_SUM_M1_fun_j_T2_X[0],
+                args_SUM_M1_fun_T2_X[0],
                 bank.get_normal_term(FUN, 
                     {
-                        args_FUN_j_T2_X[0],
-                        args_FUN_j_T2_X[1],
+                        args_FUN_T2_X[0],
                         bank.get_normal_term(SUM, 
                             {
-                                args_SUM_M2_fun_i_T1_SUM_M1_fun_j_T2_X[0],
+                                args_SUM_M2_fun_T1_SUM_M1_fun_T2_X[0],
                                 bank.get_normal_term(FUN, 
                                     {
-                                        args_FUN_i_T1_SUM_M1_fun_j_T2_X[0],
-                                        args_FUN_i_T1_SUM_M1_fun_j_T2_X[1],
-                                        args_FUN_j_T2_X[2]
+                                        args_FUN_T1_SUM_M1_fun_T2_X[0],
+                                        deBruijn_swap(bank, args_FUN_T2_X[1], 0, 1)
                                     }
                                 )
                             }
@@ -3190,7 +3222,7 @@ namespace diracoq {
     }
 
     const std::vector<PosRewritingRule> rules = {
-        R_BETA, R_DELTA, R_ETA, R_FLATTEN,
+        R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_ETA_ARROW, R_ETA_INDEX, R_FLATTEN,
         
         R_ADDSID, R_MULSID, R_ADDS0, R_MULS0, R_MULS1, R_MULS2,
 

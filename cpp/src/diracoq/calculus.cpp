@@ -255,9 +255,7 @@ namespace diracoq {
                 }
 
                 // return the instantiated type
-                return instantiate(bank, 
-                    static_cast<const NormalTerm<int>*>(args_f[0]), 
-                    static_cast<const NormalTerm<int>*>(args[1]));
+                return instantiate(bank, args_f[0], 0, args[1]);
             }
 
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the function " + sig.term_to_string(args[0]) + " is not an arrow type or forall type.");
@@ -750,6 +748,9 @@ namespace diracoq {
             if (!type_check(term, type.value())) {
                 throw std::runtime_error("The term '" + sig.term_to_string(term) + "' is not well-typed with the type '" + sig.term_to_string(type.value()) + "'.");
             }
+        }
+        else {
+            type = deducted_type;
         }
         env.push_back({symbol, {term, type.value()}});
     }

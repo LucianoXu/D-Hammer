@@ -94,14 +94,20 @@ UNEXPECTED_ERROR:
 
     std::string pos_replace_record_to_string(Kernel& kernel, const PosReplaceRecord& record) {
         string res = "";
-        if (record.rule == R_BETA) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_BETA" + ")";
+        if (record.rule == R_BETA_ARROW) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_BETA_ARROW" + ")";
+        }
+        if (record.rule == R_BETA_INDEX) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_BETA_INDEX" + ")";
         }
         if (record.rule == R_DELTA) {
             return "(" + pos_to_string(record.pos) + ", " + "R_DELTA" + ")";
         }
-        if (record.rule == R_ETA) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_ETA" + ")";
+        if (record.rule == R_ETA_ARROW) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_ETA_ARROW" + ")";
+        }
+        if (record.rule == R_ETA_INDEX) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_ETA_INDEX" + ")";
         }
         if (record.rule == R_FLATTEN) {
             return "(" + pos_to_string(record.pos) + ", " + "R_FLATTEN" + ")";
