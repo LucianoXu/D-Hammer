@@ -1,6 +1,6 @@
 #pragma once
 
-#include "reserved.hpp"
+#include "symbols.hpp"
 #include "ualg.hpp"
 #include <boost/unordered_map.hpp>
 
@@ -35,11 +35,10 @@ namespace diracoq {
      */
     class Kernel {
     protected:
-        unsigned long long unique_var_id = 0;
         ualg::TermBank<int> bank;
         ualg::Signature<int> sig;
         std::vector<std::pair<int, Declaration>> env;
-        std::vector<std::vector<const ualg::Term<int>*>> ctx_stack;
+        std::vector<std::pair<int, Declaration>> ctx;
 
         inline void arg_number_check(const ualg::ListArgs<int>& args, int num) {
             if (args.size() != num) {
@@ -47,29 +46,15 @@ namespace diracoq {
             }
         }
 
-        // inline void arg_type_check(const ualg::Term<int>* term, const ualg::Term<int>* type) {
-        //     if (!type_check(term, type)) {
-        //         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed with the type '" + sig.term_to_string(type) + "'.");
-        //     }
-        // }
-
     public:
-        Kernel() : sig(diracoq_sig), ctx_stack({{}}) {}
+        Kernel() : sig(diracoq_sig) {}
 
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);
         }
 
-        inline const ualg::Term<int>* unique_var() {
-            return parse("@" + std::to_string(unique_var_id++));
-        }
-
         inline ualg::TermBank<int>& get_bank() {
             return bank;
-        }
-
-        inline const std::vector<const ualg::Term<int>*>& get_ctx() const{
-            return ctx_stack.back();
         }
 
         inline const ualg::Signature<int>& get_sig() {
@@ -77,12 +62,12 @@ namespace diracoq {
         }
 
         /**
-         * @brief Find the assumption/definition of the symbol in the env.
+         * @brief Find the assumption/definition of the symbol in the env and context, following the shadowing principle.
          * 
          * @param symbol 
          * @return std::optional<Declaration> If the symbol is not found, return `std::nullopt`.
          */
-        std::optional<Declaration> find_in_env(int symbol);
+        std::optional<Declaration> find_dec(int symbol);
 
         std::string dec_to_string(const std::string& name, const Declaration& dec) const;
     
@@ -180,14 +165,5 @@ namespace diracoq {
         void context_push(const ualg::Term<int>* term);
 
         void context_pop();
-
-
-        inline const ualg::Term<int>* context_at_i(int i) const {
-            auto& ctx = ctx_stack.back();
-            if (i >= ctx.size()) {
-                throw std::runtime_error("Bound variable index out of range: the context has only " + std::to_string(ctx.size()) + " elements, but the bound variable is $" + std::to_string(i) + ".");
-            }
-            return ctx[ctx.size() - 1 - i];
-        }
     };
 } // namespace diracoq

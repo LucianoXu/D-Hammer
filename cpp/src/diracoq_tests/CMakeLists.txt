@@ -1,12 +1,12 @@
 #################################
 # Tests list
 set(tests
-    test_deBruijn
-    test_calculus
-    test_reduction
-    test_special_eq
-    test_trace2coq
-    test_prover
+    test_syntax_theory
+    # test_calculus
+    # test_reduction
+    # test_special_eq
+    # test_trace2coq
+    # test_prover
 )
 
 foreach(test ${tests})

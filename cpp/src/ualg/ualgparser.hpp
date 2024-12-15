@@ -92,6 +92,14 @@ namespace ualg {
     template <class T>
     const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const std::string& code);
 
+    /**
+     * @brief Complie the Signature from a mapping of symbol names to symbol types.
+     * 
+     * @param symbol_types 
+     * @return Signature<int> 
+     */
+    Signature<int> compile_string_sig(const std::vector<std::string>& symbols);
+
     //////////////////////////////////////////////////////////
     // Implementation
 
