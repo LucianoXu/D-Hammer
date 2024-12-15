@@ -69,6 +69,8 @@ namespace diracoq {
          */
         std::optional<Declaration> find_dec(int symbol);
 
+        std::optional<Declaration> find_in_env(int symbol);
+
         std::string dec_to_string(const std::string& name, const Declaration& dec) const;
     
         /**
@@ -101,7 +103,7 @@ namespace diracoq {
         std::string env_to_string() const;
 
         /**
-         * @brief Checks if the expression is a index.
+         * @brief Checks if the expression is an index.
          * 
          * @param term a well-typed term.
          * @return true 
@@ -136,7 +138,7 @@ namespace diracoq {
          * @return false 
          */
         bool type_check(const ualg::Term<int>* term, const ualg::Term<int>* type) {
-            return calc_type(term) == type;
+            return alpha_eq(sig, bank, calc_type(term), type);
         }
 
         /**
@@ -162,7 +164,7 @@ namespace diracoq {
          */
         void env_pop();
 
-        void context_push(const ualg::Term<int>* term);
+        void context_push(int symbol, const ualg::Term<int>* type);
 
         void context_pop();
     };

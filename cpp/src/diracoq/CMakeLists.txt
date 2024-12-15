@@ -3,7 +3,7 @@ add_library(
     DIRACOQ
 
     symbols.cpp
-    # calculus.cpp
+    calculus.cpp
     # reduction.cpp
     # trace2coq.cpp
     # prover.cpp

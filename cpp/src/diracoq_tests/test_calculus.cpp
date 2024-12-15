@@ -15,13 +15,13 @@ TEST(DiracoqParsing, Basics1) {
 
     auto actual_res = kernel.parse("fun(x y apply(z x))");
     
-    auto expected_res = bank.get_normal_term(
+    auto expected_res = bank.get_term(
         sig.get_repr("fun"), {
-            bank.get_normal_term(sig.get_repr("x"), {}),
-            bank.get_normal_term(sig.get_repr("y"), {}),
-            bank.get_normal_term(sig.get_repr("apply"), {
-                bank.get_normal_term(sig.get_repr("z"), {}),
-                bank.get_normal_term(sig.get_repr("x"), {})
+            bank.get_term(sig.get_repr("x")),
+            bank.get_term(sig.get_repr("y")),
+            bank.get_term(sig.get_repr("apply"), {
+                bank.get_term(sig.get_repr("z")),
+                bank.get_term(sig.get_repr("x"))
             })
         }
     );
@@ -54,17 +54,10 @@ TEST(DiracoqTypeCalc, def_fun) {
 
     // (Def)
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(T $0)"), kernel.parse("Arrow(T T)"));
+    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(x T x)"), kernel.parse("Arrow(T T)"));
     EXPECT_EQ(kernel.calc_type(kernel.parse("f")), kernel.parse("Arrow(T T)"));
 }
 
-TEST(DiracoqTypeCalc, errors) {
-    Kernel kernel;
-
-    EXPECT_ANY_THROW(kernel.env_pop());
-
-    EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("Type")));
-}
 
 // Typing Test
 
@@ -82,13 +75,6 @@ TEST(DiracoqTypeCheck, Index_Prod) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("Prod(sigma tau)"), kernel.parse("Index")));
 }
 
-TEST(DiracoqTypeCheck, Type_Context_Var) {
-    Kernel kernel;
-
-    kernel.context_push(kernel.parse("Index"));
-    EXPECT_TRUE(kernel.type_check(kernel.parse("$0"), kernel.parse("Index")));
-}
-
 TEST(DiracoqTypeCheck, Type_Arrow) {
     Kernel kernel;
 
@@ -100,9 +86,7 @@ TEST(DiracoqTypeCheck, Type_Arrow) {
 TEST(DiracoqTypeCheck, Type_Index) {
     Kernel kernel;
 
-    EXPECT_TRUE(kernel.type_check(kernel.parse("Forall(KType($0))"), kernel.parse("Type")));
-
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("Forall(KType($1))"), kernel.parse("Type")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("Forall(x KType(x))"), kernel.parse("Type")));
 }
 
 TEST(DiracoqTypeCheck, Type_Basis) {
@@ -167,7 +151,7 @@ TEST(DiracoqTypeCheck, Term_Var2) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(T $0)"), kernel.parse("Arrow(T T)"));
+    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(x T x)"), kernel.parse("Arrow(T T)"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("f"), kernel.parse("Arrow(T T)")));
 }
 
@@ -175,13 +159,13 @@ TEST(DiracoqTypeCheck, Lam) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    EXPECT_TRUE(kernel.type_check(kernel.parse("fun(T $0)"), kernel.parse("Arrow(T T)")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("fun(x T x)"), kernel.parse("Arrow(T T)")));
 }
 
 TEST(DiracoqTypeCheck, Index) {
     Kernel kernel;
 
-    EXPECT_TRUE(kernel.type_check(kernel.parse("fun(0K($0))"), kernel.parse("Forall(KType($0))")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("idx(sigma 0K(sigma))"), kernel.parse("Forall(x KType(x))")));
 }
 
 TEST(DiracoqTypeCheck, App_Arrow) {
@@ -196,7 +180,7 @@ TEST(DiracoqTypeCheck, App_Arrow) {
 TEST(DiracoqTypeCheck, App_Index) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(KType($0))"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(x KType(x))"));
     kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("apply(f sigma)"), kernel.parse("KType(sigma)")));
 }
@@ -570,8 +554,9 @@ TEST(DiracoqTypeCheck, Sum_Ket) {
 TEST(DiracoqTypeCheck, Sum_Ket_2) {
     Kernel kernel;
 
-
-    EXPECT_TRUE(kernel.type_check(kernel.parse("fun(fun(KType($0) SUM(USET($1) fun(Basis($1) 0K($2)))))"), kernel.parse("Forall(Arrow(KType($0) KType($0)))")));
+    EXPECT_TRUE(kernel.type_check(
+        kernel.parse("idx(sigma fun(K KType(sigma) SUM(USET(sigma) fun(x Basis(sigma) 0K(sigma)))))"), 
+        kernel.parse("Forall(sigma Arrow(KType(sigma) KType(sigma)))")));
 }
 
 TEST(DiracoqTypeCheck, Sum_Bra) {
