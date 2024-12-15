@@ -6,117 +6,83 @@
 
 namespace ualg {
 
-    enum SymbolType {
-        NORMAL,
-        C,
-        AC
-    };
-
     template <class T>
     class Signature {
     protected:
         // The mapping from inner representations to head names
-        std::map<T, std::string> head_naming;
+        std::map<T, std::string> head2name;
 
         // The mapping from head names to inner representations
-        std::map<std::string, T> head_mapping;
-
-        // The mapping from inner representations to symbol types
-        std::map<T, SymbolType> symbol_types;
+        std::map<std::string, T> name2head;
 
     public:
-        Signature(
-            std::map<std::string, T> head_mapping,
-            std::map<T, SymbolType> symbol_types
-        ) : head_mapping(head_mapping), symbol_types(symbol_types) {
-            for (const auto& [name, head] : head_mapping) {
-                head_naming[head] = name;
+        Signature(std::map<std::string, T> name2head) : name2head(name2head) {
+            for (const auto& [name, head] : name2head) {
+                head2name[head] = name;
             }
         }
 
         // copy constructor
         Signature(const Signature& other) {
             // deep copy the mappings
-            head_naming = other.head_naming;
-            head_mapping = other.head_mapping;
-            symbol_types = other.symbol_types;
+            head2name = other.head2name;
+            name2head = other.name2head;
         }
 
         inline T register_symbol(const std::string& name) {
-            if constexpr(std::is_same_v<T, int>) {
-                auto find = head_mapping.find(name);
-                if (find == head_mapping.end()) {
-                    int repr = head_mapping.size();
-                    add_symbol(name, repr, SymbolType::NORMAL);
+            auto find = name2head.find(name);
+
+            if (find == name2head.end()) {
+                if constexpr(std::is_same_v<T, int>) {
+                    int repr = head2name.size();
+                    add_symbol(name, repr);
                     return repr;
                 }
-
-                return find->second;
-            }
-            else if constexpr(std::is_same_v<T, std::string>) {
-                auto find = head_mapping.find(name);
-                if (find == head_mapping.end()) {
+                else if constexpr(std::is_same_v<T, std::string>) {
                     std::string repr = name;
-                    add_symbol(name, repr, SymbolType::NORMAL);
+                    add_symbol(name, repr);
                     return repr;
                 }
-
-                return find->second;
-            }
-            else {
-                auto find = head_mapping.find(name);
-                if (find == head_mapping.end()) {
+                else {
                     throw std::runtime_error("Unknown symbol: " + name);
                 }
-                return find->second;
             }
+
+            return find->second;
         }
 
         inline std::optional<T> find_repr(const std::string& name) const {
-            auto find = head_mapping.find(name);
-            if (find == head_mapping.end()) {
+            auto find = name2head.find(name);
+            if (find == name2head.end()) {
                 return std::nullopt;
             }
             return find->second;
         }
 
         inline T get_repr(const std::string& name) const {
-            return head_mapping.at(name);
+            return name2head.at(name);
         }
 
         inline std::optional<std::string> find_name(const T& head) const {
-            auto find = head_naming.find(head);
-            if (find == head_naming.end()) {
+            auto find = head2name.find(head);
+            if (find == head2name.end()) {
                 return std::nullopt;
             }
             return find->second;
         }
 
         inline std::string get_name(const T& head) const {
-            return head_naming.at(head);
-        }
-
-        inline std::optional<SymbolType> find_symbol_type(const T& head) const {
-            auto find = symbol_types.find(head);
-            if (find == symbol_types.end()) {
-                return std::nullopt;
-            }
-            return find->second;
-        }
-
-        inline SymbolType get_symbol_type(const T& head) const {
-            return symbol_types.at(head);
+            return head2name.at(head);
         }
 
         // Add a symbol to the signature
-        inline void add_symbol(const std::string& name, const T& head, SymbolType symbol_type) {
-            head_mapping[name] = head;
-            head_naming[head] = name;
-            symbol_types[head] = symbol_type;
+        inline void add_symbol(const std::string& name, const T& head) {
+            name2head[name] = head;
+            head2name[head] = name;
         }
 
         inline std::string term_to_string(const Term<T>* term) const {
-            return term->to_string(std::make_shared<const std::map<T, std::string>>(head_naming));
+            return term->to_string(std::make_shared<const std::map<T, std::string>>(head2name));
         }
     };
 
@@ -125,16 +91,6 @@ namespace ualg {
 
     template <class T>
     const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const std::string& code);
-
-    using StringSymbolType = std::vector<std::pair<std::string, SymbolType>>;
-
-    /**
-     * @brief Complie the Signature from a mapping of symbol names to symbol types.
-     * 
-     * @param symbol_types 
-     * @return Signature<int> 
-     */
-    Signature<int> compile_string_sig(const StringSymbolType& symbol_types);
 
     //////////////////////////////////////////////////////////
     // Implementation
@@ -155,53 +111,15 @@ namespace ualg {
         
         auto head = sig.register_symbol(ast.head);
 
-        auto symbol_type = sig.get_symbol_type(head);
-
-        switch (symbol_type) {
-
-        case SymbolType::NORMAL:
-            if (ast.children.size() == 0) {
-                return bank.get_normal_term(head, {});
+        if (ast.children.size() == 0) {
+            return bank.get_term(head);
+        }
+        else {
+            ListArgs<T> args;
+            for (const auto& child : ast.children) {
+                args.push_back(ast2term(sig, bank, child));
             }
-            else {
-                ListArgs<T> args;
-                for (const auto& child : ast.children) {
-                    args.push_back(ast2term(sig, bank, child));
-                }
-                return bank.get_normal_term(head, std::move(args));
-            }
-            break;
-
-        case SymbolType::C:
-            if (ast.children.size() == 0) {
-                return bank.get_c_term(head, {});
-            }
-            else {
-                TermCountMapping<T> args;
-                for (const auto& child : ast.children) {
-                    const Term<T>* child_term = ast2term(sig, bank, child);
-                    add_TermCountMapping(args, child_term, 1);
-                }
-                return bank.get_c_term(head, std::move(args));
-            }
-            break;
-
-        case SymbolType::AC:
-            if (ast.children.size() == 0) {
-                return bank.get_ac_term(head, {});
-            }
-            else {
-                TermCountMapping<T> args;
-                for (const auto& child : ast.children) {
-                    const Term<T>* child_term = ast2term(sig, bank, child);
-                    add_TermCountMapping(args, child_term, 1);
-                }
-                return bank.get_ac_term(head, std::move(args));
-            }
-            break;
-
-        default:
-            throw std::runtime_error("Unknown symbol type.");
+            return bank.get_term(head, std::move(args));
         }
     }
 
@@ -220,7 +138,7 @@ namespace ualg {
     const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const std::string& code) {
         auto ast = astparser::parse(code);
         if (!ast.has_value()) {
-            throw std::runtime_error("Error: the code is not valid.");
+            throw std::runtime_error("Error: the code to parse is not valid.");
         }
 
         return ast2term(sig, bank, ast.value());

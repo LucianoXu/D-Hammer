@@ -21,29 +21,27 @@ namespace ualg {
      */
     template <class T>
     const Term<T>* flatten(const Term<T>* term, TermBank<T>& bank, const std::set<T>& c_symbols) {
-        const NormalTerm<T>* normal_term = static_cast<const NormalTerm<T>*>(term);
-
 
         // If the term is atomic or not an AC symbol, return the term
         if (term->is_atomic() || c_symbols.find(term->get_head()) == c_symbols.end()) return term;
 
-        const ListArgs<T>& args = normal_term->get_args();
+        const ListArgs<T>& args = term->get_args();
         ListArgs<T> new_args;
 
         for (const auto& arg : args) {
             // flatten the subterm first
             const auto new_arg = flatten<T>(arg, bank, c_symbols);
-            ListArgs<T> arg_args;
+            if (new_arg->get_head() == term->get_head()) {
+                auto& arg_args = new_arg->get_args();
 
-            // check whether the subterm is the same AC symbol
-            if (match_normal_head(new_arg, term->get_head(), arg_args)) {
                 new_args.insert(new_args.end(), arg_args.begin(), arg_args.end());
+
             } else {
                 new_args.push_back(new_arg);
             }
         }
 
-        return bank.get_normal_term(term->get_head(), std::move(new_args));
+        return bank.get_term(term->get_head(), std::move(new_args));
     }
 
     /**
@@ -92,7 +90,7 @@ namespace ualg {
     };
 
     template <class T>
-    const NormalTerm<T>* apply_CInstruct(const NormalTerm<T>* term, const CProofInstruct& instruct, TermBank<T>& bank) {
+    const Term<T>* apply_CInstruct(const Term<T>* term, const CProofInstruct& instruct, TermBank<T>& bank) {
         if (instruct.E()) return term;
 
         const ListArgs<T>& args = term->get_args();
@@ -102,25 +100,25 @@ namespace ualg {
             const auto& idx = instruct.ls[i].first;
             const auto& sub_instruct = instruct.ls[idx].second;
             
-            new_args.push_back(apply_CInstruct(static_cast<const NormalTerm<T>*>(args[idx]), sub_instruct, bank));
+            new_args.push_back(apply_CInstruct(args[idx], sub_instruct, bank));
         }
 
-        return bank.get_normal_term(term->get_head(), std::move(new_args));
+        return bank.get_term(term->get_head(), std::move(new_args));
     } 
 
     template <class T>
-    std::pair<const NormalTerm<T>*, CProofInstruct> sort_CInstruct(const NormalTerm<T>* term, TermBank<T>& bank, const std::set<T>& c_symbols) {
+    std::pair<const Term<T>*, CProofInstruct> sort_CInstruct(const Term<T>* term, TermBank<T>& bank, const std::set<T>& c_symbols) {
 
         if (term->get_args().size() == 0) return {term, CProofInstruct{}};
 
         const ListArgs<T>& args = term->get_args();
         
         // sort within the arguments
-        std::vector<std::pair<const NormalTerm<T>*, unsigned>> res_subterm_sort;
+        std::vector<std::pair<const Term<T>*, unsigned>> res_subterm_sort;
         std::vector<CProofInstruct> subterm_instructs;
         for (unsigned i = 0; i < args.size(); ++i) {
             auto [sorted_arg, instruct] = sort_CInstruct(
-                static_cast<const NormalTerm<T>*>(args[i]),
+                args[i],
                 bank, c_symbols
             );
             subterm_instructs.push_back(instruct);
@@ -144,7 +142,7 @@ namespace ualg {
             seq.push_back({idx, std::move(subterm_instructs[i])});
         }
 
-        auto res = bank.get_normal_term(term->get_head(), std::move(new_args));
+        auto res = bank.get_term(term->get_head(), std::move(new_args));
         
         return {res, CProofInstruct{seq}};
     }
@@ -159,7 +157,7 @@ namespace ualg {
      * @return std::optional<CProofInstruct>. If the two terms are equivalent, return the permutation to transform A to B. If not equivalent, return std::nullopt.
      */
     template <class T>
-    std::optional<CProofInstruct> check_C_eq(const NormalTerm<T>* termA, const NormalTerm<T>* termB, TermBank<T>& bank, const std::set<T>& c_symbols) {
+    std::optional<CProofInstruct> check_C_eq(const Term<T>* termA, const Term<T>* termB, TermBank<T>& bank, const std::set<T>& c_symbols) {
 
         // sort the two terms first
         auto [sortedA, instructA] = sort_CInstruct(termA, bank, c_symbols);
