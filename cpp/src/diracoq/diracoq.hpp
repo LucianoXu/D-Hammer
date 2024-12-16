@@ -6,5 +6,5 @@
 #include "syntax_theory.hpp"
 #include "calculus.hpp"
 #include "reduction.hpp"
-// #include "trace2coq.hpp"
-// #include "prover.hpp"
+#include "trace2coq.hpp"
+#include "prover.hpp"

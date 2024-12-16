@@ -151,31 +151,46 @@ namespace diracoq {
                 }
             }
             else if (ast.head == "Normalize") {
-                if (ast.children.size() != 1) {
-                    output << "Error: Normalize command should have one argument." << endl;
+                if (ast.children.size() > 2) {
+                    output << "Error: Normalize command should have one or two arguments." << endl;
                     return false;
                 }
+                if (ast.children.size() == 2) {
+                    if (ast.children[1].head != "Trace") {
+                        output << "Error: the second argument of Normalize command should be 'Trace'." << endl;
+                        return false;
+                    }
+                }
+
                 // Typecheck the term
-                auto term = static_cast<const NormalTerm<int>*>(kernel.parse(ast.children[0]));
-                kernel.calc_type(term);
+                auto term = kernel.parse(ast.children[0]);
+                auto type = kernel.calc_type(term);
 
                 // calculate the normalized term
                 vector<PosReplaceRecord> trace;
                 auto temp = pos_rewrite_repeated(kernel, term, rules, &trace);
-                auto [sorted_term, instruct] = sort_CInstruct(temp, kernel.get_bank(), c_symbols);
-                auto normalized_term = alpha_normalize(kernel, sorted_term);
-                
+                auto normalized_term = deBruijn_normalize(kernel, temp);
+                auto [sorted_term, instruct] = sort_CInstruct(normalized_term, kernel.get_bank(), c_symbols);
 
-                auto type = kernel.calc_type(normalized_term);
+                auto final_term = normalized_term;
+
+                // if output trace
+                if (ast.children.size() == 2) {
+                    output << "Trace:" << endl;
+                    for (int i = 0; i < trace.size(); ++i) {
+                        output << "Step " + to_string(i) << endl;
+                        output << pos_replace_record_to_string(kernel, trace[i]) << endl;
+                    }
+                }
                 
                 // Output the normalized term
-                output << kernel.term_to_string(normalized_term) + " : " + kernel.term_to_string(type)  << endl;
+                output << kernel.term_to_string(final_term) + " : " + kernel.term_to_string(type)  << endl;
 
 
                 // generate Coq code
                 if (gen_coq) {
                     append_coq_code("(* " + ast.to_string() + " *)\n");
-                    append_coq_code(normalize_to_coq(kernel, term, normalized_term, trace, instruct) + "\n\n");
+                    append_coq_code(normalize_to_coq(kernel, term, final_term, trace, instruct) + "\n\n");
                 }
 
                 return true;
@@ -203,48 +218,50 @@ namespace diracoq {
     bool Prover::check_eq(const astparser::AST& codeA, const astparser::AST& codeB) {
         
         // Typecheck the terms
-        auto termA = static_cast<const NormalTerm<int>*>(kernel.parse(codeA));
-        auto termB = static_cast<const NormalTerm<int>*>(kernel.parse(codeB));
+        auto termA = kernel.parse(codeA);
+        auto termB = kernel.parse(codeB);
         auto typeA = kernel.calc_type(termA);
         auto typeB = kernel.calc_type(termB);
         if (typeA != typeB) {
             output << "The two terms have different types and are not equal." << endl;
+            output << "[Type A] " << kernel.term_to_string(typeA) << endl;
+            output << "[Type B] " << kernel.term_to_string(typeB) << endl;
             return false;
         }
 
         // calculate the normalized term
         vector<PosReplaceRecord> traceA;
         auto tempA = pos_rewrite_repeated(kernel, termA, rules, &traceA);
-        auto [sorted_termA, instructA] = sort_CInstruct(tempA, kernel.get_bank(), c_symbols);
-        auto normalized_termA = alpha_normalize(kernel, sorted_termA);
+        auto normalized_termA = deBruijn_normalize(kernel, tempA);
+        auto [sorted_termA, instructA] = sort_CInstruct(normalized_termA, kernel.get_bank(), c_symbols);
 
         vector<PosReplaceRecord> traceB;
         auto tempB = pos_rewrite_repeated(kernel, termB, rules, &traceB);
-        auto [sorted_termB, instructB] = sort_CInstruct(tempB, kernel.get_bank(), c_symbols);
-        auto normalized_termB = alpha_normalize(kernel, sorted_termB);
+        auto normalized_termB = deBruijn_normalize(kernel, tempB);
+        auto [sorted_termB, instructB] = sort_CInstruct(normalized_termB, kernel.get_bank(), c_symbols);
 
-        auto type_resA = kernel.calc_type(normalized_termA);
-        auto type_resB = kernel.calc_type(normalized_termB);
+        auto final_termA = normalized_termA;
+        auto final_termB = normalized_termB;
         
         // Output the result
-        if (normalized_termA == normalized_termB) {
+        if (final_termA == final_termB) {
             output << "The two terms are equal." << endl;
-            output << "[Normalized Term] " << kernel.term_to_string(normalized_termA) << " : " << kernel.term_to_string(type_resA) << endl;
+            output << "[Normalized Term] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
 
 
             // generate Coq code
             if (gen_coq) {
                 auto original_code = astparser::AST("CheckEq", {codeA, codeB});
                 append_coq_code("(* " + original_code.to_string() + " *)\n");
-                append_coq_code(checkeq_to_coq(kernel, termA, termB, traceA, traceB, instructA, instructB, normalized_termA) + "\n\n");
+                append_coq_code(checkeq_to_coq(kernel, termA, termB, traceA, traceB, instructA, instructB, final_termA) + "\n\n");
             }
 
             return true;
         }
         else {
             output << "The two terms are not equal." << endl;
-            output << "[Normalized Term A] " << kernel.term_to_string(normalized_termA) << " : " << kernel.term_to_string(type_resA) << endl;
-            output << "[Normalized Term B] " << kernel.term_to_string(normalized_termB) << " : " << kernel.term_to_string(type_resB) << endl;
+            output << "[Normalized Term A] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
+            output << "[Normalized Term B] " << kernel.term_to_string(final_termB) << " : " << kernel.term_to_string(typeB) << endl;
             return false;
         }
     }

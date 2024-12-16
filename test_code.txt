@@ -1,1 +1,10 @@
-Def(TPO fun(fun(KType($1) SUM(USET($1) fun(Basis($2) SCR(DOT(BRA($0) $1) BRA($0))))))) 
+Group(
+    Def(TPB idx(sigma fun(K KType(sigma) SUM(USET(sigma) fun(i Basis(sigma) SCR(DOT(BRA(i) K) BRA(i)))))))
+    Def(TPK idx(sigma fun(B BType(sigma) SUM(USET(sigma) fun(i Basis(sigma) SCR(DOT(B KET(i)) KET(i)))))))
+
+    Var(sigma Index)
+
+    Var(K KType(sigma))
+
+    CheckEq(apply(apply(TPK sigma) apply(apply(TPB sigma) K)) K)
+)

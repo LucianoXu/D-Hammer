@@ -16,7 +16,7 @@ TEST(DiracoqTrace2Coq, scalars) {
 }
 
 TEST(DiracoqTrace2Coq, NormalTermPos) {
-    NormalTermPos pos = {1, 2, 3};
+    TermPos pos = {1, 2, 3};
     auto actual_res = pos_to_string(pos);
     auto expected_res = "(P_ac 1 (P_ac 2 (P_ac 3 P_all)))";
     EXPECT_EQ(actual_res, expected_res);

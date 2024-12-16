@@ -1,6 +1,6 @@
 #pragma once
 
-#include "reduction.hpp"
+#include "symbols.hpp"
 
 namespace diracoq {
 
@@ -13,7 +13,7 @@ namespace diracoq {
      */
     std::string term_to_coq(Kernel& kernel, const ualg::Term<int>* term);
 
-    std::string pos_to_string(const ualg::NormalTermPos& pos);
+    std::string pos_to_string(const ualg::TermPos& pos);
 
     std::string pos_replace_record_to_string(Kernel& kernel, const PosReplaceRecord& record);
 

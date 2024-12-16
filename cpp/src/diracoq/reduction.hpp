@@ -51,7 +51,9 @@ namespace diracoq {
      * @param term 
      * @return const ualg::NormalTerm<int>* 
      */
-    const ualg::Term<int>* alpha_normalize(Kernel& kernel, const ualg::Term<int>* term);
+    inline const ualg::Term<int>* deBruijn_normalize(Kernel& kernel, const ualg::Term<int>* term){
+        return to_deBruijn(kernel.get_sig(), kernel.get_bank(), term);
+    }
 
     //////////////// Rules
 

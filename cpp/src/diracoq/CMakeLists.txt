@@ -6,8 +6,8 @@ add_library(
     calculus.cpp
     syntax_theory.cpp
     reduction.cpp
-    # trace2coq.cpp
-    # prover.cpp
+    trace2coq.cpp
+    prover.cpp
 )
 
 target_link_libraries(

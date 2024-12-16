@@ -7,7 +7,9 @@ namespace diracoq {
 
 
     std::optional<PosReplaceRecord> get_pos_replace(Kernel& kernel, const Term<int>* term, const std::vector<PosRewritingRule>& rules, TermPos& current_pos) {
-        
+        auto head = term->get_head();
+        auto args = term->get_args();
+
         // Check whether the rule can be applied to this term
         for (const auto& rule : rules) {
             auto apply_res = rule(kernel, term);
@@ -18,17 +20,46 @@ namespace diracoq {
         }
         
         // Check whether the rule can be applied to the subterms
-
-        for (unsigned int i = 0; i < term->get_args().size(); i++) {
-            current_pos.push_back(i);
-            auto replace_res = get_pos_replace(kernel, term->get_args()[i], rules, current_pos);
+        if (head == FUN) {
+            kernel.context_push(args[0]->get_head(), args[1]);
+            
+            current_pos.push_back(2);
+            auto replace_res = get_pos_replace(kernel, args[2], rules, current_pos);
             if (replace_res.has_value()) {
                 return replace_res;
             }
             current_pos.pop_back();
-        }
 
-        return std::nullopt;        
+            kernel.context_pop();
+
+            return std::nullopt;
+        }
+        else if (head == IDX) {
+            kernel.context_push(args[0]->get_head(), kernel.get_bank().get_term(INDEX));
+            
+            current_pos.push_back(1);
+            auto replace_res = get_pos_replace(kernel, args[1], rules, current_pos);
+            if (replace_res.has_value()) {
+                return replace_res;
+            }
+            current_pos.pop_back();
+
+            kernel.context_pop();
+
+            return std::nullopt;
+        }
+        else {
+            for (unsigned int i = 0; i < args.size(); i++) {
+                current_pos.push_back(i);
+                auto replace_res = get_pos_replace(kernel, args[i], rules, current_pos);
+                if (replace_res.has_value()) {
+                    return replace_res;
+                }
+                current_pos.pop_back();
+            }
+
+            return std::nullopt;        
+        }
     }
 
     std::optional<PosReplaceRecord> get_pos_replace(Kernel& kernel, const Term<int>* term, const std::vector<PosRewritingRule>& rules) {
@@ -626,6 +657,8 @@ namespace diracoq {
 
         MATCH_HEAD(type_K, KType, args_KType_T)
 
+        if (args_SCR_0_K[0]->get_head() != ZERO) return std::nullopt;
+
         return bank.get_term(ZEROK, {args_KType_T[0]});
     }
 
@@ -650,6 +683,8 @@ namespace diracoq {
 
         MATCH_HEAD(type_B, BType, args_BType_T)
 
+        if (args_SCR_0_B[0]->get_head() != ZERO) return std::nullopt;
+
         return bank.get_term(ZEROB, {args_BType_T[0]});
     }
 
@@ -673,6 +708,8 @@ namespace diracoq {
         auto type_O = kernel.calc_type(args_SCR_0_O[1]);
 
         MATCH_HEAD(type_O, OType, args_OType_T1_T2)
+
+        if (args_SCR_0_O[0]->get_head() != ZERO) return std::nullopt;
 
         return bank.get_term(ZEROO, {args_OType_T1_T2[0], args_OType_T1_T2[1]});
     }

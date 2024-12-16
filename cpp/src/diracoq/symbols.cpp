@@ -26,6 +26,7 @@ namespace diracoq {
             "ShowAll",
             "Normalize",
             "CheckEq",
+            "Trace",
    
             "Index",
             "Type",
