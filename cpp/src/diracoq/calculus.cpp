@@ -386,7 +386,7 @@ namespace diracoq {
             }
 
             // check whether the index of type_K is the same as the index of type_B
-            if (!alpha_eq(sig, bank, args_B[0], args_K[0])) {
+            if (!is_eq(sig, bank, args_B[0], args_K[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
@@ -445,7 +445,7 @@ namespace diracoq {
             }
 
             for (int i = 1; i < args.size(); i++) {
-                if (!alpha_eq(sig, bank, calc_type(args[i]), type_X)) {
+                if (!is_eq(sig, bank, calc_type(args[i]), type_X)) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not of the same type as the first argument " + sig.term_to_string(args[0]) + ".");
                 }
             }
@@ -525,7 +525,7 @@ namespace diracoq {
             }
 
             // check whether the index of type_K is the same as the second index of type_O
-            if (!alpha_eq(sig, bank, args_O[1], args_K[0])) {
+            if (!is_eq(sig, bank, args_O[1], args_K[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
@@ -573,7 +573,7 @@ namespace diracoq {
             }
 
             // check whether the index of type_B is the same as the first index of type_O
-            if (!alpha_eq(sig, bank, args_B[0], args_O[0])) {
+            if (!is_eq(sig, bank, args_B[0], args_O[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the first index of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
@@ -639,7 +639,7 @@ namespace diracoq {
 
             // check whether the second index of type_O1 is the same as the first index of type_O2
 
-            if (!alpha_eq(sig, bank, args_O1[1], args_O2[0])) {
+            if (!is_eq(sig, bank, args_O1[1], args_O2[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the first index of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
@@ -699,7 +699,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument of the second argument " + sig.term_to_string(args[1]) + " is not of type Basis.");
             }
 
-            if (!alpha_eq(sig, bank, args_s[0], args_f_basis[0])) {
+            if (!is_eq(sig, bank, args_s[0], args_f_basis[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the first argument of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 

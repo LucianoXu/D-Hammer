@@ -92,3 +92,25 @@ TEST(DiracoqSyntaxTheory, alpha_eq1) {
 
     EXPECT_TRUE(alpha_eq(sig, bank, term1, term2));
 }
+
+TEST(DiracoqSyntaxTheory, to_deBruijn1) {
+    TermBank<int> bank;
+    auto sig = diracoq_sig;
+
+    auto term = parse(sig, bank, "fun(x KType(x) apply(x y))");
+    auto actual_res = to_deBruijn(sig, bank, term);
+    auto expected_res = parse(sig, bank, "fun(KType(x) apply($0 y))");
+
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+TEST(DiracoqSyntaxTheory, to_deBruijn2) {
+    TermBank<int> bank;
+    auto sig = diracoq_sig;
+
+    auto term = parse(sig, bank, "fun(x KType(x) apply(x fun(y T apply(y x))))");
+    auto actual_res = to_deBruijn(sig, bank, term);
+    auto expected_res = parse(sig, bank, "fun(KType(x) apply($0 fun(T apply($0 $1))))");
+
+    EXPECT_EQ(actual_res, expected_res);
+}

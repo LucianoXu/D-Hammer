@@ -138,7 +138,7 @@ namespace diracoq {
          * @return false 
          */
         bool type_check(const ualg::Term<int>* term, const ualg::Term<int>* type) {
-            return alpha_eq(sig, bank, calc_type(term), type);
+            return is_eq(sig, bank, calc_type(term), type);
         }
 
         /**

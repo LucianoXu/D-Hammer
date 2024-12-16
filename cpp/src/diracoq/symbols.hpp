@@ -6,6 +6,8 @@
 
 namespace diracoq {
 
+    extern const int deBruijn_index_num;
+
     extern std::vector<std::string> diracoq_symbols;
 
     extern const ualg::Signature<int> diracoq_sig;

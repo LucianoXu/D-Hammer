@@ -4,9 +4,19 @@ namespace diracoq {
     using namespace std;
     using namespace ualg;
 
+    const int deBruijn_index_num = 1024;
+
+
+
     vector<string> gen_symbols() {
+
+        vector<string> res = {};
+
+        for (int i = 0; i < deBruijn_index_num; ++i) {
+            res.push_back("$" + to_string(i));
+        }
         
-        vector<string> res = {
+        vector<string> defined = {
 
             "Group"
             "Def",
@@ -65,6 +75,10 @@ namespace diracoq {
             "CATPROD",
             "SUM",
         };
+
+        for (const auto &s : defined) {
+            res.push_back(s);
+        }
 
         return res;
     }
@@ -126,5 +140,5 @@ namespace diracoq {
     const std::set<int> c_symbols = {ADDS, MULS, DELTA, ADD};
 
     unsigned long long unique_var_id = 0;
-    
+
 } // namespace diracoq

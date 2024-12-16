@@ -118,4 +118,23 @@ namespace diracoq {
         return true;
     }
 
+
+    /**
+     * @brief Recursively transform a term to the de Bruijn index representation.
+     * 
+     * @param sig 
+     * @param bank 
+     * @param term 
+     * @return const ualg::Term<int>* 
+     */
+    const ualg::Term<int>* to_deBruijn(ualg::Signature<int>& sig, ualg::TermBank<int>& bank, const ualg::Term<int>* term);
+
+    inline bool is_eq(ualg::Signature<int>& sig, ualg::TermBank<int>& bank, const ualg::Term<int>* termA, const ualg::Term<int>* termB) {
+        return to_deBruijn(sig, bank, termA) == to_deBruijn(sig, bank, termB);
+    }
+
+    inline bool is_smaller(ualg::Signature<int>& sig, ualg::TermBank<int>& bank, const ualg::Term<int>* termA, const ualg::Term<int>* termB) {
+        return to_deBruijn(sig, bank, termA) < to_deBruijn(sig, bank, termB);
+    }
+
 } // namespace diracoq
