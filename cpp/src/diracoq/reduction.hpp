@@ -40,7 +40,14 @@ namespace diracoq {
     const ualg::Term<int>* pos_rewrite_repeated(Kernel& kernel, const ualg::Term<int>* term, const std::vector<PosRewritingRule>& rules, 
     std::vector<PosReplaceRecord>* trace = nullptr);
 
-
+    /**
+     * @brief Expand all the variables in the term once.
+     * 
+     * @param kernel 
+     * @param term 
+     * @return const ualg::Term<int>* 
+     */
+    const ualg::Term<int>* variable_expand(Kernel& kernel, const ualg::Term<int>* term);
 
     /**
      * @brief Iterate through the whole term and rename the bound variables.

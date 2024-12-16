@@ -169,6 +169,11 @@ namespace diracoq {
                 // calculate the normalized term
                 vector<PosReplaceRecord> trace;
                 auto temp = pos_rewrite_repeated(kernel, term, rules, &trace);
+
+                // expand on variables
+                auto expanded_term = variable_expand(kernel, temp);
+                temp = pos_rewrite_repeated(kernel, expanded_term, rules, &trace);
+
                 auto normalized_term = deBruijn_normalize(kernel, temp);
                 auto [sorted_term, instruct] = sort_CInstruct(normalized_term, kernel.get_bank(), c_symbols);
 
@@ -232,16 +237,20 @@ namespace diracoq {
         // calculate the normalized term
         vector<PosReplaceRecord> traceA;
         auto tempA = pos_rewrite_repeated(kernel, termA, rules, &traceA);
+        auto expanded_termA = variable_expand(kernel, tempA);
+        tempA = pos_rewrite_repeated(kernel, expanded_termA, rules, &traceA);
         auto normalized_termA = deBruijn_normalize(kernel, tempA);
         auto [sorted_termA, instructA] = sort_CInstruct(normalized_termA, kernel.get_bank(), c_symbols);
 
         vector<PosReplaceRecord> traceB;
         auto tempB = pos_rewrite_repeated(kernel, termB, rules, &traceB);
+        auto expanded_termB = variable_expand(kernel, tempB);
+        tempB = pos_rewrite_repeated(kernel, expanded_termB, rules, &traceB);
         auto normalized_termB = deBruijn_normalize(kernel, tempB);
         auto [sorted_termB, instructB] = sort_CInstruct(normalized_termB, kernel.get_bank(), c_symbols);
 
-        auto final_termA = normalized_termA;
-        auto final_termB = normalized_termB;
+        auto final_termA = sorted_termA;
+        auto final_termB = sorted_termB;
         
         // Output the result
         if (final_termA == final_termB) {

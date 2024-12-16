@@ -85,6 +85,116 @@ namespace diracoq {
     }
 
 
+    const Term<int>* variable_expand(Kernel& kernel, const Term<int>* term) {
+        auto& bank = kernel.get_bank();
+        auto& sig = kernel.get_sig();
+
+        if (term->is_atomic()) {
+            auto type = kernel.calc_type(term);
+            auto type_head = type->get_head();
+            auto type_args = type->get_args();
+
+            // K : KType(A) -> SUM(USET(A) fun(i Basis(A) SCR(DOT(BRA(i) K) KET(i))))
+            if (type_head == KType) {
+                auto new_bound = bank.get_term(sig.register_symbol(unique_var()));
+                return bank.get_term(
+                    SUM,
+                    {
+                        bank.get_term(USET, {type_args[0]}),
+                        bank.get_term(FUN, {
+                            new_bound,
+                            bank.get_term(BASIS, {type_args[0]}),
+                            bank.get_term(SCR, {
+                                bank.get_term(DOT, {
+                                    bank.get_term(BRA, {new_bound}),
+                                    term
+                                }),
+                                bank.get_term(KET, {new_bound})
+                            })
+                        })
+                    }
+                );
+            }
+            
+            // B : BType(A) -> SUM(USET(A) fun(i Basis(A) SCR(DOT(B KET(i)) BRA(i))))
+            else if (type_head == BType) {
+                auto new_bound = bank.get_term(sig.register_symbol(unique_var()));
+                return bank.get_term(
+                    SUM,
+                    {
+                        bank.get_term(USET, {type_args[0]}),
+                        bank.get_term(FUN, {
+                            new_bound,
+                            bank.get_term(BASIS, {type_args[0]}),
+                            bank.get_term(SCR, {
+                                bank.get_term(DOT, {
+                                    term,
+                                    bank.get_term(KET, {new_bound})
+                                }),
+                                bank.get_term(BRA, {new_bound})
+                            })
+                        })
+                    }
+                );
+            }
+
+            // O : BType(A, B) -> SUM(USET(A) fun(i Basis(A) 
+            //                          SUM(USET(B) fun(j Basis(B)
+            //                              SCR(
+            //                                  DOT(BRA(i) MULK(O KET(j)))
+            //                                  OUTER(KET(i) BRA(j))
+            //                              )
+            //                          ))
+            //                    ))
+            else if (type_head == OType) {
+                auto new_bound_A = bank.get_term(sig.register_symbol(unique_var()));
+                auto new_bound_B = bank.get_term(sig.register_symbol(unique_var()));
+                return bank.get_term(
+                    SUM,
+                    {
+                        bank.get_term(USET, {type_args[0]}),
+                        bank.get_term(FUN, {
+                            new_bound_A,
+                            bank.get_term(BASIS, {type_args[0]}),
+                            bank.get_term(
+                                SUM,
+                                {
+                                    bank.get_term(USET, {type_args[1]}),
+                                    bank.get_term(FUN, {
+                                        new_bound_B,
+                                        bank.get_term(BASIS, {type_args[1]}),
+                                        bank.get_term(SCR, {
+                                            bank.get_term(DOT, {
+                                                bank.get_term(BRA, {new_bound_A}),
+                                                bank.get_term(MULK, {term, bank.get_term(KET, {new_bound_B})})
+                                            }),
+                                            bank.get_term(OUTER, {bank.get_term(KET, {new_bound_A}), bank.get_term(BRA, {new_bound_B})})
+                                        })
+                                    })
+                                }
+                            )
+                        })
+                    }
+                );
+            }
+
+            return term;
+        }
+
+        // recursive case
+        else {
+            auto head = term->get_head();
+            auto& args = term->get_args();
+
+            auto new_args = ListArgs<int>();
+            for (const auto& arg : args) {
+                new_args.push_back(variable_expand(kernel, arg));
+            }
+            return bank.get_term(head, std::move(new_args));
+        }
+
+    }
+
     //////////////// Rules
 
 /**

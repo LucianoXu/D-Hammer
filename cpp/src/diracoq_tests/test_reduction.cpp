@@ -8,6 +8,48 @@ using namespace diracoq;
 
 
 
+TEST(DiracoqReduction, variable_expand_K) {
+    Kernel kernel;
+    unique_var_id = 0;
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(A)"));
+
+    auto term = kernel.parse("K");
+    auto actual_res = variable_expand(kernel, term);
+    auto expected_res = kernel.parse("SUM(USET(A) fun(@0 Basis(A) SCR(DOT(BRA(@0) K) KET(@0))))");
+
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+
+TEST(DiracoqReduction, variable_expand_B) {
+    Kernel kernel;
+    unique_var_id = 0;
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(A)"));
+
+    auto term = kernel.parse("B");
+    auto actual_res = variable_expand(kernel, term);
+    auto expected_res = kernel.parse("SUM(USET(A) fun(@0 Basis(A) SCR(DOT(B KET(@0)) BRA(@0))))");
+
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+
+TEST(DiracoqReduction, variable_expand_O) {
+    Kernel kernel;
+    unique_var_id = 0;
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(A B)"));
+
+    auto term = kernel.parse("O");
+    auto actual_res = variable_expand(kernel, term);
+    auto expected_res = kernel.parse("SUM(USET(A) fun(@0 Basis(A) SUM(USET(B) fun(@1 Basis(B) SCR(DOT(BRA(@0) MULK(O KET(@1))) OUTER(KET(@0) BRA(@1)))))))");
+
+    EXPECT_EQ(actual_res, expected_res);
+}
+
 TEST(DiracoqReduction, R_BETA_ARROW) {
     Kernel kernel;
 
