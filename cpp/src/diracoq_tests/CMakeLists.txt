@@ -3,7 +3,7 @@
 set(tests
     test_syntax_theory
     test_calculus
-    # test_reduction
+    test_reduction
     # test_special_eq
     # test_trace2coq
     # test_prover

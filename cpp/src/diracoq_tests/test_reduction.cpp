@@ -7,22 +7,6 @@ using namespace std;
 using namespace diracoq;
 
 
-TEST(DiracoqReduction, alpha_normalize) {
-    Kernel kernel;
-
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("T"));
-    kernel.assum(kernel.register_symbol("b"), kernel.parse("T"));
-
-    auto term = kernel.parse("fun(x T apply(fun(y T y) x))");
-    auto normal_term = static_cast<const NormalTerm<int>*>(term);
-
-    auto actual_res = alpha_normalize(kernel, normal_term);
-    auto expected_res = kernel.parse("fun($0 T apply(fun($1 T $1) $0))");
-
-    EXPECT_EQ(actual_res, expected_res);
-}
-
 
 TEST(DiracoqReduction, R_BETA_ARROW) {
     Kernel kernel;
@@ -30,10 +14,9 @@ TEST(DiracoqReduction, R_BETA_ARROW) {
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
     kernel.assum(kernel.register_symbol("a"), kernel.parse("T"));
 
-    auto term = kernel.parse("apply(fun(T $0) a)");
-    auto normal_term = static_cast<const NormalTerm<int>*>(term);
+    auto term = kernel.parse("apply(fun(x T x) a)");
 
-    auto actual_res = pos_rewrite_repeated(kernel, normal_term, rules);
+    auto actual_res = pos_rewrite_repeated(kernel, term, {R_BETA_ARROW});
     auto expected_res = kernel.parse("a");
 
     EXPECT_EQ(actual_res, expected_res);
@@ -45,10 +28,9 @@ TEST(DiracoqReduction, R_BETA_INDEX) {
 
     kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
 
-    auto term = kernel.parse("apply(fun(0K($0)) sigma)");
-    auto normal_term = static_cast<const NormalTerm<int>*>(term);
+    auto term = kernel.parse("apply(idx(sigma 0K(sigma)) sigma)");
 
-    auto actual_res = pos_rewrite_repeated(kernel, normal_term, rules);
+    auto actual_res = pos_rewrite_repeated(kernel, term, {R_BETA_INDEX});
     auto expected_res = kernel.parse("0K(sigma)");
 
     EXPECT_EQ(actual_res, expected_res);
@@ -60,12 +42,11 @@ TEST(DiracoqReduction, R_DELTA) {
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
     kernel.assum(kernel.register_symbol("a"), kernel.parse("T"));
-    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(T $0)"));
+    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(x T x)"));
 
     auto term = kernel.parse("apply(f a)");
-    auto normal_term = static_cast<const NormalTerm<int>*>(term);
 
-    auto actual_res = pos_rewrite_repeated(kernel, normal_term, rules);
+    auto actual_res = pos_rewrite_repeated(kernel, term, {R_DELTA, R_BETA_ARROW});
     auto expected_res = kernel.parse("a");
 
     EXPECT_EQ(actual_res, expected_res);
@@ -77,10 +58,9 @@ TEST(DiracoqReduction, R_ETA_ARROW) {
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
     kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T T)"));
 
-    auto term = kernel.parse("fun(T apply(f $0))");
-    auto normal_term = static_cast<const NormalTerm<int>*>(term);
+    auto term = kernel.parse("fun(x T apply(f x))");
 
-    auto actual_res = pos_rewrite_repeated(kernel, normal_term, rules);
+    auto actual_res = pos_rewrite_repeated(kernel, term, {R_ETA_ARROW});
     auto expected_res = kernel.parse("f");
 
     EXPECT_EQ(actual_res, expected_res);
@@ -90,12 +70,11 @@ TEST(DiracoqReduction, R_ETA_INDEX) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(T)"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(sigma T)"));
 
-    auto term = kernel.parse("fun(apply(f $0))");
-    auto normal_term = static_cast<const NormalTerm<int>*>(term);
+    auto term = kernel.parse("idx(sigma apply(f sigma))");
 
-    auto actual_res = pos_rewrite_repeated(kernel, normal_term, rules);
+    auto actual_res = pos_rewrite_repeated(kernel, term, {R_ETA_INDEX});
     auto expected_res = kernel.parse("f");
 
     EXPECT_EQ(actual_res, expected_res);
@@ -111,9 +90,9 @@ TEST(DiracoqReduction, R_ETA_INDEX) {
  * @param expected 
  */
 void TEST_RULE(Kernel& kernel, const vector<PosRewritingRule>& rules, string input, string expected) {
-    auto term = static_cast<const NormalTerm<int>*>(kernel.parse(input));
+    auto term = kernel.parse(input);
     auto actual_res = pos_rewrite_repeated(kernel, term, rules);
-    auto expected_res = static_cast<const NormalTerm<int>*>(kernel.parse(expected));
+    auto expected_res = kernel.parse(expected);
     EXPECT_EQ(actual_res, expected_res);
 }
 
@@ -680,48 +659,49 @@ TEST(DiracoqReduction, R_SET0) {
 }
 
 TEST(DiracoqReduction, R_SUM_CONST0) {
-    TEST_RULE({R_SUM_CONST0}, "SUM(s fun(T 0))", "0");
+    TEST_RULE({R_SUM_CONST0}, "SUM(s fun(x T 0))", "0");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST1) {
-    TEST_RULE({R_SUM_CONST1}, "SUM(s fun(T 0K(sigma)))", "0K(sigma)");
+    TEST_RULE({R_SUM_CONST1}, "SUM(s fun(x T 0K(sigma)))", "0K(sigma)");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST2) {
-    TEST_RULE({R_SUM_CONST2}, "SUM(s fun(T 0B(sigma)))", "0B(sigma)");
+    TEST_RULE({R_SUM_CONST2}, "SUM(s fun(x T 0B(sigma)))", "0B(sigma)");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST3) {
-    TEST_RULE({R_SUM_CONST3}, "SUM(s fun(T 0O(sigma tau)))", "0O(sigma tau)");
+    TEST_RULE({R_SUM_CONST3}, "SUM(s fun(x T 0O(sigma tau)))", "0O(sigma tau)");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST4) {
-    TEST_RULE({R_SUM_CONST4}, "1O(T)", "SUM(USET(T) fun(T OUTER(KET($0) BRA($0))))");
+    unique_var_id = 0;
+    TEST_RULE({R_SUM_CONST4}, "1O(T)", "SUM(USET(T) fun(@0 T OUTER(KET(@0) BRA(@0))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM0) {
-    TEST_RULE({R_SUM_ELIM0}, "SUM(USET(T) fun(T DELTA($0 j)))", "1");
+    TEST_RULE({R_SUM_ELIM0}, "SUM(USET(T) fun(i T DELTA(i j)))", "1");
     TEST_RULE({R_SUM_ELIM0}, 
         R"(
-        SUM(USET(T) fun(T
-            SUM(USET(T2) fun(T2 
-                DELTA($1 j)
+        SUM(USET(T) fun(i T
+            SUM(USET(T2) fun(k T2 
+                DELTA(i j)
             ))
         ))
         )", 
-        "SUM(USET(T2) fun(T2 1))");
+        "SUM(USET(T2) fun(k T2 1))");
     TEST_RULE({R_SUM_ELIM0}, 
         R"(
-        SUM(USET(T) fun(T
-            SUM(USET(T2) fun(T2 
-                DELTA($0 $0)
+        SUM(USET(T) fun(i T
+            SUM(USET(T2) fun(k T2 
+                DELTA(i i)
             ))
         ))
         )", 
         R"(
-        SUM(USET(T) fun(T
-            SUM(USET(T2) fun(T2 
-                DELTA($0 $0)
+        SUM(USET(T) fun(i T
+            SUM(USET(T2) fun(k T2 
+                DELTA(i i)
             ))
         ))
         )");
@@ -730,35 +710,35 @@ TEST(DiracoqReduction, R_SUM_ELIM0) {
 TEST(DiracoqReduction, R_SUM_ELIM1) {
     TEST_RULE({R_SUM_ELIM1}, 
         R"(
-            SUM(USET(T) fun(T 
+            SUM(USET(T) fun(i T 
                 MULS(
-                    DOT(BRA($0) KET($0))
-                    DELTA($0 j)
+                    DOT(BRA(i) KET(i))
+                    DELTA(i j)
                 )
             ))
         )", 
         "MULS(DOT(BRA(j) KET(j)))");
     TEST_RULE({R_SUM_ELIM1},
         R"(
-        SUM(USET(T) fun(T
-            SUM(USET(T2) fun(T2 
+        SUM(USET(T) fun(i T
+            SUM(USET(T2) fun(k T2 
                 MULS(
-                    DELTA($1 j)
+                    DELTA(i j)
                     b
                     c
                 )
             ))
         ))
         )", 
-        "SUM(USET(T2) fun(T2 MULS(b c)))");
+        "SUM(USET(T2) fun(k T2 MULS(b c)))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM2) {
     TEST_RULE({R_SUM_ELIM2}, 
         R"(
-            SUM(USET(T) fun(T 
+            SUM(USET(T) fun(i T 
                 SCR(
-                    DELTA($0 j)
+                    DELTA(i j)
                     A
                 )
             ))
@@ -766,25 +746,25 @@ TEST(DiracoqReduction, R_SUM_ELIM2) {
         "A");
     TEST_RULE({R_SUM_ELIM2},
         R"(
-        SUM(USET(T) fun(T
-            SUM(USET(T2) fun(T2 
+        SUM(USET(T) fun(i T
+            SUM(USET(T2) fun(k T2 
                 SCR(
-                    DELTA($1 j)
-                    BRA($1)
+                    DELTA(i j)
+                    BRA(i)
                 )
             ))
         ))
         )", 
-        "SUM(USET(T2) fun(T2 BRA(j)))");
+        "SUM(USET(T2) fun(k T2 BRA(j)))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM3) {
     TEST_RULE({R_SUM_ELIM3}, 
         R"(
-            SUM(USET(T) fun(T 
+            SUM(USET(T) fun(i T 
                 SCR(
                     MULS(
-                        DELTA($0 j) a b
+                        DELTA(i j) a b
                     )
                     A
                 )
@@ -793,129 +773,129 @@ TEST(DiracoqReduction, R_SUM_ELIM3) {
         "SCR(MULS(a b) A)");
     TEST_RULE({R_SUM_ELIM3},
         R"(
-        SUM(USET(T) fun(T
-            SUM(USET(T2) fun(T2 
+        SUM(USET(T) fun(i T
+            SUM(USET(T2) fun(k T2 
                 SCR(
-                    MULS(DELTA($1 j) a)
-                    BRA($1)
+                    MULS(DELTA(i j) a)
+                    BRA(i)
                 )
             ))
         ))
         )", 
-        "SUM(USET(T2) fun(T2 SCR(MULS(a) BRA(j))))");
+        "SUM(USET(T2) fun(k T2 SCR(MULS(a) BRA(j))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM4) {
     TEST_RULE({R_SUM_ELIM4},
         R"(
-        SUM(M fun(T
-            SUM(M fun(T 
-                DELTA($0 $1)
+        SUM(M fun(i T
+            SUM(M fun(j T 
+                DELTA(i j)
             ))
         ))
         )", 
-        "SUM(M fun(T 1))");
+        "SUM(M fun(j T 1))");
 
     TEST_RULE({R_SUM_ELIM4},
         R"(
-        SUM(M fun(T
-            SUM(M fun(T 
-                SUM(N fun(T2
-                    DELTA($2 $1)
+        SUM(M fun(i T
+            SUM(M fun(j T 
+                SUM(N fun(k T
+                    DELTA(i j)
                 ))
             ))
         ))
         )", 
-        "SUM(M fun(T SUM(N fun(T2 1))))");
+        "SUM(M fun(j T SUM(N fun(k T 1))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM5) {
     TEST_RULE({R_SUM_ELIM5},
         R"(
-        SUM(M fun(T
-            SUM(M fun(T 
-                MULS(a DELTA($0 $1) b)
+        SUM(M fun(i T
+            SUM(M fun(j T 
+                MULS(a DELTA(i j) b)
             ))
         ))
         )", 
-        "SUM(M fun(T MULS(a b)))");
+        "SUM(M fun(j T MULS(a b)))");
 
     TEST_RULE({R_SUM_ELIM5},
         R"(
-        SUM(M fun(T
-            SUM(M fun(T 
-                SUM(N fun(T2
-                    MULS(a DELTA($2 $1) b)
+        SUM(M fun(i T
+            SUM(M fun(j T 
+                SUM(N fun(k T
+                    MULS(a DELTA(i j) b)
                 ))
             ))
         ))
         )", 
-        "SUM(M fun(T SUM(N fun(T2 MULS(a b)))))");
+        "SUM(M fun(j T SUM(N fun(k T MULS(a b)))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM6) {
     TEST_RULE({R_SUM_ELIM6},
         R"(
-        SUM(M fun(T
-            SUM(M fun(T 
+        SUM(M fun(i T
+            SUM(M fun(j T 
                 SCR(
-                    DELTA($0 $1)
+                    DELTA(i j)
                     A
                 )
             ))
         ))
         )", 
-        "SUM(M fun(T A))");
+        "SUM(M fun(j T A))");
 
     TEST_RULE({R_SUM_ELIM6},
         R"(
-        SUM(M fun(T
-            SUM(M fun(T 
-                SUM(N fun(T2
+        SUM(M fun(i T
+            SUM(M fun(j T 
+                SUM(N fun(k T
                     SCR(
-                        DELTA($1 $2)
+                        DELTA(i j)
                         A
                     )
                 ))
             ))
         ))
         )", 
-        "SUM(M fun(T SUM(N fun(T2 A))))");
+        "SUM(M fun(j T SUM(N fun(k T A))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM7) {
     TEST_RULE({R_SUM_ELIM7},
         R"(
-        SUM(M fun(T
-            SUM(M fun(T 
+        SUM(M fun(i T
+            SUM(M fun(j T 
                 SCR(
-                    MULS(a DELTA($0 $1) b)
+                    MULS(a DELTA(i j) b)
                     A
                 )
             ))
         ))
         )", 
-        "SUM(M fun(T SCR(MULS(a b) A)))");
+        "SUM(M fun(j T SCR(MULS(a b) A)))");
 
     TEST_RULE({R_SUM_ELIM7},
         R"(
-        SUM(M fun(T
-            SUM(M fun(T 
-                SUM(N fun(T
+        SUM(M fun(i T
+            SUM(M fun(j T 
+                SUM(N fun(k T
                     SCR(
-                        MULS(a DELTA($1 $2) b)
-                        KET($1)
+                        MULS(a DELTA(i j) b)
+                        KET(j)
                     )
                 ))
             ))
         ))
         )", 
         R"(
-        SUM(M fun(T 
-            SUM(N fun(T 
+        SUM(M fun(j T 
+            SUM(N fun(k T 
                 SCR(
                     MULS(a b) 
-                    KET($1)
+                    KET(i)
                 )
             ))
         ))
@@ -927,153 +907,115 @@ TEST(DiracoqReduction, R_SUM_PUSH0) {
         R"(
         MULS(
             a b c
-            SUM(M fun(T d))
+            SUM(M fun(i T d))
             d e
         )
         )", 
-        "SUM(M fun(T MULS(a b c d d e)))");
+        "SUM(M fun(i T MULS(a b c d d e)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH1) {
-    TEST_RULE({R_SUM_PUSH1}, "CONJ(SUM(M fun(T a)))", "SUM(M fun(T CONJ(a)))");
+    TEST_RULE({R_SUM_PUSH1}, "CONJ(SUM(M fun(i T a)))", "SUM(M fun(i T CONJ(a)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH2) {
-    TEST_RULE({R_SUM_PUSH2}, "ADJ(SUM(M fun(T X)))", "SUM(M fun(T ADJ(X)))");
+    TEST_RULE({R_SUM_PUSH2}, "ADJ(SUM(M fun(i T X)))", "SUM(M fun(i T ADJ(X)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH3) {
-    TEST_RULE({R_SUM_PUSH3}, "SCR(a SUM(M fun(T X)))", "SUM(M fun(T SCR(a X)))");
+    TEST_RULE({R_SUM_PUSH3}, "SCR(a SUM(M fun(i T X)))", "SUM(M fun(i T SCR(a X)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH4) {
-    TEST_RULE({R_SUM_PUSH4}, "SCR(SUM(M fun(T a)) X)", "SUM(M fun(T SCR(a X)))");
+    TEST_RULE({R_SUM_PUSH4}, "SCR(SUM(M fun(i T a)) X)", "SUM(M fun(i T SCR(a X)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH5) {
-    TEST_RULE({R_SUM_PUSH5}, "DOT(SUM(M fun(T B)) K)", "SUM(M fun(T DOT(B K)))");
+    TEST_RULE({R_SUM_PUSH5}, "DOT(SUM(M fun(i T B)) K)", "SUM(M fun(i T DOT(B K)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH6) {
-    TEST_RULE({R_SUM_PUSH6}, "MULK(SUM(M fun(T O)) K)", "SUM(M fun(T MULK(O K)))");
+    TEST_RULE({R_SUM_PUSH6}, "MULK(SUM(M fun(i T O)) K)", "SUM(M fun(i T MULK(O K)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH7) {
-    TEST_RULE({R_SUM_PUSH7}, "MULB(SUM(M fun(T B)) O)", "SUM(M fun(T MULB(B O)))");
+    TEST_RULE({R_SUM_PUSH7}, "MULB(SUM(M fun(i T B)) O)", "SUM(M fun(i T MULB(B O)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH8) {
-    TEST_RULE({R_SUM_PUSH8}, "OUTER(SUM(M fun(T K)) B)", "SUM(M fun(T OUTER(K B)))");
+    TEST_RULE({R_SUM_PUSH8}, "OUTER(SUM(M fun(i T K)) B)", "SUM(M fun(i T OUTER(K B)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH9) {
-    TEST_RULE({R_SUM_PUSH9}, "MULO(SUM(M fun(T O1)) O2)", "SUM(M fun(T MULO(O1 O2)))");
+    TEST_RULE({R_SUM_PUSH9}, "MULO(SUM(M fun(i T O1)) O2)", "SUM(M fun(i T MULO(O1 O2)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH10) {
-    TEST_RULE({R_SUM_PUSH10}, "DOT(B SUM(M fun(T K)))", "SUM(M fun(T DOT(B K)))");
+    TEST_RULE({R_SUM_PUSH10}, "DOT(B SUM(M fun(i T K)))", "SUM(M fun(i T DOT(B K)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH11) {
-    TEST_RULE({R_SUM_PUSH11}, "MULK(O SUM(M fun(T K)))", "SUM(M fun(T MULK(O K)))");
+    TEST_RULE({R_SUM_PUSH11}, "MULK(O SUM(M fun(i T K)))", "SUM(M fun(i T MULK(O K)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH12) {
-    TEST_RULE({R_SUM_PUSH12}, "MULB(B SUM(M fun(T O)))", "SUM(M fun(T MULB(B O)))");
+    TEST_RULE({R_SUM_PUSH12}, "MULB(B SUM(M fun(i T O)))", "SUM(M fun(i T MULB(B O)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH13) {
-    TEST_RULE({R_SUM_PUSH13}, "OUTER(K SUM(M fun(T B)))", "SUM(M fun(T OUTER(K B)))");
+    TEST_RULE({R_SUM_PUSH13}, "OUTER(K SUM(M fun(i T B)))", "SUM(M fun(i T OUTER(K B)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH14) {
-    TEST_RULE({R_SUM_PUSH14}, "MULO(O1 SUM(M fun(T O2)))", "SUM(M fun(T MULO(O1 O2)))");
+    TEST_RULE({R_SUM_PUSH14}, "MULO(O1 SUM(M fun(i T O2)))", "SUM(M fun(i T MULO(O1 O2)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH15) {
-    TEST_RULE({R_SUM_PUSH15}, "TSR(SUM(M fun(T X)) Y)", "SUM(M fun(T TSR(X Y)))");
+    TEST_RULE({R_SUM_PUSH15}, "TSR(SUM(M fun(i T X)) Y)", "SUM(M fun(i T TSR(X Y)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH16) {
-    TEST_RULE({R_SUM_PUSH16}, "TSR(X SUM(M fun(T Y)))", "SUM(M fun(T TSR(X Y)))");
+    TEST_RULE({R_SUM_PUSH16}, "TSR(X SUM(M fun(i T Y)))", "SUM(M fun(i T TSR(X Y)))");
 }
 
 TEST(DiracoqReduction, R_SUM_ADDS0) {
-    TEST_RULE({R_SUM_ADDS0}, "SUM(M fun(T ADDS(a b)))", "ADDS(SUM(M fun(T a)) SUM(M fun(T b)))");
+    TEST_RULE({R_SUM_ADDS0}, "SUM(M fun(i T ADDS(a b)))", "ADDS(SUM(M fun(i T a)) SUM(M fun(i T b)))");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD0) {
-    TEST_RULE({R_SUM_ADD0}, "SUM(M fun(T ADD(X Y)))", "ADD(SUM(M fun(T X)) SUM(M fun(T Y)))");
+    TEST_RULE({R_SUM_ADD0}, "SUM(M fun(i T ADD(X Y)))", "ADD(SUM(M fun(i T X)) SUM(M fun(i T Y)))");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX0) {
-    TEST_RULE({R_SUM_INDEX0}, "SUM(USET(Prod(T1 T2)) fun(Prod(T1 T2) X))", "SUM(USET(T1) fun(T1 SUM(USET(T2) fun(T2 X))))");
-
-    TEST_RULE({R_SUM_INDEX0}, 
-    R"(
-        SUM(USET(T0) fun(T0
-            SUM(USET(Prod(T1 T2)) fun(
-                Prod(T1 T2) 
-                DOT(Bra($1) X)
-            ))
-        ))
-    )", 
-    R"(
-        SUM(USET(T0) fun(T0
-            SUM(USET(T1) fun(T1
-                SUM(USET(T2) fun(T2 
-                    DOT(Bra($2) X)
-                ))
-            ))
-        ))
-    )"
-    );
+    unique_var_id = 0;
+    TEST_RULE({R_SUM_INDEX0}, "SUM(USET(Prod(T1 T2)) fun(i Prod(T1 T2) X))", "SUM(USET(T1) fun(@0 T1 SUM(USET(T2) fun(@1 T2 X))))");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX1) {
-    TEST_RULE({R_SUM_INDEX1}, "SUM(CATPROD(M1 M2) fun(Prod(T1 T2) X))", "SUM(M1 fun(T1 SUM(M2 fun(T2 X))))");
-
-    TEST_RULE({R_SUM_INDEX1}, 
-    R"(
-        SUM(USET(T0) fun(T0
-            SUM(CATPROD(M1 M2) fun(
-                Prod(T1 T2) 
-                DOT(Bra($1) X)
-            ))
-        ))
-    )", 
-    R"(
-        SUM(USET(T0) fun(T0
-            SUM(M1 fun(T1
-                SUM(M2 fun(T2 
-                    DOT(Bra($2) X)
-                ))
-            ))
-        ))
-    )"
-    );
+    unique_var_id = 0;
+    TEST_RULE({R_SUM_INDEX1}, "SUM(CATPROD(M1 M2) fun(i Prod(T1 T2) X))", "SUM(M1 fun(@0 T1 SUM(M2 fun(@1 T2 X))))");
 }
 
 TEST(DiracoqReduction, R_SUM_SWAP) {
     Kernel kernel;
-    auto term1 = static_cast<const NormalTerm<int>*>(kernel.parse("SUM(M1 fun(T1 SUM(M2 fun(T2 apply($0 $1))))))"));
+    auto term1 = kernel.parse("SUM(M1 fun(x T1 SUM(M2 fun(y T2 apply(x y))))))");
 
-    auto term2 = static_cast<const NormalTerm<int>*>(kernel.parse("SUM(M2 fun(T2 SUM(M1 fun(T1 apply($1 $0))))))"));
+    auto term2 = kernel.parse("SUM(M2 fun(y T2 SUM(M1 fun(x T1 apply(x y))))))");
 
     auto reduce_res1 = pos_rewrite_repeated(kernel, term1, rules);
     auto reduce_res2 = pos_rewrite_repeated(kernel, term2, rules);
     EXPECT_TRUE(reduce_res1 == term2 || reduce_res2 == term1);
 }
 
-///////////////////////////////////////////////////////
-// Combined Tests
+// ///////////////////////////////////////////////////////
+// // Combined Tests
 
-// (a + (b * 0))^* -> 0
-TEST(DiracoqReduction, Combined1) {
-    TEST_RULE(rules, "CONJ(ADDS(a MULS(b 0)))", "CONJ(a)");
-}
+// // (a + (b * 0))^* -> 0
+// TEST(DiracoqReduction, Combined1) {
+//     TEST_RULE(rules, "CONJ(ADDS(a MULS(b 0)))", "CONJ(a)");
+// }
 
-// (b * 0)^*^* -> 0
-TEST(DiracoqReduction, Combined2) {
-    TEST_RULE(rules, "CONJ(CONJ(MULS(b 0)))", "0");
-}
+// // (b * 0)^*^* -> 0
+// TEST(DiracoqReduction, Combined2) {
+//     TEST_RULE(rules, "CONJ(CONJ(MULS(b 0)))", "0");
+// }

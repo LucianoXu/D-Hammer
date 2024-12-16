@@ -57,7 +57,7 @@ namespace diracoq {
             return bank;
         }
 
-        inline const ualg::Signature<int>& get_sig() {
+        inline ualg::Signature<int>& get_sig() {
             return sig;
         }
 

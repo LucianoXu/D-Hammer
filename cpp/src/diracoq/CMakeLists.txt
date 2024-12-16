@@ -5,7 +5,7 @@ add_library(
     symbols.cpp
     calculus.cpp
     syntax_theory.cpp
-    # reduction.cpp
+    reduction.cpp
     # trace2coq.cpp
     # prover.cpp
 )
