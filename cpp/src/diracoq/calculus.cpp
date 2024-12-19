@@ -85,7 +85,7 @@ namespace diracoq {
         auto head = term->get_head();
         auto args = term->get_args();
 
-        // (COMPO rules)
+        // Preprocessing (COMPO rules)
         if (head == COMPO) {
             arg_number_check(args, 2);
 
@@ -198,6 +198,85 @@ namespace diracoq {
             }
 
             throw std::runtime_error("Typing error: invalid composition of " + sig.term_to_string(typeA) + " and " + sig.term_to_string(typeB) + ".");
+        }
+
+        // Preprocessing (STAR rules)
+        if (head == STAR) {
+            if (args.size() < 2) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument number is less than 2.");
+            }
+
+            auto typeFirst = calc_type(args[0]);
+            // STAR(S, S, S, ...) : S
+            if (typeFirst->get_head() == SType) {
+                for (int i = 1; i < args.size(); i++) {
+                    auto typeI = calc_type(args[i]);
+                    if (typeI->get_head() != SType) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not a scalar.");
+                    }
+                }
+                return bank.get_term(SType);
+            }
+
+            // STAR(INDEX INDEX) : INDEX
+            if (typeFirst->get_head() == INDEX) {
+                arg_number_check(args, 2);
+                auto typeSecond = calc_type(args[1]);
+                if (typeSecond->get_head() != INDEX) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[1]) + " is not an index.");
+                }
+                return bank.get_term(INDEX);
+            }
+
+            // STAR(Set(a) Set(b)) : Set(Prod(a b))
+            if (typeFirst->get_head() == Set) {
+                arg_number_check(args, 2);
+                auto typeSecond = calc_type(args[1]);
+                if (typeSecond->get_head() != Set) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[1]) + " is not a set.");
+                }
+                return bank.get_term(Set, 
+                    {
+                        bank.get_term(Prod, 
+                        {typeFirst->get_args()[0], typeSecond->get_args()[0]})
+                    }
+                );
+            }
+
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not a scalar, an index, or a set.");
+        }
+
+        // Preprocessing (ADDG rules)
+        if (head == ADDG) {
+            if (args.size() < 2) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument number is less than 2.");
+            }
+
+            auto typeFirst = calc_type(args[0]);
+
+            // ADDG(S, S, S, ...) : S
+            if (typeFirst->get_head() == SType) {
+                for (int i = 1; i < args.size(); i++) {
+                    auto typeI = calc_type(args[i]);
+                    if (typeI->get_head() != SType) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not a scalar.");
+                    }
+                }
+                return bank.get_term(SType);
+            }
+
+            // ADDG(K(a) K(a) ... K(a)) : K(a), ...
+            if (typeFirst->get_head() == KType || typeFirst->get_head() == BType || typeFirst->get_head() == OType) {
+                for (int i = 1; i < args.size(); i++) {
+                    auto typeI = calc_type(args[i]);
+                    if (!is_eq(sig, bank, typeFirst, typeI)) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not equal to the first argument " + sig.term_to_string(args[0]) + ".");
+                    }
+                }
+                return typeFirst;
+            }
+
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not a scalar, a ket, a bra, or an operator.");
         }
 
         // (Index-Prod)

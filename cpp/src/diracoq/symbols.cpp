@@ -29,6 +29,8 @@ namespace diracoq {
             "Trace",
 
             "COMPO",
+            "ADDG",
+            "STAR",
    
             "Index",
             "Type",
@@ -91,6 +93,8 @@ namespace diracoq {
     const Signature<int> diracoq_sig = compile_string_sig(diracoq_symbols);
 
     const auto COMPO = diracoq_sig.get_repr("COMPO");
+    const auto ADDG = diracoq_sig.get_repr("ADDG");
+    const auto STAR = diracoq_sig.get_repr("STAR");
 
     const auto INDEX = diracoq_sig.get_repr("Index");
     const auto TYPE = diracoq_sig.get_repr("Type");

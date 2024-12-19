@@ -16,13 +16,13 @@ namespace diracoq {
         return diracoq_sig.find_name(symbol) != std::nullopt;
     }
 
+    // the symbol for preprocessing
+    extern const int COMPO, ADDG, STAR;
+
     // symbols for typing
     extern const int INDEX, TYPE;
     extern const int Prod;
     extern const int BASIS, SType, KType, BType, OType, ARROW, FORALL, Set;
-
-    // the symbol for composition
-    extern const int COMPO;
 
     extern const int PAIR, FUN, IDX, APPLY;
     

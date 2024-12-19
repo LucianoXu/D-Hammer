@@ -58,8 +58,11 @@ TEST(DiracoqTypeCalc, def_fun) {
     EXPECT_EQ(kernel.calc_type(kernel.parse("f")), kernel.parse("Arrow(T T)"));
 }
 
-
+//////////////////////////////////////////////////////
 // Typing Test
+
+
+// preprocessing symbols
 
 TEST(DiracoqTypeCheck, COMPO_SS) {
     Kernel kernel;
@@ -212,6 +215,60 @@ TEST(DiracoqTypeCheck, COMPO_Forall) {
     kernel.assum(kernel.register_symbol("a"), kernel.parse("Index"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(f a)"), kernel.parse("KType(a)")));
 }
+
+TEST(DiracoqTypeCheck, STAR_SType) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("SType"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("STAR(a b)"), kernel.parse("SType")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("STAR(a b a b)"), kernel.parse("SType")));
+}
+
+TEST(DiracoqTypeCheck, STAR_Index) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("Index"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("STAR(a b)"), kernel.parse("Index")));
+}
+
+TEST(DiracoqTypeCheck, STAR_SET) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("Set(T)"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("Set(T)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("STAR(a b)"), kernel.parse("Set(Prod(T T))")));
+}
+
+TEST(DiracoqTypeCheck, ADDG_SType) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("SType"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("ADDG(a b)"), kernel.parse("SType")));
+}
+
+TEST(DiracoqTypeCheck, ADDG_Other) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("KType(T)"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("KType(T)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("ADDG(a b)"), kernel.parse("KType(T)")));
+
+    kernel.assum(kernel.register_symbol("c"), kernel.parse("BType(T)"));
+    kernel.assum(kernel.register_symbol("d"), kernel.parse("BType(T)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("ADDG(c d)"), kernel.parse("BType(T)")));
+
+    kernel.assum(kernel.register_symbol("e"), kernel.parse("OType(T T)"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("OType(T T)"));
+    kernel.assum(kernel.register_symbol("g"), kernel.parse("OType(T T)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("ADDG(e f g)"), kernel.parse("OType(T T)")));
+}
+
+// main rules (internal symbols)
 
 
 TEST(DiracoqTypeCheck, Index_Var) {
