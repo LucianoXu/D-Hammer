@@ -104,12 +104,6 @@ UNEXPECTED_ERROR:
         if (record.rule == R_DELTA) {
             return "(" + pos_to_string(record.pos) + ", " + "R_DELTA" + ")";
         }
-        if (record.rule == R_ETA_ARROW) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_ETA_ARROW" + ")";
-        }
-        if (record.rule == R_ETA_INDEX) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_ETA_INDEX" + ")";
-        }
         if (record.rule == R_FLATTEN) {
             return "(" + pos_to_string(record.pos) + ", " + "R_FLATTEN" + ")";
         }

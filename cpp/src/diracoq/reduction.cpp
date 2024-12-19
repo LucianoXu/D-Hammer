@@ -229,27 +229,6 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    DIRACOQ_RULE_DEF(R_ETA_ARROW, kernel, term) {
-        MATCH_HEAD(term, FUN, args)
-        if (args.size() != 3) return std::nullopt;
-        MATCH_HEAD(args[2], APPLY, fun_args)
-        // check whether the application argument is the bound variable
-        if (fun_args[1] != args[0]) return std::nullopt;
-
-        return fun_args[0];
-    }
-
-    DIRACOQ_RULE_DEF(R_ETA_INDEX, kernel, term) {
-        MATCH_HEAD(term, IDX, args)
-        if (args.size() != 2) return std::nullopt;
-        MATCH_HEAD(args[1], APPLY, idx_args)
-        // check whether the application argument is the bound variable
-        if (idx_args[1] != args[0]) return std::nullopt;
-
-        return idx_args[0];
-    }
-
-
     // //////////////// Flattening AC symbols
     DIRACOQ_RULE_DEF(R_FLATTEN, kernel, term) {
         auto res = flatten<int>(term, kernel.get_bank(), a_symbols);
@@ -3387,7 +3366,7 @@ namespace diracoq {
     }
 
     const std::vector<PosRewritingRule> rules = {
-        R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_ETA_ARROW, R_ETA_INDEX, R_FLATTEN,
+        R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_FLATTEN,
         
         R_ADDSID, R_MULSID, R_ADDS0, R_MULS0, R_MULS1, R_MULS2,
 

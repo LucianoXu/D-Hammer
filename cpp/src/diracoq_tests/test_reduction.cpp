@@ -50,6 +50,33 @@ TEST(DiracoqReduction, variable_expand_O) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
+
+/////////////////////////////////////////////////
+// Test Rules
+
+
+/**
+ * @brief The helper function for testing a single rewriting rule.
+ * 
+ * @param kernel
+ * @param rules
+ * @param variables 
+ * @param input 
+ * @param expected 
+ */
+void TEST_RULE(Kernel& kernel, const vector<PosRewritingRule>& rules, string input, string expected) {
+    auto term = kernel.parse(input);
+    auto actual_res = pos_rewrite_repeated(kernel, term, rules);
+    auto expected_res = kernel.parse(expected);
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expected) {
+    Kernel kernel;
+    TEST_RULE(kernel, rules, input, expected);
+}
+
+
 TEST(DiracoqReduction, R_BETA_ARROW) {
     Kernel kernel;
 
@@ -94,54 +121,6 @@ TEST(DiracoqReduction, R_DELTA) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiracoqReduction, R_ETA_ARROW) {
-    Kernel kernel;
-
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T T)"));
-
-    auto term = kernel.parse("fun(x T apply(f x))");
-
-    auto actual_res = pos_rewrite_repeated(kernel, term, {R_ETA_ARROW});
-    auto expected_res = kernel.parse("f");
-
-    EXPECT_EQ(actual_res, expected_res);
-}
-
-TEST(DiracoqReduction, R_ETA_INDEX) {
-    Kernel kernel;
-
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(sigma T)"));
-
-    auto term = kernel.parse("idx(sigma apply(f sigma))");
-
-    auto actual_res = pos_rewrite_repeated(kernel, term, {R_ETA_INDEX});
-    auto expected_res = kernel.parse("f");
-
-    EXPECT_EQ(actual_res, expected_res);
-}
-
-/**
- * @brief The helper function for testing a single rewriting rule.
- * 
- * @param kernel
- * @param rules
- * @param variables 
- * @param input 
- * @param expected 
- */
-void TEST_RULE(Kernel& kernel, const vector<PosRewritingRule>& rules, string input, string expected) {
-    auto term = kernel.parse(input);
-    auto actual_res = pos_rewrite_repeated(kernel, term, rules);
-    auto expected_res = kernel.parse(expected);
-    EXPECT_EQ(actual_res, expected_res);
-}
-
-void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expected) {
-    Kernel kernel;
-    TEST_RULE(kernel, rules, input, expected);
-}
 
 TEST(DiracoqReduction, R_FLATTEN) {
     TEST_RULE({R_FLATTEN}, "MULS(a MULS(a b) b)", "MULS(a a b b)");

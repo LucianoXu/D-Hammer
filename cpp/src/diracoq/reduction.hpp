@@ -71,11 +71,6 @@ namespace diracoq {
     // delta reduction
     DIRACOQ_RULE_DEF(R_DELTA, kernel, term);
 
-    // eta reduction
-    DIRACOQ_RULE_DEF(R_ETA_ARROW, kernel, term);
-    DIRACOQ_RULE_DEF(R_ETA_INDEX, kernel, term);
-
-
     // //////////////// Flattening AC symbols
     DIRACOQ_RULE_DEF(R_FLATTEN, kernel, term);
 
