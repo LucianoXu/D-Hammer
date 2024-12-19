@@ -207,6 +207,194 @@ namespace diracoq {
 
 
 
+    // a : SType, b : SType => a @ b -> MULS(a b)
+    DIRACOQ_RULE_DEF(R_COMPO_SS, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeA = kernel.calc_type(args[0]);
+        auto typeB = kernel.calc_type(args[1]);
+
+        if (!(typeA->get_head() == SType and typeB->get_head() == SType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(MULS, args);
+    }
+
+    // a : SType, K : KType(T) => a @ K -> SCR(a K)
+    DIRACOQ_RULE_DEF(R_COMPO_SK, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeA = kernel.calc_type(args[0]);
+        auto typeB = kernel.calc_type(args[1]);
+
+        if (!(typeA->get_head() == SType and typeB->get_head() == KType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(SCR, args);
+    }
+
+    // a : SType, B : BType(T) => a @ B -> SCR(a B)
+    DIRACOQ_RULE_DEF(R_COMPO_SB, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeA = kernel.calc_type(args[0]);
+        auto typeB = kernel.calc_type(args[1]);
+
+        if (!(typeA->get_head() == SType and typeB->get_head() == BType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(SCR, args);
+    }
+
+    // a : SType, O : OType(T1 T2) => a @ O -> SCR(a O)
+    DIRACOQ_RULE_DEF(R_COMPO_SO, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeA = kernel.calc_type(args[0]);
+        auto typeB = kernel.calc_type(args[1]);
+
+        if (!(typeA->get_head() == SType and typeB->get_head() == OType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(SCR, args);
+    }
+
+
+    // K : KType(T), a : SType => COMPO(K a) -> SCR(a K)
+    DIRACOQ_RULE_DEF(R_COMPO_KS, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeK = kernel.calc_type(args[0]);
+        auto typeA = kernel.calc_type(args[1]);
+
+        if (!(typeK->get_head() == KType and typeA->get_head() == SType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(SCR, {args[1], args[0]});
+    }
+
+    // K1 : KType(T1), K2 : KType(T2) => COMPO(K1 K2) -> TSR(K1 K2)
+    DIRACOQ_RULE_DEF(R_COMPO_KK, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeK1 = kernel.calc_type(args[0]);
+        auto typeK2 = kernel.calc_type(args[1]);
+
+        if (!(typeK1->get_head() == KType and typeK2->get_head() == KType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(TSR, args);
+    }
+
+    // K : KType(T1), B : BType(T2) => COMPO(K B) -> OUTER(K B)
+    DIRACOQ_RULE_DEF(R_COMPO_KB, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeK = kernel.calc_type(args[0]);
+        auto typeB = kernel.calc_type(args[1]);
+
+        if (!(typeK->get_head() == KType and typeB->get_head() == BType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(OUTER, args);
+    }
+
+
+    // B : BType(T), a : SType => COMPO(B a) -> SCR(a B)
+    DIRACOQ_RULE_DEF(R_COMPO_BS, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeB = kernel.calc_type(args[0]);
+        auto typeA = kernel.calc_type(args[1]);
+
+        if (!(typeB->get_head() == BType and typeA->get_head() == SType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(SCR, {args[1], args[0]});
+    }
+
+    // B : BType(T), K : KType(T) => COMPO(B K) -> DOT(B K)
+    DIRACOQ_RULE_DEF(R_COMPO_BK, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeB = kernel.calc_type(args[0]);
+        auto typeK = kernel.calc_type(args[1]);
+
+        if (!(typeB->get_head() == BType and typeK->get_head() == KType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(DOT, args);
+    }
+
+    // B1 : BType(T1), B2 : BType(T2) => COMPO(B1 B2) -> TSR(B1 B2)
+    DIRACOQ_RULE_DEF(R_COMPO_BB, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeB1 = kernel.calc_type(args[0]);
+        auto typeB2 = kernel.calc_type(args[1]);
+
+        if (!(typeB1->get_head() == BType and typeB2->get_head() == BType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(TSR, args);
+    }
+
+    // B : BType(T1), O : OType(T1 T2) => COMPO(B O) -> MULB(B O)
+    DIRACOQ_RULE_DEF(R_COMPO_BO, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeB = kernel.calc_type(args[0]);
+        auto typeO = kernel.calc_type(args[1]);
+
+        if (!(typeB->get_head() == BType and typeO->get_head() == OType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(MULB, args);
+    }
+
+    // O : OType(T1 T2), a : SType => COMPO(O a) -> SCR(a O)
+    DIRACOQ_RULE_DEF(R_COMPO_OS, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeO = kernel.calc_type(args[0]);
+        auto typeA = kernel.calc_type(args[1]);
+
+        if (!(typeO->get_head() == OType and typeA->get_head() == SType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(SCR, {args[1], args[0]});
+    }
+
+    // O : OType(T1 T2), K : KType(T2) => COMPO(O K) -> MULK(O K)
+    DIRACOQ_RULE_DEF(R_COMPO_OK, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeO = kernel.calc_type(args[0]);
+        auto typeK = kernel.calc_type(args[1]);
+
+        if (!(typeO->get_head() == OType and typeK->get_head() == KType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(MULK, args);
+    }
+
+    // O1 : OType(T1 T2), O2 : OType(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
+    DIRACOQ_RULE_DEF(R_COMPO_OO, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeO1 = kernel.calc_type(args[0]);
+        auto typeO2 = kernel.calc_type(args[1]);
+
+        if (!(typeO1->get_head() == OType and typeO2->get_head() == OType)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(MULO, args);
+    }
+
+    // f : T1 -> T2 => COMPO(f a) -> APPLY(f a)
+    DIRACOQ_RULE_DEF(R_COMPO_ARROW, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeF = kernel.calc_type(args[0]);
+
+        if (!(typeF->get_head() == ARROW)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(APPLY, args);
+    }
+
+    // f : Forall(x T1) => COMPO(f a) -> APPLY(f a)
+    DIRACOQ_RULE_DEF(R_COMPO_FORALL, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeF = kernel.calc_type(args[0]);
+
+        if (!(typeF->get_head() == FORALL)) return std::nullopt;
+        
+        return kernel.get_bank().get_term(APPLY, args);
+    }
+
+
+    const std::vector<PosRewritingRule> pre_proc_rules = {
+        R_COMPO_SS, R_COMPO_SK, R_COMPO_SB, R_COMPO_SO,
+        R_COMPO_KS, R_COMPO_KK, R_COMPO_KB,
+        R_COMPO_BS, R_COMPO_BK, R_COMPO_BB, R_COMPO_BO,
+        R_COMPO_OS, R_COMPO_OK,             R_COMPO_OO,
+        R_COMPO_ARROW, R_COMPO_FORALL
+    };
+
+    //////////////////////////////////////////////////////////////
+    // Main rewriting rules
+
     DIRACOQ_RULE_DEF(R_BETA_ARROW, kernel, term) {
         MATCH_HEAD(term, APPLY, args)
         MATCH_HEAD(args[0], FUN, fun_args)

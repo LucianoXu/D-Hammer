@@ -61,6 +61,158 @@ TEST(DiracoqTypeCalc, def_fun) {
 
 // Typing Test
 
+TEST(DiracoqTypeCheck, COMPO_SS) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("SType"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(a b)"), kernel.parse("SType")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_SK) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(a K)"), kernel.parse("KType(T)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_SB) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(a B)"), kernel.parse("BType(T)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_SO) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(a O)"), kernel.parse("OType(T1 T2)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_KS) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(K a)"), kernel.parse("KType(T)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_KK) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("K1"), kernel.parse("KType(T1)"));
+    kernel.assum(kernel.register_symbol("K2"), kernel.parse("KType(T2)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(K1 K2)"), kernel.parse("KType(Prod(T1 T2))")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_KB) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T1)"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T2)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(K B)"), kernel.parse("OType(T1 T2)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_BS) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(B a)"), kernel.parse("BType(T)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_BK) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(B K)"), kernel.parse("SType")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_BB) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B1"), kernel.parse("BType(T1)"));
+    kernel.assum(kernel.register_symbol("B2"), kernel.parse("BType(T2)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(B1 B2)"), kernel.parse("BType(Prod(T1 T2))")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_BO) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T1)"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(B O)"), kernel.parse("BType(T2)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_OS) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(O a)"), kernel.parse("OType(T1 T2)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_OK) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T2)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(O K)"), kernel.parse("KType(T1)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_OO) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("O1"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("O2"), kernel.parse("OType(T2 T3)"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(O1 O2)"), kernel.parse("OType(T1 T3)")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_Arrow) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T1 T2)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("T1"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(f a)"), kernel.parse("T2")));
+}
+
+TEST(DiracoqTypeCheck, COMPO_Forall) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(x KType(x))"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("Index"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO(f a)"), kernel.parse("KType(a)")));
+}
+
 
 TEST(DiracoqTypeCheck, Index_Var) {
     Kernel kernel;

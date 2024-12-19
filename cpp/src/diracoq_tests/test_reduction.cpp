@@ -76,6 +76,149 @@ void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expec
     TEST_RULE(kernel, rules, input, expected);
 }
 
+TEST(DiracoqReduction, R_COMPO_SS) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("SType"));
+    TEST_RULE(kernel, {R_COMPO_SS}, "COMPO(a b)", "MULS(a b)");
+} 
+
+TEST(DiracoqReduction, R_COMPO_SK) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    TEST_RULE(kernel, {R_COMPO_SK}, "COMPO(a K)", "SCR(a K)");
+}
+
+TEST(DiracoqReduction, R_COMPO_SB) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
+    TEST_RULE(kernel, {R_COMPO_SB}, "COMPO(a B)", "SCR(a B)");
+}
+
+TEST(DiracoqReduction, R_COMPO_SO) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    TEST_RULE(kernel, {R_COMPO_SO}, "COMPO(a O)", "SCR(a O)");
+}
+
+TEST(DiracoqReduction, R_COMPO_KS) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    TEST_RULE(kernel, {R_COMPO_KS}, "COMPO(K a)", "SCR(a K)");
+}
+
+TEST(DiracoqReduction, R_COMPO_KK) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("K1"), kernel.parse("KType(T1)"));
+    kernel.assum(kernel.register_symbol("K2"), kernel.parse("KType(T2)"));
+    TEST_RULE(kernel, {R_COMPO_KK}, "COMPO(K1 K2)", "TSR(K1 K2)");
+}
+
+TEST(DiracoqReduction, R_COMPO_KB) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T2)"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T1)"));
+    TEST_RULE(kernel, {R_COMPO_KB}, "COMPO(K B)", "OUTER(K B)");
+}
+
+TEST(DiracoqReduction, R_COMPO_BS) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    TEST_RULE(kernel, {R_COMPO_BS}, "COMPO(B a)", "SCR(a B)");
+}
+
+
+TEST(DiracoqReduction, R_COMPO_BK) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    TEST_RULE(kernel, {R_COMPO_BK}, "COMPO(B K)", "DOT(B K)");
+}
+
+TEST(DiracoqReduction, R_COMPO_BB) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B1"), kernel.parse("BType(T1)"));
+    kernel.assum(kernel.register_symbol("B2"), kernel.parse("BType(T2)"));
+    TEST_RULE(kernel, {R_COMPO_BB}, "COMPO(B1 B2)", "TSR(B1 B2)");
+}
+
+TEST(DiracoqReduction, R_COMPO_BO) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T1)"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    TEST_RULE(kernel, {R_COMPO_BO}, "COMPO(B O)", "MULB(B O)");
+}
+
+TEST(DiracoqReduction, R_COMPO_OS) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    TEST_RULE(kernel, {R_COMPO_OS}, "COMPO(O a)", "SCR(a O)");
+}
+
+TEST(DiracoqReduction, R_COMPO_OK) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T2)"));
+    TEST_RULE(kernel, {R_COMPO_OK}, "COMPO(O K)", "MULK(O K)");
+}
+
+TEST(DiracoqReduction, R_COMPO_OO) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("O1"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("O2"), kernel.parse("OType(T2 T3)"));
+    TEST_RULE(kernel, {R_COMPO_OO}, "COMPO(O1 O2)", "MULO(O1 O2)");
+}
+
+
+TEST(DiracoqReduction, R_COMPO_ARROW) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T1 T2)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("T1"));
+    TEST_RULE(kernel, {R_COMPO_ARROW}, "COMPO(f a)", "apply(f a)");
+}
+
+TEST(DiracoqReduction, R_COMPO_FORALL) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(sigma T)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("Index"));
+    TEST_RULE(kernel, {R_COMPO_FORALL}, "COMPO(f a)", "apply(f a)");
+}
+
+
+
+/////////////////////////////////////////////
+// main rules unit test
 
 TEST(DiracoqReduction, R_BETA_ARROW) {
     Kernel kernel;
@@ -1018,14 +1161,27 @@ TEST(DiracoqReduction, R_SUM_INDEX1) {
 }
 
 TEST(DiracoqReduction, R_SUM_SWAP) {
-    Kernel kernel;
-    auto term1 = kernel.parse("SUM(M1 fun(x T1 SUM(M2 fun(y T2 apply(x y))))))");
+    // We found that this rule will interwine with eta reduction. Therefore we don't consider eta reduction in the system.
+    for (int i = 0; i < 50; i++) {
+        Kernel kernel;
+        auto term1 = kernel.parse("SUM(M1 fun(x T1 SUM(M2 fun(y T2 apply(x y))))))");
 
-    auto term2 = kernel.parse("SUM(M2 fun(y T2 SUM(M1 fun(x T1 apply(x y))))))");
+        auto term2 = kernel.parse("SUM(M2 fun(y T2 SUM(M1 fun(x T1 apply(x y))))))");
 
-    auto reduce_res1 = pos_rewrite_repeated(kernel, term1, rules);
-    auto reduce_res2 = pos_rewrite_repeated(kernel, term2, rules);
-    EXPECT_TRUE(reduce_res1 == term2 || reduce_res2 == term1);
+        auto reduce_res1 = pos_rewrite_repeated(kernel, term1, rules);
+        auto reduce_res2 = pos_rewrite_repeated(kernel, term2, rules);
+
+        // EXPECT_TRUE(*reduce_res1 == *term2 || *reduce_res2 == *term1);
+        if (!(*reduce_res1 == *term2 || *reduce_res2 == *term1)) {
+            cout << "Failed at iteration " << i << endl;
+            cout << "Term1:" << kernel.term_to_string(term1) << endl;
+            cout << "Term2:" << kernel.term_to_string(term2) << endl;
+            cout << "Reduce Res1:" << kernel.term_to_string(reduce_res1) << endl;
+            cout << "Reduce Res2:" << kernel.term_to_string(reduce_res2) << endl;
+            cout << "Res2 size:" << reduce_res2->get_term_size() << endl;
+            throw runtime_error("Failed");
+        }
+    }
 }
 
 // ///////////////////////////////////////////////////////

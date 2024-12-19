@@ -27,6 +27,8 @@ namespace diracoq {
             "Normalize",
             "CheckEq",
             "Trace",
+
+            "COMPO",
    
             "Index",
             "Type",
@@ -88,7 +90,7 @@ namespace diracoq {
 
     const Signature<int> diracoq_sig = compile_string_sig(diracoq_symbols);
 
-
+    const auto COMPO = diracoq_sig.get_repr("COMPO");
 
     const auto INDEX = diracoq_sig.get_repr("Index");
     const auto TYPE = diracoq_sig.get_repr("Type");

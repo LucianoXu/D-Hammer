@@ -84,6 +84,122 @@ namespace diracoq {
     const Term<int>* Kernel::calc_type(const Term<int>* term) {
         auto head = term->get_head();
         auto args = term->get_args();
+
+        // (COMPO rules)
+        if (head == COMPO) {
+            arg_number_check(args, 2);
+
+            auto typeA = calc_type(args[0]);
+            auto typeB = calc_type(args[1]);
+
+            if (typeA->get_head() == SType) {
+                // S @ S : S
+                if (typeB->get_head() == SType) {
+                    return bank.get_term(SType);
+                }
+                // S @ K(A) : K(A)
+                if (typeB->get_head() == KType) {
+                    return typeB;
+                }
+                // S @ B(A) : B(A)
+                if (typeB->get_head() == BType) {
+                    return typeB;
+                }
+                // S @ O(A, B) : O(A, B)
+                if (typeB->get_head() == OType) {
+                    return typeB;
+                }
+            }
+            
+            if (typeA->get_head() == KType) {
+                // K(A) @ S : K(A)
+                if (typeB->get_head() == SType) {
+                    return typeA;
+                }
+                // K(A) @ K(B) : K(Prod(A B))
+                if (typeB->get_head() == KType) {
+                    return bank.get_term(KType, 
+                        {bank.get_term(Prod, {typeA->get_args()[0], typeB->get_args()[0]})});
+                }
+                // K(A) @ B(B) : O(A, B)
+                if (typeB->get_head() == BType) {
+                    return bank.get_term(OType, {typeA->get_args()[0], typeB->get_args()[0]});
+                }
+                // K(A) @ O(B, C) --- NOT VALID
+            }
+            if (typeA->get_head() == BType) {
+                // B(A) @ S : B(A)
+                if (typeB->get_head() == SType) {
+                    return typeA;
+                }
+                // B(A) @ K(A) : S
+                if (typeB->get_head() == KType) {
+                    if (is_eq(sig, bank, typeA->get_args()[0], typeB->get_args()[0])) {
+                        return bank.get_term(SType);
+                    }
+                    else {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[0]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
+                    }
+                }
+                // B(A) @ B(B) : B(Prod(A, B))
+                if (typeB->get_head() == BType) {
+                    return bank.get_term(BType, 
+                        {bank.get_term(Prod, {typeA->get_args()[0], typeB->get_args()[0]})});
+                }
+                // B(A) @ O(A, B) : B(B)
+                if (typeB->get_head() == OType) {
+                    if (is_eq(sig, bank, typeA->get_args()[0], typeB->get_args()[0])) {
+                        return bank.get_term(BType, {typeB->get_args()[1]});
+                    }
+                    else {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[0]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
+                    }
+                }   
+            }
+            if (typeA->get_head() == OType) {
+                // O(A, B) @ S : O(A, B)
+                if (typeB->get_head() == SType) {
+                    return typeA;
+                }
+                // O(A, B) @ K(B) : K(A)
+                if (typeB->get_head() == KType) {
+                    if (is_eq(sig, bank, typeA->get_args()[1], typeB->get_args()[0])) {
+                        return bank.get_term(KType, {typeA->get_args()[0]});
+                    }
+                    else {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[1]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
+                    }
+                }
+                // O(A, B) @ B(C) --- NOT VALID
+                // O(A, B) @ O(B, C) : O(A, C)
+                if (typeB->get_head() == OType) {
+                    if (is_eq(sig, bank, typeA->get_args()[1], typeB->get_args()[0])) {
+                        return bank.get_term(OType, {typeA->get_args()[0], typeB->get_args()[1]});
+                    }
+                    else {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[1]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
+                    }
+                }
+            }
+            // (T1 -> T2) @ T1 : T2
+            if (typeA->get_head() == ARROW) {
+                if (!is_eq(sig, bank, typeA->get_args()[0], typeB)) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[0]) + " of the first term is not equal to the second term.");
+                }
+                return typeA->get_args()[1];
+            }
+            // (Forall x, T) @ (t : Index) : T{x/t}
+            if (typeA->get_head() == FORALL) {
+                auto& args_typeA = typeA->get_args();
+                if (!is_index(args[1])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second term is not equal to the index.");
+                }
+                return subst(sig, bank, args_typeA[1], args_typeA[0]->get_head(), args[1]);
+            }
+
+            throw std::runtime_error("Typing error: invalid composition of " + sig.term_to_string(typeA) + " and " + sig.term_to_string(typeB) + ".");
+        }
+
         // (Index-Prod)
         if (head == Prod) {
             arg_number_check(args, 2);

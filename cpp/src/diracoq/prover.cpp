@@ -168,7 +168,9 @@ namespace diracoq {
 
                 // calculate the normalized term
                 vector<PosReplaceRecord> trace;
-                auto temp = pos_rewrite_repeated(kernel, term, rules, &trace);
+                auto temp = pos_rewrite_repeated(kernel, term, pre_proc_rules, &trace);
+
+                temp = pos_rewrite_repeated(kernel, temp, rules, &trace);
 
                 // expand on variables
                 auto expanded_term = variable_expand(kernel, temp);
@@ -236,14 +238,16 @@ namespace diracoq {
 
         // calculate the normalized term
         vector<PosReplaceRecord> traceA;
-        auto tempA = pos_rewrite_repeated(kernel, termA, rules, &traceA);
+        auto tempA = pos_rewrite_repeated(kernel, termA, pre_proc_rules, &traceA);
+        tempA = pos_rewrite_repeated(kernel, tempA, rules, &traceA);
         auto expanded_termA = variable_expand(kernel, tempA);
         tempA = pos_rewrite_repeated(kernel, expanded_termA, rules, &traceA);
         auto normalized_termA = deBruijn_normalize(kernel, tempA);
         auto [sorted_termA, instructA] = sort_CInstruct(normalized_termA, kernel.get_bank(), c_symbols);
 
         vector<PosReplaceRecord> traceB;
-        auto tempB = pos_rewrite_repeated(kernel, termB, rules, &traceB);
+        auto tempB = pos_rewrite_repeated(kernel, termB, pre_proc_rules, &traceB);
+        tempB = pos_rewrite_repeated(kernel, tempB, rules, &traceB);
         auto expanded_termB = variable_expand(kernel, tempB);
         tempB = pos_rewrite_repeated(kernel, expanded_termB, rules, &traceB);
         auto normalized_termB = deBruijn_normalize(kernel, tempB);

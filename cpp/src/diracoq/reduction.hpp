@@ -64,6 +64,59 @@ namespace diracoq {
 
     //////////////// Rules
 
+    // a : SType, b : SType => a @ b -> MULS(a b)
+    DIRACOQ_RULE_DEF(R_COMPO_SS, kernel, term);
+
+    // a : SType, K : KType(T) => a @ K -> SCR(a K)
+    DIRACOQ_RULE_DEF(R_COMPO_SK, kernel, term);
+
+    // a : SType, B : BType(T) => a @ B -> SCR(a B)
+    DIRACOQ_RULE_DEF(R_COMPO_SB, kernel, term);
+
+    // a : SType, O : OType(T1 T2) => a @ O -> SCR(a O)
+    DIRACOQ_RULE_DEF(R_COMPO_SO, kernel, term);
+
+    // K : KType(T), a : SType => COMPO(K a) -> SCR(a K)
+    DIRACOQ_RULE_DEF(R_COMPO_KS, kernel, term);
+
+    // K1 : KType(T1), K2 : KType(T2) => COMPO(K1 K2) -> TSR(K1 K2)
+    DIRACOQ_RULE_DEF(R_COMPO_KK, kernel, term);
+
+    // K : KType(T1), B : BType(T2) => COMPO(K B) -> OUTER(K B)
+    DIRACOQ_RULE_DEF(R_COMPO_KB, kernel, term);
+
+    // B : BType(T), a : SType => COMPO(B a) -> SCR(a B)
+    DIRACOQ_RULE_DEF(R_COMPO_BS, kernel, term);
+
+    // B : BType(T), K : KType(T) => COMPO(B K) -> DOT(B K)
+    DIRACOQ_RULE_DEF(R_COMPO_BK, kernel, term);
+
+    // B1 : BType(T1), B2 : BType(T2) => COMPO(B1 B2) -> TSR(B1 B2)
+    DIRACOQ_RULE_DEF(R_COMPO_BB, kernel, term);
+
+    // B : BType(T1), O : OType(T1 T2) => COMPO(B O) -> MULB(B O)
+    DIRACOQ_RULE_DEF(R_COMPO_BO, kernel, term);
+
+    // O : OType(T1 T2), a : SType => COMPO(O a) -> SCR(a O)
+    DIRACOQ_RULE_DEF(R_COMPO_OS, kernel, term);
+
+    // O : OType(T1 T2), K : KType(T2) => COMPO(O K) -> MULK(O K)
+    DIRACOQ_RULE_DEF(R_COMPO_OK, kernel, term);
+
+    // O1 : OType(T1 T2), O2 : OType(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
+    DIRACOQ_RULE_DEF(R_COMPO_OO, kernel, term);
+
+    // f : T1 -> T2 => COMPO(f a) -> APPLY(f a)
+    DIRACOQ_RULE_DEF(R_COMPO_ARROW, kernel, term);
+
+    // f : Forall(x T1) => COMPO(f a) -> APPLY(f a)
+    DIRACOQ_RULE_DEF(R_COMPO_FORALL, kernel, term);
+
+
+    // The rules for pre-processing
+    extern const std::vector<PosRewritingRule> pre_proc_rules;
+
+
     // beta reduction
     DIRACOQ_RULE_DEF(R_BETA_ARROW, kernel, term);
     DIRACOQ_RULE_DEF(R_BETA_INDEX, kernel, term);
@@ -543,7 +596,6 @@ namespace diracoq {
 
     // M1 < M2 => SUM(M2 fun(i T1 SUM(M1 fun(j T2 X))) -> SUM(M1 fun(j T2 SUM(M2 fun(i T1 X))))
     DIRACOQ_RULE_DEF(R_SUM_SWAP, kernel, term);
-
 
     // The scalar rule list.
     extern const std::vector<PosRewritingRule> rules;
