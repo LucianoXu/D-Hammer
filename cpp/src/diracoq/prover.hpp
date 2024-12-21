@@ -68,7 +68,7 @@ namespace diracoq {
         }
 
         inline bool process(const std::string& code) {
-            auto ast = astparser::parse(code);
+            auto ast = parse(code);
             if (ast.has_value()) {
                 return process(ast.value());
             }
@@ -81,8 +81,8 @@ namespace diracoq {
         bool process(const astparser::AST& ast);
 
         inline bool check_eq(const std::string& codeA, const std::string& codeB) {
-            auto astA = astparser::parse(codeA);
-            auto astB = astparser::parse(codeB);
+            auto astA = parse(codeA);
+            auto astB = parse(codeB);
             if (astA.has_value() and astB.has_value()) {
                 return check_eq(astA.value(), astB.value());
             }

@@ -597,8 +597,11 @@ namespace diracoq {
     // M1 < M2 => SUM(M2 fun(i T1 SUM(M1 fun(j T2 X))) -> SUM(M1 fun(j T2 SUM(M2 fun(i T1 X))))
     DIRACOQ_RULE_DEF(R_SUM_SWAP, kernel, term);
 
-    // The scalar rule list.
+    // The rule list.
     extern const std::vector<PosRewritingRule> rules;
+
+    // All the rules
+    extern const std::vector<PosRewritingRule> all_rules;
 
     ///////////////// Trace Output
 

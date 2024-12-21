@@ -1,6 +1,7 @@
 #################################
 # Tests list
 set(tests
+    test_parser
     test_syntax_theory
     test_calculus
     test_reduction

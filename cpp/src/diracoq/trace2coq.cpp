@@ -563,8 +563,10 @@ UNEXPECTED_ERROR:
         if (record.rule == R_SUM_SWAP) {
             return "(" + pos_to_string(record.pos) + ", " + "R_SUM_SWAP" + ")";
         }
+
+        return "Some Rule";
         
-        throw runtime_error("Unknown rule.");
+        // throw runtime_error("Unknown rule.");
     }
 
     std::string CInstruct_to_string(const CProofInstruct& instruct) {

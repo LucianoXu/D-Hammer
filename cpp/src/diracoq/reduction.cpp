@@ -3587,4 +3587,15 @@ namespace diracoq {
         R_SUM_ADDS0, R_SUM_ADD0, R_SUM_INDEX0, R_SUM_INDEX1, R_SUM_SWAP
     };
 
+    std::vector<PosRewritingRule> get_all_rules() {
+        // return the concatenation of pre_proc_rules and rules
+        std::vector<PosRewritingRule> all_rules;
+        all_rules.reserve(pre_proc_rules.size() + rules.size());
+        all_rules.insert(all_rules.end(), pre_proc_rules.begin(), pre_proc_rules.end());
+        all_rules.insert(all_rules.end(), rules.begin(), rules.end());
+        return all_rules;
+    }
+
+    const std::vector<PosRewritingRule> all_rules = get_all_rules();
+
 } // namespace diracoq
