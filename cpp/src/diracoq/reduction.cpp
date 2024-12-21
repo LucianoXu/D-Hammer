@@ -94,8 +94,8 @@ namespace diracoq {
             auto type_head = type->get_head();
             auto type_args = type->get_args();
 
-            // K : KType(A) -> SUM(USET(A) fun(i Basis(A) SCR(DOT(BRA(i) K) KET(i))))
-            if (type_head == KType) {
+            // K : KTYPE(A) -> SUM(USET(A) FUN(i BASIS(A) SCR(DOT(BRA(i) K) KET(i))))
+            if (type_head == KTYPE) {
                 auto new_bound = bank.get_term(sig.register_symbol(unique_var()));
                 return bank.get_term(
                     SUM,
@@ -116,8 +116,8 @@ namespace diracoq {
                 );
             }
             
-            // B : BType(A) -> SUM(USET(A) fun(i Basis(A) SCR(DOT(B KET(i)) BRA(i))))
-            else if (type_head == BType) {
+            // B : BTYPE(A) -> SUM(USET(A) FUN(i BASIS(A) SCR(DOT(B KET(i)) BRA(i))))
+            else if (type_head == BTYPE) {
                 auto new_bound = bank.get_term(sig.register_symbol(unique_var()));
                 return bank.get_term(
                     SUM,
@@ -138,15 +138,15 @@ namespace diracoq {
                 );
             }
 
-            // O : BType(A, B) -> SUM(USET(A) fun(i Basis(A) 
-            //                          SUM(USET(B) fun(j Basis(B)
+            // O : BTYPE(A, B) -> SUM(USET(A) FUN(i BASIS(A) 
+            //                          SUM(USET(B) FUN(j BASIS(B)
             //                              SCR(
             //                                  DOT(BRA(i) MULK(O KET(j)))
             //                                  OUTER(KET(i) BRA(j))
             //                              )
             //                          ))
             //                    ))
-            else if (type_head == OType) {
+            else if (type_head == OTYPE) {
                 auto new_bound_A = bank.get_term(sig.register_symbol(unique_var()));
                 auto new_bound_B = bank.get_term(sig.register_symbol(unique_var()));
                 return bank.get_term(
@@ -207,158 +207,158 @@ namespace diracoq {
 
 
 
-    // a : SType, b : SType => a @ b -> MULS(a b)
+    // a : STYPE, b : STYPE => a @ b -> MULS(a b)
     DIRACOQ_RULE_DEF(R_COMPO_SS, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeA = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
 
-        if (!(typeA->get_head() == SType and typeB->get_head() == SType)) return std::nullopt;
+        if (!(typeA->get_head() == STYPE and typeB->get_head() == STYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(MULS, args);
     }
 
-    // a : SType, K : KType(T) => a @ K -> SCR(a K)
+    // a : STYPE, K : KTYPE(T) => a @ K -> SCR(a K)
     DIRACOQ_RULE_DEF(R_COMPO_SK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeA = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
 
-        if (!(typeA->get_head() == SType and typeB->get_head() == KType)) return std::nullopt;
+        if (!(typeA->get_head() == STYPE and typeB->get_head() == KTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(SCR, args);
     }
 
-    // a : SType, B : BType(T) => a @ B -> SCR(a B)
+    // a : STYPE, B : BTYPE(T) => a @ B -> SCR(a B)
     DIRACOQ_RULE_DEF(R_COMPO_SB, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeA = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
 
-        if (!(typeA->get_head() == SType and typeB->get_head() == BType)) return std::nullopt;
+        if (!(typeA->get_head() == STYPE and typeB->get_head() == BTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(SCR, args);
     }
 
-    // a : SType, O : OType(T1 T2) => a @ O -> SCR(a O)
+    // a : STYPE, O : OTYPE(T1 T2) => a @ O -> SCR(a O)
     DIRACOQ_RULE_DEF(R_COMPO_SO, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeA = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
 
-        if (!(typeA->get_head() == SType and typeB->get_head() == OType)) return std::nullopt;
+        if (!(typeA->get_head() == STYPE and typeB->get_head() == OTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(SCR, args);
     }
 
 
-    // K : KType(T), a : SType => COMPO(K a) -> SCR(a K)
+    // K : KTYPE(T), a : STYPE => COMPO(K a) -> SCR(a K)
     DIRACOQ_RULE_DEF(R_COMPO_KS, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeK = kernel.calc_type(args[0]);
         auto typeA = kernel.calc_type(args[1]);
 
-        if (!(typeK->get_head() == KType and typeA->get_head() == SType)) return std::nullopt;
+        if (!(typeK->get_head() == KTYPE and typeA->get_head() == STYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(SCR, {args[1], args[0]});
     }
 
-    // K1 : KType(T1), K2 : KType(T2) => COMPO(K1 K2) -> TSR(K1 K2)
+    // K1 : KTYPE(T1), K2 : KTYPE(T2) => COMPO(K1 K2) -> TSR(K1 K2)
     DIRACOQ_RULE_DEF(R_COMPO_KK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeK1 = kernel.calc_type(args[0]);
         auto typeK2 = kernel.calc_type(args[1]);
 
-        if (!(typeK1->get_head() == KType and typeK2->get_head() == KType)) return std::nullopt;
+        if (!(typeK1->get_head() == KTYPE and typeK2->get_head() == KTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(TSR, args);
     }
 
-    // K : KType(T1), B : BType(T2) => COMPO(K B) -> OUTER(K B)
+    // K : KTYPE(T1), B : BTYPE(T2) => COMPO(K B) -> OUTER(K B)
     DIRACOQ_RULE_DEF(R_COMPO_KB, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeK = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
 
-        if (!(typeK->get_head() == KType and typeB->get_head() == BType)) return std::nullopt;
+        if (!(typeK->get_head() == KTYPE and typeB->get_head() == BTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(OUTER, args);
     }
 
 
-    // B : BType(T), a : SType => COMPO(B a) -> SCR(a B)
+    // B : BTYPE(T), a : STYPE => COMPO(B a) -> SCR(a B)
     DIRACOQ_RULE_DEF(R_COMPO_BS, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB = kernel.calc_type(args[0]);
         auto typeA = kernel.calc_type(args[1]);
 
-        if (!(typeB->get_head() == BType and typeA->get_head() == SType)) return std::nullopt;
+        if (!(typeB->get_head() == BTYPE and typeA->get_head() == STYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(SCR, {args[1], args[0]});
     }
 
-    // B : BType(T), K : KType(T) => COMPO(B K) -> DOT(B K)
+    // B : BTYPE(T), K : KTYPE(T) => COMPO(B K) -> DOT(B K)
     DIRACOQ_RULE_DEF(R_COMPO_BK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB = kernel.calc_type(args[0]);
         auto typeK = kernel.calc_type(args[1]);
 
-        if (!(typeB->get_head() == BType and typeK->get_head() == KType)) return std::nullopt;
+        if (!(typeB->get_head() == BTYPE and typeK->get_head() == KTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(DOT, args);
     }
 
-    // B1 : BType(T1), B2 : BType(T2) => COMPO(B1 B2) -> TSR(B1 B2)
+    // B1 : BTYPE(T1), B2 : BTYPE(T2) => COMPO(B1 B2) -> TSR(B1 B2)
     DIRACOQ_RULE_DEF(R_COMPO_BB, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB1 = kernel.calc_type(args[0]);
         auto typeB2 = kernel.calc_type(args[1]);
 
-        if (!(typeB1->get_head() == BType and typeB2->get_head() == BType)) return std::nullopt;
+        if (!(typeB1->get_head() == BTYPE and typeB2->get_head() == BTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(TSR, args);
     }
 
-    // B : BType(T1), O : OType(T1 T2) => COMPO(B O) -> MULB(B O)
+    // B : BTYPE(T1), O : OTYPE(T1 T2) => COMPO(B O) -> MULB(B O)
     DIRACOQ_RULE_DEF(R_COMPO_BO, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB = kernel.calc_type(args[0]);
         auto typeO = kernel.calc_type(args[1]);
 
-        if (!(typeB->get_head() == BType and typeO->get_head() == OType)) return std::nullopt;
+        if (!(typeB->get_head() == BTYPE and typeO->get_head() == OTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(MULB, args);
     }
 
-    // O : OType(T1 T2), a : SType => COMPO(O a) -> SCR(a O)
+    // O : OTYPE(T1 T2), a : STYPE => COMPO(O a) -> SCR(a O)
     DIRACOQ_RULE_DEF(R_COMPO_OS, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeO = kernel.calc_type(args[0]);
         auto typeA = kernel.calc_type(args[1]);
 
-        if (!(typeO->get_head() == OType and typeA->get_head() == SType)) return std::nullopt;
+        if (!(typeO->get_head() == OTYPE and typeA->get_head() == STYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(SCR, {args[1], args[0]});
     }
 
-    // O : OType(T1 T2), K : KType(T2) => COMPO(O K) -> MULK(O K)
+    // O : OTYPE(T1 T2), K : KTYPE(T2) => COMPO(O K) -> MULK(O K)
     DIRACOQ_RULE_DEF(R_COMPO_OK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeO = kernel.calc_type(args[0]);
         auto typeK = kernel.calc_type(args[1]);
 
-        if (!(typeO->get_head() == OType and typeK->get_head() == KType)) return std::nullopt;
+        if (!(typeO->get_head() == OTYPE and typeK->get_head() == KTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(MULK, args);
     }
 
-    // O1 : OType(T1 T2), O2 : OType(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
+    // O1 : OTYPE(T1 T2), O2 : OTYPE(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
     DIRACOQ_RULE_DEF(R_COMPO_OO, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeO1 = kernel.calc_type(args[0]);
         auto typeO2 = kernel.calc_type(args[1]);
 
-        if (!(typeO1->get_head() == OType and typeO2->get_head() == OType)) return std::nullopt;
+        if (!(typeO1->get_head() == OTYPE and typeO2->get_head() == OTYPE)) return std::nullopt;
         
         return kernel.get_bank().get_term(MULO, args);
     }
@@ -373,7 +373,7 @@ namespace diracoq {
         return kernel.get_bank().get_term(APPLY, args);
     }
 
-    // f : Forall(x T1) => COMPO(f a) -> APPLY(f a)
+    // f : FORALL(x T1) => COMPO(f a) -> APPLY(f a)
     DIRACOQ_RULE_DEF(R_COMPO_FORALL, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeF = kernel.calc_type(args[0]);
@@ -923,7 +923,7 @@ namespace diracoq {
         return bank.get_term(ADD, std::move(new_args));
     }
     
-    // K : KType(T) => SCR(0 K) -> 0K(T)
+    // K : KTYPE(T) => SCR(0 K) -> 0K(T)
     DIRACOQ_RULE_DEF(R_SCRK0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -932,7 +932,7 @@ namespace diracoq {
         // Check the typing of K
         auto type_K = kernel.calc_type(args_SCR_0_K[1]);
 
-        MATCH_HEAD(type_K, KType, args_KType_T)
+        MATCH_HEAD(type_K, KTYPE, args_KType_T)
 
         if (args_SCR_0_K[0]->get_head() != ZERO) return std::nullopt;
 
@@ -949,7 +949,7 @@ namespace diracoq {
         return args_SCR_a_0K_T[1];
     }
 
-    // B : BType(T) => SCR(0 B) -> 0B(T)
+    // B : BTYPE(T) => SCR(0 B) -> 0B(T)
     DIRACOQ_RULE_DEF(R_SCRB0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -958,7 +958,7 @@ namespace diracoq {
         // Check the typing of B
         auto type_B = kernel.calc_type(args_SCR_0_B[1]);
 
-        MATCH_HEAD(type_B, BType, args_BType_T)
+        MATCH_HEAD(type_B, BTYPE, args_BType_T)
 
         if (args_SCR_0_B[0]->get_head() != ZERO) return std::nullopt;
 
@@ -975,7 +975,7 @@ namespace diracoq {
         return args_SCR_a_0B_T[1];
     }
 
-    // O : OType(T1 T2) => SCR(0 O) -> 0O(T1 T2)
+    // O : OTYPE(T1 T2) => SCR(0 O) -> 0O(T1 T2)
     DIRACOQ_RULE_DEF(R_SCRO0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -984,7 +984,7 @@ namespace diracoq {
         // Check the typing of O
         auto type_O = kernel.calc_type(args_SCR_0_O[1]);
 
-        MATCH_HEAD(type_O, OType, args_OType_T1_T2)
+        MATCH_HEAD(type_O, OTYPE, args_OType_T1_T2)
 
         if (args_SCR_0_O[0]->get_head() != ZERO) return std::nullopt;
 
@@ -1491,7 +1491,7 @@ namespace diracoq {
         return bank.get_term(ADD, std::move(new_args));
     }
 
-    // K : KType(T2) => TSR(0K(T1) K) -> 0K(Prod(T1 T2))
+    // K : KTYPE(T2) => TSR(0K(T1) K) -> 0K(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRK0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1502,12 +1502,12 @@ namespace diracoq {
         // Check the typing of K
         auto type_K = kernel.calc_type(args_TSR_0K_T1_K[1]);
 
-        MATCH_HEAD(type_K, KType, args_KType_T2)
+        MATCH_HEAD(type_K, KTYPE, args_KType_T2)
 
-        return bank.get_term(ZEROK, {bank.get_term(Prod, {args_ZEROK_T1[0], args_KType_T2[0]})});
+        return bank.get_term(ZEROK, {bank.get_term(PROD, {args_ZEROK_T1[0], args_KType_T2[0]})});
     }
 
-    // K : KType(T1) => TSR(K 0K(T2)) -> 0K(Prod(T1 T2))
+    // K : KTYPE(T1) => TSR(K 0K(T2)) -> 0K(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRK1, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1518,9 +1518,9 @@ namespace diracoq {
         // Check the typing of K
         auto type_K = kernel.calc_type(args_TSR_K_0K_T2[0]);
 
-        MATCH_HEAD(type_K, KType, args_KType_T1)
+        MATCH_HEAD(type_K, KTYPE, args_KType_T1)
 
-        return bank.get_term(ZEROK, {bank.get_term(Prod, {args_KType_T1[0], args_ZEROK_T2[0]})});
+        return bank.get_term(ZEROK, {bank.get_term(PROD, {args_KType_T1[0], args_ZEROK_T2[0]})});
     }
 
     // TSR(KET(s) KET(t)) -> KET(PAIR(s t))
@@ -1536,7 +1536,7 @@ namespace diracoq {
         return bank.get_term(KET, {bank.get_term(PAIR, {args_KET_s[0], args_KET_t[0]})});
     }
 
-    // B : BType(T2) => TSR(0B(T1) B) -> 0B(Prod(T1 T2))
+    // B : BTYPE(T2) => TSR(0B(T1) B) -> 0B(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRB0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1547,12 +1547,12 @@ namespace diracoq {
         // Check the typing of B
         auto type_B = kernel.calc_type(args_TSR_0B_T1_B[1]);
 
-        MATCH_HEAD(type_B, BType, args_BType_T2)
+        MATCH_HEAD(type_B, BTYPE, args_BType_T2)
 
-        return bank.get_term(ZEROB, {bank.get_term(Prod, {args_ZEROB_T1[0], args_BType_T2[0]})});
+        return bank.get_term(ZEROB, {bank.get_term(PROD, {args_ZEROB_T1[0], args_BType_T2[0]})});
     }
 
-    // B : BType(T1) => TSR(B 0B(T2)) -> 0B(Prod(T1 T2))
+    // B : BTYPE(T1) => TSR(B 0B(T2)) -> 0B(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRB1, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1563,9 +1563,9 @@ namespace diracoq {
         // Check the typing of B
         auto type_B = kernel.calc_type(args_TSR_B_0B_T2[0]);
 
-        MATCH_HEAD(type_B, BType, args_BType_T1)
+        MATCH_HEAD(type_B, BTYPE, args_BType_T1)
 
-        return bank.get_term(ZEROB, {bank.get_term(Prod, {args_BType_T1[0], args_ZEROB_T2[0]})});
+        return bank.get_term(ZEROB, {bank.get_term(PROD, {args_BType_T1[0], args_ZEROB_T2[0]})});
     }
     
     // TSR(BRA(s) BRA(t)) -> BRA(PAIR(s t))
@@ -1581,7 +1581,7 @@ namespace diracoq {
         return bank.get_term(BRA, {bank.get_term(PAIR, {args_BRA_s[0], args_BRA_t[0]})});
     }
 
-    // O : OType(T3 T4) => TSR(0O(T1 T2) O) -> 0O(Prod(T1 T3) Prod(T2 T4))
+    // O : OTYPE(T3 T4) => TSR(0O(T1 T2) O) -> 0O(PROD(T1 T3) PROD(T2 T4))
     DIRACOQ_RULE_DEF(R_TSRO0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1592,17 +1592,17 @@ namespace diracoq {
         // Check the typing of O
         auto type_O = kernel.calc_type(args_TSR_0O_T1_T2_O[1]);
 
-        MATCH_HEAD(type_O, OType, args_OType_T3_T4)
+        MATCH_HEAD(type_O, OTYPE, args_OType_T3_T4)
 
         return bank.get_term(ZEROO, 
             {
-                bank.get_term(Prod, {args_ZEROO_T1_T2[0], args_OType_T3_T4[0]}),
-                bank.get_term(Prod, {args_ZEROO_T1_T2[1], args_OType_T3_T4[1]})
+                bank.get_term(PROD, {args_ZEROO_T1_T2[0], args_OType_T3_T4[0]}),
+                bank.get_term(PROD, {args_ZEROO_T1_T2[1], args_OType_T3_T4[1]})
             }
         );
     }
 
-    // O : OType(T1 T2) => TSR(O 0O(T3 T4)) -> 0O(Prod(T1 T3) Prod(T2 T4))
+    // O : OTYPE(T1 T2) => TSR(O 0O(T3 T4)) -> 0O(PROD(T1 T3) PROD(T2 T4))
     DIRACOQ_RULE_DEF(R_TSRO1, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1613,17 +1613,17 @@ namespace diracoq {
         // Check the typing of O
         auto type_O = kernel.calc_type(args_TSR_O_0O_T3_T4[0]);
 
-        MATCH_HEAD(type_O, OType, args_OType_T1_T2)
+        MATCH_HEAD(type_O, OTYPE, args_OType_T1_T2)
 
         return bank.get_term(ZEROO, 
             {
-                bank.get_term(Prod, {args_OType_T1_T2[0], args_ZEROO_T3_T4[0]}),
-                bank.get_term(Prod, {args_OType_T1_T2[1], args_ZEROO_T3_T4[1]})
+                bank.get_term(PROD, {args_OType_T1_T2[0], args_ZEROO_T3_T4[0]}),
+                bank.get_term(PROD, {args_OType_T1_T2[1], args_ZEROO_T3_T4[1]})
             }
         );
     }
 
-    // TSR(1O(T1) 1O(T2)) -> 1O(Prod(T1 T2))
+    // TSR(1O(T1) 1O(T2)) -> 1O(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRO2, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1633,7 +1633,7 @@ namespace diracoq {
 
         MATCH_HEAD(args_TSR_1O_T1_1O_T2[1], ONEO, args_ONEO_T2)
 
-        return bank.get_term(ONEO, {bank.get_term(Prod, {args_ONEO_T1[0], args_ONEO_T2[0]})});
+        return bank.get_term(ONEO, {bank.get_term(PROD, {args_ONEO_T1[0], args_ONEO_T2[0]})});
     }
 
     // TSR(OUTER(K1 B1) OUTER(K2 B2)) -> OUTER(TSR(K1 K2) TSR(B1 B2))
@@ -1665,7 +1665,7 @@ namespace diracoq {
         return bank.get_term(ZEROK, {args_ZEROO_T1_T2[0]});
     }
 
-    // O : OType(T1 T2) => MULK(O 0K(T2)) -> 0K(T1)
+    // O : OTYPE(T1 T2) => MULK(O 0K(T2)) -> 0K(T1)
     DIRACOQ_RULE_DEF(R_MULK1, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1676,7 +1676,7 @@ namespace diracoq {
         // Check the typing of O
         auto type_O = kernel.calc_type(args_MULK_O_0K_T2[0]);
 
-        MATCH_HEAD(type_O, OType, args_OType_T1_T2)
+        MATCH_HEAD(type_O, OTYPE, args_OType_T1_T2)
 
         return bank.get_term(ZEROK, {args_OType_T1_T2[0]});
     }
@@ -1859,7 +1859,7 @@ namespace diracoq {
         return bank.get_term(ZEROB, {args_ZEROO_T1_T2[1]});
     }
 
-    // O : OType(T1 T2) => MULB(0B(T1) O) -> 0B(T2)
+    // O : OTYPE(T1 T2) => MULB(0B(T1) O) -> 0B(T2)
     DIRACOQ_RULE_DEF(R_MULB1, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1870,7 +1870,7 @@ namespace diracoq {
         // Check the typing of O
         auto type_O = kernel.calc_type(args_MULB_0B_T1_O[1]);
 
-        MATCH_HEAD(type_O, OType, args_OType_T1_T2)
+        MATCH_HEAD(type_O, OTYPE, args_OType_T1_T2)
 
         return bank.get_term(ZEROB, {args_OType_T1_T2[1]});
     }
@@ -2053,7 +2053,7 @@ namespace diracoq {
         // Check the typing of B
         auto type_B = kernel.calc_type(args_OUTER_0K_T1_B[1]);
 
-        MATCH_HEAD(type_B, BType, args_BType_T2)
+        MATCH_HEAD(type_B, BTYPE, args_BType_T2)
 
         return bank.get_term(ZEROO, {args_ZEROK_T1[0], args_BType_T2[0]});
     }
@@ -2069,7 +2069,7 @@ namespace diracoq {
         // Check the typing of K
         auto type_K = kernel.calc_type(args_OUTER_K_0B_T2[0]);
 
-        MATCH_HEAD(type_K, KType, args_KType_T1)
+        MATCH_HEAD(type_K, KTYPE, args_KType_T1)
 
         return bank.get_term(ZEROO, {args_KType_T1[0], args_ZEROB_T2[0]});
     }
@@ -2136,7 +2136,7 @@ namespace diracoq {
         return bank.get_term(ADD, std::move(new_args));
     }
 
-    // O : OType(T2 T3) => MULO(0O(T1 T2) O) -> 0O(T1 T3)
+    // O : OTYPE(T2 T3) => MULO(0O(T1 T2) O) -> 0O(T1 T3)
     DIRACOQ_RULE_DEF(R_MULO0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -2147,12 +2147,12 @@ namespace diracoq {
         // Check the typing of O
         auto type_O = kernel.calc_type(args_MULO_0O_T1_T2_O[1]);
 
-        MATCH_HEAD(type_O, OType, args_OType_T2_T3)
+        MATCH_HEAD(type_O, OTYPE, args_OType_T2_T3)
 
         return bank.get_term(ZEROO, {args_ZEROO_T1_T2[0], args_OType_T2_T3[1]});
     }
 
-    // O : OType(T1 T2) => MULO(O 0O(T2 T3)) -> 0O(T1 T3)
+    // O : OTYPE(T1 T2) => MULO(O 0O(T2 T3)) -> 0O(T1 T3)
     DIRACOQ_RULE_DEF(R_MULO1, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -2163,7 +2163,7 @@ namespace diracoq {
         // Check the typing of O
         auto type_O = kernel.calc_type(args_MULO_O_0O_T2_T3[0]);
 
-        MATCH_HEAD(type_O, OType, args_OType_T1_T2)
+        MATCH_HEAD(type_O, OTYPE, args_OType_T1_T2)
 
         return bank.get_term(ZEROO, {args_OType_T1_T2[0], args_ZEROO_T2_T3[1]});
     }
@@ -2339,7 +2339,7 @@ namespace diracoq {
         );
     }
 
-    // CATPROD(USET(T1) USET(T2)) -> USET(Prod(T1 T2))
+    // CATPROD(USET(T1) USET(T2)) -> USET(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_SET0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -2349,10 +2349,10 @@ namespace diracoq {
 
         MATCH_HEAD(args_CATPROD_USET_T1_USET_T2[1], USET, args_USET_T2)
 
-        return bank.get_term(USET, {bank.get_term(Prod, {args_USET_T1[0], args_USET_T2[0]})});
+        return bank.get_term(USET, {bank.get_term(PROD, {args_USET_T1[0], args_USET_T2[0]})});
     }
 
-    // SUM(s fun(x T 0)) -> 0
+    // SUM(s FUN(x T 0)) -> 0
     DIRACOQ_RULE_DEF(R_SUM_CONST0, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T_0)
 
@@ -2363,7 +2363,7 @@ namespace diracoq {
         return args_FUN_x_T_0[2];
     }
 
-    // SUM(s fun(x T1 0K(T2))) -> 0K(T2)
+    // SUM(s FUN(x T1 0K(T2))) -> 0K(T2)
     DIRACOQ_RULE_DEF(R_SUM_CONST1, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0K_T2)
 
@@ -2374,7 +2374,7 @@ namespace diracoq {
         return args_FUN_x_T1_0K_T2[2];
     }
 
-    // SUM(s fun(x T1 0B(T2))) -> 0B(T2)
+    // SUM(s FUN(x T1 0B(T2))) -> 0B(T2)
     DIRACOQ_RULE_DEF(R_SUM_CONST2, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0B_T2)
 
@@ -2385,7 +2385,7 @@ namespace diracoq {
         return args_FUN_x_T1_0B_T2[2];
     }
 
-    // SUM(s fun(x T1 0O(T2 T3))) -> 0O(T2 T3)
+    // SUM(s FUN(x T1 0O(T2 T3))) -> 0O(T2 T3)
     DIRACOQ_RULE_DEF(R_SUM_CONST3, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0O_T2_T3)
 
@@ -2396,7 +2396,7 @@ namespace diracoq {
         return args_FUN_x_T1_0O_T2_T3[2];
     }
 
-    // 1O(T) -> SUM(USET(T) fun(i T OUTER(KET(i) BRA(i))))
+    // 1O(T) -> SUM(USET(T) FUN(i T OUTER(KET(i) BRA(i))))
     DIRACOQ_RULE_DEF(R_SUM_CONST4, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -2424,7 +2424,7 @@ namespace diracoq {
         );
     }
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... DELTA(i t) ...))) -> SUM(... 1 ...)
+    // i free in t => SUM(USET(T) FUN(i T SUM(... DELTA(i t) ...))) -> SUM(... 1 ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -2472,7 +2472,7 @@ namespace diracoq {
         return bank.replace_term(args_FUN_i_T_SUM_DELTA_i_t[2], {{inner_term, bank.get_term(ONE)}});  
     }
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... MULS(a1 ... DELTA(i t) ... an) ...))) -> SUM(... MULS(a1{i/t} ... an{i/t}) ...)
+    // i free in t => SUM(USET(T) FUN(i T SUM(... MULS(a1 ... DELTA(i t) ... an) ...))) -> SUM(... MULS(a1{i/t} ... an{i/t}) ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM1, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -2546,7 +2546,7 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... SCR(DELTA(i t) A) ...))) -> SUM(... A{i/t} ...)
+    // i free in t => SUM(USET(T) FUN(i T SUM(... SCR(DELTA(i t) A) ...))) -> SUM(... A{i/t} ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM2, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -2603,7 +2603,7 @@ namespace diracoq {
         );
     }
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... SCR(MULS(a1 ... DELTA(i t) ... an) A) ...))) -> SUM(... SCR(MULS(a1{i/t} ... an{i/t}) A{i/t}) ...)
+    // i free in t => SUM(USET(T) FUN(i T SUM(... SCR(MULS(a1 ... DELTA(i t) ... an) A) ...))) -> SUM(... SCR(MULS(a1{i/t} ... an{i/t}) A{i/t}) ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM3, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -2686,7 +2686,7 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... DELTA(i j) ...))))) -> SUM(M fun(j T SUM(... 1 ...)))
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... DELTA(i j) ...))))) -> SUM(M FUN(j T SUM(... 1 ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM4, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -2728,7 +2728,7 @@ namespace diracoq {
         return bank.replace_term(args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[2], {{inner_term, bank.get_term(ONE, {})}});
     }
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... MULS(a1 ... DELTA(i j) ... an) ...))))) -> SUM(M fun(j T SUM(... MULS(a1{j/i} ... an{j/i}) ...)))
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... MULS(a1 ... DELTA(i j) ... an) ...))))) -> SUM(M FUN(j T SUM(... MULS(a1{j/i} ... an{j/i}) ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM5, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -2803,7 +2803,7 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... SCR(DELTA(i j) A) ...))))) -> SUM(M fun(j T SUM(... A{j/i} ...)))
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(DELTA(i j) A) ...))))) -> SUM(M FUN(j T SUM(... A{j/i} ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM6, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -2854,7 +2854,7 @@ namespace diracoq {
         );
     }
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... SCR(MULS(a1 ... DELTA(i j) ... an) A) ...))))) -> SUM(M fun(j T SUM(... SCR(MULS(a1{j/i} ... an{j/i}) A{j/i}) ...)))
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(MULS(a1 ... DELTA(i j) ... an) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(MULS(a1{j/i} ... an{j/i}) A{j/i}) ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM7, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -2941,7 +2941,7 @@ namespace diracoq {
         return std::nullopt;
     }
 
-    // MULS(b1 ... SUM(M fun(i T a)) ... bn) -> SUM(M fun(i T MULS(b1 ... a ... bn)))
+    // MULS(b1 ... SUM(M FUN(i T a)) ... bn) -> SUM(M FUN(i T MULS(b1 ... a ... bn)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -2985,7 +2985,7 @@ namespace diracoq {
         return std::nullopt;          
     }
 
-    // CONJ(SUM(M fun(i T a))) -> SUM(M fun(i T CONJ(a)))
+    // CONJ(SUM(M FUN(i T a))) -> SUM(M FUN(i T CONJ(a)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH1, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3009,7 +3009,7 @@ namespace diracoq {
         );
     }
 
-    // ADJ(SUM(M fun(i T X))) -> SUM(M fun(i T ADJ(X)))
+    // ADJ(SUM(M FUN(i T X))) -> SUM(M FUN(i T ADJ(X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH2, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3033,7 +3033,7 @@ namespace diracoq {
         );
     }
 
-    // SCR(a SUM(M fun(i T X))) -> SUM(M fun(i T SCR(a X)))
+    // SCR(a SUM(M FUN(i T X))) -> SUM(M FUN(i T SCR(a X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH3, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3057,7 +3057,7 @@ namespace diracoq {
         );
     }
 
-    // SCR(SUM(M fun(i T a)) X) -> SUM(M fun(i T SCR(a X)))
+    // SCR(SUM(M FUN(i T a)) X) -> SUM(M FUN(i T SCR(a X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH4, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3082,7 +3082,7 @@ namespace diracoq {
     }
 
 
-    // DOT(SUM(M fun(i T B)) K) -> SUM(M fun(i T DOT(B K)))
+    // DOT(SUM(M FUN(i T B)) K) -> SUM(M FUN(i T DOT(B K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH5, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3106,7 +3106,7 @@ namespace diracoq {
         );
     }
 
-    // MULK(SUM(M fun(i T O)) K) -> SUM(M fun(i T MULK(O K)))
+    // MULK(SUM(M FUN(i T O)) K) -> SUM(M FUN(i T MULK(O K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH6, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3130,7 +3130,7 @@ namespace diracoq {
         );
     }
 
-    // MULB(SUM(M fun(i T B)) O) -> SUM(M fun(i T MULB(B O)))
+    // MULB(SUM(M FUN(i T B)) O) -> SUM(M FUN(i T MULB(B O)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH7, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3154,7 +3154,7 @@ namespace diracoq {
         );
     }
     
-    // OUTER(SUM(M fun(i T K)) B) -> SUM(M fun(i T OUTER(K B)))
+    // OUTER(SUM(M FUN(i T K)) B) -> SUM(M FUN(i T OUTER(K B)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH8, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3178,7 +3178,7 @@ namespace diracoq {
         );
     }
     
-    // MULO(SUM(M fun(i T O1)) O2) -> SUM(M fun(i T MULO(O1 O2)))
+    // MULO(SUM(M FUN(i T O1)) O2) -> SUM(M FUN(i T MULO(O1 O2)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH9, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3203,7 +3203,7 @@ namespace diracoq {
     }
 
 
-    // DOT(B SUM(M fun(i T K))) -> SUM(M fun(i T DOT(B K)))
+    // DOT(B SUM(M FUN(i T K))) -> SUM(M FUN(i T DOT(B K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH10, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3227,7 +3227,7 @@ namespace diracoq {
         );
     }
 
-    // MULK(O SUM(M fun(i T K))) -> SUM(M fun(i T MULK(O K)))
+    // MULK(O SUM(M FUN(i T K))) -> SUM(M FUN(i T MULK(O K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH11, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3251,7 +3251,7 @@ namespace diracoq {
         );
     }
 
-    // MULB(B SUM(M fun(i T O))) -> SUM(M fun(i T MULB(B O)))
+    // MULB(B SUM(M FUN(i T O))) -> SUM(M FUN(i T MULB(B O)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH12, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3275,7 +3275,7 @@ namespace diracoq {
         );
     }
 
-    // OUTER(K SUM(M fun(i T B))) -> SUM(M fun(i T OUTER(K B)))
+    // OUTER(K SUM(M FUN(i T B))) -> SUM(M FUN(i T OUTER(K B)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH13, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3299,7 +3299,7 @@ namespace diracoq {
         );
     }
 
-    // MULO(O1 SUM(M fun(i T O2)) -> SUM(M fun(i T MULO(O1 O2)))
+    // MULO(O1 SUM(M FUN(i T O2)) -> SUM(M FUN(i T MULO(O1 O2)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH14, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3324,7 +3324,7 @@ namespace diracoq {
     }
 
 
-    // TSR(SUM(M fun(i T X)) Y) -> SUM(M fun(i T TSR(X Y)))
+    // TSR(SUM(M FUN(i T X)) Y) -> SUM(M FUN(i T TSR(X Y)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH15, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3348,7 +3348,7 @@ namespace diracoq {
         );
     }
 
-    // TSR(X SUM(M fun(i T Y))) -> SUM(M fun(i T TSR(X Y)))
+    // TSR(X SUM(M FUN(i T Y))) -> SUM(M FUN(i T TSR(X Y)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH16, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3373,7 +3373,7 @@ namespace diracoq {
     }
 
 
-    // SUM(M fun(i T ADDS(a1 ... an))) -> ADDS(SUM(M fun(i T a1)) ... SUM(M fun(i T an)))
+    // SUM(M FUN(i T ADDS(a1 ... an))) -> ADDS(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADDS0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3402,7 +3402,7 @@ namespace diracoq {
         return bank.get_term(ADDS, std::move(new_sum_args));
     }
 
-    // SUM(M fun(i T ADD(a1 ... an))) -> ADD(SUM(M fun(i T a1)) ... SUM(M fun(i T an)))
+    // SUM(M FUN(i T ADD(a1 ... an))) -> ADD(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADD0, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -3431,7 +3431,7 @@ namespace diracoq {
         return bank.get_term(ADD, std::move(new_sum_args));
     }
 
-    // SUM(USET(Prod(T1 T2)) fun(i Prod(T1 T2) X)) -> SUM(USET(T1) fun(j T1 SUM(USET(T2) fun(k T2 X{i/PAIR(j k)}))))
+    // SUM(USET(PROD(T1 T2)) FUN(i PROD(T1 T2) X)) -> SUM(USET(T1) FUN(j T1 SUM(USET(T2) FUN(k T2 X{i/PAIR(j k)}))))
     DIRACOQ_RULE_DEF(R_SUM_INDEX0, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -3440,7 +3440,7 @@ namespace diracoq {
 
         MATCH_HEAD(args_SUM_USET_Prod_T1_T2_fun_i_Prod_T1_T2_X[0], USET, args_USET_Prod_T1_T2)
 
-        MATCH_HEAD(args_USET_Prod_T1_T2[0], Prod, args_Prod_T1_T2)
+        MATCH_HEAD(args_USET_Prod_T1_T2[0], PROD, args_Prod_T1_T2)
 
         MATCH_HEAD(args_SUM_USET_Prod_T1_T2_fun_i_Prod_T1_T2_X[1], FUN, args_FUN_i_Prod_T1_T2_X)
 
@@ -3472,7 +3472,7 @@ namespace diracoq {
         );              
     }
 
-    // SUM(CATPROD(M1 M2) fun(i Prod(T1 T2) X)) -> SUM(M1 fun(j T1 SUM(M2 fun(k T2 X{i/PAIR(j k)})))
+    // SUM(CATPROD(M1 M2) FUN(i PROD(T1 T2) X)) -> SUM(M1 FUN(j T1 SUM(M2 FUN(k T2 X{i/PAIR(j k)})))
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -3483,7 +3483,7 @@ namespace diracoq {
 
         MATCH_HEAD(args_SUM_CATPROD_M1_M2_fun_i_Prod_T1_T2_X[1], FUN, args_FUN_i_Prod_T1_T2_X)
 
-        MATCH_HEAD(args_FUN_i_Prod_T1_T2_X[1], Prod, args_Prod_T1_T2_X)
+        MATCH_HEAD(args_FUN_i_Prod_T1_T2_X[1], PROD, args_Prod_T1_T2_X)
 
         const Term<int> *j = bank.get_term(kernel.register_symbol(unique_var()));
         const Term<int> *k = bank.get_term(kernel.register_symbol(unique_var()));
@@ -3513,7 +3513,7 @@ namespace diracoq {
         );
     }
 
-    // M1 < M2 => SUM(M2 fun(i T1 SUM(M1 fun(j T2 X))) -> SUM(M1 fun(j T2 SUM(M2 fun(i T1 X))))
+    // M1 < M2 => SUM(M2 FUN(i T1 SUM(M1 FUN(j T2 X))) -> SUM(M1 FUN(j T2 SUM(M2 FUN(i T1 X))))
     DIRACOQ_RULE_DEF(R_SUM_SWAP, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();

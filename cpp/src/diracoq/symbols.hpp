@@ -21,8 +21,8 @@ namespace diracoq {
 
     // symbols for typing
     extern const int INDEX, TYPE;
-    extern const int Prod;
-    extern const int BASIS, SType, KType, BType, OType, ARROW, FORALL, Set;
+    extern const int PROD;
+    extern const int BASIS, STYPE, KTYPE, BTYPE, OTYPE, ARROW, FORALL, SET;
 
     extern const int PAIR, FUN, IDX, APPLY;
     

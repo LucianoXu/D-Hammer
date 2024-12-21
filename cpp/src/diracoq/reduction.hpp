@@ -64,52 +64,52 @@ namespace diracoq {
 
     //////////////// Rules
 
-    // a : SType, b : SType => a @ b -> MULS(a b)
+    // a : STYPE, b : STYPE => a @ b -> MULS(a b)
     DIRACOQ_RULE_DEF(R_COMPO_SS, kernel, term);
 
-    // a : SType, K : KType(T) => a @ K -> SCR(a K)
+    // a : STYPE, K : KTYPE(T) => a @ K -> SCR(a K)
     DIRACOQ_RULE_DEF(R_COMPO_SK, kernel, term);
 
-    // a : SType, B : BType(T) => a @ B -> SCR(a B)
+    // a : STYPE, B : BTYPE(T) => a @ B -> SCR(a B)
     DIRACOQ_RULE_DEF(R_COMPO_SB, kernel, term);
 
-    // a : SType, O : OType(T1 T2) => a @ O -> SCR(a O)
+    // a : STYPE, O : OTYPE(T1 T2) => a @ O -> SCR(a O)
     DIRACOQ_RULE_DEF(R_COMPO_SO, kernel, term);
 
-    // K : KType(T), a : SType => COMPO(K a) -> SCR(a K)
+    // K : KTYPE(T), a : STYPE => COMPO(K a) -> SCR(a K)
     DIRACOQ_RULE_DEF(R_COMPO_KS, kernel, term);
 
-    // K1 : KType(T1), K2 : KType(T2) => COMPO(K1 K2) -> TSR(K1 K2)
+    // K1 : KTYPE(T1), K2 : KTYPE(T2) => COMPO(K1 K2) -> TSR(K1 K2)
     DIRACOQ_RULE_DEF(R_COMPO_KK, kernel, term);
 
-    // K : KType(T1), B : BType(T2) => COMPO(K B) -> OUTER(K B)
+    // K : KTYPE(T1), B : BTYPE(T2) => COMPO(K B) -> OUTER(K B)
     DIRACOQ_RULE_DEF(R_COMPO_KB, kernel, term);
 
-    // B : BType(T), a : SType => COMPO(B a) -> SCR(a B)
+    // B : BTYPE(T), a : STYPE => COMPO(B a) -> SCR(a B)
     DIRACOQ_RULE_DEF(R_COMPO_BS, kernel, term);
 
-    // B : BType(T), K : KType(T) => COMPO(B K) -> DOT(B K)
+    // B : BTYPE(T), K : KTYPE(T) => COMPO(B K) -> DOT(B K)
     DIRACOQ_RULE_DEF(R_COMPO_BK, kernel, term);
 
-    // B1 : BType(T1), B2 : BType(T2) => COMPO(B1 B2) -> TSR(B1 B2)
+    // B1 : BTYPE(T1), B2 : BTYPE(T2) => COMPO(B1 B2) -> TSR(B1 B2)
     DIRACOQ_RULE_DEF(R_COMPO_BB, kernel, term);
 
-    // B : BType(T1), O : OType(T1 T2) => COMPO(B O) -> MULB(B O)
+    // B : BTYPE(T1), O : OTYPE(T1 T2) => COMPO(B O) -> MULB(B O)
     DIRACOQ_RULE_DEF(R_COMPO_BO, kernel, term);
 
-    // O : OType(T1 T2), a : SType => COMPO(O a) -> SCR(a O)
+    // O : OTYPE(T1 T2), a : STYPE => COMPO(O a) -> SCR(a O)
     DIRACOQ_RULE_DEF(R_COMPO_OS, kernel, term);
 
-    // O : OType(T1 T2), K : KType(T2) => COMPO(O K) -> MULK(O K)
+    // O : OTYPE(T1 T2), K : KTYPE(T2) => COMPO(O K) -> MULK(O K)
     DIRACOQ_RULE_DEF(R_COMPO_OK, kernel, term);
 
-    // O1 : OType(T1 T2), O2 : OType(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
+    // O1 : OTYPE(T1 T2), O2 : OTYPE(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
     DIRACOQ_RULE_DEF(R_COMPO_OO, kernel, term);
 
     // f : T1 -> T2 => COMPO(f a) -> APPLY(f a)
     DIRACOQ_RULE_DEF(R_COMPO_ARROW, kernel, term);
 
-    // f : Forall(x T1) => COMPO(f a) -> APPLY(f a)
+    // f : FORALL(x T1) => COMPO(f a) -> APPLY(f a)
     DIRACOQ_RULE_DEF(R_COMPO_FORALL, kernel, term);
 
 
@@ -228,19 +228,19 @@ namespace diracoq {
     // SCR(a ADD(X1 ... Xn)) -> ADD(SCR(a X1) ... SCR(a Xn))
     DIRACOQ_RULE_DEF(R_SCR2, kernel, term);
 
-    // K : KType(T) => SCR(0 K) -> 0K(T)
+    // K : KTYPE(T) => SCR(0 K) -> 0K(T)
     DIRACOQ_RULE_DEF(R_SCRK0, kernel, term);
 
     // SCR(a 0K(T)) -> 0K(T)
     DIRACOQ_RULE_DEF(R_SCRK1, kernel, term);
 
-    // B : BType(T) => SCR(0 B) -> 0B(T)
+    // B : BTYPE(T) => SCR(0 B) -> 0B(T)
     DIRACOQ_RULE_DEF(R_SCRB0, kernel, term);
 
     // SCR(a 0B(T)) -> 0B(T)
     DIRACOQ_RULE_DEF(R_SCRB1, kernel, term);
 
-    // O : OType(T1 T2) => SCR(0 O) -> 0O(T1 T2)
+    // O : OTYPE(T1 T2) => SCR(0 O) -> 0O(T1 T2)
     DIRACOQ_RULE_DEF(R_SCRO0, kernel, term);
 
     // SCR(a 0O(T1 T2)) -> 0O(T1 T2)
@@ -324,31 +324,31 @@ namespace diracoq {
     // TSR(Y ADD(X1 ... Xn)) -> ADD(TSR(Y X1) ... TSR(Y Xn))
     DIRACOQ_RULE_DEF(R_TSR3, kernel, term);
 
-    // K : KType(T2) => TSR(0K(T1) K) -> 0K(Prod(T1 T2))
+    // K : KTYPE(T2) => TSR(0K(T1) K) -> 0K(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRK0, kernel, term);
 
-    // K : KType(T1) => TSR(K 0K(T2)) -> 0K(Prod(T1 T2))
+    // K : KTYPE(T1) => TSR(K 0K(T2)) -> 0K(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRK1, kernel, term);
 
     // TSR(KET(s) KET(t)) -> KET(PAIR(s t))
     DIRACOQ_RULE_DEF(R_TSRK2, kernel, term);
 
-    // B : BType(T2) => TSR(0B(T1) B) -> 0B(Prod(T1 T2))
+    // B : BTYPE(T2) => TSR(0B(T1) B) -> 0B(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRB0, kernel, term);
 
-    // B : BType(T1) => TSR(B 0B(T2)) -> 0B(Prod(T1 T2))
+    // B : BTYPE(T1) => TSR(B 0B(T2)) -> 0B(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRB1, kernel, term);
 
     // TSR(BRA(s) BRA(t)) -> BRA(PAIR(s t))
     DIRACOQ_RULE_DEF(R_TSRB2, kernel, term);
 
-    // O : OType(T3 T4) => TSR(0O(T1 T2) O) -> 0O(Prod(T1 T3) Prod(T2 T4))
+    // O : OTYPE(T3 T4) => TSR(0O(T1 T2) O) -> 0O(PROD(T1 T3) PROD(T2 T4))
     DIRACOQ_RULE_DEF(R_TSRO0, kernel, term);
 
-    // O : OType(T1 T2) => TSR(O 0O(T3 T4)) -> 0O(Prod(T1 T3) Prod(T2 T4))
+    // O : OTYPE(T1 T2) => TSR(O 0O(T3 T4)) -> 0O(PROD(T1 T3) PROD(T2 T4))
     DIRACOQ_RULE_DEF(R_TSRO1, kernel, term);
 
-    // TSR(1O(T1) 1O(T2)) -> 1O(Prod(T1 T2))
+    // TSR(1O(T1) 1O(T2)) -> 1O(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRO2, kernel, term);
 
     // TSR(OUTER(K1 B1) OUTER(K2 B2)) -> OUTER(TSR(K1 K2) TSR(B1 B2))
@@ -357,7 +357,7 @@ namespace diracoq {
     // MULK(0O(T1 T2) K) -> 0K(T1)
     DIRACOQ_RULE_DEF(R_MULK0, kernel, term);
 
-    // O : OType(T1 T2) => MULK(O 0K(T2)) -> 0K(T1)
+    // O : OTYPE(T1 T2) => MULK(O 0K(T2)) -> 0K(T1)
     DIRACOQ_RULE_DEF(R_MULK1, kernel, term);
 
     // MULK(1O(T) K) -> K
@@ -393,7 +393,7 @@ namespace diracoq {
     // MULB(B 0O(T1 T2)) -> 0B(T2)
     DIRACOQ_RULE_DEF(R_MULB0, kernel, term);
 
-    // O : OType(T1 T2) => MULB(0B(T1) O) -> 0B(T2)
+    // O : OTYPE(T1 T2) => MULB(0B(T1) O) -> 0B(T2)
     DIRACOQ_RULE_DEF(R_MULB1, kernel, term);
 
     // MULB(B 1O(T)) -> B
@@ -444,10 +444,10 @@ namespace diracoq {
     // OUTER(K ADD(B1 ... Bn)) -> ADD(OUTER(K B1) ... OUTER(K Bn))
     DIRACOQ_RULE_DEF(R_OUTER5, kernel, term);
 
-    // O : OType(T2 T3) => MULO(0O(T1 T2) O) -> 0O(T1 T3)
+    // O : OTYPE(T2 T3) => MULO(0O(T1 T2) O) -> 0O(T1 T3)
     DIRACOQ_RULE_DEF(R_MULO0, kernel, term);
 
-    // O : OType(T1 T2) => MULO(O 0O(T2 T3)) -> 0O(T1 T3)
+    // O : OTYPE(T1 T2) => MULO(O 0O(T2 T3)) -> 0O(T1 T3)
     DIRACOQ_RULE_DEF(R_MULO1, kernel, term);
 
     // MULO(1O(T) O) -> O
@@ -483,118 +483,118 @@ namespace diracoq {
     // MULO(TSR(O1 O2) MULO(TSR(O3 O4) O)) -> MULO(TSR(MULO(O1 O3) MULO(O2 O4)) O)
     DIRACOQ_RULE_DEF(R_MULO12, kernel, term);
 
-    // CATPROD(USET(T1) USET(T2)) -> USET(Prod(T1 T2))
+    // CATPROD(USET(T1) USET(T2)) -> USET(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_SET0, kernel, term);
 
-    // CATPROD(USET(T1) USET(T2)) -> USET(Prod(T1 T2))
+    // CATPROD(USET(T1) USET(T2)) -> USET(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_SET0, kernel, term);
 
-    // SUM(s fun(x T 0)) -> 0
+    // SUM(s FUN(x T 0)) -> 0
     DIRACOQ_RULE_DEF(R_SUM_CONST0, kernel, term);
 
-    // SUM(s fun(x T1 0K(T2))) -> 0K(T2)
+    // SUM(s FUN(x T1 0K(T2))) -> 0K(T2)
     DIRACOQ_RULE_DEF(R_SUM_CONST1, kernel, term);
 
-    // SUM(s fun(x T1 0B(T2))) -> 0B(T2)
+    // SUM(s FUN(x T1 0B(T2))) -> 0B(T2)
     DIRACOQ_RULE_DEF(R_SUM_CONST2, kernel, term);
 
-    // SUM(s fun(x T1 0O(T2 T3))) -> 0O(T2 T3)
+    // SUM(s FUN(x T1 0O(T2 T3))) -> 0O(T2 T3)
     DIRACOQ_RULE_DEF(R_SUM_CONST3, kernel, term);
 
-    // 1O(T) -> SUM(USET(T) fun(i T OUTER(KET(i) BRA(i))))
+    // 1O(T) -> SUM(USET(T) FUN(i T OUTER(KET(i) BRA(i))))
     DIRACOQ_RULE_DEF(R_SUM_CONST4, kernel, term);
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... DELTA(i t) ...))) -> SUM(... 1 ...)
+    // i free in t => SUM(USET(T) FUN(i T SUM(... DELTA(i t) ...))) -> SUM(... 1 ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM0, kernel, term); 
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... MULS(a1 ... DELTA(i t) ... an) ...))) -> SUM(... MULS(a1{i/t} ... an{i/t}) ...)
+    // i free in t => SUM(USET(T) FUN(i T SUM(... MULS(a1 ... DELTA(i t) ... an) ...))) -> SUM(... MULS(a1{i/t} ... an{i/t}) ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM1, kernel, term); 
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... SCR(DELTA(i t) A) ...))) -> SUM(... A{i/t} ...)
+    // i free in t => SUM(USET(T) FUN(i T SUM(... SCR(DELTA(i t) A) ...))) -> SUM(... A{i/t} ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM2, kernel, term); 
 
-    // i free in t => SUM(USET(T) fun(i T SUM(... SCR(MULS(a1 ... DELTA(i t) ... an) A) ...))) -> SUM(... SCR(MULS(a1{i/t} ... an{i/t}) A{i/t}) ...)
+    // i free in t => SUM(USET(T) FUN(i T SUM(... SCR(MULS(a1 ... DELTA(i t) ... an) A) ...))) -> SUM(... SCR(MULS(a1{i/t} ... an{i/t}) A{i/t}) ...)
     DIRACOQ_RULE_DEF(R_SUM_ELIM3, kernel, term); 
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... DELTA(i j) ...))))) -> SUM(M fun(j T SUM(... 1 ...)))
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... DELTA(i j) ...))))) -> SUM(M FUN(j T SUM(... 1 ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM4, kernel, term);
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... MULS(a1 ... DELTA(i j) ... an) ...))))) -> SUM(M fun(j T SUM(... MULS(a1{j/i} ... an{j/i}) ...)))
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... MULS(a1 ... DELTA(i j) ... an) ...))))) -> SUM(M FUN(j T SUM(... MULS(a1{j/i} ... an{j/i}) ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM5, kernel, term);
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... SCR(DELTA(i j) A) ...))))) -> SUM(M fun(j T SUM(... A{j/i} ...)))
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(DELTA(i j) A) ...))))) -> SUM(M FUN(j T SUM(... A{j/i} ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM6, kernel, term);
 
-    // SUM(M fun(i T SUM(M fun(j T SUM(... SCR(MULS(a1 ... DELTA(i j) ... an) A) ...))))) -> SUM(M fun(j T SUM(... SCR(MULS(a1{j/i} ... an{j/i}) A{j/i}) ...)))
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(MULS(a1 ... DELTA(i j) ... an) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(MULS(a1{j/i} ... an{j/i}) A{j/i}) ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM7, kernel, term);
 
-    // MULS(b1 ... SUM(M fun(i T a)) ... bn) -> SUM(M fun(i T MULS(b1 ... a ... bn)))
+    // MULS(b1 ... SUM(M FUN(i T a)) ... bn) -> SUM(M FUN(i T MULS(b1 ... a ... bn)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH0, kernel, term);
 
-    // CONJ(SUM(M fun(i T a))) -> SUM(M fun(i T CONJ(a)))
+    // CONJ(SUM(M FUN(i T a))) -> SUM(M FUN(i T CONJ(a)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH1, kernel, term);
 
-    // ADJ(SUM(M fun(i T X))) -> SUM(M fun(i T ADJ(X)))
+    // ADJ(SUM(M FUN(i T X))) -> SUM(M FUN(i T ADJ(X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH2, kernel, term);
 
-    // SCR(a SUM(M fun(i T X))) -> SUM(M fun(i T SCR(a X)))
+    // SCR(a SUM(M FUN(i T X))) -> SUM(M FUN(i T SCR(a X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH3, kernel, term);
 
-    // SCR(SUM(M fun(i T a)) X) -> SUM(M fun(i T SCR(a X)))
+    // SCR(SUM(M FUN(i T a)) X) -> SUM(M FUN(i T SCR(a X)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH4, kernel, term);
 
-    // DOT(SUM(M fun(i T B)) K) -> SUM(M fun(i T DOT(B K)))
+    // DOT(SUM(M FUN(i T B)) K) -> SUM(M FUN(i T DOT(B K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH5, kernel, term);
 
-    // MULK(SUM(M fun(i T O)) K) -> SUM(M fun(i T MULK(O K)))
+    // MULK(SUM(M FUN(i T O)) K) -> SUM(M FUN(i T MULK(O K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH6, kernel, term);
 
-    // MULB(SUM(M fun(i T B)) O) -> SUM(M fun(i T MULB(B O)))
+    // MULB(SUM(M FUN(i T B)) O) -> SUM(M FUN(i T MULB(B O)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH7, kernel, term);
     
-    // OUTER(SUM(M fun(i T K)) B) -> SUM(M fun(i T OUTER(K B)))
+    // OUTER(SUM(M FUN(i T K)) B) -> SUM(M FUN(i T OUTER(K B)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH8, kernel, term);
     
-    // MULO(SUM(M fun(i T O1)) O2) -> SUM(M fun(i T MULO(O1 O2)))
+    // MULO(SUM(M FUN(i T O1)) O2) -> SUM(M FUN(i T MULO(O1 O2)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH9, kernel, term);
 
-    // DOT(B SUM(M fun(i T K))) -> SUM(M fun(i T DOT(B K)))
+    // DOT(B SUM(M FUN(i T K))) -> SUM(M FUN(i T DOT(B K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH10, kernel, term);
 
-    // MULK(O SUM(M fun(i T K))) -> SUM(M fun(i T MULK(O K)))
+    // MULK(O SUM(M FUN(i T K))) -> SUM(M FUN(i T MULK(O K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH11, kernel, term);
 
-    // MULB(B SUM(M fun(i T O))) -> SUM(M fun(i T MULB(B O)))
+    // MULB(B SUM(M FUN(i T O))) -> SUM(M FUN(i T MULB(B O)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH12, kernel, term);
 
-    // OUTER(K SUM(M fun(i T B))) -> SUM(M fun(i T OUTER(K B)))
+    // OUTER(K SUM(M FUN(i T B))) -> SUM(M FUN(i T OUTER(K B)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH13, kernel, term);
 
-    // MULO(O1 SUM(M fun(i T O2)) -> SUM(M fun(i T MULO(O1 O2)))
+    // MULO(O1 SUM(M FUN(i T O2)) -> SUM(M FUN(i T MULO(O1 O2)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH14, kernel, term);
 
-    // TSR(SUM(M fun(i T X)) Y) -> SUM(M fun(i T TSR(X Y)))
+    // TSR(SUM(M FUN(i T X)) Y) -> SUM(M FUN(i T TSR(X Y)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH15, kernel, term);
 
-    // TSR(X SUM(M fun(i T Y))) -> SUM(M fun(i T TSR(X Y)))
+    // TSR(X SUM(M FUN(i T Y))) -> SUM(M FUN(i T TSR(X Y)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH16, kernel, term);
 
-    // SUM(M fun(i T ADDS(a1 ... an))) -> ADDS(SUM(M fun(i T a1)) ... SUM(M fun(i T an)))
+    // SUM(M FUN(i T ADDS(a1 ... an))) -> ADDS(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADDS0, kernel, term);
 
-    // SUM(M fun(i T ADD(a1 ... an))) -> ADD(SUM(M fun(i T a1)) ... SUM(M fun(i T an)))
+    // SUM(M FUN(i T ADD(a1 ... an))) -> ADD(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADD0, kernel, term);
 
     // // R-SUM-ADD1 ~ R-SUM-ADD3 are omitted
 
-    // SUM(USET(Prod(T1 T2)) fun(i Prod(T1 T2) X)) -> SUM(USET(T1) fun(j T1 SUM(USET(T2) fun(k T2 X{i/PAIR(j k)}))))
+    // SUM(USET(PROD(T1 T2)) FUN(i PROD(T1 T2) X)) -> SUM(USET(T1) FUN(j T1 SUM(USET(T2) FUN(k T2 X{i/PAIR(j k)}))))
     DIRACOQ_RULE_DEF(R_SUM_INDEX0, kernel, term);
 
-    // SUM(CATPROD(M1 M2) fun(i Prod(T1 T2) X)) -> SUM(M1 fun(j T1 SUM(M2 fun(k T2 X{i/PAIR(j k)})))
+    // SUM(CATPROD(M1 M2) FUN(i PROD(T1 T2) X)) -> SUM(M1 FUN(j T1 SUM(M2 FUN(k T2 X{i/PAIR(j k)})))
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term);
     
 
-    // M1 < M2 => SUM(M2 fun(i T1 SUM(M1 fun(j T2 X))) -> SUM(M1 fun(j T2 SUM(M2 fun(i T1 X))))
+    // M1 < M2 => SUM(M2 FUN(i T1 SUM(M1 FUN(j T2 X))) -> SUM(M1 FUN(j T2 SUM(M2 FUN(i T1 X))))
     DIRACOQ_RULE_DEF(R_SUM_SWAP, kernel, term);
 
     // The rule list.

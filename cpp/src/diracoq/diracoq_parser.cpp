@@ -77,7 +77,7 @@ namespace diracoq {
         }
 
         // Push the sequence as a single AST node
-        node_stack.push(AST{"Group", std::move(commands)});
+        node_stack.push(AST{"GROUP", std::move(commands)});
     }
 
     // Handle From Term node
@@ -102,7 +102,7 @@ namespace diracoq {
         node_stack.pop();
 
         // Create and push the definition node
-        node_stack.push(AST{"Def", {AST{def_name, {}}, std::move(definition_body)}});
+        node_stack.push(AST{"DEF", {AST{def_name, {}}, std::move(definition_body)}});
     }
 
     // Handle Definition1 node
@@ -117,7 +117,7 @@ namespace diracoq {
 
         // Create and push the definition node
         node_stack.push(
-            AST{"Def", {AST{def_name, {}}, std::move(definition_body), std::move(definition_type)}}
+            AST{"DEF", {AST{def_name, {}}, std::move(definition_body), std::move(definition_type)}}
         );
     }
 
@@ -129,26 +129,26 @@ namespace diracoq {
         node_stack.pop();
 
         // Create and push the assumption node
-        node_stack.push(AST{"Var", {AST{def_name, {}}, std::move(definition_body)}});
+        node_stack.push(AST{"VAR", {AST{def_name, {}}, std::move(definition_body)}});
     }
 
     void DIRACOQBuilder::exitCheck(DIRACOQParser::CheckContext *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Create and push the check node
-        node_stack.push(AST{"Check", {AST{def_name, {}}}});
+        node_stack.push(AST{"CHECK", {AST{def_name, {}}}});
     }
 
     void DIRACOQBuilder::exitShow(DIRACOQParser::ShowContext *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Create and push the show node
-        node_stack.push(AST{"Show", {AST{def_name, {}}}});
+        node_stack.push(AST{"SHOW", {AST{def_name, {}}}});
     }
 
     void DIRACOQBuilder::exitShowAll(DIRACOQParser::ShowAllContext *ctx) {
         // Create and push the show all node
-        node_stack.push(AST{"ShowAll", {}});
+        node_stack.push(AST{"SHOWALL", {}});
     }
 
     void DIRACOQBuilder::exitNormalize(DIRACOQParser::NormalizeContext *ctx) {
@@ -157,7 +157,7 @@ namespace diracoq {
         node_stack.pop();
 
         // Create and push the normalize node
-        node_stack.push(AST{"Normalize", {std::move(normalize_body)}});
+        node_stack.push(AST{"NORMALIZE", {std::move(normalize_body)}});
     }
 
     void DIRACOQBuilder::exitNormalizeTraced(DIRACOQParser::NormalizeTracedContext *ctx) {
@@ -166,7 +166,7 @@ namespace diracoq {
         node_stack.pop();
 
         // Create and push the normalize node
-        node_stack.push(AST{"Normalize", {std::move(normalize_body), AST{"Trace", {}}}});
+        node_stack.push(AST{"NORMALIZE", {std::move(normalize_body), AST{"TRACE", {}}}});
     }
 
     void DIRACOQBuilder::exitCheckEq(DIRACOQParser::CheckEqContext *ctx) {
@@ -177,7 +177,7 @@ namespace diracoq {
         node_stack.pop();
 
         // Create and push the check equality node
-        node_stack.push(AST{"CheckEq", {std::move(lhs), std::move(rhs)}});
+        node_stack.push(AST{"CHECKEQ", {std::move(lhs), std::move(rhs)}});
     }
 
     ///////////////////////////////////////////
@@ -312,8 +312,8 @@ namespace diracoq {
         AST t1 = std::move(node_stack.top());
         node_stack.pop();
         
-        // push Arrow node
-        node_stack.push(AST{"Arrow", {std::move(t1), std::move(t2)}});
+        // push ARROW node
+        node_stack.push(AST{"ARROW", {std::move(t1), std::move(t2)}});
     }
 
         void DIRACOQBuilder::exitSum(DIRACOQParser::SumContext *ctx) {
@@ -336,7 +336,7 @@ namespace diracoq {
         node_stack.push(AST{"SUM", 
             {
                 std::move(set),
-                AST("fun", {AST(name, {}), std::move(type), std::move(body)})
+                AST("FUN", {AST(name, {}), std::move(type), std::move(body)})
             }
         });
     }
@@ -350,7 +350,7 @@ namespace diracoq {
         std::string name = ctx->ID()->getText();
 
         // push Idx node
-        node_stack.push(AST{"idx", {AST(name, {}), std::move(body)}});
+        node_stack.push(AST{"IDX", {AST(name, {}), std::move(body)}});
     }
 
     void DIRACOQBuilder::exitFun(DIRACOQParser::FunContext *ctx) {
@@ -366,7 +366,7 @@ namespace diracoq {
         std::string name = ctx->ID()->getText();
 
         // push Fun node
-        node_stack.push(AST{"fun", {AST(name, {}), std::move(type), std::move(body)}});
+        node_stack.push(AST{"FUN", {AST(name, {}), std::move(type), std::move(body)}});
     }
 
 
@@ -378,8 +378,8 @@ namespace diracoq {
         // get the name
         std::string name = ctx->ID()->getText();
 
-        // push Forall node
-        node_stack.push(AST{"Forall", {AST(name, {}), std::move(body)}});
+        // push FORALL node
+        node_stack.push(AST{"FORALL", {AST(name, {}), std::move(body)}});
     }
 
 
@@ -416,7 +416,7 @@ namespace diracoq {
     void printTokenStream(antlr4::CommonTokenStream &tokens) {
         for (auto token : tokens.getTokens()) {
             std::cout << "Token Text: " << token->getText() << ", "
-                    << "Type: " << token->getType() << ", "
+                    << "TYPE: " << token->getType() << ", "
                     << "Line: " << token->getLine() << ", "
                     << "Char Position: " << token->getCharPositionInLine() << std::endl;
         }
@@ -445,7 +445,7 @@ namespace diracoq {
         // Create the AST builder
         DIRACOQBuilder treeBuilder;
 
-        // Check for syntax errors
+        // CHECK for syntax errors
         if (parser.getNumberOfSyntaxErrors() == 0) {
             antlr4::tree::ParseTreeWalker::DEFAULT.walk(&treeBuilder, tree);
 

@@ -30,12 +30,12 @@ int main(int , const char **) {
     cout << "Diracoq Prover top level built by Yingte Xu." << endl;
 
 
-    prover->process("Def TPB := idx sigma => fun K : KType(sigma) => Sum i : Basis(sigma) in USET(sigma), ((<i| @ K) . <i|).");
-    prover->process("Def TPK := idx sigma => fun B : BType(sigma) => Sum i : Basis(sigma) in USET(sigma), SCR(DOT(B KET(i)) KET(i)).");
+    prover->process("Def TPB := idx sigma => fun K : KTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), ((<i| @ K) . <i|).");
+    prover->process("Def TPK := idx sigma => fun B : BTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), SCR(DOT(B KET(i)) KET(i)).");
 
-    prover->process("Var sigma : Index.");
+    prover->process("Var sigma : INDEX.");
 
-    prover->process("Var K : KType(sigma).");
+    prover->process("Var K : KTYPE(sigma).");
 
     prover->process("Check (TPK @ sigma) @ ((TPB @ sigma) @ K) = K.");
 

@@ -11,12 +11,12 @@ using namespace diracoq;
 TEST(DiracoqReduction, variable_expand_K) {
     Kernel kernel;
     unique_var_id = 0;
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(A)"));
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(A)"));
 
     auto term = kernel.parse("K");
     auto actual_res = variable_expand(kernel, term);
-    auto expected_res = kernel.parse("SUM(USET(A) fun(@0 Basis(A) SCR(DOT(BRA(@0) K) KET(@0))))");
+    auto expected_res = kernel.parse("SUM(USET(A) FUN(@0 BASIS(A) SCR(DOT(BRA(@0) K) KET(@0))))");
 
     EXPECT_EQ(actual_res, expected_res);
 }
@@ -25,12 +25,12 @@ TEST(DiracoqReduction, variable_expand_K) {
 TEST(DiracoqReduction, variable_expand_B) {
     Kernel kernel;
     unique_var_id = 0;
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(A)"));
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(A)"));
 
     auto term = kernel.parse("B");
     auto actual_res = variable_expand(kernel, term);
-    auto expected_res = kernel.parse("SUM(USET(A) fun(@0 Basis(A) SCR(DOT(B KET(@0)) BRA(@0))))");
+    auto expected_res = kernel.parse("SUM(USET(A) FUN(@0 BASIS(A) SCR(DOT(B KET(@0)) BRA(@0))))");
 
     EXPECT_EQ(actual_res, expected_res);
 }
@@ -39,13 +39,13 @@ TEST(DiracoqReduction, variable_expand_B) {
 TEST(DiracoqReduction, variable_expand_O) {
     Kernel kernel;
     unique_var_id = 0;
-    kernel.assum(kernel.register_symbol("A"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(A B)"));
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(A B)"));
 
     auto term = kernel.parse("O");
     auto actual_res = variable_expand(kernel, term);
-    auto expected_res = kernel.parse("SUM(USET(A) fun(@0 Basis(A) SUM(USET(B) fun(@1 Basis(B) SCR(DOT(BRA(@0) MULK(O KET(@1))) OUTER(KET(@0) BRA(@1)))))))");
+    auto expected_res = kernel.parse("SUM(USET(A) FUN(@0 BASIS(A) SUM(USET(B) FUN(@1 BASIS(B) SCR(DOT(BRA(@0) MULK(O KET(@1))) OUTER(KET(@0) BRA(@1)))))))");
 
     EXPECT_EQ(actual_res, expected_res);
 }
@@ -78,141 +78,141 @@ void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expec
 
 TEST(DiracoqReduction, R_COMPO_SS) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
-    kernel.assum(kernel.register_symbol("b"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
     TEST_RULE(kernel, {R_COMPO_SS}, "COMPO(a b)", "MULS(a b)");
 } 
 
 TEST(DiracoqReduction, R_COMPO_SK) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T)"));
     TEST_RULE(kernel, {R_COMPO_SK}, "COMPO(a K)", "SCR(a K)");
 }
 
 TEST(DiracoqReduction, R_COMPO_SB) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T)"));
     TEST_RULE(kernel, {R_COMPO_SB}, "COMPO(a B)", "SCR(a B)");
 }
 
 TEST(DiracoqReduction, R_COMPO_SO) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
     TEST_RULE(kernel, {R_COMPO_SO}, "COMPO(a O)", "SCR(a O)");
 }
 
 TEST(DiracoqReduction, R_COMPO_KS) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T)"));
     TEST_RULE(kernel, {R_COMPO_KS}, "COMPO(K a)", "SCR(a K)");
 }
 
 TEST(DiracoqReduction, R_COMPO_KK) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("K1"), kernel.parse("KType(T1)"));
-    kernel.assum(kernel.register_symbol("K2"), kernel.parse("KType(T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K1"), kernel.parse("KTYPE(T1)"));
+    kernel.assum(kernel.register_symbol("K2"), kernel.parse("KTYPE(T2)"));
     TEST_RULE(kernel, {R_COMPO_KK}, "COMPO(K1 K2)", "TSR(K1 K2)");
 }
 
 TEST(DiracoqReduction, R_COMPO_KB) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T2)"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T1)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T2)"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T1)"));
     TEST_RULE(kernel, {R_COMPO_KB}, "COMPO(K B)", "OUTER(K B)");
 }
 
 TEST(DiracoqReduction, R_COMPO_BS) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     TEST_RULE(kernel, {R_COMPO_BS}, "COMPO(B a)", "SCR(a B)");
 }
 
 
 TEST(DiracoqReduction, R_COMPO_BK) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T)"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T)"));
     TEST_RULE(kernel, {R_COMPO_BK}, "COMPO(B K)", "DOT(B K)");
 }
 
 TEST(DiracoqReduction, R_COMPO_BB) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B1"), kernel.parse("BType(T1)"));
-    kernel.assum(kernel.register_symbol("B2"), kernel.parse("BType(T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B1"), kernel.parse("BTYPE(T1)"));
+    kernel.assum(kernel.register_symbol("B2"), kernel.parse("BTYPE(T2)"));
     TEST_RULE(kernel, {R_COMPO_BB}, "COMPO(B1 B2)", "TSR(B1 B2)");
 }
 
 TEST(DiracoqReduction, R_COMPO_BO) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T1)"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T1)"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
     TEST_RULE(kernel, {R_COMPO_BO}, "COMPO(B O)", "MULB(B O)");
 }
 
 TEST(DiracoqReduction, R_COMPO_OS) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("SType"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     TEST_RULE(kernel, {R_COMPO_OS}, "COMPO(O a)", "SCR(a O)");
 }
 
 TEST(DiracoqReduction, R_COMPO_OK) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T2)"));
     TEST_RULE(kernel, {R_COMPO_OK}, "COMPO(O K)", "MULK(O K)");
 }
 
 TEST(DiracoqReduction, R_COMPO_OO) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O1"), kernel.parse("OType(T1 T2)"));
-    kernel.assum(kernel.register_symbol("O2"), kernel.parse("OType(T2 T3)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O1"), kernel.parse("OTYPE(T1 T2)"));
+    kernel.assum(kernel.register_symbol("O2"), kernel.parse("OTYPE(T2 T3)"));
     TEST_RULE(kernel, {R_COMPO_OO}, "COMPO(O1 O2)", "MULO(O1 O2)");
 }
 
 
 TEST(DiracoqReduction, R_COMPO_ARROW) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Arrow(T1 T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("TYPE"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("TYPE"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("ARROW(T1 T2)"));
     kernel.assum(kernel.register_symbol("a"), kernel.parse("T1"));
-    TEST_RULE(kernel, {R_COMPO_ARROW}, "COMPO(f a)", "apply(f a)");
+    TEST_RULE(kernel, {R_COMPO_ARROW}, "COMPO(f a)", "APPLY(f a)");
 }
 
 TEST(DiracoqReduction, R_COMPO_FORALL) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
-    kernel.assum(kernel.register_symbol("f"), kernel.parse("Forall(sigma T)"));
-    kernel.assum(kernel.register_symbol("a"), kernel.parse("Index"));
-    TEST_RULE(kernel, {R_COMPO_FORALL}, "COMPO(f a)", "apply(f a)");
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("TYPE"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("FORALL(sigma T)"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("INDEX"));
+    TEST_RULE(kernel, {R_COMPO_FORALL}, "COMPO(f a)", "APPLY(f a)");
 }
 
 
@@ -223,10 +223,10 @@ TEST(DiracoqReduction, R_COMPO_FORALL) {
 TEST(DiracoqReduction, R_BETA_ARROW) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("TYPE"));
     kernel.assum(kernel.register_symbol("a"), kernel.parse("T"));
 
-    auto term = kernel.parse("apply(fun(x T x) a)");
+    auto term = kernel.parse("APPLY(FUN(x T x) a)");
 
     auto actual_res = pos_rewrite_repeated(kernel, term, {R_BETA_ARROW});
     auto expected_res = kernel.parse("a");
@@ -238,9 +238,9 @@ TEST(DiracoqReduction, R_BETA_ARROW) {
 TEST(DiracoqReduction, R_BETA_INDEX) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("Index"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("INDEX"));
 
-    auto term = kernel.parse("apply(idx(sigma 0K(sigma)) sigma)");
+    auto term = kernel.parse("APPLY(IDX(sigma 0K(sigma)) sigma)");
 
     auto actual_res = pos_rewrite_repeated(kernel, term, {R_BETA_INDEX});
     auto expected_res = kernel.parse("0K(sigma)");
@@ -252,11 +252,11 @@ TEST(DiracoqReduction, R_BETA_INDEX) {
 TEST(DiracoqReduction, R_DELTA) {
     Kernel kernel;
 
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Type"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("TYPE"));
     kernel.assum(kernel.register_symbol("a"), kernel.parse("T"));
-    kernel.def(kernel.register_symbol("f"), kernel.parse("fun(x T x)"));
+    kernel.def(kernel.register_symbol("f"), kernel.parse("FUN(x T x)"));
 
-    auto term = kernel.parse("apply(f a)");
+    auto term = kernel.parse("APPLY(f a)");
 
     auto actual_res = pos_rewrite_repeated(kernel, term, {R_DELTA, R_BETA_ARROW});
     auto expected_res = kernel.parse("a");
@@ -412,8 +412,8 @@ TEST(DiracoqReduction, R_SCR2) {
 
 TEST(DiracoqReduction, R_SCRK0) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T)"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T)"));
 
     TEST_RULE(kernel, {R_SCRK0}, "SCR(0 K)", "0K(T)");
 }
@@ -424,8 +424,8 @@ TEST(DiracoqReduction, R_SCRK1) {
 
 TEST(DiracoqReduction, R_SCRB0) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T)"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T)"));
 
     TEST_RULE(kernel, {R_SCRB0}, "SCR(0 B)", "0B(T)");
 }
@@ -436,9 +436,9 @@ TEST(DiracoqReduction, R_SCRB1) {
 
 TEST(DiracoqReduction, R_SCRO0) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
 
     TEST_RULE(kernel, {R_SCRO0}, "SCR(0 O)", "0O(T1 T2)");
 }
@@ -554,18 +554,18 @@ TEST(DiracoqReduction, R_TSR3) {
 
 TEST(DiracoqReduction, R_TSRK0) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T2)"));
-    TEST_RULE(kernel, {R_TSRK0}, "TSR(0K(T1) K)", "0K(Prod(T1 T2))");
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T2)"));
+    TEST_RULE(kernel, {R_TSRK0}, "TSR(0K(T1) K)", "0K(PROD(T1 T2))");
 }
 
 TEST(DiracoqReduction, R_TSRK1) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T1)"));
-    TEST_RULE(kernel, {R_TSRK1}, "TSR(K 0K(T2))", "0K(Prod(T1 T2))");
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T1)"));
+    TEST_RULE(kernel, {R_TSRK1}, "TSR(K 0K(T2))", "0K(PROD(T1 T2))");
 }
 
 TEST(DiracoqReduction, R_TSRK2) {
@@ -574,18 +574,18 @@ TEST(DiracoqReduction, R_TSRK2) {
 
 TEST(DiracoqReduction, R_TSRB0) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T2)"));
-    TEST_RULE(kernel, {R_TSRB0}, "TSR(0B(T1) B)", "0B(Prod(T1 T2))");
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T2)"));
+    TEST_RULE(kernel, {R_TSRB0}, "TSR(0B(T1) B)", "0B(PROD(T1 T2))");
 }
 
 TEST(DiracoqReduction, R_TSRB1) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T1)"));
-    TEST_RULE(kernel, {R_TSRB1}, "TSR(B 0B(T2))", "0B(Prod(T1 T2))");
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T1)"));
+    TEST_RULE(kernel, {R_TSRB1}, "TSR(B 0B(T2))", "0B(PROD(T1 T2))");
 }
 
 TEST(DiracoqReduction, R_TSRB2) {
@@ -594,26 +594,26 @@ TEST(DiracoqReduction, R_TSRB2) {
 
 TEST(DiracoqReduction, R_TSRO0) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T4"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T3 T4)"));
-    TEST_RULE(kernel, {R_TSRO0}, "TSR(0O(T1 T2) O)", "0O(Prod(T1 T3) Prod(T2 T4))");
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T4"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T3 T4)"));
+    TEST_RULE(kernel, {R_TSRO0}, "TSR(0O(T1 T2) O)", "0O(PROD(T1 T3) PROD(T2 T4))");
 }
 
 TEST(DiracoqReduction, R_TSRO1) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T4"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
-    TEST_RULE(kernel, {R_TSRO1}, "TSR(O 0O(T3 T4))", "0O(Prod(T1 T3) Prod(T2 T4))");
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T4"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
+    TEST_RULE(kernel, {R_TSRO1}, "TSR(O 0O(T3 T4))", "0O(PROD(T1 T3) PROD(T2 T4))");
 }
 
 TEST(DiracoqReduction, R_TSRO2) {
-    TEST_RULE({R_TSRO2}, "TSR(1O(T1) 1O(T2))", "1O(Prod(T1 T2))");
+    TEST_RULE({R_TSRO2}, "TSR(1O(T1) 1O(T2))", "1O(PROD(T1 T2))");
 }
 
 TEST(DiracoqReduction, R_TSRO3) {
@@ -626,9 +626,9 @@ TEST(DiracoqReduction, R_MULK0) {
 
 TEST(DiracoqReduction, R_MULK1) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
     TEST_RULE(kernel, {R_MULK1}, "MULK(O 0K(T2))", "0K(T1)");
 }
 
@@ -678,9 +678,9 @@ TEST(DiracoqReduction, R_MULB0) {
 
 TEST(DiracoqReduction, R_MULB1) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
     TEST_RULE(kernel, {R_MULB1}, "MULB(0B(T1) O)", "0B(T2)");
 }
 
@@ -726,17 +726,17 @@ TEST(DiracoqReduction, R_MULB11) {
 
 TEST(DiracoqReduction, R_OUTER0) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("B"), kernel.parse("BType(T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE(T2)"));
     TEST_RULE(kernel, {R_OUTER0}, "OUTER(0K(T1) B)", "0O(T1 T2)");
 }
 
 TEST(DiracoqReduction, R_OUTER1) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KType(T1)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE(T1)"));
     TEST_RULE(kernel, {R_OUTER1}, "OUTER(K 0B(T2))", "0O(T1 T2)");
 }
 
@@ -758,19 +758,19 @@ TEST(DiracoqReduction, R_OUTER5) {
 
 TEST(DiracoqReduction, R_MULO0) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T2 T3)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T2 T3)"));
     TEST_RULE(kernel, {R_MULO0}, "MULO(0O(T1 T2) O)", "0O(T1 T3)");
 }
 
 TEST(DiracoqReduction, R_MUL1) {
     Kernel kernel;
-    kernel.assum(kernel.register_symbol("T1"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T2"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("T3"), kernel.parse("Index"));
-    kernel.assum(kernel.register_symbol("O"), kernel.parse("OType(T1 T2)"));
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE(T1 T2)"));
     TEST_RULE(kernel, {R_MULO1}, "MULO(O 0O(T2 T3))", "0O(T1 T3)");
 }
 
@@ -819,52 +819,52 @@ TEST(DiracoqReduction, R_MUL12) {
 }
 
 TEST(DiracoqReduction, R_SET0) {
-    TEST_RULE({R_SET0}, "CATPROD(USET(T1) USET(T2))", "USET(Prod(T1 T2))");
+    TEST_RULE({R_SET0}, "CATPROD(USET(T1) USET(T2))", "USET(PROD(T1 T2))");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST0) {
-    TEST_RULE({R_SUM_CONST0}, "SUM(s fun(x T 0))", "0");
+    TEST_RULE({R_SUM_CONST0}, "SUM(s FUN(x T 0))", "0");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST1) {
-    TEST_RULE({R_SUM_CONST1}, "SUM(s fun(x T 0K(sigma)))", "0K(sigma)");
+    TEST_RULE({R_SUM_CONST1}, "SUM(s FUN(x T 0K(sigma)))", "0K(sigma)");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST2) {
-    TEST_RULE({R_SUM_CONST2}, "SUM(s fun(x T 0B(sigma)))", "0B(sigma)");
+    TEST_RULE({R_SUM_CONST2}, "SUM(s FUN(x T 0B(sigma)))", "0B(sigma)");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST3) {
-    TEST_RULE({R_SUM_CONST3}, "SUM(s fun(x T 0O(sigma tau)))", "0O(sigma tau)");
+    TEST_RULE({R_SUM_CONST3}, "SUM(s FUN(x T 0O(sigma tau)))", "0O(sigma tau)");
 }
 
 TEST(DiracoqReduction, R_SUM_CONST4) {
     unique_var_id = 0;
-    TEST_RULE({R_SUM_CONST4}, "1O(T)", "SUM(USET(T) fun(@0 T OUTER(KET(@0) BRA(@0))))");
+    TEST_RULE({R_SUM_CONST4}, "1O(T)", "SUM(USET(T) FUN(@0 T OUTER(KET(@0) BRA(@0))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM0) {
-    TEST_RULE({R_SUM_ELIM0}, "SUM(USET(T) fun(i T DELTA(i j)))", "1");
+    TEST_RULE({R_SUM_ELIM0}, "SUM(USET(T) FUN(i T DELTA(i j)))", "1");
     TEST_RULE({R_SUM_ELIM0}, 
         R"(
-        SUM(USET(T) fun(i T
-            SUM(USET(T2) fun(k T2 
+        SUM(USET(T) FUN(i T
+            SUM(USET(T2) FUN(k T2 
                 DELTA(i j)
             ))
         ))
         )", 
-        "SUM(USET(T2) fun(k T2 1))");
+        "SUM(USET(T2) FUN(k T2 1))");
     TEST_RULE({R_SUM_ELIM0}, 
         R"(
-        SUM(USET(T) fun(i T
-            SUM(USET(T2) fun(k T2 
+        SUM(USET(T) FUN(i T
+            SUM(USET(T2) FUN(k T2 
                 DELTA(i i)
             ))
         ))
         )", 
         R"(
-        SUM(USET(T) fun(i T
-            SUM(USET(T2) fun(k T2 
+        SUM(USET(T) FUN(i T
+            SUM(USET(T2) FUN(k T2 
                 DELTA(i i)
             ))
         ))
@@ -874,7 +874,7 @@ TEST(DiracoqReduction, R_SUM_ELIM0) {
 TEST(DiracoqReduction, R_SUM_ELIM1) {
     TEST_RULE({R_SUM_ELIM1}, 
         R"(
-            SUM(USET(T) fun(i T 
+            SUM(USET(T) FUN(i T 
                 MULS(
                     DOT(BRA(i) KET(i))
                     DELTA(i j)
@@ -884,8 +884,8 @@ TEST(DiracoqReduction, R_SUM_ELIM1) {
         "MULS(DOT(BRA(j) KET(j)))");
     TEST_RULE({R_SUM_ELIM1},
         R"(
-        SUM(USET(T) fun(i T
-            SUM(USET(T2) fun(k T2 
+        SUM(USET(T) FUN(i T
+            SUM(USET(T2) FUN(k T2 
                 MULS(
                     DELTA(i j)
                     b
@@ -894,13 +894,13 @@ TEST(DiracoqReduction, R_SUM_ELIM1) {
             ))
         ))
         )", 
-        "SUM(USET(T2) fun(k T2 MULS(b c)))");
+        "SUM(USET(T2) FUN(k T2 MULS(b c)))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM2) {
     TEST_RULE({R_SUM_ELIM2}, 
         R"(
-            SUM(USET(T) fun(i T 
+            SUM(USET(T) FUN(i T 
                 SCR(
                     DELTA(i j)
                     A
@@ -910,8 +910,8 @@ TEST(DiracoqReduction, R_SUM_ELIM2) {
         "A");
     TEST_RULE({R_SUM_ELIM2},
         R"(
-        SUM(USET(T) fun(i T
-            SUM(USET(T2) fun(k T2 
+        SUM(USET(T) FUN(i T
+            SUM(USET(T2) FUN(k T2 
                 SCR(
                     DELTA(i j)
                     BRA(i)
@@ -919,13 +919,13 @@ TEST(DiracoqReduction, R_SUM_ELIM2) {
             ))
         ))
         )", 
-        "SUM(USET(T2) fun(k T2 BRA(j)))");
+        "SUM(USET(T2) FUN(k T2 BRA(j)))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM3) {
     TEST_RULE({R_SUM_ELIM3}, 
         R"(
-            SUM(USET(T) fun(i T 
+            SUM(USET(T) FUN(i T 
                 SCR(
                     MULS(
                         DELTA(i j) a b
@@ -937,8 +937,8 @@ TEST(DiracoqReduction, R_SUM_ELIM3) {
         "SCR(MULS(a b) A)");
     TEST_RULE({R_SUM_ELIM3},
         R"(
-        SUM(USET(T) fun(i T
-            SUM(USET(T2) fun(k T2 
+        SUM(USET(T) FUN(i T
+            SUM(USET(T2) FUN(k T2 
                 SCR(
                     MULS(DELTA(i j) a)
                     BRA(i)
@@ -946,62 +946,62 @@ TEST(DiracoqReduction, R_SUM_ELIM3) {
             ))
         ))
         )", 
-        "SUM(USET(T2) fun(k T2 SCR(MULS(a) BRA(j))))");
+        "SUM(USET(T2) FUN(k T2 SCR(MULS(a) BRA(j))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM4) {
     TEST_RULE({R_SUM_ELIM4},
         R"(
-        SUM(M fun(i T
-            SUM(M fun(j T 
+        SUM(M FUN(i T
+            SUM(M FUN(j T 
                 DELTA(i j)
             ))
         ))
         )", 
-        "SUM(M fun(j T 1))");
+        "SUM(M FUN(j T 1))");
 
     TEST_RULE({R_SUM_ELIM4},
         R"(
-        SUM(M fun(i T
-            SUM(M fun(j T 
-                SUM(N fun(k T
+        SUM(M FUN(i T
+            SUM(M FUN(j T 
+                SUM(N FUN(k T
                     DELTA(i j)
                 ))
             ))
         ))
         )", 
-        "SUM(M fun(j T SUM(N fun(k T 1))))");
+        "SUM(M FUN(j T SUM(N FUN(k T 1))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM5) {
     TEST_RULE({R_SUM_ELIM5},
         R"(
-        SUM(M fun(i T
-            SUM(M fun(j T 
+        SUM(M FUN(i T
+            SUM(M FUN(j T 
                 MULS(a DELTA(i j) b)
             ))
         ))
         )", 
-        "SUM(M fun(j T MULS(a b)))");
+        "SUM(M FUN(j T MULS(a b)))");
 
     TEST_RULE({R_SUM_ELIM5},
         R"(
-        SUM(M fun(i T
-            SUM(M fun(j T 
-                SUM(N fun(k T
+        SUM(M FUN(i T
+            SUM(M FUN(j T 
+                SUM(N FUN(k T
                     MULS(a DELTA(i j) b)
                 ))
             ))
         ))
         )", 
-        "SUM(M fun(j T SUM(N fun(k T MULS(a b)))))");
+        "SUM(M FUN(j T SUM(N FUN(k T MULS(a b)))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM6) {
     TEST_RULE({R_SUM_ELIM6},
         R"(
-        SUM(M fun(i T
-            SUM(M fun(j T 
+        SUM(M FUN(i T
+            SUM(M FUN(j T 
                 SCR(
                     DELTA(i j)
                     A
@@ -1009,13 +1009,13 @@ TEST(DiracoqReduction, R_SUM_ELIM6) {
             ))
         ))
         )", 
-        "SUM(M fun(j T A))");
+        "SUM(M FUN(j T A))");
 
     TEST_RULE({R_SUM_ELIM6},
         R"(
-        SUM(M fun(i T
-            SUM(M fun(j T 
-                SUM(N fun(k T
+        SUM(M FUN(i T
+            SUM(M FUN(j T 
+                SUM(N FUN(k T
                     SCR(
                         DELTA(i j)
                         A
@@ -1024,14 +1024,14 @@ TEST(DiracoqReduction, R_SUM_ELIM6) {
             ))
         ))
         )", 
-        "SUM(M fun(j T SUM(N fun(k T A))))");
+        "SUM(M FUN(j T SUM(N FUN(k T A))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM7) {
     TEST_RULE({R_SUM_ELIM7},
         R"(
-        SUM(M fun(i T
-            SUM(M fun(j T 
+        SUM(M FUN(i T
+            SUM(M FUN(j T 
                 SCR(
                     MULS(a DELTA(i j) b)
                     A
@@ -1039,13 +1039,13 @@ TEST(DiracoqReduction, R_SUM_ELIM7) {
             ))
         ))
         )", 
-        "SUM(M fun(j T SCR(MULS(a b) A)))");
+        "SUM(M FUN(j T SCR(MULS(a b) A)))");
 
     TEST_RULE({R_SUM_ELIM7},
         R"(
-        SUM(M fun(i T
-            SUM(M fun(j T 
-                SUM(N fun(k T
+        SUM(M FUN(i T
+            SUM(M FUN(j T 
+                SUM(N FUN(k T
                     SCR(
                         MULS(a DELTA(i j) b)
                         KET(j)
@@ -1055,8 +1055,8 @@ TEST(DiracoqReduction, R_SUM_ELIM7) {
         ))
         )", 
         R"(
-        SUM(M fun(j T 
-            SUM(N fun(k T 
+        SUM(M FUN(j T 
+            SUM(N FUN(k T 
                 SCR(
                     MULS(a b) 
                     KET(i)
@@ -1071,102 +1071,102 @@ TEST(DiracoqReduction, R_SUM_PUSH0) {
         R"(
         MULS(
             a b c
-            SUM(M fun(i T d))
+            SUM(M FUN(i T d))
             d e
         )
         )", 
-        "SUM(M fun(i T MULS(a b c d d e)))");
+        "SUM(M FUN(i T MULS(a b c d d e)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH1) {
-    TEST_RULE({R_SUM_PUSH1}, "CONJ(SUM(M fun(i T a)))", "SUM(M fun(i T CONJ(a)))");
+    TEST_RULE({R_SUM_PUSH1}, "CONJ(SUM(M FUN(i T a)))", "SUM(M FUN(i T CONJ(a)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH2) {
-    TEST_RULE({R_SUM_PUSH2}, "ADJ(SUM(M fun(i T X)))", "SUM(M fun(i T ADJ(X)))");
+    TEST_RULE({R_SUM_PUSH2}, "ADJ(SUM(M FUN(i T X)))", "SUM(M FUN(i T ADJ(X)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH3) {
-    TEST_RULE({R_SUM_PUSH3}, "SCR(a SUM(M fun(i T X)))", "SUM(M fun(i T SCR(a X)))");
+    TEST_RULE({R_SUM_PUSH3}, "SCR(a SUM(M FUN(i T X)))", "SUM(M FUN(i T SCR(a X)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH4) {
-    TEST_RULE({R_SUM_PUSH4}, "SCR(SUM(M fun(i T a)) X)", "SUM(M fun(i T SCR(a X)))");
+    TEST_RULE({R_SUM_PUSH4}, "SCR(SUM(M FUN(i T a)) X)", "SUM(M FUN(i T SCR(a X)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH5) {
-    TEST_RULE({R_SUM_PUSH5}, "DOT(SUM(M fun(i T B)) K)", "SUM(M fun(i T DOT(B K)))");
+    TEST_RULE({R_SUM_PUSH5}, "DOT(SUM(M FUN(i T B)) K)", "SUM(M FUN(i T DOT(B K)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH6) {
-    TEST_RULE({R_SUM_PUSH6}, "MULK(SUM(M fun(i T O)) K)", "SUM(M fun(i T MULK(O K)))");
+    TEST_RULE({R_SUM_PUSH6}, "MULK(SUM(M FUN(i T O)) K)", "SUM(M FUN(i T MULK(O K)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH7) {
-    TEST_RULE({R_SUM_PUSH7}, "MULB(SUM(M fun(i T B)) O)", "SUM(M fun(i T MULB(B O)))");
+    TEST_RULE({R_SUM_PUSH7}, "MULB(SUM(M FUN(i T B)) O)", "SUM(M FUN(i T MULB(B O)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH8) {
-    TEST_RULE({R_SUM_PUSH8}, "OUTER(SUM(M fun(i T K)) B)", "SUM(M fun(i T OUTER(K B)))");
+    TEST_RULE({R_SUM_PUSH8}, "OUTER(SUM(M FUN(i T K)) B)", "SUM(M FUN(i T OUTER(K B)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH9) {
-    TEST_RULE({R_SUM_PUSH9}, "MULO(SUM(M fun(i T O1)) O2)", "SUM(M fun(i T MULO(O1 O2)))");
+    TEST_RULE({R_SUM_PUSH9}, "MULO(SUM(M FUN(i T O1)) O2)", "SUM(M FUN(i T MULO(O1 O2)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH10) {
-    TEST_RULE({R_SUM_PUSH10}, "DOT(B SUM(M fun(i T K)))", "SUM(M fun(i T DOT(B K)))");
+    TEST_RULE({R_SUM_PUSH10}, "DOT(B SUM(M FUN(i T K)))", "SUM(M FUN(i T DOT(B K)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH11) {
-    TEST_RULE({R_SUM_PUSH11}, "MULK(O SUM(M fun(i T K)))", "SUM(M fun(i T MULK(O K)))");
+    TEST_RULE({R_SUM_PUSH11}, "MULK(O SUM(M FUN(i T K)))", "SUM(M FUN(i T MULK(O K)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH12) {
-    TEST_RULE({R_SUM_PUSH12}, "MULB(B SUM(M fun(i T O)))", "SUM(M fun(i T MULB(B O)))");
+    TEST_RULE({R_SUM_PUSH12}, "MULB(B SUM(M FUN(i T O)))", "SUM(M FUN(i T MULB(B O)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH13) {
-    TEST_RULE({R_SUM_PUSH13}, "OUTER(K SUM(M fun(i T B)))", "SUM(M fun(i T OUTER(K B)))");
+    TEST_RULE({R_SUM_PUSH13}, "OUTER(K SUM(M FUN(i T B)))", "SUM(M FUN(i T OUTER(K B)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH14) {
-    TEST_RULE({R_SUM_PUSH14}, "MULO(O1 SUM(M fun(i T O2)))", "SUM(M fun(i T MULO(O1 O2)))");
+    TEST_RULE({R_SUM_PUSH14}, "MULO(O1 SUM(M FUN(i T O2)))", "SUM(M FUN(i T MULO(O1 O2)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH15) {
-    TEST_RULE({R_SUM_PUSH15}, "TSR(SUM(M fun(i T X)) Y)", "SUM(M fun(i T TSR(X Y)))");
+    TEST_RULE({R_SUM_PUSH15}, "TSR(SUM(M FUN(i T X)) Y)", "SUM(M FUN(i T TSR(X Y)))");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH16) {
-    TEST_RULE({R_SUM_PUSH16}, "TSR(X SUM(M fun(i T Y)))", "SUM(M fun(i T TSR(X Y)))");
+    TEST_RULE({R_SUM_PUSH16}, "TSR(X SUM(M FUN(i T Y)))", "SUM(M FUN(i T TSR(X Y)))");
 }
 
 TEST(DiracoqReduction, R_SUM_ADDS0) {
-    TEST_RULE({R_SUM_ADDS0}, "SUM(M fun(i T ADDS(a b)))", "ADDS(SUM(M fun(i T a)) SUM(M fun(i T b)))");
+    TEST_RULE({R_SUM_ADDS0}, "SUM(M FUN(i T ADDS(a b)))", "ADDS(SUM(M FUN(i T a)) SUM(M FUN(i T b)))");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD0) {
-    TEST_RULE({R_SUM_ADD0}, "SUM(M fun(i T ADD(X Y)))", "ADD(SUM(M fun(i T X)) SUM(M fun(i T Y)))");
+    TEST_RULE({R_SUM_ADD0}, "SUM(M FUN(i T ADD(X Y)))", "ADD(SUM(M FUN(i T X)) SUM(M FUN(i T Y)))");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX0) {
     unique_var_id = 0;
-    TEST_RULE({R_SUM_INDEX0}, "SUM(USET(Prod(T1 T2)) fun(i Prod(T1 T2) X))", "SUM(USET(T1) fun(@0 T1 SUM(USET(T2) fun(@1 T2 X))))");
+    TEST_RULE({R_SUM_INDEX0}, "SUM(USET(PROD(T1 T2)) FUN(i PROD(T1 T2) X))", "SUM(USET(T1) FUN(@0 T1 SUM(USET(T2) FUN(@1 T2 X))))");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX1) {
     unique_var_id = 0;
-    TEST_RULE({R_SUM_INDEX1}, "SUM(CATPROD(M1 M2) fun(i Prod(T1 T2) X))", "SUM(M1 fun(@0 T1 SUM(M2 fun(@1 T2 X))))");
+    TEST_RULE({R_SUM_INDEX1}, "SUM(CATPROD(M1 M2) FUN(i PROD(T1 T2) X))", "SUM(M1 FUN(@0 T1 SUM(M2 FUN(@1 T2 X))))");
 }
 
 TEST(DiracoqReduction, R_SUM_SWAP) {
     // We found that this rule will interwine with eta reduction. Therefore we don't consider eta reduction in the system.
     for (int i = 0; i < 50; i++) {
         Kernel kernel;
-        auto term1 = kernel.parse("SUM(M1 fun(x T1 SUM(M2 fun(y T2 apply(x y))))))");
+        auto term1 = kernel.parse("SUM(M1 FUN(x T1 SUM(M2 FUN(y T2 APPLY(x y))))))");
 
-        auto term2 = kernel.parse("SUM(M2 fun(y T2 SUM(M1 fun(x T1 apply(x y))))))");
+        auto term2 = kernel.parse("SUM(M2 FUN(y T2 SUM(M1 FUN(x T1 APPLY(x y))))))");
 
         auto reduce_res1 = pos_rewrite_repeated(kernel, term1, rules);
         auto reduce_res2 = pos_rewrite_repeated(kernel, term2, rules);

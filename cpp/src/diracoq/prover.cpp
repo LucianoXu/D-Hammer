@@ -5,9 +5,9 @@ namespace diracoq {
     using namespace ualg;
 
     bool Prover::process(const astparser::AST& ast) {
-        // Group ( ... )
+        // GROUP ( ... )
         try {
-            if (ast.head == "Group") {
+            if (ast.head == "GROUP") {
                 for (const auto& cmd : ast.children) {
                     if (!process(cmd)){
                         return false;
@@ -15,8 +15,8 @@ namespace diracoq {
                 }
                 return true;
             }
-            else if (ast.head == "Def") {
-                // Def(x t)
+            else if (ast.head == "DEF") {
+                // DEF(x t)
                 if (ast.children.size() == 2) {
                     if (!check_id(ast.children[0])) return false;
 
@@ -32,7 +32,7 @@ namespace diracoq {
 
                     return true;
                 }
-                // Def(x t T)
+                // DEF(x t T)
                 if (ast.children.size() == 3) {
                     if (!check_id(ast.children[0])) return false;
 
@@ -55,7 +55,7 @@ namespace diracoq {
                     return false;
                 }
             }
-            else if (ast.head == "Var")  {
+            else if (ast.head == "VAR")  {
                 // Assum(x T)
                 if (ast.children.size() == 2) {
                     if (!check_id(ast.children[0])) return false;
@@ -79,8 +79,8 @@ namespace diracoq {
                     return false;
                 }
             }
-            else if (ast.head == "Check") {
-                // Check(x)
+            else if (ast.head == "CHECK") {
+                // CHECK(x)
                 if (ast.children.size() == 1) {
                     try {
                         auto term = kernel.parse(ast.children[0]);
@@ -90,7 +90,7 @@ namespace diracoq {
                         // generate Coq code
                         if (gen_coq) {
                             append_coq_code("(* " + ast.to_string() + " *)\n");
-                            append_coq_code("Check " + term_to_coq(kernel, term) + ".\n\n");
+                            append_coq_code("CHECK " + term_to_coq(kernel, term) + ".\n\n");
                         }
                         
                         return true;
@@ -101,8 +101,8 @@ namespace diracoq {
                     }
                 }
             }
-            // Show(x)
-            else if (ast.head == "Show") {
+            // SHOW(x)
+            else if (ast.head == "SHOW") {
                 if (ast.children.size() == 1) {
                     if (!check_id(ast.children[0])) return false;
 
@@ -130,8 +130,8 @@ namespace diracoq {
                     }
                 }
             }
-            // ShowAll
-            else if (ast.head == "ShowAll") {
+            // SHOWALL
+            else if (ast.head == "SHOWALL") {
                 if (ast.children.size() == 0) {
                     output << "Environment:" << endl;
                     output << kernel.env_to_string() << endl;
@@ -150,14 +150,14 @@ namespace diracoq {
                     return false;
                 }
             }
-            else if (ast.head == "Normalize") {
+            else if (ast.head == "NORMALIZE") {
                 if (ast.children.size() > 2) {
-                    output << "Error: Normalize command should have one or two arguments." << endl;
+                    output << "Error: NORMALIZE command should have one or two arguments." << endl;
                     return false;
                 }
                 if (ast.children.size() == 2) {
-                    if (ast.children[1].head != "Trace") {
-                        output << "Error: the second argument of Normalize command should be 'Trace'." << endl;
+                    if (ast.children[1].head != "TRACE") {
+                        output << "Error: the second argument of NORMALIZE command should be 'TRACE'." << endl;
                         return false;
                     }
                 }
@@ -201,9 +201,9 @@ namespace diracoq {
 
                 return true;
             }
-            else if (ast.head == "CheckEq") {
+            else if (ast.head == "CHECKEQ") {
                 if (ast.children.size() != 2) {
-                    output << "Error: CheckEq command should have two arguments." << endl;
+                    output << "Error: CHECKEQ command should have two arguments." << endl;
                     return false;
                 }
                 check_eq(ast.children[0], ast.children[1]);
@@ -230,8 +230,8 @@ namespace diracoq {
         auto typeB = kernel.calc_type(termB);
         if (typeA != typeB) {
             output << "The two terms have different types and are not equal." << endl;
-            output << "[Type A] " << kernel.term_to_string(typeA) << endl;
-            output << "[Type B] " << kernel.term_to_string(typeB) << endl;
+            output << "[TYPE A] " << kernel.term_to_string(typeA) << endl;
+            output << "[TYPE B] " << kernel.term_to_string(typeB) << endl;
             return false;
         }
 
@@ -261,7 +261,7 @@ namespace diracoq {
 
             // generate Coq code
             if (gen_coq) {
-                auto original_code = astparser::AST("CheckEq", {codeA, codeB});
+                auto original_code = astparser::AST("CHECKEQ", {codeA, codeB});
                 append_coq_code("(* " + original_code.to_string() + " *)\n");
                 append_coq_code(checkeq_to_coq(kernel, termA, termB, traceA, traceB, instructA, instructB, final_termA) + "\n\n");
             }

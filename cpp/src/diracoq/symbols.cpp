@@ -18,38 +18,38 @@ namespace diracoq {
         
         vector<string> defined = {
 
-            "Group"
-            "Def",
-            "Var",
-            "Check",
-            "Show",
-            "ShowAll",
-            "Normalize",
-            "CheckEq",
-            "Trace",
+            "GROUP"
+            "DEF",
+            "VAR",
+            "CHECK",
+            "SHOW",
+            "SHOWALL",
+            "NORMALIZE",
+            "CHECKEQ",
+            "TRACE",
 
             "COMPO",
             "ADDG",
             "STAR",
-   
-            "Index",
-            "Type",
 
-            "Prod",
+            "INDEX",
+            "TYPE",
 
-            "Basis",
-            "SType",
-            "KType",
-            "BType",
-            "OType",
-            "Arrow",
-            "Forall",
-            "Set",
+            "PROD",
+
+            "BASIS",
+            "STYPE",
+            "KTYPE",
+            "BTYPE",
+            "OTYPE",
+            "ARROW",
+            "FORALL",
+            "SET",
             
             "PAIR",
-            "fun",
-            "idx",
-            "apply",
+            "FUN",
+            "IDX",
+            "APPLY",
                     
 
             "0",
@@ -96,24 +96,24 @@ namespace diracoq {
     const auto ADDG = diracoq_sig.get_repr("ADDG");
     const auto STAR = diracoq_sig.get_repr("STAR");
 
-    const auto INDEX = diracoq_sig.get_repr("Index");
-    const auto TYPE = diracoq_sig.get_repr("Type");
+    const auto INDEX = diracoq_sig.get_repr("INDEX");
+    const auto TYPE = diracoq_sig.get_repr("TYPE");
 
-    const auto Prod = diracoq_sig.get_repr("Prod");
+    const auto PROD = diracoq_sig.get_repr("PROD");
 
-    const auto BASIS = diracoq_sig.get_repr("Basis");
-    const auto SType = diracoq_sig.get_repr("SType");
-    const auto KType = diracoq_sig.get_repr("KType");
-    const auto BType = diracoq_sig.get_repr("BType");
-    const auto OType = diracoq_sig.get_repr("OType");
-    const auto ARROW = diracoq_sig.get_repr("Arrow");
-    const auto FORALL = diracoq_sig.get_repr("Forall");
-    const auto Set = diracoq_sig.get_repr("Set");
+    const auto BASIS = diracoq_sig.get_repr("BASIS");
+    const auto STYPE = diracoq_sig.get_repr("STYPE");
+    const auto KTYPE = diracoq_sig.get_repr("KTYPE");
+    const auto BTYPE = diracoq_sig.get_repr("BTYPE");
+    const auto OTYPE = diracoq_sig.get_repr("OTYPE");
+    const auto ARROW = diracoq_sig.get_repr("ARROW");
+    const auto FORALL = diracoq_sig.get_repr("FORALL");
+    const auto SET = diracoq_sig.get_repr("SET");
 
     const auto PAIR = diracoq_sig.get_repr("PAIR");
-    const auto FUN = diracoq_sig.get_repr("fun");
-    const auto IDX = diracoq_sig.get_repr("idx");
-    const auto APPLY = diracoq_sig.get_repr("apply");
+    const auto FUN = diracoq_sig.get_repr("FUN");
+    const auto IDX = diracoq_sig.get_repr("IDX");
+    const auto APPLY = diracoq_sig.get_repr("APPLY");
 
     const auto ZERO = diracoq_sig.get_repr("0");
     const auto ONE = diracoq_sig.get_repr("1");
