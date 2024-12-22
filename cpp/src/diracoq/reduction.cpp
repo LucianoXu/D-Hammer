@@ -6,6 +6,15 @@ namespace diracoq {
     using namespace std;
 
 
+    /**
+     * @brief The main function to process the recursive matching. Note that the context will be changed when entering bound variable scopes.
+     * 
+     * @param kernel 
+     * @param term 
+     * @param rules 
+     * @param current_pos 
+     * @return std::optional<PosReplaceRecord> 
+     */
     std::optional<PosReplaceRecord> get_pos_replace(Kernel& kernel, const Term<int>* term, const std::vector<PosRewritingRule>& rules, TermPos& current_pos) {
         auto head = term->get_head();
         auto args = term->get_args();
@@ -25,13 +34,14 @@ namespace diracoq {
             
             current_pos.push_back(2);
             auto replace_res = get_pos_replace(kernel, args[2], rules, current_pos);
-            if (replace_res.has_value()) {
-                return replace_res;
-            }
+
             current_pos.pop_back();
 
             kernel.context_pop();
 
+            if (replace_res.has_value()) {
+                return replace_res;
+            }
             return std::nullopt;
         }
         else if (head == IDX) {
@@ -39,13 +49,13 @@ namespace diracoq {
             
             current_pos.push_back(1);
             auto replace_res = get_pos_replace(kernel, args[1], rules, current_pos);
-            if (replace_res.has_value()) {
-                return replace_res;
-            }
             current_pos.pop_back();
 
             kernel.context_pop();
 
+            if (replace_res.has_value()) {
+                return replace_res;
+            }
             return std::nullopt;
         }
         else {
@@ -194,10 +204,29 @@ namespace diracoq {
         else {
             auto head = term->get_head();
             auto& args = term->get_args();
-
             auto new_args = ListArgs<int>();
-            for (const auto& arg : args) {
-                new_args.push_back(variable_expand(kernel, arg));
+
+            if (head == FUN) {
+                kernel.context_push(args[0]->get_head(), args[1]);
+                
+                new_args.push_back(args[0]);
+                new_args.push_back(args[1]);
+                new_args.push_back(variable_expand(kernel, args[2]));
+
+                kernel.context_pop();
+            }
+            else if (head == IDX) {
+                kernel.context_push(args[0]->get_head(), kernel.get_bank().get_term(INDEX));
+                
+                new_args.push_back(args[0]);
+                new_args.push_back(variable_expand(kernel, args[1]));
+
+                kernel.context_pop();
+            }
+            else {
+                for (const auto& arg : args) {
+                    new_args.push_back(variable_expand(kernel, arg));
+                }
             }
             return bank.get_term(head, std::move(new_args));
         }
@@ -2420,7 +2449,7 @@ namespace diracoq {
                 bank.get_term(FUN, 
                     {
                         new_var,
-                        args_ONEO_T[0],
+                        bank.get_term(BASIS, {args_ONEO_T[0]}),
                         bank.get_term(OUTER, 
                             {
                                 bank.get_term(KET, {new_var}),

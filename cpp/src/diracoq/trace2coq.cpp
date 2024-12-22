@@ -9,7 +9,7 @@ namespace diracoq {
         auto& args = term->get_args();
         // TYPE
         if (head == TYPE) {
-            return "TYPE";
+            return "Type";
         }
         // ARROW
         if (head == ARROW) {
@@ -23,7 +23,7 @@ namespace diracoq {
             if (args.size() != 3) {
                 goto UNEXPECTED_ERROR;
             }
-            return "(FUN(" + kernel.term_to_string(args[0]) + " : " + term_to_coq(kernel, args[1]) + ") => " + term_to_coq(kernel, args[2]) + ")";
+            return "(fun(" + kernel.term_to_string(args[0]) + " : " + term_to_coq(kernel, args[1]) + ") => " + term_to_coq(kernel, args[2]) + ")";
         }
         // APPLY
         if (head == APPLY) {

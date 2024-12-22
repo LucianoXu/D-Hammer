@@ -213,8 +213,7 @@ namespace diracoq {
                         output << pos_replace_record_to_string(kernel, trace[i]) << endl;
                     }
 
-                    // throw the exception
-                    throw e;
+                    throw;
                 }
 
             }

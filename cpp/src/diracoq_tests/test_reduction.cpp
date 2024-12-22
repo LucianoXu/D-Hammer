@@ -840,7 +840,7 @@ TEST(DiracoqReduction, R_SUM_CONST3) {
 
 TEST(DiracoqReduction, R_SUM_CONST4) {
     unique_var_id = 0;
-    TEST_RULE({R_SUM_CONST4}, "1O(T)", "SUM(USET(T) FUN(@0 T OUTER(KET(@0) BRA(@0))))");
+    TEST_RULE({R_SUM_CONST4}, "1O(T)", "SUM(USET(T) FUN(@0 BASIS(T) OUTER(KET(@0) BRA(@0))))");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM0) {
