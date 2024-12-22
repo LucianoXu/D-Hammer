@@ -25,28 +25,17 @@ void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expec
 
 int main(int , const char **) {
     
-    Prover* prover = new Prover{std::cout, false};
+    Prover* prover = std_prover();
 
     cout << "Diracoq Prover top level built by Yingte Xu." << endl;
+    
+    while (true) {
+        string code;
+        cout << "> ";
+        getline(cin, code);
 
-
-    prover->process("Def TPB := idx sigma => fun K : KTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), ((<i| @ K) . <i|).");
-    prover->process("Def TPK := idx sigma => fun B : BTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), SCR(DOT(B KET(i)) KET(i)).");
-
-    prover->process("Var sigma : INDEX.");
-
-    prover->process("Var K : KTYPE(sigma).");
-
-    prover->process("Check (TPK @ sigma) @ ((TPB @ sigma) @ K) = K.");
-
-
-    // while (true) {
-    //     string code;
-    //     cout << "> ";
-    //     getline(cin, code);
-
-    //     prover->process(code);
-    // }
+        prover->process(code);
+    }
 
     delete prover;
 

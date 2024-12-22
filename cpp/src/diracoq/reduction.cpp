@@ -15,7 +15,7 @@ namespace diracoq {
             auto apply_res = rule(kernel, term);
             if (apply_res.has_value()) {
                 // return the discovered replacement
-                return PosReplaceRecord{rule, current_pos, apply_res.value()};
+                return PosReplaceRecord{term, rule, current_pos, apply_res.value()};
             }
         }
         
@@ -64,7 +64,16 @@ namespace diracoq {
 
     std::optional<PosReplaceRecord> get_pos_replace(Kernel& kernel, const Term<int>* term, const std::vector<PosRewritingRule>& rules) {
         TermPos current_pos;
-        return get_pos_replace(kernel, term, rules, current_pos);
+        auto res = get_pos_replace(kernel, term, rules, current_pos);
+
+        // record the whole term in the trace
+        if (res.has_value()) {
+            res->init_term = term;
+            return res;
+        }
+        else{
+            return std::nullopt;
+        }
     }
 
     const Term<int>* pos_rewrite_repeated(Kernel& kernel, const Term<int>* term, const std::vector<PosRewritingRule>& rules, std::vector<PosReplaceRecord>* trace) {

@@ -58,7 +58,7 @@ add_dependencies(ASTPARSER antlr_ast_gen)
 
 
 #################################
-# Tests list
+# Test list
 set(tests
     test_astparser
 )

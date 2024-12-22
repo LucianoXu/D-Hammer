@@ -169,37 +169,54 @@ namespace diracoq {
                 // calculate the normalized term
                 vector<PosReplaceRecord> trace;
 
-                auto temp = pos_rewrite_repeated(kernel, term, all_rules, &trace);
+                try {
+                    auto temp = pos_rewrite_repeated(kernel, term, all_rules, &trace);
 
-                // expand on variables
-                auto expanded_term = variable_expand(kernel, temp);
-                temp = pos_rewrite_repeated(kernel, expanded_term, rules, &trace);
+                    // expand on variables
+                    auto expanded_term = variable_expand(kernel, temp);
+                    temp = pos_rewrite_repeated(kernel, expanded_term, rules, &trace);
 
-                auto normalized_term = deBruijn_normalize(kernel, temp);
-                auto [sorted_term, instruct] = sort_CInstruct(normalized_term, kernel.get_bank(), c_symbols);
+                    auto normalized_term = deBruijn_normalize(kernel, temp);
+                    auto [sorted_term, instruct] = sort_CInstruct(normalized_term, kernel.get_bank(), c_symbols);
 
-                auto final_term = normalized_term;
+                    auto final_term = normalized_term;
 
-                // if output trace
-                if (ast.children.size() == 2) {
+                    // if output trace
+                    if (ast.children.size() == 2) {
+                        output << "Trace:" << endl;
+                        for (int i = 0; i < trace.size(); ++i) {
+                            output << "Step " + to_string(i) << endl;
+                            output << kernel.term_to_string(trace[i].init_term) << endl;
+                            output << pos_replace_record_to_string(kernel, trace[i]) << endl;
+                        }
+                    }
+                    
+                    // Output the normalized term
+                    output << kernel.term_to_string(final_term) + " : " + kernel.term_to_string(type)  << endl;
+
+
+                    // generate Coq code
+                    if (gen_coq) {
+                        append_coq_code("(* " + ast.to_string() + " *)\n");
+                        append_coq_code(normalize_to_coq(kernel, term, final_term, trace, instruct) + "\n\n");
+                    }
+
+                    return true;
+
+                }
+                catch (const exception& e) {
+                    // output the trace first
                     output << "Trace:" << endl;
                     for (int i = 0; i < trace.size(); ++i) {
                         output << "Step " + to_string(i) << endl;
+                        output << kernel.term_to_string(trace[i].init_term) << endl;
                         output << pos_replace_record_to_string(kernel, trace[i]) << endl;
                     }
-                }
-                
-                // Output the normalized term
-                output << kernel.term_to_string(final_term) + " : " + kernel.term_to_string(type)  << endl;
 
-
-                // generate Coq code
-                if (gen_coq) {
-                    append_coq_code("(* " + ast.to_string() + " *)\n");
-                    append_coq_code(normalize_to_coq(kernel, term, final_term, trace, instruct) + "\n\n");
+                    // throw the exception
+                    throw e;
                 }
 
-                return true;
             }
             else if (ast.head == "CHECKEQ") {
                 if (ast.children.size() != 2) {
@@ -274,6 +291,18 @@ namespace diracoq {
             output << "[Normalized Term B] " << kernel.term_to_string(final_termB) << " : " << kernel.term_to_string(typeB) << endl;
             return false;
         }
+    }
+
+    Prover* std_prover() {
+        auto res = new Prover{std::cout, false};
+
+        res->process(R"(
+        Def TPB := idx sigma => fun K : KTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), ((<i| @ K) . <i|).
+        Def TPK := idx sigma => fun B : BTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), SCR(DOT(B KET(i)) KET(i)).
+        Def TPO := idx sigma => idx tau => fun O : OTYPE(sigma tau) => Sum i : BASIS(sigma) in USET(sigma), Sum j : BASIS(tau) in USET(tau), (<i| @ (O @ |j>)).(|j> @ <i|).
+        )");
+
+        return res;
     }
 
 } // namespace diracoq

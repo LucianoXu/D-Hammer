@@ -11,6 +11,7 @@ namespace diracoq {
 
     // The struct for the rewriting trace. It records which rule is applied, at which position, and the new replacement.
     struct PosReplaceRecord {
+        const ualg::Term<int>* init_term;
         PosRewritingRule rule;
         ualg::TermPos pos;
         const ualg::Term<int>* replacement;

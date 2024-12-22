@@ -49,6 +49,9 @@ namespace diracoq {
     public:
         Kernel() : sig(diracoq_sig) {}
 
+        // copy constructor
+        Kernel(const Kernel& other) : bank(other.bank), sig(other.sig), env(other.env), ctx(other.ctx) {}
+
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);
         }

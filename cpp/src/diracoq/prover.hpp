@@ -48,6 +48,10 @@ namespace diracoq {
 
         }
 
+        // copy constructor (coq_file is not copied)
+        Prover(const Prover& other) : kernel(other.kernel), output(other.output), coq_code(other.coq_code), gen_coq(other.gen_coq) {}
+
+
         ~Prover() {
             if (coq_file.is_open()) {
                 coq_file.close();
@@ -103,5 +107,12 @@ namespace diracoq {
          */
         bool check_eq(const astparser::AST& codeA, const astparser::AST& codeB);
     };
+
+    /**
+     * @brief Return the prover with standard definitions.
+     * 
+     * @return Prover 
+     */
+    Prover* std_prover();
 
 } // namespace diracoq
