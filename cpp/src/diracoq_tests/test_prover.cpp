@@ -23,7 +23,7 @@ TEST(DiracoqProver, Normalize) {
         Var a : STYPE.
         Var b : STYPE.
         Var c : STYPE.
-        NORMALIZE MULS(a ADDS(b c) b 1 ADDS(a b 0)).
+        Normalize a * (b + c) * b * 1 * (a + b + 0).
         )")
     );
 }
@@ -35,7 +35,7 @@ TEST(DiracoqProver, CheckEq1) {
         Var a : STYPE. 
         Var b : STYPE. 
         Var c : STYPE.
-        CHECK MULS(a ADDS(b c) b 1 ADDS(a b 0)) = MULS(ADDS(b c) MULS(a b 1) ADDS(a b)).
+        CheckEq a * (b + c) * b * 1 * (a + b + 0) with (b + c) * (a * b * 1) * (a + b).
         )")
     );
 }
@@ -47,7 +47,7 @@ TEST(DiracoqProver, CheckEq2) {
         Var b : STYPE. 
         Var T : INDEX. 
         Var K : KTYPE(T).
-        CHECK COMPO(COMPO(a b) K) = SCR(MULS(a b) K).
+        CheckEq a b K with (a*b).K.
         )")
     );
 }

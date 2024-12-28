@@ -297,13 +297,13 @@ namespace diracoq {
 
         res->process(R"(
         (* Trace *)
-        Def Tr := idx T => fun O : OTYPE(T T) => Sum i : BASIS(T) in USET(T), <i| @ O @ |i>.
+        Def Tr := idx T => fun O : OTYPE(T, T) => Sum i : BASIS(T) in USET(T), <i| O |i>.
 
-        Def TPB := idx sigma => fun K : KTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), ((<i| @ K) . <i|).
+        Def TPB := idx sigma => fun K : KTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), ((<i| K) . <i|).
 
-        Def TPK := idx sigma => fun B : BTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), SCR(DOT(B KET(i)) KET(i)).
+        Def TPK := idx sigma => fun B : BTYPE(sigma) => Sum i : BASIS(sigma) in USET(sigma), ((B |i>) . |i>).
 
-        Def TPO := idx sigma => idx tau => fun O : OTYPE(sigma tau) => Sum i : BASIS(sigma) in USET(sigma), Sum j : BASIS(tau) in USET(tau), (<i| @ (O @ |j>)).(|j> @ <i|).
+        Def TPO := idx sigma => idx tau => fun O : OTYPE(sigma, tau) => Sum i : BASIS(sigma) in USET(sigma), Sum j : BASIS(tau) in USET(tau), (<i| O |j>).(|j> <i|).
         )");
 
         return res;

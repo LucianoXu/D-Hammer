@@ -63,7 +63,7 @@ TEST(DiracoqParser, NormalizeTraced) {
 }
 
 TEST(DiracoqParser, CheckEq) {
-    auto actual_res = parse("CheckEq a b.", true);
+    auto actual_res = parse("CheckEq a with b.", true);
     auto expected_res = astparser::parse("GROUP(CHECKEQ(a b))");
     cout << actual_res->to_string() << endl;
     cout << expected_res->to_string() << endl;
@@ -189,7 +189,7 @@ TEST(DiracoqParser, Paren) {
 }
 
 TEST(DiracoqParser, Application) {
-    auto actual_res = parse("A(B C)");
+    auto actual_res = parse("A(B, C)");
     auto expected_res = astparser::parse("A(B C)");
     EXPECT_EQ(actual_res, expected_res);
 }
