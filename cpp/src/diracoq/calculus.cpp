@@ -228,6 +228,23 @@ namespace diracoq {
                 return bank.get_term(INDEX);
             }
 
+            // STAR(O(a b) O(c d)) : O(PROD(a b) PROD(c d))
+            if (typeFirst->get_head() == OTYPE) {
+                arg_number_check(args, 2);
+                auto typeSecond = calc_type(args[1]);
+                if (typeSecond->get_head() != OTYPE) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[1]) + " is not an operator.");
+                }
+                return bank.get_term(OTYPE, 
+                    {
+                        bank.get_term(PROD, 
+                        {typeFirst->get_args()[0], typeSecond->get_args()[0]}),
+                        bank.get_term(PROD, 
+                        {typeFirst->get_args()[1], typeSecond->get_args()[1]})
+                    }
+                );
+            }
+
             // STAR(SET(a) SET(b)) : SET(PROD(a b))
             if (typeFirst->get_head() == SET) {
                 arg_number_check(args, 2);

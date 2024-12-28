@@ -1,6 +1,9 @@
 grammar DIRACOQ;
 
 
+// Lexer rule for multi-line comments
+COMMENT: '(*' .*? '*)' -> skip;
+
 expr:   (cmd)+                        # CmdSeq
     |   term                       # FromTerm
     ;
@@ -9,12 +12,12 @@ expr:   (cmd)+                        # CmdSeq
 cmd :   'Def' ID ':=' expr '.'         # Definition0
     |   'Def' ID ':=' expr ':' expr '.'   # Definition1
     |   'Var' ID ':' expr '.'         # Assum
-    |   'Check' ID '.'               # Check
+    |   'Check' term '.'               # Check
     |   'Show' ID '.'               # Show
     |   'ShowAll' '.'               # ShowAll
     |   'Normalize' expr '.'         # Normalize
     |   'Normalize' expr 'with' 'trace' '.'         # NormalizeTraced
-    |   'Check' expr '=' expr '.'      # CheckEq
+    |   'CheckEq' expr expr '.'      # CheckEq
     ;
 
 term:   ID '(' expr (expr)* ')'                # Application

@@ -133,10 +133,12 @@ namespace diracoq {
     }
 
     void DIRACOQBuilder::exitCheck(DIRACOQParser::CheckContext *ctx) {
-        std::string def_name = ctx->ID()->getText();
+        // Pop the checked term
+        AST check_body = std::move(node_stack.top());
+        node_stack.pop();
 
         // Create and push the check node
-        node_stack.push(AST{"CHECK", {AST{def_name, {}}}});
+        node_stack.push(AST{"CHECK", {std::move(check_body)}});
     }
 
     void DIRACOQBuilder::exitShow(DIRACOQParser::ShowContext *ctx) {

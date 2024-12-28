@@ -215,7 +215,52 @@ TEST(DiracoqReduction, R_COMPO_FORALL) {
     TEST_RULE(kernel, {R_COMPO_FORALL}, "COMPO(f a)", "APPLY(f a)");
 }
 
+TEST(DiracoqReduction, R_STAR_PROD) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    TEST_RULE(kernel, {R_STAR_PROD}, "STAR(T T)", "PROD(T T)");
+}
 
+TEST(DiracoqReduction, R_STAR_MULS) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
+    TEST_RULE(kernel, {R_STAR_MULS}, "STAR(a b a)", "MULS(a b a)");
+}
+
+TEST(DiracoqReduction, R_STAR_TSRO) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O1"), kernel.parse("OTYPE(T1 T2)"));
+    kernel.assum(kernel.register_symbol("O2"), kernel.parse("OTYPE(T2 T3)"));
+    TEST_RULE(kernel, {R_STAR_TSRO}, "STAR(O1 O2)", "TSR(O1 O2)");
+}
+
+TEST(DiracoqReduction, R_STAR_CATPROD) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("S1"), kernel.parse("SET(T1)"));
+    kernel.assum(kernel.register_symbol("S2"), kernel.parse("SET(T2)"));
+    TEST_RULE(kernel, {R_STAR_CATPROD}, "STAR(S1 S2)", "CATPROD(S1 S2)");
+}
+
+TEST(DiracoqReduction, R_ADDG_ADDS) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
+    TEST_RULE(kernel, {R_ADDG_ADDS}, "ADDG(a b)", "ADDS(a b)");
+}
+
+TEST(DiracoqReduction, R_ADDG_ADD) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K1"), kernel.parse("KTYPE(T1)"));
+    kernel.assum(kernel.register_symbol("K2"), kernel.parse("KTYPE(T1)"));
+    TEST_RULE(kernel, {R_ADDG_ADD}, "ADDG(K1 K2)", "ADD(K1 K2)");
+}
 
 /////////////////////////////////////////////
 // main rules unit test

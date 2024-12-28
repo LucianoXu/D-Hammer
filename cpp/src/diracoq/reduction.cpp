@@ -421,13 +421,74 @@ namespace diracoq {
         return kernel.get_bank().get_term(APPLY, args);
     }
 
+    // T1 : INDEX, T2 : INDEX => STAR(T1 T2) -> PROD(T1 T2)
+    DIRACOQ_RULE_DEF(R_STAR_PROD, kernel, term) {
+        MATCH_HEAD(term, STAR, args)
+        auto typeA = kernel.calc_type(args[0]);
+
+        if (!(typeA->get_head() == INDEX)) return std::nullopt;
+
+        return kernel.get_bank().get_term(PROD, args);
+    }
+
+    // an : SType => STAR(a1 ... an) -> MULS(a1 ... an)
+    DIRACOQ_RULE_DEF(R_STAR_MULS, kernel, term) {
+        MATCH_HEAD(term, STAR, args)
+        auto type1 = kernel.calc_type(args[0]);
+
+        if (!(type1->get_head() == STYPE)) return std::nullopt;
+
+        return kernel.get_bank().get_term(MULS, args);
+    }
+
+    // O1 : OType(T1 T2), O2 : OType(T3 T3) => STAR(O1 O2) -> TSR(O1 O2)
+    DIRACOQ_RULE_DEF(R_STAR_TSRO, kernel, term) {
+        MATCH_HEAD(term, STAR, args)
+        auto typeA = kernel.calc_type(args[0]);
+        
+        if (!(typeA->get_head() == OTYPE)) return std::nullopt;
+
+        return kernel.get_bank().get_term(TSR, args);
+    }
+
+    // S1 : SET(T1), S2 : SET(T2) => STAR(S1 S2) -> CATPROD(S1 S2)
+    DIRACOQ_RULE_DEF(R_STAR_CATPROD, kernel, term) {
+        MATCH_HEAD(term, STAR, args)
+        auto typeA = kernel.calc_type(args[0]);
+        
+        if (!(typeA->get_head() == SET)) return std::nullopt;
+
+        return kernel.get_bank().get_term(CATPROD, args);
+    }
+
+    // an : STYPE => ADDG(a1 ... an) -> ADDS(a1 ... an)
+    DIRACOQ_RULE_DEF(R_ADDG_ADDS, kernel, term) {
+        MATCH_HEAD(term, ADDG, args)
+        auto type1 = kernel.calc_type(args[0]);
+
+        if (!(type1->get_head() == STYPE)) return std::nullopt;
+
+        return kernel.get_bank().get_term(ADDS, args);
+    }
+
+    // an : KTYPE(T), BTYPE(T) or OTYPE(T1 T2) => ADDG(a1 ... an) -> ADD(a1 ... an)
+    DIRACOQ_RULE_DEF(R_ADDG_ADD, kernel, term) {
+        MATCH_HEAD(term, ADDG, args)
+        auto type1 = kernel.calc_type(args[0]);
+
+        if (!(type1->get_head() == KTYPE or type1->get_head() == BTYPE or type1->get_head() == OTYPE)) return std::nullopt;
+
+        return kernel.get_bank().get_term(ADD, args);
+    }
 
     const std::vector<PosRewritingRule> pre_proc_rules = {
         R_COMPO_SS, R_COMPO_SK, R_COMPO_SB, R_COMPO_SO,
         R_COMPO_KS, R_COMPO_KK, R_COMPO_KB,
         R_COMPO_BS, R_COMPO_BK, R_COMPO_BB, R_COMPO_BO,
         R_COMPO_OS, R_COMPO_OK,             R_COMPO_OO,
-        R_COMPO_ARROW, R_COMPO_FORALL
+        R_COMPO_ARROW, R_COMPO_FORALL,
+        R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD,
+        R_ADDG_ADDS, R_ADDG_ADD
     };
 
     //////////////////////////////////////////////////////////////

@@ -113,6 +113,24 @@ namespace diracoq {
     // f : FORALL(x T1) => COMPO(f a) -> APPLY(f a)
     DIRACOQ_RULE_DEF(R_COMPO_FORALL, kernel, term);
 
+    // T1 : INDEX, T2 : INDEX => STAR(T1 T2) -> PROD(T1 T2)
+    DIRACOQ_RULE_DEF(R_STAR_PROD, kernel, term);
+
+    // an : SType => STAR(a1 ... an) -> MULS(a1 ... an)
+    DIRACOQ_RULE_DEF(R_STAR_MULS, kernel, term);
+
+    // O1 : OType(T1 T2), O2 : OType(T3 T3) => STAR(O1 O2) -> TSR(O1 O2)
+    DIRACOQ_RULE_DEF(R_STAR_TSRO, kernel, term);
+
+    // S1 : SET(T1), S2 : SET(T2) => STAR(S1 S2) -> CATPROD(S1 S2)
+    DIRACOQ_RULE_DEF(R_STAR_CATPROD, kernel, term);
+
+    // an : STYPE => ADDG(a1 ... an) -> ADDS(a1 ... an)
+    DIRACOQ_RULE_DEF(R_ADDG_ADDS, kernel, term);
+
+    // an : KTYPE(T), BTYPE(T) or OTYPE(T1 T2) => ADDG(a1 ... an) -> ADD(a1 ... an)
+    DIRACOQ_RULE_DEF(R_ADDG_ADD, kernel, term);
+
 
     // The rules for pre-processing
     extern const std::vector<PosRewritingRule> pre_proc_rules;
