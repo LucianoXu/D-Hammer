@@ -20,7 +20,7 @@ cmd :   'Def' ID ':=' expr '.'         # Definition0
     |   'CheckEq' expr 'with' expr '.'      # CheckEq
     ;
 
-term:   ID '(' expr (',' expr)* ')'                # Application
+term:   ID '[' expr (',' expr)* ']'                # Application
 
     |   '<' term '|'                           # Bra
     |   '|' term '>'                           # Ket

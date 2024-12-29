@@ -9,6 +9,7 @@ namespace examples {
         std::string preproc_code;
         std::string termA;
         std::string termB;
+        bool expected_res = true;
     };
 
     extern std::vector<EqExample> eq_examples;

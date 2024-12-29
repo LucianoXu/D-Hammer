@@ -46,7 +46,7 @@ TEST(DiracoqProver, CheckEq2) {
         Var a : STYPE. 
         Var b : STYPE. 
         Var T : INDEX. 
-        Var K : KTYPE(T).
+        Var K : KTYPE[T].
         CheckEq a b K with (a*b).K.
         )")
     );

@@ -88,7 +88,7 @@ TEST(DiracoqParser, Fun) {
 }
 
 TEST(DiracoqParser, Idx) {
-    auto actual_res = parse("idx sigma => 0K(sigma)");
+    auto actual_res = parse("idx sigma => 0K[sigma]");
     auto expected_res = astparser::parse("IDX(sigma 0K(sigma))");
     cout << actual_res->to_string() << endl;
     cout << expected_res->to_string() << endl;
@@ -189,7 +189,7 @@ TEST(DiracoqParser, Paren) {
 }
 
 TEST(DiracoqParser, Application) {
-    auto actual_res = parse("A(B, C)");
+    auto actual_res = parse("A[B, C]");
     auto expected_res = astparser::parse("A(B C)");
     EXPECT_EQ(actual_res, expected_res);
 }

@@ -133,15 +133,27 @@ namespace diracoq {
          */
         const ualg::Term<int>* calc_type(const ualg::Term<int>* term);
 
+
         /**
-         * @brief Check if the term is well-formed and well-typed.
+         * @brief Check whether two terms are equivalent under the reduction rules and alpha equivalence.
+         * 
+         * @param termA 
+         * @param termB 
+         * @return true 
+         * @return false 
+         */
+        bool is_judgemental_eq(const ualg::Term<int>* termA, const ualg::Term<int>* termB);
+
+
+        /**
+         * @brief Check if the term is well-formed and well-typed. Depending on is_judgemental_eq.
          * 
          * @param term 
          * @return true 
          * @return false 
          */
         bool type_check(const ualg::Term<int>* term, const ualg::Term<int>* type) {
-            return is_eq(sig, bank, calc_type(term), type);
+            return is_judgemental_eq(calc_type(term), type);
         }
 
         /**

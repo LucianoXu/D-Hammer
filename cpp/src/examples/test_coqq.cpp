@@ -14,7 +14,8 @@ protected:
     void RunTest(const EqExample& example) {
         auto prover = std_prover();
         prover->process(example.preproc_code);
-        EXPECT_TRUE(prover->check_eq(example.termA, example.termB));
+        cout << "TEST NAME: " << example.name << endl;
+        EXPECT_EQ(prover->check_eq(example.termA, example.termB), example.expected_res);
         delete prover;
     }
 };
