@@ -190,12 +190,11 @@ namespace ualg {
             str = data_to_string(this->head);
         }
         if (args.size() > 0) {
-            str += "(";
-            for (const auto& arg : this->args) {
-                str += arg->to_string(head_naming) + " ";
+            str += "[" + args[0]->to_string(head_naming);
+            for (int i = 1; i < args.size(); i++) {
+                str += ", " + args[i]->to_string(head_naming);
             }
-            str.pop_back();
-            str += ")";
+            str += "]";
         }
         return str;
     }

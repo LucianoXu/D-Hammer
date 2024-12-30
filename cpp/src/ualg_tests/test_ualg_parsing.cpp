@@ -23,7 +23,7 @@ TEST(TermParsing, Basics2) {
         {{"f", "f"}, {"g", "g"}}
     };
 
-    auto actual_res = parse(sig, bank, "f(g g)");
+    auto actual_res = parse(sig, bank, "f[g, g]");
     auto expected_res = bank.get_term("f", {bank.get_term("g"), bank.get_term("g")});
 
     EXPECT_EQ(actual_res, expected_res);
@@ -35,7 +35,7 @@ TEST(TermParsing, AutomaticRegistration) {
         {}
     };
 
-    auto actual_res = parse(sig, bank, "f(g g)");
+    auto actual_res = parse(sig, bank, "f[g, g]");
     auto expected_res = bank.get_term("f", {bank.get_term("g"), bank.get_term("g")});
 
     EXPECT_EQ(actual_res, expected_res);

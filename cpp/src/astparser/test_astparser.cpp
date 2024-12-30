@@ -9,7 +9,7 @@ using namespace astparser;
 TEST(TestAstParser, Basics) {
 
     auto expected = AST{"&", {AST{"t", {}}, AST{"s", {}}}};
-    auto actual = parse("&(t s)");
+    auto actual = parse("&[t, s]");
 
     EXPECT_EQ(expected, actual);
 }
