@@ -32,11 +32,11 @@ namespace diracoq {
         void exitKet(DIRACOQParser::KetContext *ctx) override;
         void exitDelta(DIRACOQParser::DeltaContext *ctx) override;
         void exitPair(DIRACOQParser::PairContext *ctx) override;
-        void exitScr(DIRACOQParser::ScrContext *ctx) override;
         void exitAdj(DIRACOQParser::AdjContext *ctx) override;
         void exitConj(DIRACOQParser::ConjContext *ctx) override;
-        void exitStar(DIRACOQParser::StarContext *ctx) override;
+        void exitScr(DIRACOQParser::ScrContext *ctx) override;
         void exitCompo(DIRACOQParser::CompoContext *ctx) override;
+        void exitStar(DIRACOQParser::StarContext *ctx) override;
         void exitAdd(DIRACOQParser::AddContext *ctx) override;
         void exitArrow(DIRACOQParser::ArrowContext *ctx) override;
         void exitSum(DIRACOQParser::SumContext *ctx) override;
@@ -231,18 +231,6 @@ namespace diracoq {
         node_stack.push(AST{"PAIR", {std::move(e1), std::move(e2)}});
     }
 
-    void DIRACOQBuilder::exitScr(DIRACOQParser::ScrContext *ctx) {
-        // get dirac term
-        AST dirac_term = std::move(node_stack.top());
-        node_stack.pop();
-
-        // get scalar term
-        AST scalar_term = std::move(node_stack.top());
-        node_stack.pop();
-
-        // push Scr node
-        node_stack.push(AST{"SCR", {std::move(scalar_term), std::move(dirac_term)}});
-    }
 
     void DIRACOQBuilder::exitAdj(DIRACOQParser::AdjContext *ctx) {
         // get term
@@ -262,18 +250,17 @@ namespace diracoq {
         node_stack.push(AST{"CONJ", {std::move(term)}});
     }
 
-    // STAR(a b)
-    void DIRACOQBuilder::exitStar(DIRACOQParser::StarContext *ctx) {
-        // get b
-        AST b = std::move(node_stack.top());
+    void DIRACOQBuilder::exitScr(DIRACOQParser::ScrContext *ctx) {
+        // get dirac term
+        AST dirac_term = std::move(node_stack.top());
         node_stack.pop();
 
-        // get a
-        AST a = std::move(node_stack.top());
+        // get scalar term
+        AST scalar_term = std::move(node_stack.top());
         node_stack.pop();
-        
-        // push Star node
-        node_stack.push(AST{"STAR", {std::move(a), std::move(b)}});
+
+        // push Scr node
+        node_stack.push(AST{"SCR", {std::move(scalar_term), std::move(dirac_term)}});
     }
 
     // COMPO(a b)
@@ -288,6 +275,20 @@ namespace diracoq {
         
         // push Compo node
         node_stack.push(AST{"COMPO", {std::move(a), std::move(b)}});
+    }
+
+    // STAR(a b)
+    void DIRACOQBuilder::exitStar(DIRACOQParser::StarContext *ctx) {
+        // get b
+        AST b = std::move(node_stack.top());
+        node_stack.pop();
+
+        // get a
+        AST a = std::move(node_stack.top());
+        node_stack.pop();
+        
+        // push Star node
+        node_stack.push(AST{"STAR", {std::move(a), std::move(b)}});
     }
 
     // ADDG(a b)

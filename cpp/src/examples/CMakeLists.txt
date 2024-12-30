@@ -26,7 +26,7 @@ target_include_directories(
 # Test list
 
 set(tests
-    test_coqq
+    test_examples
 )
 
 foreach(test ${tests})

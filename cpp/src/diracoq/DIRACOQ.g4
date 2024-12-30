@@ -26,11 +26,11 @@ term:   ID '[' expr (',' expr)* ']'                # Application
     |   '|' term '>'                           # Ket
     |   'delta' '(' term ',' term ')'          # Delta
     |   '(' term ',' term ')'                  # Pair
-    |   term '.' term                          # Scr
     |   term '^D'                              # Adj
     |   term '^*'                              # Conj
+    |   term '.' term                          # Scr
+    |   <assoc=left> term term                 # Compo
     |   <assoc=left> term '*' term             # Star
-    |   <assoc=left> term term             # Compo
     |   <assoc=left> term '+' term             # Add
     |   <assoc=right> term '->' term           # Arrow
     |   'Sum' ID 'in 'term ',' term   # Sum
