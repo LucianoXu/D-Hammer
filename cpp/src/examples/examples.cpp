@@ -30,7 +30,7 @@ Block[
             R"(
                 Var T : INDEX.
                 Var M : OTYPE[T, T].
-                Def phi := idx T => Sum nv : BASIS[T] in USET[T], |(nv, nv)>.
+                Def phi := idx T => Sum nv in USET[T], |(nv, nv)>.
             )",
             "(M * 1O[T]) (phi T)",
             "(1O[T] * (TPO T T M)) (phi T)"
@@ -59,8 +59,8 @@ Block[
                 Var a : BASIS[m] -> STYPE.
                 Var v : BASIS[m] -> KTYPE[T2].
             )",
-            "A (Sum i : BASIS[m] in USET[m], (a i) (v i))",
-            "Sum i : BASIS[m] in USET[m], (a i) (A (v i))"
+            "A (Sum i in USET[m], (a i) (v i))",
+            "Sum i in USET[m], (a i) (A (v i))"
         },
 
 /*
@@ -85,8 +85,8 @@ Block[
                 Var lambda : BASIS[m] -> STYPE.
                 Var w : BASIS[m] -> KTYPE[T1].
             )",
-            "v^D Sum i : BASIS[m] in USET[m], (lambda i) (w i)",
-            "Sum i : BASIS[m] in USET[m], (lambda i) (v^D (w i))"
+            "v^D Sum i in USET[m], (lambda i) (w i)",
+            "Sum i in USET[m], (lambda i) (v^D (w i))"
         },
 
 /*
@@ -132,8 +132,8 @@ Block[
                 Var w : BASIS[m] -> KTYPE[T].
                 Var v : KTYPE[T].
             )",
-            "(Sum i : BASIS[m] in USET[m], (lambda i).(w i))^D v",
-            "Sum i : BASIS[m] in USET[m], (lambda i)^* ((w i)^D v)"
+            "(Sum i in USET[m], (lambda i).(w i))^D v",
+            "Sum i in USET[m], (lambda i)^* ((w i)^D v)"
         },
 
 /*
@@ -156,8 +156,8 @@ Block[
                 Var v : BASIS[T] -> STYPE.
                 Var w : BASIS[T] -> STYPE.
             )",
-            "(Sum i : BASIS[T] in USET[T], (v i).|i>)^D (Sum j : BASIS[T] in USET[T], (w j).|j>)",
-            "Sum i : BASIS[T] in USET[T], (v i)^* (w i)"
+            "(Sum i in USET[T], (v i).|i>)^D (Sum j in USET[T], (w j).|j>)",
+            "Sum i in USET[T], (v i)^* (w i)"
         },
 
 /*
@@ -179,8 +179,8 @@ Block[
                 Var M : SET[T].
                 Var v : KTYPE[T].
             )",
-            "(Sum i : BASIS[T] in USET[T], |i> <i|) v",
-            "Sum i : BASIS[T] in USET[T], (<i| v) |i>"
+            "(Sum i in USET[T], |i> <i|) v",
+            "Sum i in USET[T], (<i| v) |i>"
         },
 
 /*
@@ -197,7 +197,7 @@ DNEqQ[
             R"(
                 Var sigma : INDEX.
             )",
-            "Sum i : BASIS[sigma] in USET[sigma], |i> <i|",
+            "Sum i in USET[sigma], |i> <i|",
             "1O[sigma]"
         },
 
@@ -216,7 +216,7 @@ DNEqQ[
                 Var sigma : INDEX.
                 Var tau : INDEX.
             )",
-            "Sum i : BASIS[sigma] in USET[sigma], |i> <i|",
+            "Sum i in USET[sigma], |i> <i|",
             "1O[tau]",
             false
         },

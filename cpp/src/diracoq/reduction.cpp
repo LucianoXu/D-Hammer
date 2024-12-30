@@ -481,6 +481,21 @@ namespace diracoq {
         return kernel.get_bank().get_term(ADD, args);
     }
 
+    // S : SET(T) => SSUM(i S e) -> SUM(S FUN(i BASIS(T) e))
+    DIRACOQ_RULE_DEF(R_SSUM, kernel, term) {
+        MATCH_HEAD(term, SSUM, args)
+        auto typeS = kernel.calc_type(args[1]);
+
+        return kernel.get_bank().get_term(SUM, {
+            args[1],
+            kernel.get_bank().get_term(FUN, {
+                args[0],
+                kernel.get_bank().get_term(BASIS, {typeS->get_args()[0]}),
+                args[2]
+            })
+        });
+    }
+
     const std::vector<PosRewritingRule> pre_proc_rules = {
         R_COMPO_SS, R_COMPO_SK, R_COMPO_SB, R_COMPO_SO,
         R_COMPO_KS, R_COMPO_KK, R_COMPO_KB,
@@ -488,7 +503,8 @@ namespace diracoq {
         R_COMPO_OS, R_COMPO_OK,             R_COMPO_OO,
         R_COMPO_ARROW, R_COMPO_FORALL,
         R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD,
-        R_ADDG_ADDS, R_ADDG_ADD
+        R_ADDG_ADDS, R_ADDG_ADD,
+        R_SSUM
     };
 
     //////////////////////////////////////////////////////////////

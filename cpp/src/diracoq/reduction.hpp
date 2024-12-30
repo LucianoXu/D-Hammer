@@ -131,6 +131,9 @@ namespace diracoq {
     // an : KTYPE(T), BTYPE(T) or OTYPE(T1 T2) => ADDG(a1 ... an) -> ADD(a1 ... an)
     DIRACOQ_RULE_DEF(R_ADDG_ADD, kernel, term);
 
+    // S : SET(T) => SSUM(i S e) -> SUM(S FUN(i BASIS(T) e))
+    DIRACOQ_RULE_DEF(R_SSUM, kernel, term);
+
 
     // The rules for pre-processing
     extern const std::vector<PosRewritingRule> pre_proc_rules;

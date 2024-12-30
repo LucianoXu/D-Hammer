@@ -268,6 +268,15 @@ TEST(DiracoqTypeCheck, ADDG_Other) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADDG(e f g)"), kernel.parse("OTYPE(T T)")));
 }
 
+
+TEST(DiracoqTypeCheck, SSUM) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SSUM(i USET(T) KET(i))"), kernel.parse("KTYPE(T)")));
+}
+
+
 // main rules (internal symbols)
 
 

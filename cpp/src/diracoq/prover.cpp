@@ -299,7 +299,7 @@ namespace diracoq {
         (* Trace
         DNTr[M_, T_]:=Module[{i}, SUMS[IDX[{i, USET[T]}], Bra[{i}]\[SmallCircle]M\[SmallCircle]Ket[{i}]]];
         *)
-        Def Tr := idx T => fun O : OTYPE[T, T] => Sum i : BASIS[T] in USET[T], <i| O |i>.
+        Def Tr := idx T => fun O : OTYPE[T, T] => Sum i in USET[T], <i| O |i>.
 
         (* SWAP
         SWAP[term_, T1_, T2_, T3_, T4_]:=
@@ -307,7 +307,7 @@ namespace diracoq {
 	SUMO[IDX[{i,USET[T1]}, {j,USET[T2]}, {k,USET[T3]}, {l,USET[T4]}],
 		(Bra[{PAIR[i,j]}]\[SmallCircle]term\[SmallCircle]Ket[{PAIR[k,l]}])(Ket[{PAIR[j,i]}]\[SmallCircle]Bra[{PAIR[l,k]}])]];
         *)
-        Def SWAP := idx T1 => idx T2 => idx T3 => idx T4 => fun O : OTYPE[T1 * T2, T3 * T4] => Sum i : BASIS[T1] in USET[T1], Sum j : BASIS[T2] in USET[T2], Sum k : BASIS[T3] in USET[T3], Sum l : BASIS[T4] in USET[T4], (<(i, j)| O |(k, l)>).(|(j, i)> <(l, k)|).
+        Def SWAP := idx T1 => idx T2 => idx T3 => idx T4 => fun O : OTYPE[T1 * T2, T3 * T4] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T3], Sum l in USET[T4], (<(i, j)| O |(k, l)>).(|(j, i)> <(l, k)|).
 
         (* Partial Trace 1
         DNPTr1[M_, T_, T1_, T2_]:= 
@@ -315,7 +315,7 @@ namespace diracoq {
 	SUMO[IDX[{i, USET[T1]}, {j, USET[T2]}, {k, USET[T]}], 
 		(Bra[{PAIR[k, i]}]\[SmallCircle]M\[SmallCircle]Ket[{PAIR[k, j]}])(Ket[{i}]\[SmallCircle]Bra[{j}])]];
         *)
-        Def DNPTr1 := idx T => idx T1 => idx T2 => fun O : OTYPE[T * T1, T * T2] => Sum i : BASIS[T1] in USET[T1], Sum j : BASIS[T2] in USET[T2], Sum k : BASIS[T] in USET[T], (<(k, i)| O |(k, j)>).(|i> <j|).
+        Def DNPTr1 := idx T => idx T1 => idx T2 => fun O : OTYPE[T * T1, T * T2] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T], (<(k, i)| O |(k, j)>).(|i> <j|).
 
         (* Partial Trace 2
         DNPTr2[M_, T_, T1_, T2_]:=
@@ -323,23 +323,23 @@ namespace diracoq {
 	SUMO[IDX[{i, USET[T1]}, {j, USET[T2]}, {k, USET[T]}],
 		(Bra[{PAIR[i, k]}]\[SmallCircle]M\[SmallCircle]Ket[{PAIR[j, k]}])(Ket[{i}]\[SmallCircle]Bra[{j}])]];
         *)
-        Def DNPTr2 := idx T => idx T1 => idx T2 => fun O : OTYPE[T1 * T, T2 * T] => Sum i : BASIS[T1] in USET[T1], Sum j : BASIS[T2] in USET[T2], Sum k : BASIS[T] in USET[T], (<(i, k)| O |(j, k)>).(|i> <j|).
+        Def DNPTr2 := idx T => idx T1 => idx T2 => fun O : OTYPE[T1 * T, T2 * T] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T], (<(i, k)| O |(j, k)>).(|i> <j|).
 
         (* Transpose of Ket
         TPK[B_, T_]:= Module[{i}, SUMK[IDX[{i, USET[T]}], (B\[SmallCircle]Ket[{i}])Ket[{i}]]];
         *)
-        Def TPK := idx sigma => fun B : BTYPE[sigma] => Sum i : BASIS[sigma] in USET[sigma], (B |i>) . |i>.
+        Def TPK := idx sigma => fun B : BTYPE[sigma] => Sum i in USET[sigma], (B |i>) . |i>.
 
         (* Transpose of Bra
         TPB[K_, T_]:= Module[{i}, SUMB[IDX[{i, USET[T]}], (Bra[{i}]\[SmallCircle]K)Bra[{i}]]];
         *)
-        Def TPB := idx sigma => fun K : KTYPE[sigma] => Sum i : BASIS[sigma] in USET[sigma], (<i| K) . <i|.
+        Def TPB := idx sigma => fun K : KTYPE[sigma] => Sum i in USET[sigma], (<i| K) . <i|.
 
         (* Transpose of Operator
         TPO[O_, T1_, T2_] := Module[{i, j}, 
 	SUMO[IDX[{i, USET[T2]}, {j, USET[T1]}], (Ket[{i}]\[SmallCircle]Bra[{j}])\[SmallCircle]O\[SmallCircle](Ket[{i}]\[SmallCircle]Bra[{j}])]];
         *)
-        Def TPO := idx sigma => idx tau => fun O : OTYPE[sigma, tau] => Sum i : BASIS[sigma] in USET[sigma], Sum j : BASIS[tau] in USET[tau], (<i| O |j>).(|j> <i|).
+        Def TPO := idx sigma => idx tau => fun O : OTYPE[sigma, tau] => Sum i in USET[sigma], Sum j in USET[tau], (<i| O |j>).(|j> <i|).
 
 
         (* Conjugate of Operator 

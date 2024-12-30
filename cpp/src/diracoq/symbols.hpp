@@ -17,7 +17,7 @@ namespace diracoq {
     }
 
     // the symbol for preprocessing
-    extern const int COMPO, ADDG, STAR;
+    extern const int COMPO, ADDG, STAR, SSUM;
 
     // symbols for typing
     extern const int INDEX, TYPE;

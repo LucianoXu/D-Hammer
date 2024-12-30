@@ -31,6 +31,7 @@ namespace diracoq {
             "COMPO",
             "ADDG",
             "STAR",
+            "SSUM",
 
             "INDEX",
             "TYPE",
@@ -95,6 +96,7 @@ namespace diracoq {
     const auto COMPO = diracoq_sig.get_repr("COMPO");
     const auto ADDG = diracoq_sig.get_repr("ADDG");
     const auto STAR = diracoq_sig.get_repr("STAR");
+    const auto SSUM = diracoq_sig.get_repr("SSUM");
 
     const auto INDEX = diracoq_sig.get_repr("INDEX");
     const auto TYPE = diracoq_sig.get_repr("TYPE");

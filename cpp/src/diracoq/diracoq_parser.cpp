@@ -327,18 +327,13 @@ namespace diracoq {
         AST set = std::move(node_stack.top());
         node_stack.pop();
 
-        // get the type
-        AST type = std::move(node_stack.top());
-        node_stack.pop();
-
         // get the name
         std::string name = ctx->ID()->getText();
 
         // push Sum node
-        node_stack.push(AST{"SUM", 
+        node_stack.push(AST{"SSUM", 
             {
-                std::move(set),
-                AST("FUN", {AST(name, {}), std::move(type), std::move(body)})
+                AST(name, {}), std::move(set), std::move(body)
             }
         });
     }

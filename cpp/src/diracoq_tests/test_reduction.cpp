@@ -262,6 +262,13 @@ TEST(DiracoqReduction, R_ADDG_ADD) {
     TEST_RULE(kernel, {R_ADDG_ADD}, "ADDG(K1 K2)", "ADD(K1 K2)");
 }
 
+TEST(DiracoqReduction, R_SSUM) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+
+    TEST_RULE(kernel, {R_SSUM}, "SSUM(i USET(T1) KET(i))", "SUM(USET(T1) FUN(i BASIS(T1) KET(i)))");
+}
+
 /////////////////////////////////////////////
 // main rules unit test
 

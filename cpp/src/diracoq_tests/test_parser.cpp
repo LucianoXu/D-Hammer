@@ -96,8 +96,8 @@ TEST(DiracoqParser, Idx) {
 }
 
 TEST(DiracoqParser, Sum) {
-    auto actual_res = parse("Sum x : T in S, x @ x");
-    auto expected_res = astparser::parse("SUM(S FUN(x T COMPO(x x)))");
+    auto actual_res = parse("Sum x in S, x x");
+    auto expected_res = astparser::parse("SSUM(x S COMPO(x x))");
     cout << actual_res->to_string() << endl;
     cout << expected_res->to_string() << endl;
     EXPECT_EQ(actual_res, expected_res);

@@ -296,6 +296,40 @@ namespace diracoq {
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not a scalar, a ket, a bra, or an operator.");
         }
 
+        // SSUM(i set body) (type will be inferred)
+        if (head == SSUM) {
+            arg_number_check(args, 3);
+
+            auto type_s = calc_type(args[1]);
+            auto& args_s = type_s->get_args();
+            if (type_s->get_head() != SET) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type SET.");
+            }
+
+            // form the function temporarily
+            auto func = bank.get_term(FUN, 
+                {
+                    args[0], 
+                    bank.get_term(BASIS, {args_s[0]}),
+                    args[2]
+                }
+            );
+
+            auto type_f = calc_type(func);
+            auto& args_f = type_f->get_args();
+            if (type_f->get_head() != ARROW) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the function " + sig.term_to_string(func) + " is not of type ARROW.");
+            }
+
+            if (args_f[1]->get_head() == STYPE || args_f[1]->get_head() == KTYPE || args_f[1]->get_head() == BTYPE || args_f[1]->get_head() == OTYPE) {
+                return args_f[1];
+            }
+
+            else {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the body " + sig.term_to_string(args[2]) + " is not a scalar, a ket, a bra, or an operator.");
+            }
+        }
+
         // (INDEX-PROD)
         if (head == PROD) {
             arg_number_check(args, 2);

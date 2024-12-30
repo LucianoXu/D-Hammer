@@ -33,7 +33,7 @@ term:   ID '[' expr (',' expr)* ']'                # Application
     |   <assoc=left> term term             # Compo
     |   <assoc=left> term '+' term             # Add
     |   <assoc=right> term '->' term           # Arrow
-    |   'Sum' ID ':' term 'in 'term ',' term   # Sum
+    |   'Sum' ID 'in 'term ',' term   # Sum
     |   'idx' ID '=>' term                     # Idx
     |   'fun' ID ':' term '=>' term            # Fun
     |   'forall' ID '.' term                   # Forall
