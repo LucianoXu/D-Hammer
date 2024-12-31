@@ -42,6 +42,16 @@ namespace diracoq {
     std::vector<PosReplaceRecord>* trace = nullptr);
 
     /**
+     * @brief This function rename all the bound variables in the term and return the result.
+     * 
+     * @param kernel 
+     * @param term 
+     * @param bound_vars 
+     * @return const ualg::Term<int>* 
+     */
+    const ualg::Term<int>* bound_variable_rename(Kernel& kernel, const ualg::Term<int>* term);
+
+    /**
      * @brief Expand all the variables in the term once.
      * 
      * @param kernel 

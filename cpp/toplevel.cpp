@@ -24,13 +24,9 @@ int main(int argc, const char **argv) {
     Prover* prover;
 
     if (argc == 1) {
-        prover = new Prover{std::cout, false};
+        prover = new Prover{std::cout};
     }
-
-    else if (argc == 2) {
-        prover = new Prover{std::cout, true, argv[1]};
-    }
-
+    
     else {
         cout << "Too many arguments." << endl;
         return 1;

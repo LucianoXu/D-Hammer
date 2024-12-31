@@ -1046,6 +1046,19 @@ TEST(DiracoqReduction, R_SUM_ELIM6) {
         R"(
         SUM[M, FUN[i, T,
             SUM[M, FUN[j, T, 
+                SCR[
+                    DELTA[j, i],
+                    KET[i]
+                ]
+            ]]
+        ]]
+        )", 
+        "SUM[M, FUN[j, T, KET[j]]]");
+
+    TEST_RULE({R_SUM_ELIM6},
+        R"(
+        SUM[M, FUN[i, T,
+            SUM[M, FUN[j, T, 
                 SUM[N, FUN[k, T,
                     SCR[
                         DELTA[i, j],
@@ -1090,7 +1103,7 @@ TEST(DiracoqReduction, R_SUM_ELIM7) {
             SUM[N, FUN[k, T, 
                 SCR[
                     MULS[a, b], 
-                    KET[i]
+                    KET[j]
                 ]
             ]]
         ]]

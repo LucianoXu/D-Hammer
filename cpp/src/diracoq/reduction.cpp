@@ -103,6 +103,58 @@ namespace diracoq {
         return current_term;
     }
 
+    const ualg::Term<int>* bound_variable_rename(Kernel& kernel, const ualg::Term<int>* term) {
+        if (term->is_atomic()) {
+            return term;
+        }
+
+        auto head = term->get_head();
+        auto& args = term->get_args();
+        auto new_args = ListArgs<int>();
+
+        auto &sig = kernel.get_sig();
+        auto &bank = kernel.get_bank();
+
+        if (head == FUN) {
+            // substitute inner bound variable first
+            auto type = bound_variable_rename(kernel, args[1]);
+            auto body = bound_variable_rename(kernel, args[2]);
+
+            auto new_bound = bank.get_term(sig.register_symbol(unique_var()));
+
+            new_args.push_back(new_bound);
+            new_args.push_back(subst(sig, bank, type, args[0]->get_head(), new_bound));
+            new_args.push_back(subst(sig, bank, body, args[0]->get_head(), new_bound));
+        }
+        else if (head == IDX) {
+            // substitute inner bound variable first
+            auto body = bound_variable_rename(kernel, args[1]);
+
+            auto new_bound = bank.get_term(sig.register_symbol(unique_var()));
+
+            new_args.push_back(new_bound);
+            new_args.push_back(subst(sig, bank, body, args[0]->get_head(), new_bound));
+        }
+        else if (head == SSUM) {
+            // substitute inner bound variable first
+            auto set = bound_variable_rename(kernel, args[1]);
+            auto body = bound_variable_rename(kernel, args[2]);
+
+            auto new_bound = bank.get_term(sig.register_symbol(unique_var()));
+
+            new_args.push_back(new_bound);
+            new_args.push_back(subst(sig, bank, set, args[0]->get_head(), new_bound));
+            new_args.push_back(subst(sig, bank, body, args[0]->get_head(), new_bound));
+        }
+        else {
+            for (const auto& arg : args) {
+                new_args.push_back(bound_variable_rename(kernel, arg));
+            }
+        }
+
+        return bank.get_term(head, std::move(new_args));
+    }
+
 
     const Term<int>* variable_expand(Kernel& kernel, const Term<int>* term) {
         auto& bank = kernel.get_bank();
@@ -527,7 +579,9 @@ namespace diracoq {
     DIRACOQ_RULE_DEF(R_DELTA, kernel, term) {
         auto find_res = kernel.find_in_env(term->get_head());
         if (find_res != std::nullopt and find_res->is_def()) {
-            return find_res->def.value();
+            // Note that the bound variable renaming is applied
+            auto renamed_res = bound_variable_rename(kernel, find_res->def.value());
+            return renamed_res;
         }
         return std::nullopt;
     }
@@ -2838,7 +2892,7 @@ namespace diracoq {
 
         // Check whether delta variables i and j match the bound variables
         if (!((args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0] && args_DELTA_i_j[1] == args_FUN_j_T_SUM_DELTA_i_j[0]) || 
-            (args_DELTA_i_j[1] == args_FUN_j_T_SUM_DELTA_i_j[0] && args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0]))) return std::nullopt;
+            (args_DELTA_i_j[1] == args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0] && args_DELTA_i_j[0] == args_FUN_j_T_SUM_DELTA_i_j[0]))) return std::nullopt;
 
         return bank.replace_term(args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[2], {{inner_term, bank.get_term(ONE, {})}});
     }
@@ -2888,7 +2942,7 @@ namespace diracoq {
 
                 // Check whether delta variables i and j match the bound variables
                 if (!((args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0] && args_DELTA_i_j[1] == args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0]) || 
-                    (args_DELTA_i_j[1] == args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0] && args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0]))) continue;
+                    (args_DELTA_i_j[1] == args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0] && args_DELTA_i_j[0] == args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0]))) continue;
 
                 ListArgs<int> new_mul_args;
                 for (int j = 0; j < args_MULS_a1_DELTA_i_j_an.size(); j++) {
@@ -2899,8 +2953,8 @@ namespace diracoq {
                         new_mul_args.push_back(
                             subst(sig, bank,
                                 args_MULS_a1_DELTA_i_j_an[j],
-                                args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0]->get_head(),
-                                args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0])
+                                args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0]->get_head(),
+                                args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0])
                         );
                     }
                 }
@@ -2958,13 +3012,13 @@ namespace diracoq {
 
         // Check whether delta variables i and j match the bound variables
         if (!((args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0] && args_DELTA_i_j[1] == args_FUN_j_T_SUM_DELTA_i_j_A[0]) || 
-            (args_DELTA_i_j[1] == args_FUN_j_T_SUM_DELTA_i_j_A[0] && args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0]))) return std::nullopt;
+            (args_DELTA_i_j[1] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0] && args_DELTA_i_j[0] == args_FUN_j_T_SUM_DELTA_i_j_A[0]))) return std::nullopt;
 
         return bank.replace_term(
             args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[2], 
             {{
                 inner_term, 
-                subst(sig, bank, args_SCR_DELTA_i_j_A[1], args_FUN_j_T_SUM_DELTA_i_j_A[0]->get_head(), args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0])
+                subst(sig, bank, args_SCR_DELTA_i_j_A[1], args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0]->get_head(), args_FUN_j_T_SUM_DELTA_i_j_A[0])
             }}
         );
     }
@@ -3016,7 +3070,7 @@ namespace diracoq {
 
                 // Check whether delta variables i and j match the bound variables
                 if (!((args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] && args_DELTA_i_j[1] == args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]) || 
-                    (args_DELTA_i_j[1] == args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] && args_DELTA_i_j[0] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]))) continue;
+                    (args_DELTA_i_j[1] == args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] && args_DELTA_i_j[0] == args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]))) continue;
 
                 ListArgs<int> new_mul_args;
                 for (int j = 0; j < args_MULS_a1_DELTA_i_j_an.size(); j++) {
@@ -3027,8 +3081,8 @@ namespace diracoq {
                         new_mul_args.push_back(
                             subst(sig, bank,
                                 args_MULS_a1_DELTA_i_j_an[j],
-                                args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]->get_head(),
-                                args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0])
+                                args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]->get_head(),
+                                args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0])
                         );
                     }
                 }
@@ -3043,8 +3097,8 @@ namespace diracoq {
                                 subst(
                                     sig, bank, 
                                     args_SCR_MULS_a1_DELTA_i_j_an_A[1], 
-                                    args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]->get_head(), 
-                                    args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]
+                                    args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]->get_head(), 
+                                    args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]
                                 )
                             }
                         )

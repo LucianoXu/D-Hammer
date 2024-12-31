@@ -42,7 +42,7 @@ add_library(
     calculus.cpp
     syntax_theory.cpp
     reduction.cpp
-    trace2coq.cpp
+    trace.cpp
     prover.cpp
 
     ${ANTLR_DIRACOQ_GEN_FILES}

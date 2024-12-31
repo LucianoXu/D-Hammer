@@ -460,6 +460,56 @@ Block[
             "Sum i in USET[T2], Sum j in USET[T2], ((psi^D (M m)^D <i|) (1O[T1] * |m> <m|)) (((M j) psi) |j>)",
             "psi^D ((M m)^D (M m) psi)"
         },
+
+// QCQI-17 omitted, complex scalar calculations
+
+/*
+QCQI-18
+
+Block[
+ {DiracCtx = {A -> OType[T, T]}},
+ With[
+  {sigma = SUMK[i, USET[T], KET[PAIR[i, i]]]},
+  DNEqQ[
+   (A~TSRO~ONEO[T])~MLTK~sigma, 
+   (ONEO[T]~TSRO~TPO[A, T, T])~MLTK~sigma
+   ]
+  ]
+ ]
+*/
+
+        {
+            "QCQI-18",
+            R"(
+                Var T : INDEX.
+                Var A : OTYPE[T, T].
+                Def sigma := Sum i in USET[T], |(i, i)>.
+            )",
+            "(A * 1O[T]) sigma",
+            "(1O[T] * (TPO T T A)) sigma"
+        },
+
+/*
+COQQ-1 lftrace_baseE
+
+Block[
+ {DiracCtx = {A -> OType[T, T]}},
+ DNEqQ[
+  DNTr[A, T],
+  SUMS[i, USET[T], BRA[i]~DOT~(A~MLTK~KET[i])]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-1 lftrace_baseE",
+            R"(
+                Var T : INDEX.
+                Var A : OTYPE[T, T].
+            )",
+            "Tr T A",
+            "Sum i in USET[T], <i| (A |i>)"
+        },
     };
 
 };

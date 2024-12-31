@@ -24,12 +24,6 @@ namespace diracoq {
                     auto term = kernel.parse(ast.children[1]);
                     kernel.def(kernel.register_symbol(name), term);
 
-                    // generate Coq code
-                    if (gen_coq) {
-                        append_coq_code("(* " + ast.to_string() + " *)\n");
-                        append_coq_code("Definition " + name + " := " + term_to_coq(kernel, term) + ".\n\n");
-                    }
-
                     return true;
                 }
                 // DEF(x t T)
@@ -40,12 +34,6 @@ namespace diracoq {
                     auto term = kernel.parse(ast.children[1]);
                     auto type = kernel.parse(ast.children[2]);
                     kernel.def(kernel.register_symbol(name), term, type);
-
-                    // generate Coq code
-                    if (gen_coq) {
-                        append_coq_code("(* " + ast.to_string() + " *)\n");
-                        append_coq_code("Definition " + name + " : " + term_to_coq(kernel, type) + " := " + term_to_coq(kernel, term) + ".\n\n");
-                    }
 
                     return true;
                 }
@@ -65,12 +53,6 @@ namespace diracoq {
                     auto type = kernel.parse(ast.children[1]);
                     kernel.assum(kernel.register_symbol(name), type);
 
-                    // generate Coq code
-                    if (gen_coq) {
-                        append_coq_code("(* " + ast.to_string() + " *)\n");
-                        append_coq_code("Variable " + name + " : " + term_to_coq(kernel, type) + ".\n\n");
-                    }
-
                     return true;
                 }
                 else {
@@ -87,12 +69,6 @@ namespace diracoq {
                         auto type = kernel.calc_type(term);
                         output << kernel.term_to_string(term) << " : " << kernel.term_to_string(type) << endl;
 
-                        // generate Coq code
-                        if (gen_coq) {
-                            append_coq_code("(* " + ast.to_string() + " *)\n");
-                            append_coq_code("CHECK " + term_to_coq(kernel, term) + ".\n\n");
-                        }
-                        
                         return true;
                     }
                     catch (const exception& e) {
@@ -116,12 +92,6 @@ namespace diracoq {
                         }
                         output << kernel.dec_to_string(name, find_def.value()) << endl;
 
-                        // generate Coq code
-                        if (gen_coq) {
-                            append_coq_code("(* " + ast.to_string() + " *)\n");
-                            append_coq_code("Print " + name + ".\n\n");
-                        }
-
                         return true;
                     }
                     catch (const exception& e) {
@@ -136,12 +106,6 @@ namespace diracoq {
                     output << "Environment:" << endl;
                     output << kernel.env_to_string() << endl;
 
-                    // generate Coq code
-                    if (gen_coq) {
-                        append_coq_code("(* " + ast.to_string() + " *)\n");
-                        append_coq_code("Print All.\n\n");
-                    }
-                    
                     return true;
                 }
                 else {
@@ -172,6 +136,8 @@ namespace diracoq {
                 try {
                     auto temp = pos_rewrite_repeated(kernel, term, all_rules, &trace);
 
+                    // NEED TO CONSIDER DIFFERENT PHASES
+
                     // expand on variables
                     auto expanded_term = variable_expand(kernel, temp);
                     temp = pos_rewrite_repeated(kernel, expanded_term, rules, &trace);
@@ -193,13 +159,6 @@ namespace diracoq {
                     
                     // Output the normalized term
                     output << kernel.term_to_string(final_term) + " : " + kernel.term_to_string(type)  << endl;
-
-
-                    // generate Coq code
-                    if (gen_coq) {
-                        append_coq_code("(* " + ast.to_string() + " *)\n");
-                        append_coq_code(normalize_to_coq(kernel, term, final_term, trace, instruct) + "\n\n");
-                    }
 
                     return true;
 
@@ -274,14 +233,6 @@ namespace diracoq {
             output << "The two terms are equal." << endl;
             output << "[Normalized Term] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
 
-
-            // generate Coq code
-            if (gen_coq) {
-                auto original_code = astparser::AST("CHECKEQ", {codeA, codeB});
-                append_coq_code("(* " + original_code.to_string() + " *)\n");
-                append_coq_code(checkeq_to_coq(kernel, termA, termB, traceA, traceB, instructA, instructB, final_termA) + "\n\n");
-            }
-
             return true;
         }
         else {
@@ -293,7 +244,7 @@ namespace diracoq {
     }
 
     Prover* std_prover() {
-        auto res = new Prover{std::cout, false};
+        auto res = new Prover{std::cout};
 
         res->process(R"(
         (* Trace
