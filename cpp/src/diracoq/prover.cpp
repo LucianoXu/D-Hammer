@@ -134,18 +134,24 @@ namespace diracoq {
                 vector<PosReplaceRecord> trace;
 
                 try {
-                    auto temp = pos_rewrite_repeated(kernel, term, all_rules, &trace);
+                    // rename to unique variables first
+                    auto renamed_res = bound_variable_rename(kernel, term);
+
+                    // first rewriting
+                    auto temp = pos_rewrite_repeated(kernel, renamed_res, all_rules, &trace);
 
                     // NEED TO CONSIDER DIFFERENT PHASES
 
                     // expand on variables
                     auto expanded_term = variable_expand(kernel, temp);
+
+                    // second rewriting
                     temp = pos_rewrite_repeated(kernel, expanded_term, rules, &trace);
 
                     auto normalized_term = deBruijn_normalize(kernel, temp);
-                    auto [sorted_term, instruct] = sort_CInstruct(normalized_term, kernel.get_bank(), c_symbols);
+                    auto sorted_term = sort_C_terms(normalized_term, kernel.get_bank(), c_symbols);
 
-                    auto final_term = normalized_term;
+                    auto final_term = sorted_term;
 
                     // if output trace
                     if (ast.children.size() == 2) {
@@ -212,18 +218,20 @@ namespace diracoq {
 
         // calculate the normalized term
         vector<PosReplaceRecord> traceA;
-        auto tempA = pos_rewrite_repeated(kernel, termA, all_rules, &traceA);
+        auto renamed_resA = bound_variable_rename(kernel, termA);
+        auto tempA = pos_rewrite_repeated(kernel, renamed_resA, all_rules, &traceA);
         auto expanded_termA = variable_expand(kernel, tempA);
         tempA = pos_rewrite_repeated(kernel, expanded_termA, rules, &traceA);
         auto normalized_termA = deBruijn_normalize(kernel, tempA);
-        auto [sorted_termA, instructA] = sort_CInstruct(normalized_termA, kernel.get_bank(), c_symbols);
+        auto sorted_termA = sort_C_terms(normalized_termA, kernel.get_bank(), c_symbols);
 
         vector<PosReplaceRecord> traceB;
-        auto tempB = pos_rewrite_repeated(kernel, termB, all_rules, &traceB);
+        auto renamed_resB = bound_variable_rename(kernel, termB);
+        auto tempB = pos_rewrite_repeated(kernel, renamed_resB, all_rules, &traceB);
         auto expanded_termB = variable_expand(kernel, tempB);
         tempB = pos_rewrite_repeated(kernel, expanded_termB, rules, &traceB);
         auto normalized_termB = deBruijn_normalize(kernel, tempB);
-        auto [sorted_termB, instructB] = sort_CInstruct(normalized_termB, kernel.get_bank(), c_symbols);
+        auto sorted_termB = sort_C_terms(normalized_termB, kernel.get_bank(), c_symbols);
 
         auto final_termA = sorted_termA;
         auto final_termB = sorted_termB;

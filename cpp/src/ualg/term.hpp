@@ -158,9 +158,6 @@ namespace ualg {
 
     template <class T>
     bool Term<T>::operator < (const Term<T>& other) const {
-        if (this->hvalue < other.hash_value()) {
-            return true;
-        }
 
         if (this->head != other.head) {
             return this->head < other.head;
