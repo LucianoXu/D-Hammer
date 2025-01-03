@@ -39,7 +39,13 @@ namespace diracoq {
 
 
     const Term<int>* Kernel::parse(const std::string& code) {
-        return ualg::parse(sig, bank, code);
+        auto ast = diracoq::parse(code);
+        if (ast.has_value()) {
+            return ualg::parse(sig, bank, ast.value());
+        }
+        else{
+            throw std::runtime_error("The code is not valid.");
+        }
     }
 
     const Term<int>* Kernel::parse(const astparser::AST& ast) {

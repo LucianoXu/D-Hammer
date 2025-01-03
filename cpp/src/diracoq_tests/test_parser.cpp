@@ -120,11 +120,11 @@ TEST(DiracoqParser, Add) {
 }
 
 TEST(DiracoqParser, Compo) {
-    auto actual_res = parse("a @ b");
+    auto actual_res = parse("a b");
     auto expected_res = astparser::parse("COMPO[a, b]");
     EXPECT_EQ(actual_res, expected_res);
 
-    actual_res = parse("a @ b @ c");
+    actual_res = parse("a b c");
     expected_res = astparser::parse("COMPO[COMPO[a, b], c]");
     EXPECT_EQ(actual_res, expected_res);
 }
@@ -197,7 +197,7 @@ TEST(DiracoqParser, Application) {
 ////////////////////////////////////////////////////
 // Check Precedence
 TEST(DiracoqParser, precedence1) {
-    auto actual_res = parse("a + b @ c");
+    auto actual_res = parse("a + b c");
     auto expected_res = astparser::parse("ADDG[a, COMPO[b, c]]");
     EXPECT_EQ(actual_res, expected_res);
 }

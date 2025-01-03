@@ -64,6 +64,10 @@ namespace ualg {
         Term(const T& head, const ListArgs<T>& args);
         Term(const T& head, ListArgs<T>&& args);
 
+        // forbid copy and move constructor
+        Term(const Term<T>& other);
+        Term(Term<T>&& other);
+
         std::size_t hash_value() const;
 
         const T& get_head() const;
@@ -120,6 +124,16 @@ namespace ualg {
         this->hvalue = calc_hash(head, this->args);
     }
 
+    template <class T>
+    Term<T>::Term(const Term<T>& other) {
+        throw std::runtime_error("Copy constructor is forbidden.");
+    }
+
+    template <class T>
+    Term<T>::Term(Term<T>&& other) {
+        throw std::runtime_error("Move constructor is forbidden.");
+    }
+
 
     template <class T>
     std::size_t Term<T>::hash_value() const {
@@ -145,8 +159,13 @@ namespace ualg {
         if (this->head != other.head) {
             return false;
         }
-        if (this->args != other.args) {
+        if (this->args.size() != other.args.size()) {
             return false;
+        }
+        for (int i = 0; i < this->args.size(); i++) {
+            if (*(this->args[i]) != *(other.args[i])) {
+                return false;
+            }
         }
         return true;
     }

@@ -27,6 +27,8 @@ namespace diracoq {
         }
 
     public:
+        Kernel& get_kernel() { return kernel; }
+        
         Prover(std::ostream& _output = std::cout) : output(_output) {}
 
         // copy constructor (coq_file is not copied)

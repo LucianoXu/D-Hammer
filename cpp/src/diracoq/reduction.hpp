@@ -73,6 +73,39 @@ namespace diracoq {
         return to_deBruijn(kernel.get_sig(), kernel.get_bank(), term);
     }
 
+    
+    /**
+     * @brief Get the bound vars of the term (in the FUN expression)
+     * 
+     * @param term 
+     * @return std::set<int> 
+     */
+    std::set<int> get_bound_vars(const ualg::Term<int>* term);
+
+
+    /**
+     * @brief Compare the terms modulo the bound variables.
+     * 
+     * @param termA 
+     * @param termB 
+     * @param bound_vars
+     * @return true termA < termB
+     * @return false termA >= termB
+     */
+    bool comp_modulo_bound_vars(const ualg::Term<int>* termA, const ualg::Term<int>* termB, const std::set<int>& bound_vars);
+
+
+    /**
+     * @brief Transform a sorted term modulo bound variables to a normal term under sum_swap.
+     * 
+     * @param kernel 
+     * @param term 
+     * @return const ualg::Term<int>* 
+     */
+    const ualg::Term<int>* sum_swap_normalization(Kernel& kernel, const ualg::Term<int>* term);
+
+
+
     //////////////// Rules
 
     // a : STYPE, b : STYPE => a @ b -> MULS(a b)
@@ -624,10 +657,6 @@ namespace diracoq {
 
     // SUM(CATPROD(M1 M2) FUN(i PROD(T1 T2) X)) -> SUM(M1 FUN(j T1 SUM(M2 FUN(k T2 X{i/PAIR(j k)})))
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term);
-    
-
-    // M1 < M2 => SUM(M2 FUN(i T1 SUM(M1 FUN(j T2 X))) -> SUM(M1 FUN(j T2 SUM(M2 FUN(i T1 X))))
-    DIRACOQ_RULE_DEF(R_SUM_SWAP, kernel, term);
 
     // The rule list.
     extern const std::vector<PosRewritingRule> rules;

@@ -81,7 +81,7 @@ namespace ualg {
         if (p_find_res != terms.end()) {
             return &(*p_find_res);
         }
-        auto insert_result = terms.insert(term);
+        auto insert_result = terms.emplace(head);
         return &(*insert_result.first);
     }
 
@@ -92,7 +92,7 @@ namespace ualg {
         if (p_find_res != terms.end()) {
             return &(*p_find_res);
         }
-        auto insert_result = terms.insert(term);
+        auto insert_result = terms.emplace(head, std::move(term.get_args()));
         return &(*insert_result.first);
     }
 
@@ -103,7 +103,7 @@ namespace ualg {
         if (p_find_res != terms.end()) {
             return &(*p_find_res);
         }
-        auto insert_result = terms.insert(term);
+        auto insert_result = terms.emplace(head, args);
         return &(*insert_result.first);
     }
 
@@ -115,7 +115,7 @@ namespace ualg {
             if (p_find_res != terms.end()) {
                 return &(*p_find_res);
             }
-            auto insert_result = terms.insert(term);
+            auto insert_result = terms.emplace(term.get_head(), term.get_args());
             return &(*insert_result.first);
         }
 

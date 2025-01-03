@@ -13,10 +13,10 @@ TEST(TestACflatten, flatten) {
         {{"f", "f"}, {"a", "a"}, {"b", "b"}},
     };
 
-    auto t = parse(sig, bank, "f(a f(a b) b)");
+    auto t = parse(sig, bank, "f[a, f[a, b], b]");
 
     auto actual_res = flatten(t, bank, {"f"});
-    auto expected_res = parse(sig, bank, "f(a a b b)");
+    auto expected_res = parse(sig, bank, "f[a, a, b, b]");
 
     EXPECT_EQ(actual_res, expected_res);
 }
@@ -32,8 +32,8 @@ TEST(TestCProofInstruct, check_C_eq1) {
         {{"f", "f"}, {"g", "g"}, {"a", "a"}, {"b", "b"}, {"c", "c"}}
     };
 
-    string inputA = "f(a g(b g(a c b)) f(a b))";
-    string inputB = "f(g(b g(c a b)) a f(a b))";
+    string inputA = "f[a, g[b, g[a, c, b]], f[a, b]]";
+    string inputB = "f[g[b, g[c, a, b]], a, f[a, b]]";
 
     auto termA = parse(sig, bank, inputA);
     auto termB = parse(sig, bank, inputB);

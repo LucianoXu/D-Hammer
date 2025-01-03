@@ -133,8 +133,4 @@ namespace diracoq {
         return to_deBruijn(sig, bank, termA) == to_deBruijn(sig, bank, termB);
     }
 
-    inline bool is_smaller(ualg::Signature<int>& sig, ualg::TermBank<int>& bank, const ualg::Term<int>* termA, const ualg::Term<int>* termB) {
-        return to_deBruijn(sig, bank, termA) < to_deBruijn(sig, bank, termB);
-    }
-
 } // namespace diracoq

@@ -510,6 +510,28 @@ Block[
             "Tr T A",
             "Sum i in USET[T], <i| (A |i>)"
         },
+
+/*
+COQQ-2 lftraceC
+
+Block[
+ {DiracCtx = {f -> OType[T, T], g -> OType[T, T]}},
+ DNEqQ[
+  DNTr[f~MLTO~g, T],
+  DNTr[g~MLTO~f, T]
+  ]
+ ]
+*/
+        {
+            "COQQ-2 lftraceC",
+            R"(
+                Var T : INDEX.
+                Var f : OTYPE[T, T].
+                Var g : OTYPE[T, T].
+            )",
+            "Tr T (f g)",
+            "Tr T (g f)"
+        },
     };
 
 };

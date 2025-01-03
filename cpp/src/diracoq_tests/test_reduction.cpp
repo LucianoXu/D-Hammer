@@ -1203,29 +1203,6 @@ TEST(DiracoqReduction, R_SUM_INDEX1) {
     TEST_RULE({R_SUM_INDEX1}, "SUM[CATPROD[M1, M2], FUN[i, PROD[T1, T2], X]]", "SUM[M1, FUN[@0, T1, SUM[M2, FUN[@1, T2, X]]]]");
 }
 
-TEST(DiracoqReduction, R_SUM_SWAP) {
-    // We found that this rule will interwine with eta reduction. Therefore we don't consider eta reduction in the system.
-    for (int i = 0; i < 50; i++) {
-        Kernel kernel;
-        auto term1 = kernel.parse("SUM[M1, FUN[x, T1, SUM[M2, FUN[y, T2, APPLY[x, y]]]]]]");
-
-        auto term2 = kernel.parse("SUM[M2, FUN[y, T2, SUM[M1, FUN[x, T1, APPLY[x, y]]]]]]");
-
-        auto reduce_res1 = pos_rewrite_repeated(kernel, term1, rules);
-        auto reduce_res2 = pos_rewrite_repeated(kernel, term2, rules);
-
-        // EXPECT_TRUE(*reduce_res1 == *term2 || *reduce_res2 == *term1);
-        if (!(*reduce_res1 == *term2 || *reduce_res2 == *term1)) {
-            cout << "Failed at iteration " << i << endl;
-            cout << "Term1:" << kernel.term_to_string(term1) << endl;
-            cout << "Term2:" << kernel.term_to_string(term2) << endl;
-            cout << "Reduce Res1:" << kernel.term_to_string(reduce_res1) << endl;
-            cout << "Reduce Res2:" << kernel.term_to_string(reduce_res2) << endl;
-            cout << "Res2 size:" << reduce_res2->get_term_size() << endl;
-            throw runtime_error("Failed");
-        }
-    }
-}
 
 // ///////////////////////////////////////////////////////
 // // Combined Tests

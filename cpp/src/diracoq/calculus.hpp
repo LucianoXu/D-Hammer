@@ -50,7 +50,14 @@ namespace diracoq {
         Kernel() : sig(diracoq_sig) {}
 
         // copy constructor
-        Kernel(const Kernel& other) : bank(other.bank), sig(other.sig), env(other.env), ctx(other.ctx) {}
+        Kernel(const Kernel& other) : bank(other.bank), sig(other.sig), env(other.env), ctx(other.ctx) {
+            throw std::runtime_error("Copy constructor is forbidden.");
+        }
+
+        // move constructor
+        Kernel(Kernel&& other) : bank(std::move(other.bank)), sig(std::move(other.sig)), env(std::move(other.env)), ctx(std::move(other.ctx)) {
+            throw std::runtime_error("Move constructor is forbidden.");
+        }
 
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);

@@ -36,7 +36,7 @@ TEST(DiracoqParsing, Basics2) {
 
     EXPECT_EQ(kernel.term_to_string(kernel.parse("TYPE")), "TYPE");
     EXPECT_EQ(kernel.term_to_string(kernel.parse("TYPE[TYPE]")), "TYPE[TYPE]");
-    EXPECT_EQ(kernel.term_to_string(kernel.parse("forall[x, y, APPLY[z, x]]")), "forall[x, y, APPLY[z, x]]");
+    EXPECT_EQ(kernel.term_to_string(kernel.parse("FORALL[x, y, APPLY[z, x]]")), "FORALL[x, y, APPLY[z, x]]");
     EXPECT_EQ(kernel.term_to_string(kernel.parse("FUN[x, y, APPLY[z, x]]")), "FUN[x, y, APPLY[z, x]]");
 
 }

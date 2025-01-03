@@ -147,11 +147,29 @@ namespace diracoq {
 
                     // second rewriting
                     temp = pos_rewrite_repeated(kernel, expanded_term, rules, &trace);
+                    
+                    // cout << "[Normalized]:\t\t\t\t" << kernel.term_to_string(temp) << endl;
+
+                    // calculate the bound variables
+                    auto bound_vars = get_bound_vars(temp);
+
+                    // sorting modulo the bound variables
+                    temp = sort_C_terms(temp, kernel.get_bank(), c_symbols, 
+                        [&](const Term<int>* a, const Term<int>* b) {
+                            return comp_modulo_bound_vars(a, b, bound_vars);
+                        }
+                    );
+
+                    // cout << "[Sorted    ]:\t\t\t\t" << kernel.term_to_string(temp) << endl;
+
+                    // reduce to sum_swap normal form
+                    temp = sum_swap_normalization(kernel, temp);
+
+                    // cout << "[Sum Swap  ]:\t\t\t\t" << kernel.term_to_string(temp) << endl;
 
                     auto normalized_term = deBruijn_normalize(kernel, temp);
-                    auto sorted_term = sort_C_terms(normalized_term, kernel.get_bank(), c_symbols);
 
-                    auto final_term = sorted_term;
+                    auto final_term = normalized_term;
 
                     // if output trace
                     if (ast.children.size() == 2) {
@@ -222,19 +240,31 @@ namespace diracoq {
         auto tempA = pos_rewrite_repeated(kernel, renamed_resA, all_rules, &traceA);
         auto expanded_termA = variable_expand(kernel, tempA);
         tempA = pos_rewrite_repeated(kernel, expanded_termA, rules, &traceA);
+        auto bound_varsA = get_bound_vars(tempA);
+        tempA = sort_C_terms(tempA, kernel.get_bank(), c_symbols, 
+            [&](const Term<int>* a, const Term<int>* b) {
+                return comp_modulo_bound_vars(a, b, bound_varsA);
+            }
+        );
+        tempA = sum_swap_normalization(kernel, tempA);
         auto normalized_termA = deBruijn_normalize(kernel, tempA);
-        auto sorted_termA = sort_C_terms(normalized_termA, kernel.get_bank(), c_symbols);
 
         vector<PosReplaceRecord> traceB;
         auto renamed_resB = bound_variable_rename(kernel, termB);
         auto tempB = pos_rewrite_repeated(kernel, renamed_resB, all_rules, &traceB);
         auto expanded_termB = variable_expand(kernel, tempB);
         tempB = pos_rewrite_repeated(kernel, expanded_termB, rules, &traceB);
+        auto bound_varsB = get_bound_vars(tempB);
+        tempB = sort_C_terms(tempB, kernel.get_bank(), c_symbols, 
+            [&](const Term<int>* a, const Term<int>* b) {
+                return comp_modulo_bound_vars(a, b, bound_varsB);
+            }
+        );
+        tempB = sum_swap_normalization(kernel, tempB);
         auto normalized_termB = deBruijn_normalize(kernel, tempB);
-        auto sorted_termB = sort_C_terms(normalized_termB, kernel.get_bank(), c_symbols);
 
-        auto final_termA = sorted_termA;
-        auto final_termB = sorted_termB;
+        auto final_termA = normalized_termA;
+        auto final_termB = normalized_termB;
         
         // Output the result
         if (final_termA == final_termB) {

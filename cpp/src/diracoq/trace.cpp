@@ -560,9 +560,6 @@ UNEXPECTED_ERROR:
         if (record.rule == R_SUM_INDEX1) {
             return "(" + pos_to_string(record.pos) + ", " + "R_SUM_INDEX1" + ")";
         }
-        if (record.rule == R_SUM_SWAP) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_SUM_SWAP" + ")";
-        }
 
         return "Some Rule";
         

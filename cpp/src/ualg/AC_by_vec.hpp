@@ -51,10 +51,11 @@ namespace ualg {
      * @param term 
      * @param bank 
      * @param c_symbols 
+     * @param comp 
      * @return const Term<T>* 
      */
-    template <class T>
-    const Term<T>* sort_C_terms(const Term<T>* term, TermBank<T>& bank, const std::set<T>& c_symbols) {
+    template <class T, class Compare>
+    const Term<T>* sort_C_terms(const Term<T>* term, TermBank<T>& bank, const std::set<T>& c_symbols, Compare comp) {
 
         if (term->get_args().size() == 0) return term;
 
@@ -65,23 +66,32 @@ namespace ualg {
         for (unsigned i = 0; i < args.size(); ++i) {
             auto sorted_arg = sort_C_terms(
                 args[i],
-                bank, c_symbols
+                bank, c_symbols, comp
             );
             res_subterm_sort.push_back(sorted_arg);
         }
 
         // sort the arguments for AC symbols
         if (c_symbols.find(term->get_head()) != c_symbols.end()) {
-            std::sort(res_subterm_sort.begin(), res_subterm_sort.end(), 
-                [](const auto& a, const auto& b) {
-                    return a < b;
-                }
-            );
+            std::sort(res_subterm_sort.begin(), res_subterm_sort.end(), comp);
         }
 
         return  bank.get_term(term->get_head(), std::move(res_subterm_sort));
     }
 
+    /**
+     * @brief The standard comparator for sort_C_terms.
+     * 
+     * @tparam T 
+     * @param a 
+     * @param b 
+     * @return true 
+     * @return false 
+     */
+    template <class T>
+    bool std_comp(const Term<T>* a, const Term<T>* b) {
+        return *a < *b;
+    }
 
     /**
      * @brief Check whether the two terms are equivalent under the C theory.
@@ -95,8 +105,8 @@ namespace ualg {
     bool check_C_eq(const Term<T>* termA, const Term<T>* termB, TermBank<T>& bank, const std::set<T>& c_symbols) {
 
         // sort the two terms first
-        auto sortedA = sort_C_terms(termA, bank, c_symbols);
-        auto sortedB = sort_C_terms(termB, bank, c_symbols);
+        auto sortedA = sort_C_terms(termA, bank, c_symbols, std_comp<T>);
+        auto sortedB = sort_C_terms(termB, bank, c_symbols, std_comp<T>);
 
         return sortedA == sortedB;
     }

@@ -43,5 +43,5 @@ term:   ID '[' expr (',' expr)* ']'                # Application
     ;
 
 // Lexer rules
-ID  :   [a-zA-Z0-9_] [a-zA-Z0-9_]* ;       // standard identifier
+ID  :   [a-zA-Z0-9_@$][a-zA-Z0-9_]* ;       // standard identifier
 WS  :   [ \t\r\n]+ -> skip ;  // Skip whitespace (spaces, tabs, newlines)

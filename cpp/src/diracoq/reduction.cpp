@@ -285,6 +285,275 @@ namespace diracoq {
 
     }
 
+
+    void _get_bound_vars(const Term<int>* term, std::set<int>& res) {
+        if (term->is_atomic()) {
+            return;
+        }
+
+        auto head = term->get_head();
+        auto args = term->get_args();
+
+        if (head == FUN) {
+            res.insert(args[0]->get_head());
+        }
+
+        for (const auto& arg : args) {
+            _get_bound_vars(arg, res);
+        }
+    }
+
+    std::set<int> get_bound_vars(const ualg::Term<int>* term) {
+        std::set<int> res;
+        _get_bound_vars(term, res);
+        return res;
+    }
+
+
+    enum COMPARE_RESULT {
+        LESS,
+        EQUAL,
+        GREATER
+    };
+
+    /**
+     * @brief Helper function to compare two terms modulo bound variables. The bound_vars should be provided as a set.
+     * 
+     * @param termA 
+     * @param termB 
+     * @param bound_vars 
+     * @return COMPARE_RESULT 
+     */
+    COMPARE_RESULT _comp_modulo_bound_vars(const Term<int>* termA, const Term<int>* termB, std::set<int> bound_vars) {
+        auto headA = termA->get_head();
+        auto headB = termB->get_head();
+
+        auto argsA = termA->get_args();
+        auto argsB = termB->get_args();
+
+
+        // bound variables are always larger than free variables, and they are equal to each other in order
+
+        if (bound_vars.find(headA) != bound_vars.end()) {
+            // set headA to the largest int
+            headA = std::numeric_limits<int>::max();
+        }
+
+        if (bound_vars.find(headB) != bound_vars.end()) {
+            // set headB to the largest int
+            headB = std::numeric_limits<int>::max();
+        }
+
+        // start comparing
+
+        if (headA != headB) {
+            return (headA < headB)? LESS : GREATER;
+        }
+
+        auto shortest_len = std::min(argsA.size(), argsB.size());
+
+        for (int i = 0; i < shortest_len; i++) {
+            auto res = _comp_modulo_bound_vars(argsA[i], argsB[i], bound_vars);
+            if (res != EQUAL) {
+                return res;
+            }
+        }
+
+        // if the first shortest_len elements are equal, then the shorter one is smaller
+
+        if (argsA.size() != argsB.size()) {
+            return (argsA.size() < argsB.size())? LESS : GREATER;
+        }
+
+        return EQUAL;
+    }
+
+
+    bool comp_modulo_bound_vars(const Term<int>* termA, const Term<int>* termB, const std::set<int>& bound_vars) {
+
+        return _comp_modulo_bound_vars(termA, termB, bound_vars) == LESS;
+    }
+    
+
+    /**
+     * @brief Iteratively traverse the term to get the order of the bound variables. Used in the get_order_of_bound_vars.
+     * 
+     * Note that if some bound variable does not appear in the term, it will not be included in this order. Therefore other procedure is needed to assign proper order to these variables (according to sets of summation).
+     * 
+     * @param term 
+     * @param vars_set 
+     * @param vars 
+     */
+    void _iter_for_order(const Term<int>* term, std::set<int>& vars_set, std::vector<int>& vars, std::map<int, const Term<int>*>& var_to_sumset) {
+        // NOTE: the set is used to store the bound variables that require ordering
+
+        if (term->is_atomic()) {
+            if (vars_set.find(term->get_head()) != vars_set.end()) {
+                vars.push_back(term->get_head());
+                vars_set.erase(term->get_head());
+            }
+            return;
+        }
+
+        auto head = term->get_head();
+        auto args = term->get_args();
+
+        if (head == FUN) {
+            if (vars_set.find(args[0]->get_head()) == vars_set.end()) {
+                vars_set.insert(args[0]->get_head());
+            }
+            else {
+                throw std::runtime_error("The bound variable is used twice.");
+            }
+
+            _iter_for_order(args[2], vars_set, vars, var_to_sumset);
+        }
+        else {
+            for (const auto& arg : args) {
+                _iter_for_order(arg, vars_set, vars, var_to_sumset);
+            }
+        }
+
+        // preserve teh sum sets for the bound variables
+        if (head == SUM) {
+            auto fun = args[1];
+            if (fun->get_head() == FUN) {
+                auto var = fun->get_args()[0]->get_head();
+                if (var_to_sumset.find(var) == var_to_sumset.end()) {
+                    var_to_sumset[var] = args[0];
+                }
+                else {
+                    throw std::runtime_error("The bound variable is used twice.");
+                }
+            }
+        }
+
+    }
+
+    /**
+     * @brief Get the order of bound vars. The order will include all the bound variables of the form SUM[s, FUN[i, ...]].
+     * 
+     * @param term 
+     * @return vector<int> 
+     */
+    vector<int> get_order_of_bound_vars(const Term<int>* term) {
+        std::set<int> bound_vars_set;
+        std::vector<int> bound_vars_order;
+        std::map<int, const Term<int>*> bound_vars_sumset;
+        _iter_for_order(term, bound_vars_set, bound_vars_order, bound_vars_sumset);
+
+        // check whether bound_vars_sumset should be included in the order
+        std::vector<pair<int, const Term<int>*>> necessary_sum_vars;
+        for (const auto& [var, sumset] : bound_vars_sumset) {
+            if (bound_vars_set.find(var) != bound_vars_set.end()) {
+                necessary_sum_vars.push_back({var, sumset});
+            }
+        }
+
+        // sort necessary sumset bound variables (according to the sum set)
+        std::sort(necessary_sum_vars.begin(), necessary_sum_vars.end(), [&](const pair<int, const Term<int>*>& a, const pair<int, const Term<int>*>& b) {
+            return a.second < b.second;
+        });
+
+        // append to the bound_vars_order
+        for (const auto& [var, _] : necessary_sum_vars) {
+            bound_vars_order.push_back(var);
+        }
+
+        return bound_vars_order;
+    }
+
+    // the structure to store the bound variable information
+    struct SumSwapHead {
+        int head;
+        const Term<int>* set;
+        const Term<int>* type;
+    };
+
+    const Term<int>* _sum_swap_normalization(Kernel& kernel, const Term<int>* term, const map<int, int>& var_to_order) {
+        if (term->is_atomic()) {
+            return term;
+        }
+
+        // pointer to the first inner term that is not within a chaining of sum
+        const Term<int>* inner_term = term;
+        vector<SumSwapHead> sum_swap_heads;
+
+        while (true) {
+            if (inner_term->get_head() != SUM) break;
+
+            auto& args_sum = inner_term->get_args();
+            
+            if (args_sum[1]->get_head() != FUN) break; 
+
+            auto& args_fun = args_sum[1]->get_args();
+
+            sum_swap_heads.emplace_back(SumSwapHead{args_fun[0]->get_head(), args_sum[0], args_fun[1]});
+
+            inner_term = args_fun[2];
+        }
+
+        if (sum_swap_heads.size() == 0) {
+            // no sum swap to do
+            auto& args = term->get_args();
+            ListArgs<int> new_args;
+            for (const auto& arg : args) {
+                new_args.push_back(_sum_swap_normalization(kernel, arg, var_to_order));
+            }
+            return kernel.get_bank().get_term(term->get_head(), new_args);
+        }
+
+        else {
+            // get the normolized inner term
+            inner_term = _sum_swap_normalization(kernel, inner_term, var_to_order);
+
+            // sort the sum swap heads
+            std::sort(sum_swap_heads.begin(), sum_swap_heads.end(), [&](const SumSwapHead& a, const SumSwapHead& b) {
+                return var_to_order.at(a.head) < var_to_order.at(b.head);
+            });
+
+            // create the from innermost to out
+            for (int i = sum_swap_heads.size() - 1; i >= 0; i--) {
+                auto& head = sum_swap_heads[i];
+                inner_term = kernel.get_bank().get_term(
+                    SUM,
+                    {
+                        head.set,
+                        kernel.get_bank().get_term(
+                            FUN,
+                            {
+                                kernel.get_bank().get_term(head.head),
+                                head.type,
+                                inner_term
+                            }
+                        )
+                    }
+                );
+            }
+
+            return inner_term;
+        }
+            
+    }
+
+    const Term<int>* sum_swap_normalization(Kernel& kernel, const Term<int>* term) {
+
+        // get all the bound variables
+        std::set<int> bound_vars;
+        _get_bound_vars(term, bound_vars);
+
+        // iterate through the term to get the order
+        std::vector<int> bound_vars_order = get_order_of_bound_vars(term);
+
+        // create the order map
+        map<int, int> var_to_order;
+        for (int i = 0; i < bound_vars_order.size(); i++) {
+            var_to_order[bound_vars_order[i]] = i;
+        }
+
+        return _sum_swap_normalization(kernel, term, var_to_order);
+    }
+
     //////////////// Rules
 
 /**
@@ -3682,46 +3951,6 @@ namespace diracoq {
         );
     }
 
-    // M1 < M2 => SUM(M2 FUN(i T1 SUM(M1 FUN(j T2 X))) -> SUM(M1 FUN(j T2 SUM(M2 FUN(i T1 X))))
-    DIRACOQ_RULE_DEF(R_SUM_SWAP, kernel, term) {
-        auto &bank = kernel.get_bank();
-        auto &sig = kernel.get_sig();
-
-        MATCH_HEAD(term, SUM, args_SUM_M2_fun_i_T1_SUM_M1_fun_j_T2_X)
-
-        MATCH_HEAD(args_SUM_M2_fun_i_T1_SUM_M1_fun_j_T2_X[1], FUN, args_FUN_i_T1_SUM_M1_fun_j_T2_X)
-
-        MATCH_HEAD(args_FUN_i_T1_SUM_M1_fun_j_T2_X[2], SUM, args_SUM_M1_fun_j_T2_X)
-
-        if (!is_smaller(sig, bank, args_SUM_M1_fun_j_T2_X[0], args_SUM_M2_fun_i_T1_SUM_M1_fun_j_T2_X[0])) return std::nullopt;
-
-        MATCH_HEAD(args_SUM_M1_fun_j_T2_X[1], FUN, args_FUN_j_T2_X)
-
-        return bank.get_term(SUM, 
-            {
-                args_SUM_M1_fun_j_T2_X[0],
-                bank.get_term(FUN, 
-                    {
-                        args_FUN_j_T2_X[0],
-                        args_FUN_j_T2_X[1],
-                        bank.get_term(SUM, 
-                            {
-                                args_SUM_M2_fun_i_T1_SUM_M1_fun_j_T2_X[0],
-                                bank.get_term(FUN, 
-                                    {
-                                        args_FUN_i_T1_SUM_M1_fun_j_T2_X[0],
-                                        args_FUN_i_T1_SUM_M1_fun_j_T2_X[1],
-                                        args_FUN_j_T2_X[2]
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-            }
-        );
-    }
-
     const std::vector<PosRewritingRule> rules = {
         R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_FLATTEN,
         
@@ -3753,7 +3982,7 @@ namespace diracoq {
 
         R_SUM_PUSH0, R_SUM_PUSH1, R_SUM_PUSH2, R_SUM_PUSH3, R_SUM_PUSH4, R_SUM_PUSH5, R_SUM_PUSH6, R_SUM_PUSH7, R_SUM_PUSH8, R_SUM_PUSH9, R_SUM_PUSH10, R_SUM_PUSH11, R_SUM_PUSH12, R_SUM_PUSH13, R_SUM_PUSH14, R_SUM_PUSH15, R_SUM_PUSH16,
 
-        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_INDEX0, R_SUM_INDEX1, R_SUM_SWAP
+        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_INDEX0, R_SUM_INDEX1
     };
 
     std::vector<PosRewritingRule> get_all_rules() {
