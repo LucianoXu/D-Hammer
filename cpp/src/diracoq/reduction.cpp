@@ -30,18 +30,26 @@ namespace diracoq {
         
         // Check whether the rule can be applied to the subterms
         if (head == FUN) {
-            kernel.context_push(args[0]->get_head(), args[1]);
-            
-            current_pos.push_back(2);
-            auto replace_res = get_pos_replace(kernel, args[2], rules, current_pos);
 
+            // check whether the type can be rewritten
+            current_pos.push_back(1);
+            auto replace_res = get_pos_replace(kernel, args[1], rules, current_pos);
             current_pos.pop_back();
+            if (replace_res.has_value()) {
+                return replace_res;
+            }
 
+            // check whether the body can be rewritten (with context push)
+            kernel.context_push(args[0]->get_head(), args[1]);
+            current_pos.push_back(2);
+            replace_res = get_pos_replace(kernel, args[2], rules, current_pos);
+            current_pos.pop_back();
             kernel.context_pop();
 
             if (replace_res.has_value()) {
                 return replace_res;
             }
+
             return std::nullopt;
         }
         else if (head == IDX) {
@@ -3869,7 +3877,7 @@ namespace diracoq {
         return bank.get_term(ADD, std::move(new_sum_args));
     }
 
-    // SUM(USET(PROD(T1 T2)) FUN(i PROD(T1 T2) X)) -> SUM(USET(T1) FUN(j T1 SUM(USET(T2) FUN(k T2 X{i/PAIR(j k)}))))
+    // SUM(USET(PROD(T1 T2)) FUN(i BASIS(PROD(T1 T2)) X)) -> SUM(USET(T1) FUN(j BASIS(T1) SUM(USET(T2) FUN(k BASIS(T2) X{i/PAIR(j k)}))))
     DIRACOQ_RULE_DEF(R_SUM_INDEX0, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -3882,6 +3890,10 @@ namespace diracoq {
 
         MATCH_HEAD(args_SUM_USET_Prod_T1_T2_fun_i_Prod_T1_T2_X[1], FUN, args_FUN_i_Prod_T1_T2_X)
 
+        MATCH_HEAD(args_FUN_i_Prod_T1_T2_X[1], BASIS, args_Basis_Prod_T1_T2)
+
+        if (args_Basis_Prod_T1_T2[0]->get_head() != PROD) return std::nullopt;
+
         const Term<int> *j = bank.get_term(kernel.register_symbol(unique_var()));
         const Term<int> *k = bank.get_term(kernel.register_symbol(unique_var()));
 
@@ -3891,14 +3903,14 @@ namespace diracoq {
                 bank.get_term(FUN, 
                     {
                         j,
-                        args_Prod_T1_T2[0],
+                        bank.get_term(BASIS, {args_Prod_T1_T2[0]}),
                         bank.get_term(SUM, 
                             {
                                 bank.get_term(USET, {args_Prod_T1_T2[1]}),
                                 bank.get_term(FUN, 
                                     {
                                         k,
-                                        args_Prod_T1_T2[1],
+                                        bank.get_term(BASIS, {args_Prod_T1_T2[1]}),
                                         subst(sig, bank, args_FUN_i_Prod_T1_T2_X[2], args_FUN_i_Prod_T1_T2_X[0]->get_head(), bank.get_term(PAIR, {j, k}))
                                     }
                                 )
@@ -3910,7 +3922,41 @@ namespace diracoq {
         );              
     }
 
-    // SUM(CATPROD(M1 M2) FUN(i PROD(T1 T2) X)) -> SUM(M1 FUN(j T1 SUM(M2 FUN(k T2 X{i/PAIR(j k)})))
+
+    // SUM(M FUN(i T SCR(ADDS(a1 ... an) X))) -> ADD(SUM(M FUN(i T SCR(a1 X))) ... SUM(M FUN(i T SCR(an X)))
+    DIRACOQ_RULE_DEF(R_SUM_ADD1, kernel, term) {
+        auto &bank = kernel.get_bank();
+
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X)
+
+        MATCH_HEAD(args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X[1], FUN, args_FUN_i_T_SCR_ADDS_a1_an_X)
+
+        MATCH_HEAD(args_FUN_i_T_SCR_ADDS_a1_an_X[2], SCR, args_SCR_ADDS_a1_an_X)
+
+        MATCH_HEAD(args_SCR_ADDS_a1_an_X[0], ADDS, args_ADDS_a1_an_X)
+
+        ListArgs<int> new_sum_args;
+
+        for (const auto &arg : args_ADDS_a1_an_X) {
+            new_sum_args.push_back(bank.get_term(SUM, 
+                {
+                    args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X[0],
+                    bank.get_term(FUN, 
+                        {
+                            args_FUN_i_T_SCR_ADDS_a1_an_X[0],
+                            args_FUN_i_T_SCR_ADDS_a1_an_X[1],
+                            bank.get_term(SCR, {arg, args_SCR_ADDS_a1_an_X[1]})
+                        }
+                    )
+                }
+            ));
+        }
+
+        return bank.get_term(ADD, std::move(new_sum_args));
+    }
+
+
+    // SUM(CATPROD(M1 M2) FUN(i BASIS(PROD(T1 T2)) X)) -> SUM(M1 FUN(j BASIS(T1) SUM(M2 FUN(k BASIS(T2) X{i/PAIR(j k)})))
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term) {
         auto &bank = kernel.get_bank();
         auto &sig = kernel.get_sig();
@@ -3919,9 +3965,11 @@ namespace diracoq {
 
         MATCH_HEAD(args_SUM_CATPROD_M1_M2_fun_i_Prod_T1_T2_X[0], CATPROD, args_CATPROD_M1_M2)
 
-        MATCH_HEAD(args_SUM_CATPROD_M1_M2_fun_i_Prod_T1_T2_X[1], FUN, args_FUN_i_Prod_T1_T2_X)
+        MATCH_HEAD(args_SUM_CATPROD_M1_M2_fun_i_Prod_T1_T2_X[1], FUN, args_FUN_i_Basis_Prod_T1_T2_X)
 
-        MATCH_HEAD(args_FUN_i_Prod_T1_T2_X[1], PROD, args_Prod_T1_T2_X)
+        MATCH_HEAD(args_FUN_i_Basis_Prod_T1_T2_X[1], BASIS, args_BASIS_Prod_T1_T2)
+
+        MATCH_HEAD(args_BASIS_Prod_T1_T2[0], PROD, args_Prod_T1_T2)
 
         const Term<int> *j = bank.get_term(kernel.register_symbol(unique_var()));
         const Term<int> *k = bank.get_term(kernel.register_symbol(unique_var()));
@@ -3932,15 +3980,15 @@ namespace diracoq {
                 bank.get_term(FUN, 
                     {
                         j,
-                        args_Prod_T1_T2_X[0],
+                        bank.get_term(BASIS, {args_Prod_T1_T2[0]}),
                         bank.get_term(SUM, 
                             {
                                 args_CATPROD_M1_M2[1],
                                 bank.get_term(FUN, 
                                     {
                                         k,
-                                        args_Prod_T1_T2_X[1],
-                                        subst(sig, bank, args_FUN_i_Prod_T1_T2_X[2], args_FUN_i_Prod_T1_T2_X[0]->get_head(), bank.get_term(PAIR, {j, k}))
+                                        bank.get_term(BASIS, {args_Prod_T1_T2[1]}),
+                                        subst(sig, bank, args_FUN_i_Basis_Prod_T1_T2_X[2], args_FUN_i_Basis_Prod_T1_T2_X[0]->get_head(), bank.get_term(PAIR, {j, k}))
                                     }
                                 )
                             }
@@ -3982,7 +4030,7 @@ namespace diracoq {
 
         R_SUM_PUSH0, R_SUM_PUSH1, R_SUM_PUSH2, R_SUM_PUSH3, R_SUM_PUSH4, R_SUM_PUSH5, R_SUM_PUSH6, R_SUM_PUSH7, R_SUM_PUSH8, R_SUM_PUSH9, R_SUM_PUSH10, R_SUM_PUSH11, R_SUM_PUSH12, R_SUM_PUSH13, R_SUM_PUSH14, R_SUM_PUSH15, R_SUM_PUSH16,
 
-        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_INDEX0, R_SUM_INDEX1
+        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1
     };
 
     std::vector<PosRewritingRule> get_all_rules() {

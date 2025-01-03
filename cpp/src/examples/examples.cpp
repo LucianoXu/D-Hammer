@@ -910,6 +910,9 @@ Block[{DiracCtx = {A -> OType[T1, T2]}},
         },
 
 
+///////////////////////////////////////////////
+// this example needs concrete basis and is not implemented
+
 
 
 /*
@@ -920,16 +923,222 @@ Block[{DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
  ]
 */
 
+        // {
+        //     "COQQ-19 sumonb_out_bool(CB)",
+        //     R"(
+        //         Var qubit : INDEX.
+        //         Var #0 : BASIS[qubit].
+        //         Var #1 : BASIS[qubit].
+        //     )",
+        //     "|#0> <#0| + |#1> <#1|",
+        //     "1O[qubit]"
+        // },
+
+
+/*
+COQQ-20 ponb_ns(CB)
+
+Block[{DiracCtx = {i -> T}},
+ DNEqQ[Bra[{i}]\[SmallCircle]Ket[{i}], CPX[1]]
+ ]
+*/
+
         {
-            "COQQ-19 sumonb_out_bool(CB)",
+            "COQQ-20 ponb_ns(CB)",
             R"(
-                Var qubit : INDEX.
-                Var #0 : BASIS[qubit].
-                Var #1 : BASIS[qubit].
+                Var T : INDEX.
+                Var i : BASIS[T].
             )",
-            "|#0> <#0| + |#1> <#1|",
-            "1O[qubit]"
+            "<i| |i>",
+            "1"
         },
+
+/*
+COQQ-21 linear_tensmx
+
+Block[
+ {DiracCtx = {a -> SType, A -> OType[T1, T2], B -> OType[T3, T4], 
+    D -> OType[T3, T4]}},
+ DNEqQ[
+  A\[CircleTimes]((a B) ~ADDO~ D),
+  (a (A\[CircleTimes]B))~ADDO~(A\[CircleTimes]D)
+  ]
+ ]
+*/
+
+        {
+            "COQQ-21 linear_tensmx",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var a : STYPE.
+                Var A : OTYPE[T1, T2].
+                Var B : OTYPE[T3, T4].
+                Var D : OTYPE[T3, T4].
+            )",
+            "A * ((a B) + D)",
+            "(a (A * B)) + (A * D)"
+        },
+
+/*
+COQQ-22 linear_tensmxr
+
+Block[
+ {DiracCtx = {a -> SType, A -> OType[T1, T2], B -> OType[T1, T2], 
+    D -> OType[T3, T4]}},
+ DNEqQ[
+  ((a A)~ADDO~ B)\[CircleTimes]D,
+  (a (A\[CircleTimes]D))~ADDO~(B\[CircleTimes]D)
+  ]
+ ]
+*/
+
+        {
+            "COQQ-22 linear_tensmxr",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var a : STYPE.
+                Var A : OTYPE[T1, T2].
+                Var B : OTYPE[T1, T2].
+                Var D : OTYPE[T3, T4].
+            )",
+            "((a A) + B) * D",
+            "(a (A * D)) + (B * D)"
+        },
+
+/*
+COQQ-23 adjmx_tens
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2], B -> OType[T3, T4]}},
+ DNEqQ[
+  ADJO[A~TSRO~B],
+  ADJO[A]~TSRO~ADJO[B]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-23 adjmx_tens",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var A : OTYPE[T1, T2].
+                Var B : OTYPE[T3, T4].
+            )",
+            "(A * B)^D",
+            "A^D * B^D"
+        },
+
+/*
+COQQ-24 mxtrace_tens
+
+Block[
+ {DiracCtx = {A -> OType[T1, T1], B -> OType[T2, T2]}},
+ DNEqQ[
+  DNTr[A~TSRO~B, T1~ProdType~T2],
+  DNTr[A, T1]~MLTS~DNTr[B, T2]
+  ]
+ ]
+*/
+        
+        {
+            "COQQ-24 mxtrace_tens",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1, T1].
+                Var B : OTYPE[T2, T2].
+            )",
+            "Tr (T1 * T2) (A * B)",
+            "(Tr T1 A) * (Tr T2 B)"
+        },
+
+/*
+COQQ-25 tr_tens
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T2]}},
+ DNEqQ[
+  DNTr[A, T1~ProdType~T2],
+  Sum[Sum[
+    Bra[{PAIR[i, j]}]\[SmallCircle]A\[SmallCircle]Ket[{PAIR[i, 
+        j]}], {i, USET[T1]}], {j, USET[T2]}]
+  ]
+ ]
+*/
+    
+        {
+            "COQQ-25 tr_tens",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1 * T2, T1 * T2].
+            )",
+            "Tr (T1 * T2) A",
+            "Sum i in USET[T1], Sum j in USET[T2], <(i, j)| A |(i, j)>"
+        },
+
+/*
+COQQ-26 mxswapK
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T4]}},
+ DNEqQ[
+  SWAP[SWAP[A, T1, T2, T3, T4], T2, T1, T4, T3],
+  A
+  ]
+ ]
+*/
+
+        {
+            "COQQ-26 mxswapK",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var A : OTYPE[T1 * T2, T3 * T4].
+            )",
+            "SWAP T2 T1 T4 T3 (SWAP T1 T2 T3 T4 A)",
+            "A"
+        },
+
+/*
+COQQ-27 mxswap_is_linear
+Block[
+ {DiracCtx = {a -> SType,
+    x -> OType[T1~ProdType~T2, T3~ProdType~T4],
+     y -> OType[T1~ProdType~T2, T3~ProdType~T4]}},
+ DNEqQ[
+  SWAP[(a~SCRO~x)~ADDO~y, T1, T2, T3, T4],
+  (a~SCRO~SWAP[x, T1, T2, T3, T4])~ADDO~SWAP[y, T1, T2, T3, T4]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-27 mxswap_is_linear",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var a : STYPE.
+                Var x : OTYPE[T1 * T2, T3 * T4].
+                Var y : OTYPE[T1 * T2, T3 * T4].
+            )",
+            "SWAP T1 T2 T3 T4 ((a x) + y)",
+            "a (SWAP T1 T2 T3 T4 x) + SWAP T1 T2 T3 T4 y"
+        },
+
     };
 
 

@@ -146,7 +146,7 @@ namespace diracoq {
                     auto expanded_term = variable_expand(kernel, temp);
 
                     // second rewriting
-                    temp = pos_rewrite_repeated(kernel, expanded_term, rules, &trace);
+                    temp = pos_rewrite_repeated(kernel, expanded_term, all_rules, &trace);
                     
                     // cout << "[Normalized]:\t\t\t\t" << kernel.term_to_string(temp) << endl;
 
@@ -227,7 +227,7 @@ namespace diracoq {
         auto termB = kernel.parse(codeB);
         auto typeA = kernel.calc_type(termA);
         auto typeB = kernel.calc_type(termB);
-        if (typeA != typeB) {
+        if (!kernel.is_judgemental_eq(typeA, typeB)) {
             output << "The two terms have different types and are not equal." << endl;
             output << "[TYPE A] " << kernel.term_to_string(typeA) << endl;
             output << "[TYPE B] " << kernel.term_to_string(typeB) << endl;
@@ -239,7 +239,7 @@ namespace diracoq {
         auto renamed_resA = bound_variable_rename(kernel, termA);
         auto tempA = pos_rewrite_repeated(kernel, renamed_resA, all_rules, &traceA);
         auto expanded_termA = variable_expand(kernel, tempA);
-        tempA = pos_rewrite_repeated(kernel, expanded_termA, rules, &traceA);
+        tempA = pos_rewrite_repeated(kernel, expanded_termA, all_rules, &traceA);
         auto bound_varsA = get_bound_vars(tempA);
         tempA = sort_C_terms(tempA, kernel.get_bank(), c_symbols, 
             [&](const Term<int>* a, const Term<int>* b) {
@@ -253,7 +253,7 @@ namespace diracoq {
         auto renamed_resB = bound_variable_rename(kernel, termB);
         auto tempB = pos_rewrite_repeated(kernel, renamed_resB, all_rules, &traceB);
         auto expanded_termB = variable_expand(kernel, tempB);
-        tempB = pos_rewrite_repeated(kernel, expanded_termB, rules, &traceB);
+        tempB = pos_rewrite_repeated(kernel, expanded_termB, all_rules, &traceB);
         auto bound_varsB = get_bound_vars(tempB);
         tempB = sort_C_terms(tempB, kernel.get_bank(), c_symbols, 
             [&](const Term<int>* a, const Term<int>* b) {
