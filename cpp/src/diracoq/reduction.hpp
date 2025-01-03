@@ -251,10 +251,10 @@ namespace diracoq {
     // DOT(B SCR(a K)) -> MULS(a DOT(B K))
     DIRACOQ_RULE_DEF(R_DOT3, kernel, term);
 
-    // DOT(ADD(B1 ... Bn) K) -> ADD(DOT(B1 K) ... DOT(Bn K))
+    // DOT(ADD(B1 ... Bn) K) -> ADDS(DOT(B1 K) ... DOT(Bn K))
     DIRACOQ_RULE_DEF(R_DOT4, kernel, term);
 
-    // DOT(B ADD(K1 ... Kn)) -> ADD(DOT(B K1) ... DOT(B Kn))
+    // DOT(B ADD(K1 ... Kn)) -> ADDS(DOT(B K1) ... DOT(B Kn))
     DIRACOQ_RULE_DEF(R_DOT5, kernel, term);
 
     // DOT(BRA(s) KET(t)) -> DELTA(s t)

@@ -383,15 +383,15 @@ TEST(DiracoqReduction, R_DOT3) {
 }
 
 TEST(DiracoqReduction, R_DOT4) {
-    TEST_RULE({R_DOT4}, "DOT[ADD[B1], K]", "ADD[DOT[B1, K]]");
-    TEST_RULE({R_DOT4}, "DOT[ADD[B1, B2], K]", "ADD[DOT[B1, K], DOT[B2, K]]");
-    TEST_RULE({R_DOT4}, "DOT[ADD[B1, B2, B3], K]", "ADD[DOT[B1, K], DOT[B2, K], DOT[B3, K]]");
+    TEST_RULE({R_DOT4}, "DOT[ADD[B1], K]", "ADDS[DOT[B1, K]]");
+    TEST_RULE({R_DOT4}, "DOT[ADD[B1, B2], K]", "ADDS[DOT[B1, K], DOT[B2, K]]");
+    TEST_RULE({R_DOT4}, "DOT[ADD[B1, B2, B3], K]", "ADDS[DOT[B1, K], DOT[B2, K], DOT[B3, K]]");
 }
 
 TEST(DiracoqReduction, R_DOT5) {
-    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1]]", "ADD[DOT[B, K1]]");
-    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1, K2]]", "ADD[DOT[B, K1], DOT[B, K2]]");
-    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1, K2, K3]]", "ADD[DOT[B, K1], DOT[B, K2], DOT[B, K3]]");
+    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1]]", "ADDS[DOT[B, K1]]");
+    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1, K2]]", "ADDS[DOT[B, K1], DOT[B, K2]]");
+    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1, K2, K3]]", "ADDS[DOT[B, K1], DOT[B, K2], DOT[B, K3]]");
 }
 
 TEST(DiracoqReduction, R_DOT6) {

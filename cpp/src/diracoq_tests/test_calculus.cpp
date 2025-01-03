@@ -800,3 +800,19 @@ TEST(DiracoqTypeCheck, Sum_Opt) {
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM[s, f]"), kernel.parse("OTYPE[sigma, tau]")));
 }
+
+
+///////////////////////////////////////////////////////////////////////
+TEST(DiracoqTypeCheck, Example1) {
+    Kernel kernel;
+
+    kernel.def(kernel.register_symbol("Tr"), kernel.parse("idx T => fun O : OTYPE[T, T] => Sum i in USET[T], <i| O |i>"));
+
+    kernel.assum(kernel.register_symbol("c"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("OTYPE[T, T]"));
+    kernel.assum(kernel.register_symbol("g"), kernel.parse("OTYPE[T, T]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("c * (Tr T f) + Tr T g"), kernel.parse("STYPE")));
+    
+}

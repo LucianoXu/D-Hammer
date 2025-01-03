@@ -1125,7 +1125,7 @@ namespace diracoq {
         );
     }
 
-    // DOT(ADD(B1 ... Bn) K) -> ADD(DOT(B1 K) ... DOT(Bn K))
+    // DOT(ADD(B1 ... Bn) K) -> ADDS(DOT(B1 K) ... DOT(Bn K))
     DIRACOQ_RULE_DEF(R_DOT4, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1137,10 +1137,10 @@ namespace diracoq {
         for (const auto& arg : args_ADD_B1_Bn) {
             new_args.push_back(bank.get_term(DOT, {arg, args_DOT_ADD_B1_Bn_K[1]}));
         }
-        return bank.get_term(ADD, std::move(new_args));
+        return bank.get_term(ADDS, std::move(new_args));
     }
 
-    // DOT(B ADD(K1 ... Kn)) -> ADD(DOT(B K1) ... DOT(B Kn))
+    // DOT(B ADD(K1 ... Kn)) -> ADDS(DOT(B K1) ... DOT(B Kn))
     DIRACOQ_RULE_DEF(R_DOT5, kernel, term) {
         auto &bank = kernel.get_bank();
 
@@ -1152,7 +1152,7 @@ namespace diracoq {
         for (const auto& arg : args_ADD_K1_Kn) {
             new_args.push_back(bank.get_term(DOT, {args_DOT_B_ADD_K1_Kn[0], arg}));
         }
-        return bank.get_term(ADD, std::move(new_args));
+        return bank.get_term(ADDS, std::move(new_args));
     }
 
     // DOT(BRA(s) KET(t)) -> DELTA(s t)
