@@ -3831,14 +3831,15 @@ namespace diracoq {
 
         ListArgs<int> new_sum_args;
         for (const auto &arg : args_ADDS_a1_an) {
+            auto new_var = bank.get_term(kernel.register_symbol(unique_var()));
             new_sum_args.push_back(bank.get_term(SUM, 
                 {
                     args_SUM_M_fun_i_T_ADDS_a1_an[0],
                     bank.get_term(FUN, 
                         {
-                            args_FUN_i_T_ADDS_a1_an[0],
+                            new_var,
                             args_FUN_i_T_ADDS_a1_an[1],
-                            arg
+                            subst(kernel.get_sig(), bank, arg, args_FUN_i_T_ADDS_a1_an[0]->get_head(), new_var)
                         }
                     )
                 }
@@ -3860,14 +3861,50 @@ namespace diracoq {
 
         ListArgs<int> new_sum_args;
         for (const auto &arg : args_ADD_a1_an) {
+            auto new_var = bank.get_term(kernel.register_symbol(unique_var()));
             new_sum_args.push_back(bank.get_term(SUM, 
                 {
                     args_SUM_M_fun_i_T_ADD_a1_an[0],
                     bank.get_term(FUN, 
                         {
-                            args_FUN_i_T_ADD_a1_an[0],
+                            new_var,
                             args_FUN_i_T_ADD_a1_an[1],
-                            arg
+                            subst(kernel.get_sig(), bank, arg, args_FUN_i_T_ADD_a1_an[0]->get_head(), new_var)
+                        }
+                    )
+                }
+            ));
+        }
+
+        return bank.get_term(ADD, std::move(new_sum_args));
+    }
+
+
+
+    // SUM(M FUN(i T SCR(ADDS(a1 ... an) X))) -> ADD(SUM(M FUN(i T SCR(a1 X))) ... SUM(M FUN(i T SCR(an X)))
+    DIRACOQ_RULE_DEF(R_SUM_ADD1, kernel, term) {
+        auto &bank = kernel.get_bank();
+
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X)
+
+        MATCH_HEAD(args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X[1], FUN, args_FUN_i_T_SCR_ADDS_a1_an_X)
+
+        MATCH_HEAD(args_FUN_i_T_SCR_ADDS_a1_an_X[2], SCR, args_SCR_ADDS_a1_an_X)
+
+        MATCH_HEAD(args_SCR_ADDS_a1_an_X[0], ADDS, args_ADDS_a1_an_X)
+
+        ListArgs<int> new_sum_args;
+
+        for (const auto &arg : args_ADDS_a1_an_X) {
+            auto new_var = bank.get_term(kernel.register_symbol(unique_var()));
+            new_sum_args.push_back(bank.get_term(SUM, 
+                {
+                    args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X[0],
+                    bank.get_term(FUN, 
+                        {
+                            new_var,
+                            args_FUN_i_T_SCR_ADDS_a1_an_X[1],
+                            subst(kernel.get_sig(), bank, bank.get_term(SCR, {arg, args_SCR_ADDS_a1_an_X[1]}), args_FUN_i_T_SCR_ADDS_a1_an_X[0]->get_head(), new_var)
                         }
                     )
                 }
@@ -3922,38 +3959,6 @@ namespace diracoq {
         );              
     }
 
-
-    // SUM(M FUN(i T SCR(ADDS(a1 ... an) X))) -> ADD(SUM(M FUN(i T SCR(a1 X))) ... SUM(M FUN(i T SCR(an X)))
-    DIRACOQ_RULE_DEF(R_SUM_ADD1, kernel, term) {
-        auto &bank = kernel.get_bank();
-
-        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X)
-
-        MATCH_HEAD(args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X[1], FUN, args_FUN_i_T_SCR_ADDS_a1_an_X)
-
-        MATCH_HEAD(args_FUN_i_T_SCR_ADDS_a1_an_X[2], SCR, args_SCR_ADDS_a1_an_X)
-
-        MATCH_HEAD(args_SCR_ADDS_a1_an_X[0], ADDS, args_ADDS_a1_an_X)
-
-        ListArgs<int> new_sum_args;
-
-        for (const auto &arg : args_ADDS_a1_an_X) {
-            new_sum_args.push_back(bank.get_term(SUM, 
-                {
-                    args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X[0],
-                    bank.get_term(FUN, 
-                        {
-                            args_FUN_i_T_SCR_ADDS_a1_an_X[0],
-                            args_FUN_i_T_SCR_ADDS_a1_an_X[1],
-                            bank.get_term(SCR, {arg, args_SCR_ADDS_a1_an_X[1]})
-                        }
-                    )
-                }
-            ));
-        }
-
-        return bank.get_term(ADD, std::move(new_sum_args));
-    }
 
 
     // SUM(CATPROD(M1 M2) FUN(i BASIS(PROD(T1 T2)) X)) -> SUM(M1 FUN(j BASIS(T1) SUM(M2 FUN(k BASIS(T2) X{i/PAIR(j k)})))

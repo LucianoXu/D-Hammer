@@ -1139,6 +1139,3057 @@ Block[
             "a (SWAP T1 T2 T3 T4 x) + SWAP T1 T2 T3 T4 y"
         },
 
+/*
+COQQ-28 mxswap_tens
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2], B -> OType[T3, T4]}},
+ DNEqQ[
+  SWAP[A~TSRO~B, T1, T3, T2, T4],
+  B~TSRO~A
+  ]
+ ]
+*/
+
+        {
+            "COQQ-28 mxswap_tens",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var A : OTYPE[T1, T2].
+                Var B : OTYPE[T3, T4].
+            )",
+            "SWAP T1 T3 T2 T4 (A * B)",
+            "B * A"
+        },
+
+/*
+COQQ-29 mxswap_trace
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T2]}},
+ DNEqQ[
+  DNTr[SWAP[A, T1, T2, T1, T2], T2~ProdType~T1],
+  DNTr[A, T1~ProdType~T2]
+  ]
+ ]
+*/
+        {
+            "COQQ-29 mxswap_trace",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1 * T2, T1 * T2].
+            )",
+            "Tr (T2 * T1) (SWAP T1 T2 T1 T2 A)",
+            "Tr (T1 * T2) A"
+        },
+
+/*
+COQQ-30 mxswap_mul
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T4], 
+    B -> OType[T3~ProdType~T4, T5~ProdType~T6]}},
+ DNEqQ[
+  SWAP[A, T1, T2, T3, T4]~MLTO~SWAP[B, T3, T4, T5, T6],
+  SWAP[A~MLTO~B, T1, T2, T5, T6]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-30 mxswap_mul",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var T5 : INDEX.
+                Var T6 : INDEX.
+                Var A : OTYPE[T1 * T2, T3 * T4].
+                Var B : OTYPE[T3 * T4, T5 * T6].
+            )",
+            "(SWAP T1 T2 T3 T4 A) (SWAP T3 T4 T5 T6 B)",
+            "SWAP T1 T2 T5 T6 (A B)"
+        },
+
+/*
+COQQ-31 mxswap_trmx
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T4]}},
+ DNEqQ[
+  TPO[SWAP[A, T1, T2, T3, T4], T2~ProdType~T1, T4~ProdType~T3],
+  SWAP[TPO[A, T1~ProdType~T2, T3~ProdType~T4], T3, T4, T1, T2]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-31 mxswap_trmx",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var A : OTYPE[T1 * T2, T3 * T4].
+            )",
+            "TPO (T2 * T1) (T4 * T3) (SWAP T1 T2 T3 T4 A)",
+            "SWAP T3 T4 T1 T2 (TPO (T1 * T2) (T3 * T4) A)"
+        },
+
+/*
+COQQ-32 mxswap_trmxC
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T4]}},
+ DNEqQ[
+  ADJO[SWAP[A, T1, T2, T3, T4]],
+  SWAP[ADJO[A], T3, T4, T1, T2]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-32 mxswap_trmxC",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var A : OTYPE[T1 * T2, T3 * T4].
+            )",
+            "(SWAP T1 T2 T3 T4 A)^D",
+            "SWAP T3 T4 T1 T2 A^D"
+        },
+
+/*
+COQQ-33 ptrace2E1
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T2]}},
+ DNEqQ[
+  DNPTr2[A, T2, T1, T3],
+  DNPTr1[SWAP[A, T1, T2, T3, T2], T2, T1, T3]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-33 ptrace2E1",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var A : OTYPE[T1 * T2, T3 * T2].
+            )",
+            "PTr2 T2 T1 T3 A",
+            "PTr1 T2 T1 T3 (SWAP T1 T2 T3 T2 A)"
+        },
+
+/*
+COQQ-34 ptrace1E2
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T3]}},
+ DNEqQ[
+  DNPTr1[A, T1, T2, T3],
+  DNPTr2[SWAP[A, T1, T2, T1, T3], T1, T2, T3]
+  ]
+ ]
+*/
+        
+        {
+            "COQQ-34 ptrace1E2",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var A : OTYPE[T1 * T2, T1 * T3].
+            )",
+            "PTr1 T1 T2 T3 A",
+            "PTr2 T1 T2 T3 (SWAP T1 T2 T1 T3 A)"
+        },
+
+/*
+COQQ-35 ptrace2_is_linear
+
+Block[
+ {DiracCtx = {c -> SType,
+    A -> OType[T1~ProdType~T2, T3~ProdType~T2],
+    B -> OType[T1~ProdType~T2, T3~ProdType~T2]}},
+ DNEqQ[
+  DNPTr2[(c~SCRO~A)~ADDO~B, T2, T1, T3],
+  (c~SCRO~DNPTr2[A, T2, T1, T3])~ADDO~DNPTr2[B, T2, T1, T3]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-35 ptrace2_is_linear",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var c : STYPE.
+                Var A : OTYPE[T1 * T2, T3 * T2].
+                Var B : OTYPE[T1 * T2, T3 * T2].
+            )",
+            "PTr2 T2 T1 T3 ((c A) + B)",
+            "c (PTr2 T2 T1 T3 A) + PTr2 T2 T1 T3 B"
+        },
+
+/*
+COQQ-36 ptrace1_is_linear
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T3], 
+    B -> OType[T1~ProdType~T2, T1~ProdType~T3], c -> SType}},
+ DNEqQ[
+  DNPTr1[(c A) ~ADDO~ B, T1, T2, T3],
+  (c DNPTr1[A, T1, T2, T3])~ADDO~DNPTr1[B, T1, T2, T3]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-36 ptrace1_is_linear",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var c : STYPE.
+                Var A : OTYPE[T1 * T2, T1 * T3].
+                Var B : OTYPE[T1 * T2, T1 * T3].
+            )",
+            "PTr1 T1 T2 T3 ((c A) + B)",
+            "c (PTr1 T1 T2 T3 A) + PTr1 T1 T2 T3 B"
+        },
+
+/*
+COQQ-37 tr_ptrace2
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T2]}},
+ DNEqQ[
+  DNTr[A, T1~ProdType~T2],
+  DNTr[DNPTr2[A, T2, T1, T1], T1]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-37 tr_ptrace2",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1 * T2, T1 * T2].
+            )",
+            "Tr (T1 * T2) A",
+            "Tr T1 (PTr2 T2 T1 T1 A)"
+        },
+
+/*
+COQQ-38 tr_ptrace1
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T2]}},
+ DNEqQ[
+  DNTr[A, T1~ProdType~T2],
+  DNTr[DNPTr1[A, T1, T2, T2], T2]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-38 tr_ptrace1",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1 * T2, T1 * T2].
+            )",
+            "Tr (T1 * T2) A",
+            "Tr T2 (PTr1 T1 T2 T2 A)"
+        },
+
+/*
+COQQ-39 ptrace1_mul_tens1mx
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T3], 
+    B -> OType[T3, T4]}},
+ DNEqQ[
+  DNPTr1[A~MLTO~(ONEO[T1]~TSRO~B), T1, T2, T4],
+  DNPTr1[A, T1, T2, T3]~MLTO~B
+  ]
+ ]
+*/
+
+        {
+            "COQQ-39 ptrace1_mul_tens1mx",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var A : OTYPE[T1 * T2, T1 * T3].
+                Var B : OTYPE[T3, T4].
+            )",
+            "PTr1 T1 T2 T4 (A (1O[T1] * B))",
+            "(PTr1 T1 T2 T3 A) B"
+        },
+
+/*
+COQQ-40 tensmx11
+
+Block[
+ {DiracCtx = {}},
+ DNEqQ[
+  ONEO[T1]~TSRO~ONEO[T2],
+  ONEO[T1~ProdType~T2]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-40 tensmx11",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+            )",
+            "1O[T1] * 1O[T2]",
+            "1O[T1 * T2]"
+        },
+
+/*
+COQQ-41 tensmxE_mid
+
+Block[
+ {DiracCtx = {i -> T1, A -> OType[T1, T2~ProdType~T2p], 
+    B -> OType[T2~ProdType~T2p, T3], j -> T3}},
+ DNEqQ[
+  BRA[i]~DOT~((A~MLTO~B)~MLTK~KET[j]), 
+  SUMS[i1, USET[T2], 
+   SUMS[i2, 
+    USET[T2p], (BRA[i]~DOT~(A~MLTK~KET[PAIR[i1, i2]]))~
+     MLTS~(BRA[PAIR[i1, i2]]~DOT~(B~MLTK~KET[j]))]]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-41 tensmxE_mid",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T2p : INDEX.
+                Var T3 : INDEX.
+                Var i : BASIS[T1].
+                Var A : OTYPE[T1, T2 * T2p].
+                Var B : OTYPE[T2 * T2p, T3].
+                Var j : BASIS[T3].
+            )",
+            "<i| ((A B) |j>)",
+            "Sum i1 in USET[T2], Sum i2 in USET[T2p], (<i| (A |(i1, i2)>) * <(i1, i2)| (B |j>))"
+        },
+
+/*
+COQQ-42 tens_delta_mx1_mulEl
+
+Block[
+ {DiracCtx = {k -> T1, p -> T2, i -> T1, j -> T3, 
+    A -> OType[T3~ProdType~T2, T5], q -> T5}},
+ DNEqQ[
+  BRA[PAIR[k, p]]~
+   DOT~(((KET[i]~OUTER~BRA[j]~TSRO~ONEO[T2])~MLTO~A)~MLTK~KET[q]),
+  DELTA[i, k]~MLTS~(BRA[PAIR[j, p]]~DOT~(A~MLTK~KET[q]))
+  ]
+ ]
+*/
+
+        {
+            "COQQ-42 tens_delta_mx1_mulEl",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T5 : INDEX.
+                Var k : BASIS[T1].
+                Var p : BASIS[T2].
+                Var i : BASIS[T1].
+                Var j : BASIS[T3].
+                Var A : OTYPE[T3 * T2, T5].
+                Var q : BASIS[T5].
+            )",
+            "<(k, p)| ((|i> <j| * 1O[T2]) A |q>)",
+            "DELTA[i, k] * (<(j, p)| (A |q>))"
+        },
+
+/*
+COQQ-43 tens_delta_mx1_mulEr
+
+Block[
+ {DiracCtx = {p -> T1, A -> OType[T1, T2~ProdType~T3], i -> T2, 
+    j -> T4, k -> T4, q -> T3}},
+ DNEqQ[
+  BRA[p]~
+   DOT~((A~MLTO~((KET[i]~OUTER~BRA[j])~TSRO~ONEO[T3]))~MLTK~
+     KET[PAIR[k, q]]),
+  DELTA[j, k]~MLTS~(BRA[p]~DOT~(A~MLTK~KET[PAIR[i, q]]))
+  ]
+ ]
+*/
+
+        {
+            "COQQ-43 tens_delta_mx1_mulEr",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var p : BASIS[T1].
+                Var A : OTYPE[T1, T2 * T3].
+                Var i : BASIS[T2].
+                Var j : BASIS[T4].
+                Var k : BASIS[T4].
+                Var q : BASIS[T3].
+            )",
+            "<p| (A ((|i> <j|) * 1O[T3]) |(k, q)>)",
+            "DELTA[j, k] * (<p| (A |(i, q)>))"
+        },
+
+/*
+COQQ-44 diag_mx_tens
+
+Block[{DiracCtx = {K1 -> KType[T1], K2 -> KType[T2]}},
+ DNEqQ[diagmx[K1\[CircleTimes]K2, T1~ProdType~T2], 
+  diagmx[K1, T1]\[CircleTimes]diagmx[K2, T2]]
+ ]
+*/
+
+        {
+            "COQQ-44 diag_mx_tens",
+            R"(
+                (* diagonal matrix 
+                    diagmx[K_,T_]:=Module[{i}, SUMO[IDX[{i, USET[T]}], (Bra[{i}]\[SmallCircle]K)Ket[{i}]\[SmallCircle]Bra[{i}]]];
+                *)
+                Def diagmx := idx sigma => fun K : KTYPE[sigma] => Sum i in USET[sigma], (<i| K) . |i> <i|.
+
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var K1 : KTYPE[T1].
+                Var K2 : KTYPE[T2].
+            )",
+            "diagmx (T1 * T2) (K1 K2)",
+            "(diagmx T1 K1) * (diagmx T2 K2)"
+        },
+
+/*
+COQQ-45 ptrace2_mulmxI
+
+Block[
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T2], 
+    B -> OType[T3, T4]}},
+ DNEqQ[
+  DNPTr2[A~MLTO~(B~TSRO~ONEO[T2]), T2, T1, T4],
+  DNPTr2[A, T2, T1, T3]~MLTO~B
+  ]
+ ]
+*/
+        
+        {
+            "COQQ-45 ptrace2_mulmxI",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var A : OTYPE[T1 * T2, T3 * T2].
+                Var B : OTYPE[T3, T4].
+            )",
+            "PTr2 T2 T1 T4 (A (B * 1O[T2]))",
+            "(PTr2 T2 T1 T3 A) B"
+        },
+
+/*
+COQQ-46 mulmx_diag_colrow
+
+Block[
+ {DiracCtx = {K -> KType[T], B -> OType[T, T], A -> OType[T, T]}},
+ DNEqQ[
+  A\[SmallCircle]diagmx[K, T]\[SmallCircle]B,
+  Sum[(Bra[{i}] \[SmallCircle]K)  (A \[SmallCircle] 
+       Ket[{i}]) \[SmallCircle] (Bra[{i}] \[SmallCircle] B), {i, 
+    USET[T]}]
+  ]
+ ]
+*/
+    
+        {
+            "COQQ-46 mulmx_diag_colrow",
+            R"(
+                (* diagonal matrix 
+                    diagmx[K_,T_]:=Module[{i}, SUMO[IDX[{i, USET[T]}], (Bra[{i}]\[SmallCircle]K)Ket[{i}]\[SmallCircle]Bra[{i}]]];
+                *)
+                Def diagmx := idx sigma => fun K : KTYPE[sigma] => Sum i in USET[sigma], (<i| K) . |i> <i|.
+
+                Var T : INDEX.
+                Var K : KTYPE[T].
+                Var B : OTYPE[T, T].
+                Var A : OTYPE[T, T].
+            )",
+            "A (diagmx T K) B",
+            "Sum i in USET[T], ((<i| K) (A |i>) <i| B))"
+        },
+
+/*
+COQQ-47 cplmtE
+
+Block[
+ {DiracCtx = {A -> OType[T, T]}},
+ DNEqQ[
+  ONEO[T]~ADDO~(CPX[-1]~SCRO~A),
+  cplmt[A, T]
+  ]
+ ]
+*/
+    
+        // {
+        //     "COQQ-47 cplmtE",
+        //     R"(
+        //         Var T : INDEX.
+        //         Var A : OTYPE[T, T].
+        //     )",
+        //     "1O[T] + (-1 * A)",
+        //     "cplmt A T"
+        // },
+
+/*
+COQQ-48 cplmtK
+
+Block[
+ {DiracCtx = {A -> OType[T, T]}},
+ DNEqQ[
+  cplmt[cplmt[A, T], T],
+  A
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-48 cplmtK",
+        //     R"(
+        //         (* 
+        //             cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
+        //         *)
+
+        //         Var T : INDEX.
+        //         Var A : OTYPE[T, T].
+        //     )",
+        //     "cplmt (cplmt A T) T",
+        //     "A"
+        // },
+
+/*
+COQQ-49 cplmt1
+
+Block[
+ {DiracCtx = {}},
+ DNEqQ[
+  cplmt[ONEO[T], T],
+  ZEROO[T, T]
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-49 cplmt1",
+        //     R"(
+        //         (* 
+        //             cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
+        //         *)
+
+        //         Var T : INDEX.
+        //     )",
+        //     "cplmt 1O[T] T",
+        //     "0O[T, T]"
+        // },
+
+/*
+COQQ-50 cplmt0
+
+Block[
+ {DiracCtx = {}},
+ DNEqQ[
+  cplmt[ZEROO[T, T], T],
+  ONEO[T]
+  ]
+ ]
+*/
+    
+        // {
+        //     "COQQ-50 cplmt0",
+        //     R"(
+        //         (* 
+        //             cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
+        //         *)
+
+        //         Var T : INDEX.
+        //     )",
+        //     "cplmt 0O[T, T] T",
+        //     "1O[T]"
+        // },
+
+
+
+/*
+COQQ-51 formlf_comp
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2], B -> OType[T2, T3], 
+    X -> OType[T3, T3]}},
+ DNEqQ[
+  formlf[A, formlf[B, X]],
+  formlf[A~MLTO~B, X]
+  ]
+ ]
+*/
+    
+        {
+            "COQQ-51 formlf_comp",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var A : OTYPE[T1, T2].
+                Var B : OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+            )",
+            "formlf T1 T2 A (formlf T2 T3 B X)",
+            "formlf T1 T3 (A B) X"
+        },
+
+/*
+COQQ-52 formlf_adj
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2], X -> OType[T2, T2]}},
+ DNEqQ[
+  SuperDagger[formlf[A, X]],
+  formso[A][SuperDagger[X]]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-52 formlf_adj",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+            )",
+            "(formlf T1 T2 A X)^D",
+            "formso T1 T2 A (X^D)"
+        },
+
+/*
+COQQ-53 formlf1E
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2]}},
+ DNEqQ[
+  formlf[A, ONEO[T2]],
+  A \[SmallCircle] (SuperDagger[A])
+  ]
+ ]
+*/
+        
+        {
+            "COQQ-53 formlf1E",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1, T2].
+            )",
+            "formlf T1 T2 A 1O[T2]",
+            "A (A^D)"
+        },
+
+/*
+COQQ-54 formlf1EV
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2]}},
+ DNEqQ[
+  formlf[SuperDagger[A], ONEO[T1]],
+  SuperDagger[A] \[SmallCircle] A
+  ]
+ ]
+*/
+
+        {
+            "COQQ-54 formlf1EV",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1, T2].
+            )",
+            "formlf T2 T1 (A^D) 1O[T1]",
+            "(A^D) A"
+        },
+
+/*
+COQQ-55 formlfE
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2], X -> OType[T2, T2]}},
+ DNEqQ[
+  formlf[A, X],
+  A\[SmallCircle]X\[SmallCircle]SuperDagger[A]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-55 formlfE",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+            )",
+            "formlf T1 T2 A X",
+            "A X A^D"
+        },
+
+/*
+COQQ-56 formlfEV
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2], X -> OType[T1, T1]}},
+ DNEqQ[
+  formlf[SuperDagger[A], X],
+  SuperDagger[A]\[SmallCircle]X\[SmallCircle]A
+  ]
+ ]
+*/
+
+        {
+            "COQQ-56 formlfEV",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1, T2].
+                Var X : OTYPE[T1, T1].
+            )",
+            "formlf T2 T1 (A^D) X",
+            "(A^D) X A"
+        },
+
+/*
+COQQ-57 formlf_linear
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2], X -> OType[T2, T2], 
+    Y -> OType[T2, T2], c -> SType}},
+ DNEqQ[
+  formlf[A, (c X) ~ADDO~ Y],
+  (c formlf[A, X])~ADDO~formlf[A, Y]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-57 formlf_linear",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+                Var Y : OTYPE[T2, T2].
+                Var c : STYPE.
+            )",
+            "formlf T1 T2 A ((c X) + Y)",
+            "c (formlf T1 T2 A X) + formlf T1 T2 A Y"
+        },
+
+/*
+COQQ-58 superop_is_linear
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2], Y -> OType[T2, T2], 
+    a -> SType}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  E1[a X~ADDO~Y],
+  a E1[X] ~ADDO~ E1[Y]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-58 superop_is_linear",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+                Var Y : OTYPE[T2, T2].
+                Var a : STYPE.
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "E1 (a X + Y)",
+            "a (E1 X) + E1 Y"
+        },
+
+/*
+COQQ-59 addsoA
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T1, T2], 
+    f2[_] -> OType[T1, T2],
+    M3 -> SetType[S3], e3[_] -> OType[T1, T2], f3[_] -> OType[T1, T2],
+     X -> OType[T2, T2]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M3, e3, f3];
+ DNEqQ[
+  addso[E1, addso[E2, E3]][X],
+  addso[addso[E1, E2], E3][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-59 addsoA",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T1, T2].
+                Var f2 : BASIS[S2]->OTYPE[T1, T2].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T1, T2].
+                Var f3 : BASIS[S3]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T1 T2 e2 f2.
+                Def E3 := superop S3 M3 T1 T2 e3 f3.
+            )",
+            "addso T1 T2 E1 (addso T1 T2 E2 E3) X",
+            "addso T1 T2 (addso T1 T2 E1 E2) E3 X"
+        },
+
+/*
+COQQ-60 addsoC
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
+     X -> OType[T2, T2]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  addso[E1, E2][X],
+  addso[E2, E1][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-60 addsoC",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T1, T2].
+                Var f2 : BASIS[S2]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T1 T2 e2 f2.
+            )",
+            "addso T1 T2 E1 E2 X",
+            "addso T1 T2 E2 E1 X"
+        },
+
+/*
+COQQ-61 add0so
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  addso[abortso[T1, T2], E1][X],
+  E1[X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-61 add0so",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "addso T1 T2 (abortso T1 T2) E1 X",
+            "E1 X"
+        },
+
+/*
+COQQ-62 addNso
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  addso[oppso[E1], E1][X],
+  abortso[T1, T2][X]
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-62 addNso",
+        //     R"(
+        //         Var S : INDEX.
+        //         Var T1 : INDEX.
+        //         Var T2 : INDEX.
+        //         Var M : SET[S].
+        //         Var e : BASIS[S]->OTYPE[T1, T2].
+        //         Var f : BASIS[S]->OTYPE[T1, T2].
+        //         Var X : OTYPE[T2, T2].
+
+        //         Def E1 := superop S M T1 T2 e f.
+        //     )",
+        //     "addso T1 T2 (oppso T1 T2 E1) E1 X",
+        //     "abortso T1 T2 X"
+        // },
+
+/*
+COQQ-63 scale1so
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  scaleso[CPX[1], E1][X],
+  E1[X]
+  ]
+ ]
+*/
+        
+        {
+            "COQQ-63 scale1so",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "scaleso T1 T2 1 E1 X",
+            "E1 X"
+        },
+
+/*
+COQQ-64 scalesoDl
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2], a -> SType, 
+    b -> SType}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  scaleso[a~ADDS~b, E1][X],
+  addso[scaleso[a, E1], scaleso[b, E1]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-64 scalesoDl",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+                Var b : STYPE.
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "scaleso T1 T2 (a + b) E1 X",
+            "addso T1 T2 (scaleso T1 T2 a E1) (scaleso T1 T2 b E1) X"
+        },
+
+
+/*
+COQQ-65 scalesoDr
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2], M2 -> SetType[S2], e2[_] -> OType[T1, T2],
+     f2[_] -> OType[T1, T2], X -> OType[T2, T2], a -> SType}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  scaleso[a, addso[E1, E2]][X],
+  addso[scaleso[a, E1], scaleso[a, E2]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-65 scalesoDr",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T1, T2].
+                Var f2 : BASIS[S2]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T1 T2 e2 f2.
+            )",
+            "scaleso T1 T2 a (addso T1 T2 E1 E2) X",
+            "addso T1 T2 (scaleso T1 T2 a E1) (scaleso T1 T2 a E2) X"
+        },
+
+/*
+COQQ-66 scalesoA
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2], a -> SType, 
+    b -> SType}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  scaleso[a, scaleso[b, E1]][X],
+  scaleso[a~MLTS~b, E1][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-66 scalesoA",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+                Var b : STYPE.
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "scaleso T1 T2 a (scaleso T1 T2 b E1) X",
+            "scaleso T1 T2 (a * b) E1 X"
+        },
+
+/*
+COQQ-67 abort_soE
+
+Block[
+ {DiracCtx = {X -> OType[T2, T2]}},
+ DNEqQ[
+  abortso[T1, T2][X],
+  ZEROO[T1, T1]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-67 abort_soE",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var X : OTYPE[T2, T2].
+            )",
+            "abortso T1 T2 X",
+            "0O[T1, T1]"
+        },
+
+/*
+COQQ-68 add_soE
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
+     X -> OType[T2, T2]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  addso[E1, E2][X],
+  E1[X]~ADDO~E2[X]
+  ]
+ ]
+*/
+        
+        {
+            "COQQ-68 add_soE",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T1, T2].
+                Var f2 : BASIS[S2]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T1 T2 e2 f2.
+            )",
+            "addso T1 T2 E1 E2 X",
+            "E1 X + E2 X"
+        },
+
+/*
+COQQ-69 opp_soE
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  oppso[E1][X],
+  CPX[-1]~SCRO~E1[X]
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-69 opp_soE",
+        //     R"(
+        //         Var S : INDEX.
+        //         Var T1 : INDEX.
+        //         Var T2 : INDEX.
+        //         Var M : SET[S].
+        //         Var e : BASIS[S]->OTYPE[T1, T2].
+        //         Var f : BASIS[S]->OTYPE[T1, T2].
+        //         Var X : OTYPE[T2, T2].
+
+        //         Def E1 := superop S M T1 T2 e f.
+        //     )",
+        //     "oppso T1 T2 E1 X",
+        //     "(-1 * E1 X)"
+        // },
+
+/*
+COQQ-70 sum_soE
+
+Block[{DiracCtx = {M -> SetType[Sm], Ni[_] -> SetType[Sn], 
+    fl[_][_] -> OType[T1, T2], fr[_][_] -> OType[T1, T2], 
+    X -> OType[T2, T2]}},
+ DNEqQ[sumso[M, superop[Ni[#], fl[#], fr[#]] &][X],
+  SUMO[i, M, superop[Ni[i], fl[i], fr[i]][X]]]
+ ]
+*/
+
+        {
+            "COQQ-70 sum_soE",
+            R"(
+                Var Sm : INDEX.
+                Var Sn : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[Sm].
+                Var Ni : BASIS[Sm]->SET[Sn].
+                Var fl : BASIS[Sm]->BASIS[Sn]->OTYPE[T1, T2].
+                Var fr : BASIS[Sm]->BASIS[Sn]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+            )",
+            "sumso Sm M T1 T2 (fun i : BASIS[Sm] => superop Sn (Ni i) T1 T2 (fl i) (fr i)) X",
+            "Sum i in M, superop Sn (Ni i) T1 T2 (fl i) (fr i) X"
+        },
+
+/*
+COQQ-71 scale_soE
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2], c -> SType}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  scaleso[c, E1][X],
+  c~SCRO~E1[X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-71 scale_soE",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+                Var c : STYPE.
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "scaleso T1 T2 c E1 X",
+            "c . (E1 X)"
+        },
+
+/*
+COQQ-72 comp_soElr
+
+Block[{DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    f2[_] -> OType[T2, T3], X -> OType[T3, T3]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[compso[E1, E2][X], compsor[E2, E1][X]]
+ ]
+*/
+
+        {
+            "COQQ-72 comp_soElr",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+            )",
+            "compso T1 T2 T3 E1 E2 X",
+            "compsor T1 T2 T3 E2 E1 X"
+        },
+
+/*
+COQQ-73 comp_soErl
+
+Block[{DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T2, T1], 
+    f1[_] -> OType[T2, T1],
+    M2 -> SetType[S2], e2[_] -> OType[T3, T2], 
+    f2[_] -> OType[T3, T2], X -> OType[T1, T1]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[compsor[E1, E2][X], compso[E2, E1][X]]
+ ]
+*/
+
+        {
+            "COQQ-73 comp_soErl",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T2, T1].
+                Var f1 : BASIS[S1]->OTYPE[T2, T1].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T3, T2].
+                Var f2 : BASIS[S2]->OTYPE[T3, T2].
+                Var X : OTYPE[T1, T1].
+
+                Def E1 := superop S1 M1 T2 T1 e1 f1.
+                Def E2 := superop S2 M2 T3 T2 e2 f2.
+            )",
+            "compsor T3 T2 T1 E1 E2 X",
+            "compso T3 T2 T1 E2 E1 X"
+        },
+
+/*
+COQQ-74 id_soE
+
+Block[
+ {DiracCtx = {X -> OType[T, T]}},
+ DNEqQ[
+  idso[T][X],
+  X
+  ]
+ ]
+*/
+    
+        {
+            "COQQ-74 id_soE",
+            R"(
+                Var T : INDEX.
+                Var X : OTYPE[T, T].
+            )",
+            "idso T X",
+            "X"
+        },
+
+
+/*
+COQQ-75 comp_soE
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
+     X -> OType[T3, T3]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compso[E1, E2][X],
+  E1[E2[X]]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-75 comp_soE",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+            )",
+            "compso T1 T2 T3 E1 E2 X",
+            "E1 (E2 X)"
+        },
+
+/*
+COQQ-76 comp_sorE
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
+     X -> OType[T3, T3]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compsor[E2, E1][X],
+  E1[E2[X]]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-76 comp_sorE",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+            )",
+            "compsor T1 T2 T3 E2 E1 X",
+            "E1 (E2 X)"
+        },
+
+/*
+COQQ-77 comp_soA
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    f2[_] -> OType[T2, T3],
+    M3 -> SetType[S3], e3[_] -> OType[T3, T4], f3[_] -> OType[T3, T4],
+     X -> OType[T4, T4]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M3, e3, f3];
+ DNEqQ[
+  compso[E1, compso[E2, E3]][X],
+  compso[compso[E1, E2], E3][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-77 comp_soA",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T3, T4].
+                Var f3 : BASIS[S3]->OTYPE[T3, T4].
+                Var X : OTYPE[T4, T4].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+                Def E3 := superop S3 M3 T3 T4 e3 f3.
+            )",
+            "compso T1 T2 T4 E1 (compso T2 T3 T4 E2 E3) X",
+            "compso T1 T3 T4 (compso T1 T2 T3 E1 E2) E3 X"
+        },
+
+/*
+COQQ-78 comp_sorA
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    f2[_] -> OType[T2, T3],
+    M3 -> SetType[S3], e3[_] -> OType[T3, T4], f3[_] -> OType[T3, T4],
+     X -> OType[T4, T4]}},
+ E3 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E1 = superop[M3, e3, f3];
+ DNEqQ[
+  compsor[E1, compsor[E2, E3]][X],
+  compsor[compsor[E1, E2], E3][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-78 comp_sorA",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T3, T4].
+                Var f3 : BASIS[S3]->OTYPE[T3, T4].
+                Var X : OTYPE[T4, T4].
+
+                Def E3 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+                Def E1 := superop S3 M3 T3 T4 e3 f3.
+            )",
+            "compsor T1 T3 T4 E1 (compsor T1 T2 T3 E2 E3) X",
+            "compsor T1 T2 T4 (compsor T2 T3 T4 E1 E2) E3 X"
+        },
+
+/*
+COQQ-79 linear_comp_so
+
+Block[
+ {DiracCtx = {
+    m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
+    e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
+    e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
+    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3], 
+    X -> OType[T3, T3], a -> SType}},
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E3 = superop[m3, e3, f3];
+ DNEqQ[
+  compso[E1, addso[scaleso[a, E2], E3]][X],
+  addso[scaleso[a, compso[E1, E2]], compso[E1, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-79 linear_comp_so",
+            R"(
+                Var M1 : INDEX.
+                Var M2 : INDEX.
+                Var M3 : INDEX.
+                Var m1 : SET[M1].
+                Var m2 : SET[M2].
+                Var m3 : SET[M3].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var e1 : BASIS[M1]->OTYPE[T1, T2].
+                Var f1 : BASIS[M1]->OTYPE[T1, T2].
+                Var e2 : BASIS[M2]->OTYPE[T2, T3].
+                Var f2 : BASIS[M2]->OTYPE[T2, T3].
+                Var e3 : BASIS[M3]->OTYPE[T2, T3].
+                Var f3 : BASIS[M3]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+                Var a : STYPE.
+
+                Def E1 := superop M1 m1 T1 T2 e1 f1.
+                Def E2 := superop M2 m2 T2 T3 e2 f2.
+                Def E3 := superop M3 m3 T2 T3 e3 f3.
+            )",
+            "compso T1 T2 T3 E1 (addso T2 T3 (scaleso T2 T3 a E2) E3) X",
+            "addso T1 T3 (scaleso T1 T3 a (compso T1 T2 T3 E1 E2)) (compso T1 T2 T3 E1 E3) X"
+        },
+
+/*
+COQQ-80 linear_compr_so
+
+Block[
+ {DiracCtx = {
+    m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
+    e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
+    e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
+    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3], 
+    X -> OType[T3, T3], a -> SType}},
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E3 = superop[m3, e3, f3];
+ DNEqQ[
+  compso[addso[scaleso[a, E1], E2], E3][X],
+  addso[scaleso[a, compso[E1, E3]], compso[E2, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-80 linear_compr_so",
+            R"(
+                Var M1 : INDEX.
+                Var M2 : INDEX.
+                Var M3 : INDEX.
+                Var m1 : SET[M1].
+                Var m2 : SET[M2].
+                Var m3 : SET[M3].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var e1 : BASIS[M1]->OTYPE[T1, T2].
+                Var f1 : BASIS[M1]->OTYPE[T1, T2].
+                Var e2 : BASIS[M2]->OTYPE[T1, T2].
+                Var f2 : BASIS[M2]->OTYPE[T1, T2].
+                Var e3 : BASIS[M3]->OTYPE[T2, T3].
+                Var f3 : BASIS[M3]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+                Var a : STYPE.
+
+                Def E1 := superop M1 m1 T1 T2 e1 f1.
+                Def E2 := superop M2 m2 T1 T2 e2 f2.
+                Def E3 := superop M3 m3 T2 T3 e3 f3.
+            )",
+            "compso T1 T2 T3 (addso T1 T2 (scaleso T1 T2 a E1) E2) E3 X",
+            "addso T1 T3 (scaleso T1 T3 a (compso T1 T2 T3 E1 E3)) (compso T1 T2 T3 E2 E3) X"
+        },
+
+/*
+COQQ-81 linear_comp_sor
+
+Block[
+ {DiracCtx = {
+    m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
+    e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
+    e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
+    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1], 
+    X -> OType[T2, T2], a -> SType}},
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E3 = superop[m3, e3, f3];
+ DNEqQ[
+  compsor[E1, addso[scaleso[a, E2], E3]][X],
+  addso[scaleso[a, compsor[E1, E2]], compsor[E1, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-81 linear_comp_sor",
+            R"(
+                Var M1 : INDEX.
+                Var M2 : INDEX.
+                Var M3 : INDEX.
+                Var m1 : SET[M1].
+                Var m2 : SET[M2].
+                Var m3 : SET[M3].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var e1 : BASIS[M1]->OTYPE[T1, T2].
+                Var f1 : BASIS[M1]->OTYPE[T1, T2].
+                Var e2 : BASIS[M2]->OTYPE[T3, T1].
+                Var f2 : BASIS[M2]->OTYPE[T3, T1].
+                Var e3 : BASIS[M3]->OTYPE[T3, T1].
+                Var f3 : BASIS[M3]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+
+                Def E1 := superop M1 m1 T1 T2 e1 f1.
+                Def E2 := superop M2 m2 T3 T1 e2 f2.
+                Def E3 := superop M3 m3 T3 T1 e3 f3.
+            )",
+            "compsor T3 T1 T2 E1 (addso T3 T1 (scaleso T3 T1 a E2) E3) X",
+            "addso T3 T2 (scaleso T3 T2 a (compsor T3 T1 T2 E1 E2)) (compsor T3 T1 T2 E1 E3) X"
+        },
+
+/*
+COQQ-82 linear_compr_sor
+
+Block[
+ {DiracCtx = {
+    m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
+    e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
+    e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
+    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1], 
+    X -> OType[T2, T2], a -> SType}},
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E3 = superop[m3, e3, f3];
+ DNEqQ[
+  compsor[addso[scaleso[a, E1], E2], E3][X],
+  addso[scaleso[a, compsor[E1, E3]], compsor[E2, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-82 linear_compr_sor",
+            R"(
+                Var M1 : INDEX.
+                Var M2 : INDEX.
+                Var M3 : INDEX.
+                Var m1 : SET[M1].
+                Var m2 : SET[M2].
+                Var m3 : SET[M3].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var e1 : BASIS[M1]->OTYPE[T1, T2].
+                Var f1 : BASIS[M1]->OTYPE[T1, T2].
+                Var e2 : BASIS[M2]->OTYPE[T1, T2].
+                Var f2 : BASIS[M2]->OTYPE[T1, T2].
+                Var e3 : BASIS[M3]->OTYPE[T3, T1].
+                Var f3 : BASIS[M3]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+
+                Def E1 := superop M1 m1 T1 T2 e1 f1.
+                Def E2 := superop M2 m2 T1 T2 e2 f2.
+                Def E3 := superop M3 m3 T3 T1 e3 f3.
+            )",
+            "compsor T3 T1 T2 (addso T1 T2 (scaleso T1 T2 a E1) E2) E3 X",
+            "addso T3 T2 (scaleso T3 T2 a (compsor T3 T1 T2 E1 E3)) (compsor T3 T1 T2 E2 E3) X"
+        },
+
+/*
+COQQ-83 comp_so1l
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  compso[idso[T1], E1][X],
+  E1[X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-83 comp_so1l",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "compso T1 T1 T2 (idso T1) E1 X",
+            "E1 X"
+        },
+
+/*
+COQQ-84 comp_so1r
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  compso[E1, idso[T2]][X],
+  E1[X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-84 comp_so1r",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "compso T1 T2 T2 E1 (idso T2) X",
+            "E1 X"
+        },
+
+/*  
+COQQ-85 comp_so0l
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  compso[abortso[T3, T1], E1][X],
+  abortso[T3, T2][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-85 comp_so0l",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "compso T3 T1 T2 (abortso T3 T1) E1 X",
+            "abortso T3 T2 X"
+        },
+
+/*
+COQQ-86 comp_so0r
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T3, T3]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  compso[E1, abortso[T2, T3]][X],
+  abortso[T1, T3][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-86 comp_so0r",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T3, T3].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "compso T1 T2 T3 E1 (abortso T2 T3) X",
+            "abortso T1 T3 X"
+        },
+
+/*
+COQQ-87 comp_soDl
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T1, T2], 
+    f2[_] -> OType[T1, T2],
+    M3 -> SetType[S3], e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3],
+     X -> OType[T3, T3]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M3, e3, f3];
+ DNEqQ[
+  compso[addso[E1, E2], E3][X],
+  addso[compso[E1, E3], compso[E2, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-87 comp_soDl",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T1, T2].
+                Var f2 : BASIS[S2]->OTYPE[T1, T2].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T2, T3].
+                Var f3 : BASIS[S3]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T1 T2 e2 f2.
+                Def E3 := superop S3 M3 T2 T3 e3 f3.
+            )",
+            "compso T1 T2 T3 (addso T1 T2 E1 E2) E3 X",
+            "addso T1 T3 (compso T1 T2 T3 E1 E3) (compso T1 T2 T3 E2 E3) X"
+        },
+
+/*
+COQQ-88 comp_soDr
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    f2[_] -> OType[T2, T3],
+    M3 -> SetType[S3], e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3],
+     X -> OType[T3, T3]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M3, e3, f3];
+ DNEqQ[
+  compso[E1, addso[E2, E3]][X],
+  addso[compso[E1, E2], compso[E1, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-88 comp_soDr",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T2, T3].
+                Var f3 : BASIS[S3]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+                Def E3 := superop S3 M3 T2 T3 e3 f3.
+            )",
+            "compso T1 T2 T3 E1 (addso T2 T3 E2 E3) X",
+            "addso T1 T3 (compso T1 T2 T3 E1 E2) (compso T1 T2 T3 E1 E3) X"
+        },
+
+/*
+COQQ-89 comp_soNl
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
+     X -> OType[T3, T3]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compso[oppso[E1], E2][X],
+  oppso[compso[E1, E2]][X]
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-89 comp_soNl",
+        //     R"(
+        //         Var S1 : INDEX.
+        //         Var S2 : INDEX.
+        //         Var T1 : INDEX.
+        //         Var T2 : INDEX.
+        //         Var T3 : INDEX.
+        //         Var M1 : SET[S1].
+        //         Var e1 : BASIS[S1]->OTYPE[T1, T2].
+        //         Var f1 : BASIS[S1]->OTYPE[T1, T2].
+        //         Var M2 : SET[S2].
+        //         Var e2 : BASIS[S2]->OTYPE[T2, T3].
+        //         Var f2 : BASIS[S2]->OTYPE[T2, T3].
+        //         Var X : OTYPE[T3, T3].
+
+        //         Def E1 := superop S1 M1 T1 T2 e1 f1.
+        //         Def E2 := superop S2 M2 T2 T3 e2 f2.
+        //     )",
+        //     "compso T1 T2 T3 (oppso T1 T2 E1) E2 X",
+        //     "oppso T1 T3 (compso T1 T2 T3 E1 E2) X"
+        // },
+
+
+/*
+COQQ-90 comp_soNr
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
+     X -> OType[T3, T3]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compso[E1, oppso[E2]][X],
+  oppso[compso[E1, E2]][X]
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-90 comp_soNr",
+        //     R"(
+        //         Var S1 : INDEX.
+        //         Var S2 : INDEX.
+        //         Var T1 : INDEX.
+        //         Var T2 : INDEX.
+        //         Var T3 : INDEX.
+        //         Var M1 : SET[S1].
+        //         Var e1 : BASIS[S1]->OTYPE[T1, T2].
+        //         Var f1 : BASIS[S1]->OTYPE[T1, T2].
+        //         Var M2 : SET[S2].
+        //         Var e2 : BASIS[S2]->OTYPE[T2, T3].
+        //         Var f2 : BASIS[S2]->OTYPE[T2, T3].
+        //         Var X : OTYPE[T3, T3].
+
+        //         Def E1 := superop S1 M1 T1 T2 e1 f1.
+        //         Def E2 := superop S2 M2 T2 T3 e2 f2.
+        //     )",
+        //     "compso T1 T2 T3 E1 (oppso T2 T3 E2) X",
+        //     "oppso T1 T3 (compso T1 T2 T3 E1 E2) X"
+        // },
+
+/*
+COQQ-91 comp_soZl
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
+     X -> OType[T3, T3], a -> SType}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compso[scaleso[a, E1], E2][X],
+  scaleso[a, compso[E1, E2]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-91 comp_soZl",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+                Var a : STYPE.
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+            )",
+            "compso T1 T2 T3 (scaleso T1 T2 a E1) E2 X",
+            "scaleso T1 T3 a (compso T1 T2 T3 E1 E2) X"
+        },
+
+/*
+COQQ-92 comp_soZr
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
+     X -> OType[T3, T3], a -> SType}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compso[E1, scaleso[a, E2]][X],
+  scaleso[a, compso[E1, E2]][X]
+  ]
+ ]
+*/
+        
+        {
+            "COQQ-92 comp_soZr",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+                Var a : STYPE.
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+            )",
+            "compso T1 T2 T3 E1 (scaleso T2 T3 a E2) X",
+            "scaleso T1 T3 a (compso T1 T2 T3 E1 E2) X"
+        },
+
+/*
+COQQ-93 comp_soPl
+
+Block[
+ {DiracCtx = {
+    m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
+    e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
+    e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
+    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3], 
+    X -> OType[T3, T3], a -> SType}},
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E3 = superop[m3, e3, f3];
+ DNEqQ[
+  compso[addso[scaleso[a, E1], E2], E3][X],
+  addso[scaleso[a, compso[E1, E3]], compso[E2, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-93 comp_soPl",
+            R"(
+                Var M1 : INDEX.
+                Var M2 : INDEX.
+                Var M3 : INDEX.
+                Var m1 : SET[M1].
+                Var m2 : SET[M2].
+                Var m3 : SET[M3].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var e1 : BASIS[M1]->OTYPE[T1, T2].
+                Var f1 : BASIS[M1]->OTYPE[T1, T2].
+                Var e2 : BASIS[M2]->OTYPE[T1, T2].
+                Var f2 : BASIS[M2]->OTYPE[T1, T2].
+                Var e3 : BASIS[M3]->OTYPE[T2, T3].
+                Var f3 : BASIS[M3]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+                Var a : STYPE.
+
+                Def E1 := superop M1 m1 T1 T2 e1 f1.
+                Def E2 := superop M2 m2 T1 T2 e2 f2.
+                Def E3 := superop M3 m3 T2 T3 e3 f3.
+            )",
+            "compso T1 T2 T3 (addso T1 T2 (scaleso T1 T2 a E1) E2) E3 X",
+            "addso T1 T3 (scaleso T1 T3 a (compso T1 T2 T3 E1 E3)) (compso T1 T2 T3 E2 E3) X"
+        },
+
+/*
+COQQ-94 comp_soPr
+
+Block[
+ {DiracCtx = {
+    m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
+    e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
+    e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
+    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3], 
+    X -> OType[T3, T3], a -> SType}},
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E3 = superop[m3, e3, f3];
+ DNEqQ[
+  compso[E1, addso[scaleso[a, E2], E3]][X],
+  addso[scaleso[a, compso[E1, E2]], compso[E1, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-94 comp_soPr",
+            R"(
+                Var M1 : INDEX.
+                Var M2 : INDEX.
+                Var M3 : INDEX.
+                Var m1 : SET[M1].
+                Var m2 : SET[M2].
+                Var m3 : SET[M3].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var e1 : BASIS[M1]->OTYPE[T1, T2].
+                Var f1 : BASIS[M1]->OTYPE[T1, T2].
+                Var e2 : BASIS[M2]->OTYPE[T2, T3].
+                Var f2 : BASIS[M2]->OTYPE[T2, T3].
+                Var e3 : BASIS[M3]->OTYPE[T2, T3].
+                Var f3 : BASIS[M3]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
+                Var a : STYPE.
+
+                Def E1 := superop M1 m1 T1 T2 e1 f1.
+                Def E2 := superop M2 m2 T2 T3 e2 f2.
+                Def E3 := superop M3 m3 T2 T3 e3 f3.
+            )",
+            "compso T1 T2 T3 E1 (addso T2 T3 (scaleso T2 T3 a E2) E3) X",
+            "addso T1 T3 (scaleso T1 T3 a (compso T1 T2 T3 E1 E2)) (compso T1 T2 T3 E1 E3) X"
+        },
+
+/*
+COQQ-95 comp_sor1l
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  compsor[idso[T2], E1][X],
+  E1[X]
+  ]
+ ]
+ */
+
+        {
+            "COQQ-95 comp_sor1l",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "compsor T1 T2 T2 (idso T2) E1 X",
+            "E1 X"
+        },
+
+/*
+COQQ-96 comp_sor1r
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  compsor[E1, idso[T1]][X],
+  E1[X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-96 comp_sor1r",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "compsor T1 T1 T2 E1 (idso T1) X",
+            "E1 X"
+        },
+
+/*
+COQQ-97 comp_sor0l
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T3, T3]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  compsor[abortso[T2, T3], E1][X],
+  abortso[T1, T3][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-97 comp_sor0l",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T3, T3].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "compsor T1 T2 T3 (abortso T2 T3) E1 X",
+            "abortso T1 T3 X"
+        },
+
+/*
+COQQ-98 comp_sor0r
+
+Block[
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
+ E1 = superop[M, e, f];
+ DNEqQ[
+  compsor[E1, abortso[T3, T1]][X],
+  abortso[T3, T2][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-98 comp_sor0r",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "compsor T3 T1 T2 E1 (abortso T3 T1) X",
+            "abortso T3 T2 X"
+        },
+
+/*
+COQQ-99 comp_sorDl
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T1, T2], 
+    f2[_] -> OType[T1, T2],
+    M3 -> SetType[S3], e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1],
+     X -> OType[T2, T2]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M3, e3, f3];
+ DNEqQ[
+  compsor[addso[E1, E2], E3][X],
+  addso[compsor[E1, E3], compsor[E2, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-99 comp_sorDl",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T1, T2].
+                Var f2 : BASIS[S2]->OTYPE[T1, T2].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T3, T1].
+                Var f3 : BASIS[S3]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T1 T2 e2 f2.
+                Def E3 := superop S3 M3 T3 T1 e3 f3.
+            )",
+            "compsor T3 T1 T2 (addso T1 T2 E1 E2) E3 X",
+            "addso T3 T2 (compsor T3 T1 T2 E1 E3) (compsor T3 T1 T2 E2 E3) X"
+        },
+
+/*
+COQQ-100 comp_sorDr
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T3, T1], 
+    f2[_] -> OType[T3, T1],
+    M3 -> SetType[S3], e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1],
+     X -> OType[T2, T2]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M3, e3, f3];
+ DNEqQ[
+  compsor[E1, addso[E2, E3]][X],
+  addso[compsor[E1, E2], compsor[E1, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-100 comp_sorDr",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T3, T1].
+                Var f2 : BASIS[S2]->OTYPE[T3, T1].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T3, T1].
+                Var f3 : BASIS[S3]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T3 T1 e2 f2.
+                Def E3 := superop S3 M3 T3 T1 e3 f3.
+            )",
+            "compsor T3 T1 T2 E1 (addso T3 T1 E2 E3) X",
+            "addso T3 T2 (compsor T3 T1 T2 E1 E2) (compsor T3 T1 T2 E1 E3) X"
+        },
+
+/*
+COQQ-101 comp_sorNl
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
+     X -> OType[T2, T2]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compsor[oppso[E1], E2][X],
+  oppso[compsor[E1, E2]][X]
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-101 comp_sorNl",
+        //     R"(
+        //         Var S1 : INDEX.
+        //         Var S2 : INDEX.
+        //         Var T1 : INDEX.
+        //         Var T2 : INDEX.
+        //         Var T3 : INDEX.
+        //         Var M1 : SET[S1].
+        //         Var e1 : BASIS[S1]->OTYPE[T1, T2].
+        //         Var f1 : BASIS[S1]->OTYPE[T1, T2].
+        //         Var M2 : SET[S2].
+        //         Var e2 : BASIS[S2]->OTYPE[T3, T1].
+        //         Var f2 : BASIS[S2]->OTYPE[T3, T1].
+        //         Var X : OTYPE[T2, T2].
+
+        //         Def E1 := superop S1 M1 T1 T2 e1 f1.
+        //         Def E2 := superop S2 M2 T3 T1 e2 f2.
+        //     )",
+        //     "compsor T1 T2 T2 (oppso T1 T2 E1) E2 X",
+        //     "oppso T1 T2 (compsor T1 T2 T2 E1 E2) X"
+        // },
+
+/*
+COQQ-102 comp_sorNr
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
+     X -> OType[T2, T2]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compsor[E1, oppso[E2]][X],
+  oppso[compsor[E1, E2]][X]
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-102 comp_sorNr",
+        //     R"(
+        //         Var S1 : INDEX.
+        //         Var S2 : INDEX.
+        //         Var T1 : INDEX.
+        //         Var T2 : INDEX.
+        //         Var T3 : INDEX.
+        //         Var M1 : SET[S1].
+        //         Var e1 : BASIS[S1]->OTYPE[T1, T2].
+        //         Var f1 : BASIS[S1]->OTYPE[T1, T2].
+        //         Var M2 : SET[S2].
+        //         Var e2 : BASIS[S2]->OTYPE[T3, T1].
+        //         Var f2 : BASIS[S2]->OTYPE[T3, T1].
+        //         Var X : OTYPE[T2, T2].
+
+        //         Def E1 := superop S1 M1 T1 T2 e1 f1.
+        //         Def E2 := superop S2 M2 T3 T1 e2 f2.
+        //     )",
+        //     "compsor T1 T2 T2 E1 (oppso T3 T1 E2) X",
+        //     "oppso T1 T2 (compsor T1 T2 T2 E1 E2) X"
+        // },
+
+/*
+COQQ-103 comp_sorZl
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
+     X -> OType[T2, T2], a -> SType}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compsor[scaleso[a, E1], E2][X],
+  scaleso[a, compsor[E1, E2]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-103 comp_sorZl",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T3, T1].
+                Var f2 : BASIS[S2]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T3 T1 e2 f2.
+            )",
+            "compsor T3 T1 T2 (scaleso T1 T2 a E1) E2 X",
+            "scaleso T3 T2 a (compsor T3 T1 T2 E1 E2) X"
+        },
+
+/*
+COQQ-104 comp_sorZr
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
+     X -> OType[T2, T2], a -> SType}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[
+  compsor[E1, scaleso[a, E2]][X],
+  scaleso[a, compsor[E1, E2]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-104 comp_sorZr",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T3, T1].
+                Var f2 : BASIS[S2]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T3 T1 e2 f2.
+            )",
+            "compsor T3 T1 T2 E1 (scaleso T3 T1 a E2) X",
+            "scaleso T3 T2 a (compsor T3 T1 T2 E1 E2) X"
+        },
+
+/*
+COQQ-105 comp_sorPl
+
+Block[
+ {DiracCtx = {
+    m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
+    e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
+    e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
+    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1], 
+    X -> OType[T2, T2], a -> SType}},
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E3 = superop[m3, e3, f3];
+ DNEqQ[
+  compsor[addso[scaleso[a, E1], E2], E3][X],
+  addso[scaleso[a, compsor[E1, E3]], compsor[E2, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-105 comp_sorPl",
+            R"(
+                Var M1 : INDEX.
+                Var M2 : INDEX.
+                Var M3 : INDEX.
+                Var m1 : SET[M1].
+                Var m2 : SET[M2].
+                Var m3 : SET[M3].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var e1 : BASIS[M1]->OTYPE[T1, T2].
+                Var f1 : BASIS[M1]->OTYPE[T1, T2].
+                Var e2 : BASIS[M2]->OTYPE[T1, T2].
+                Var f2 : BASIS[M2]->OTYPE[T1, T2].
+                Var e3 : BASIS[M3]->OTYPE[T3, T1].
+                Var f3 : BASIS[M3]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+
+                Def E1 := superop M1 m1 T1 T2 e1 f1.
+                Def E2 := superop M2 m2 T1 T2 e2 f2.
+                Def E3 := superop M3 m3 T3 T1 e3 f3.
+            )",
+            "compsor T3 T1 T2 (addso T1 T2 (scaleso T1 T2 a E1) E2) E3 X",
+            "addso T3 T2 (scaleso T3 T2 a (compsor T3 T1 T2 E1 E3)) (compsor T3 T1 T2 E2 E3) X"
+        },
+
+/*
+COQQ-106 comp_sorPr
+
+Block[
+ {DiracCtx = {
+    m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
+    e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
+    e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
+    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1], 
+    X -> OType[T2, T2], a -> SType}},
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E3 = superop[m3, e3, f3];
+ DNEqQ[
+  compsor[E1, addso[scaleso[a, E2], E3]][X],
+  addso[scaleso[a, compsor[E1, E2]], compsor[E1, E3]][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-106 comp_sorPr",
+            R"(
+                Var M1 : INDEX.
+                Var M2 : INDEX.
+                Var M3 : INDEX.
+                Var m1 : SET[M1].
+                Var m2 : SET[M2].
+                Var m3 : SET[M3].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var e1 : BASIS[M1]->OTYPE[T1, T2].
+                Var f1 : BASIS[M1]->OTYPE[T1, T2].
+                Var e2 : BASIS[M2]->OTYPE[T3, T1].
+                Var f2 : BASIS[M2]->OTYPE[T3, T1].
+                Var e3 : BASIS[M3]->OTYPE[T3, T1].
+                Var f3 : BASIS[M3]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+                Var a : STYPE.
+
+                Def E1 := superop M1 m1 T1 T2 e1 f1.
+                Def E2 := superop M2 m2 T3 T1 e2 f2.
+                Def E3 := superop M3 m3 T3 T1 e3 f3.
+            )",
+            "compsor T3 T1 T2 E1 (addso T3 T1 (scaleso T3 T1 a E2) E3) X",
+            "addso T3 T2 (scaleso T3 T2 a (compsor T3 T1 T2 E1 E2)) (compsor T3 T1 T2 E1 E3) X"
+        },
+
+/*
+COQQ-107 comp_soACA
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+    f1[_] -> OType[T1, T2],
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    f2[_] -> OType[T2, T3],
+    M3 -> SetType[S3], e3[_] -> OType[T3, T4], 
+    f3[_] -> OType[T3, T4],
+    M4 -> SetType[S4], e4[_] -> OType[T4, T5], f4[_] -> OType[T4, T5],
+     X -> OType[T5, T5]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M3, e3, f3]; E4 = superop[M4, e4, f4];
+ DNEqQ[
+  compso[compso[compso[E1, E2], E3], E4][X],
+  compso[compso[E1, compso[E2, E3]], E4][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-107 comp_soACA",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var S4 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var T5 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T3, T4].
+                Var f3 : BASIS[S3]->OTYPE[T3, T4].
+                Var M4 : SET[S4].
+                Var e4 : BASIS[S4]->OTYPE[T4, T5].
+                Var f4 : BASIS[S4]->OTYPE[T4, T5].
+                Var X : OTYPE[T5, T5].
+
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+                Def E3 := superop S3 M3 T3 T4 e3 f3.
+                Def E4 := superop S4 M4 T4 T5 e4 f4.
+            )",
+            "compso T1 T3 T5 (compso T1 T2 T3 E1 E2) (compso T3 T4 T5 E3 E4) X",
+            "compso T1 T4 T5 (compso T1 T2 T4 E1 (compso T2 T3 T4 E2 E3)) E4 X"
+        },
+
+
+/*
+COQQ-108 comp_sorACA
+
+Block[
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T2, T1], 
+    f1[_] -> OType[T2, T1],
+    M2 -> SetType[S2], e2[_] -> OType[T3, T2], 
+    f2[_] -> OType[T3, T2],
+    M3 -> SetType[S3], e3[_] -> OType[T4, T3], 
+    f3[_] -> OType[T4, T3],
+    M4 -> SetType[S4], e4[_] -> OType[T5, T4], f4[_] -> OType[T5, T4],
+     X -> OType[T1, T1]}},
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M3, e3, f3]; E4 = superop[M4, e4, f4];
+ DNEqQ[
+  compsor[compsor[compsor[E1, E2], E3], E4][X],
+  compsor[compsor[E1, compsor[E2, E3]], E4][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-108 comp_sorACA",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var S3 : INDEX.
+                Var S4 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var T4 : INDEX.
+                Var T5 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T2, T1].
+                Var f1 : BASIS[S1]->OTYPE[T2, T1].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T3, T2].
+                Var f2 : BASIS[S2]->OTYPE[T3, T2].
+                Var M3 : SET[S3].
+                Var e3 : BASIS[S3]->OTYPE[T4, T3].
+                Var f3 : BASIS[S3]->OTYPE[T4, T3].
+                Var M4 : SET[S4].
+                Var e4 : BASIS[S4]->OTYPE[T5, T4].
+                Var f4 : BASIS[S4]->OTYPE[T5, T4].
+                Var X : OTYPE[T1, T1].
+
+                Def E1 := superop S1 M1 T2 T1 e1 f1.
+                Def E2 := superop S2 M2 T3 T2 e2 f2.
+                Def E3 := superop S3 M3 T4 T3 e3 f3.
+                Def E4 := superop S4 M4 T5 T4 e4 f4.
+            )",
+            "compsor T5 T4 T1 (compsor T4 T3 T1 (compsor T3 T2 T1 E1 E2) E3) E4 X",
+            "compsor T5 T4 T1 (compsor T4 T2 T1 E1 (compsor T4 T3 T2 E2 E3)) E4 X"
+        },
+
+/*
+COQQ-109 krausso_fun_is_linear
+
+Block[
+ {DiracCtx = {m -> SetType[M], e[_] -> OType[T1, T2], a -> SType, 
+    X -> OType[T2, T2], Y -> OType[T2, T2]}},
+ DNEqQ[
+  krausso[m, e][(a~SCRO~X)~ADDO~Y],
+  (a~SCRO~krausso[m, e][X])~ADDO~krausso[m, e][Y]
+  ]
+ ]
+*/
+    
+        {
+            "COQQ-109 krausso_fun_is_linear",
+            R"(
+                Var M : INDEX.
+                Var m : SET[M].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var e : BASIS[M]->OTYPE[T1, T2].
+                Var a : STYPE.
+                Var X : OTYPE[T2, T2].
+                Var Y : OTYPE[T2, T2].
+
+            )",
+            "krausso M m T1 T2 e (a.X + Y)",
+            "a . (krausso M m T1 T2 e X) + krausso M m T1 T2 e Y"
+        },
+
+/*
+COQQ-110 kraussoE
+
+Block[
+ {DiracCtx = {m -> SetType[M], e[_] -> OType[T1, T2], 
+    X -> OType[T2, T2]}},
+ DNEqQ[
+  krausso[m, e][X],
+  Sum[e[i]\[SmallCircle]X\[SmallCircle]SuperDagger[e[i]], {i, m}]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-110 kraussoE",
+            R"(
+                Var M : INDEX.
+                Var m : SET[M].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var e : BASIS[M]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+            )",
+            "krausso M m T1 T2 e X",
+            "Sum i in m, (e i) X (e i)^D"
+        },
+
+/*
+COQQ-111 formsoE
+
+Block[
+ {DiracCtx = {A -> OType[T1, T2], X -> OType[T2, T2]}},
+ DNEqQ[
+  formso[A][X],
+  A\[SmallCircle]X\[SmallCircle]SuperDagger[A]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-111 formsoE",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var A : OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
+
+            )",
+            "formso T1 T2 A X",
+            "A X A^D"
+        },
+
+/*
+COQQ-112 formso0
+
+Block[
+ {DiracCtx = {X -> OType[T2, T2]}},
+ DNEqQ[
+  formso[ZEROO[T1, T2]][X],
+  abortso[T1, T2][X]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-112 formso0",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var X : OTYPE[T2, T2].
+
+            )",
+            "formso T1 T2 0O[T1, T2] X",
+            "abortso T1 T2 X"
+        },
+
+/*
+COQQ-113 ifso_fun_is_linear
+
+Block[{DiracCtx = {M -> SetType[Sm], e[_] -> OType[T1, T2],
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    fr[_][_] -> OType[T3, T1],
+    a -> SType, X -> OType[T2, T2], Y -> OType[T2, T2]}},
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
+ DNEqQ[ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][a~SCRO~X + Y],
+  a~SCRO~ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][X] + 
+   ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][Y]]
+ ]
+*/
+
+        {
+            "COQQ-113 ifso_fun_is_linear",
+            R"(
+                Var Sm : INDEX.
+                Var Sn : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M : SET[Sm].
+                Var e : BASIS[Sm]->OTYPE[T1, T2].
+                Var Nm : BASIS[Sm]->SET[Sn].
+                Var fl : BASIS[Sm]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[Sm]->BASIS[Sn]->OTYPE[T3, T1].
+                Var a : STYPE.
+                Var X : OTYPE[T2, T2].
+                Var Y : OTYPE[T2, T2].
+
+            )",
+            "ifso Sm M T3 T1 T2 e (fun i : BASIS[Sm] => superop Sn (Nm i) T3 T1 (fl i) (fr i)) (a.X + Y)",
+            "a . (ifso Sm M T3 T1 T2 e (fun i : BASIS[Sm] => superop Sn (Nm i) T3 T1 (fl i) (fr i)) X) + ifso Sm M T3 T1 T2 e (fun i : BASIS[Sm] => superop Sn (Nm i) T3 T1 (fl i) (fr i)) Y"
+        },
+
+/*
+COQQ-114 ifsoE
+
+Block[
+ {DiracCtx = {M -> SetType[Sm], e[_] -> OType[T1, T2],
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    fr[_][_] -> OType[T3, T1], X -> OType[T2, T2]}},
+ DNEqQ[
+  ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][X],
+  Sum[superop[Nm[i], fl[i], fr[i]][
+    e[i]\[SmallCircle]X\[SmallCircle]SuperDagger[(e[i])]], {i, M}]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-114 ifsoE",
+            R"(
+                Var Sm : INDEX.
+                Var Sn : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M : SET[Sm].
+                Var e : BASIS[Sm]->OTYPE[T1, T2].
+                Var Nm : BASIS[Sm]->SET[Sn].
+                Var fl : BASIS[Sm]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[Sm]->BASIS[Sn]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
+
+            )",
+            "ifso Sm M T3 T1 T2 e (fun i : BASIS[Sm] => superop Sn (Nm i) T3 T1 (fl i) (fr i)) X",
+            "Sum i in M, superop Sn (Nm i) T3 T1 (fl i) (fr i) ((e i) X (e i)^D)"
+        },
+
+/*
+COQQ-115 formso1
+
+Block[
+ {DiracCtx = {X -> OType[T, T]}},
+ DNEqQ[
+  formso[ONEO[T]][X],
+  idso[T][X]
+  ]
+ ]
+*/
+        
+        {
+            "COQQ-115 formso1",
+            R"(
+                Var T : INDEX.
+                Var X : OTYPE[T, T].
+
+            )",
+            "formso T T 1O[T] X",
+            "idso T X"
+        },
+
+
+// This one has first/second projections, omitted
+
+/*
+COQQ-116 comp_krausso
+
+Block[
+ {DiracCtx = {X -> OType[T3, T3], m1 -> SetType[M1], 
+    m2 -> SetType[M2], e1[_] -> OType[T1, T2], 
+    e2[_] -> OType[T2, T3]}},
+ DNEqQ[
+  compso[krausso[m1, e1], krausso[m2, e2]][X],
+  krausso[m1~SETPROD~m2, e1[FST[#]]~MLTO~e2[SND[#]] &][X]
+  ]
+ ]
+*/
+
+        // {
+        //     "COQQ-116 comp_krausso",
+        //     R"(
+        //         Var T1 : INDEX.
+        //         Var T2 : INDEX.
+        //         Var T3 : INDEX.
+        //         Var X : OTYPE[T3, T3].
+        //         Var M1 : INDEX.
+        //         Var M2 : INDEX.
+        //         Var m1 : SET[M1].
+        //         Var m2 : SET[M2].
+        //         Var e1 : BASIS[M1]->OTYPE[T1, T2].
+        //         Var e2 : BASIS[M2]->OTYPE[T2, T3].
+
+        //     )",
+        //     "compso T1 T3 T3 (krausso M1 m1 T1 T2 e1) (krausso M2 m2 T2 T3 e2) X",
+        //     "krausso (M1 * M2) (fun i : M1 * M2 => e1 (FST i) * e2 (SND i)) X"
+        // },
+
+/*
+COQQ-117 compr_krausso omitted : first/second projections
+*/
+
+/*
+COQQ-118 ifso_krausso omitted : first/second projections
+*/
+
+/*
+COQQ-119 scaleso_krausso omitted : 0 <= c condition
+*/
+
+/*
+COQQ-120 choimxE
+
+Block[
+ {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2], 
+    f[_] -> OType[T1, T2], x -> OType[T2, T2]}},
+ 	E1 = superop[M, e, f];
+ DNEqQ[
+  DNPTr1[
+   so2choi[E1, 
+     T2]\[SmallCircle](TPO[x, T2, T2]\[CircleTimes]ONEO[T1]), T2, T1, 
+   T1],
+  Sum[e[k]\[SmallCircle]x\[SmallCircle]SuperDagger[f[k]], {k, M}]
+  ]
+ ]
+*/
+
+        {
+            "COQQ-120 choimxE",
+            R"(
+                Var m : INDEX.
+                Var M : SET[m].
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var e : BASIS[m]->OTYPE[T1, T2].
+                Var f : BASIS[m]->OTYPE[T1, T2].
+                Var x : OTYPE[T2, T2].
+
+                Def E1 := superop m M T1 T2 e f.
+            )",
+            "PTr1 T2 T1 T1 ((so2choi T2 T1 E1) ((TPO T2 T2 x) * 1O[T1]))",
+            "Sum k in M, (e k) x (f k)^D"
+        },
+
     };
 
 

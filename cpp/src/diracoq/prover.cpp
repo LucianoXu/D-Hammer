@@ -304,7 +304,7 @@ namespace diracoq {
 	SUMO[IDX[{i, USET[T1]}, {j, USET[T2]}, {k, USET[T]}], 
 		(Bra[{PAIR[k, i]}]\[SmallCircle]M\[SmallCircle]Ket[{PAIR[k, j]}])(Ket[{i}]\[SmallCircle]Bra[{j}])]];
         *)
-        Def DNPTr1 := idx T => idx T1 => idx T2 => fun O : OTYPE[T * T1, T * T2] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T], (<(k, i)| O |(k, j)>).(|i> <j|).
+        Def PTr1 := idx T => idx T1 => idx T2 => fun O : OTYPE[T * T1, T * T2] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T], (<(k, i)| O |(k, j)>).(|i> <j|).
 
         (* Partial Trace 2
         DNPTr2[M_, T_, T1_, T2_]:=
@@ -312,7 +312,7 @@ namespace diracoq {
 	SUMO[IDX[{i, USET[T1]}, {j, USET[T2]}, {k, USET[T]}],
 		(Bra[{PAIR[i, k]}]\[SmallCircle]M\[SmallCircle]Ket[{PAIR[j, k]}])(Ket[{i}]\[SmallCircle]Bra[{j}])]];
         *)
-        Def DNPTr2 := idx T => idx T1 => idx T2 => fun O : OTYPE[T1 * T, T2 * T] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T], (<(i, k)| O |(j, k)>).(|i> <j|).
+        Def PTr2 := idx T => idx T1 => idx T2 => fun O : OTYPE[T1 * T, T2 * T] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T], (<(i, k)| O |(j, k)>).(|i> <j|).
 
         (* Transpose of Ket
         TPK[B_, T_]:= Module[{i}, SUMK[IDX[{i, USET[T]}], (B\[SmallCircle]Ket[{i}])Ket[{i}]]];
@@ -335,6 +335,78 @@ namespace diracoq {
         CONJO[O_, T1_, T2_] := TPO[ADJO[O],T2,T1];
         *)
         Def CONJO := idx sigma => idx tau => fun O : OTYPE[sigma, tau] => TPO tau sigma O^D.
+
+        (* fromlf 
+        formlf[A_, X_]:= A \[SmallCircle] X \[SmallCircle] SuperDagger[A];
+        *)
+        Def formlf := idx T1 => idx T2 => fun A : OTYPE[T1, T2] => fun X : OTYPE[T2, T2] => A X A^D.
+
+        (* super operator 
+        superop[M_, e_, f_]:= Module[{i}, SUMO[IDX[{i, M}], e[i]\[SmallCircle]#\[SmallCircle](SuperDagger[f[i]])]&];
+        *)
+        Def superop := idx S => fun M : SET[S] => idx T1 => idx T2 => fun e : BASIS[S]->OTYPE[T1, T2] => fun f : BASIS[S]->OTYPE[T1, T2] => fun X : OTYPE[T2, T2] => Sum i in M, (e i) X (f i)^D.
+
+        (* so2choi 
+        so2choi[e_, T1_]:=
+            Module[
+                {i, j},
+                SUMO[IDX[{i, USET[T1]}, {j, USET[T1]}], (Ket[{i}]\[SmallCircle]Bra[{j}])\[CircleTimes]e[Ket[{i}]\[SmallCircle]Bra[{j}]]]
+            ];
+        *)
+        Def so2choi := idx T1 => idx T2 => fun E : OTYPE[T1, T1] -> OTYPE[T2, T2] => Sum i in USET[T1], Sum j in USET[T1], (|i> <j|) * (E (|i> <j|)).
+
+
+        (* krausso
+        krausso[M_, f_]:=superop[M,f,f];
+        *)
+        Def krausso := idx S => fun M : SET[S] => idx T1 => idx T2 => fun f : BASIS[S]->OTYPE[T1, T2] => superop S M T1 T2 f f.
+        
+        (* idso 
+        idso[T_] := (#)&;
+        *)
+        Def idso := idx T => fun X : OTYPE[T, T] => X.
+        
+        (* abortso 
+        abortso[T1_,T2_] := (ZEROO[T1,T1])&;
+        *)
+        Def abortso := idx T1 => idx T2 => fun X : OTYPE[T2, T2] => 0O[T1, T1].
+
+        (* fromso
+        formso[f_] := (f\[SmallCircle]#\[SmallCircle]SuperDagger[f])&;
+        *)
+        Def formso := idx T1 => idx T2 => fun f : OTYPE[T1, T2] => fun X : OTYPE[T2, T2] => f X f^D.
+
+        (* addso
+        addso[e_, f_]:=(e[#] ~ADDO~ f[#])&; 
+        *)
+        Def addso := idx T1 => idx T2 => fun e : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun f : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => e X + f X.
+
+        (* sumso 
+        sumso[M_,f_]:=Module[{i}, SUMO[i, M, f[i][#]]&];
+        *)
+        Def sumso := idx S => fun M : SET[S] => idx T1 => idx T2 => fun f : BASIS[S] -> OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => Sum i in M, f i X.
+
+
+        (* scaleso 
+        scaleso[c_, e_]:= (c ~SCRO~ e[#])&;
+        *)
+        Def scaleso := idx T1 => idx T2 => fun c : STYPE => fun E : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => c (E X).
+
+        (* compso 
+        compso[e_, f_]:= e[f[#]]&;
+        *)
+        Def compso := idx T1 => idx T2 => idx T3 => fun e : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun f : OTYPE[T3, T3] -> OTYPE[T2, T2] => fun X : OTYPE[T3, T3] => e (f X).
+
+        (* compsor
+        compsor[e_, f_]:= f[e[#]]&;
+        *)
+        Def compsor := idx T1 => idx T2 => idx T3 => fun e : OTYPE[T3, T3] -> OTYPE[T2, T2] => fun f : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T3, T3] => f (e X).
+
+        (* ifso
+        ifso[M_, e_, f_] := Module[{i}, 
+	SUMO[IDX[{i, M}], f[i][e[i]\[SmallCircle]#\[SmallCircle]SuperDagger[(e[i])]]]&];
+        *)
+        Def ifso := idx S => fun M : SET[S] => idx T1 => idx T2 => idx T3 => fun e : BASIS[S] -> OTYPE[T2, T3] => fun F : BASIS[S] -> OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T3, T3] => Sum i in M, F i ((e i) X (e i)^D).
 
         )");
 

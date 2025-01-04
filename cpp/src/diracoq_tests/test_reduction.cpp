@@ -1186,15 +1186,18 @@ TEST(DiracoqReduction, R_SUM_PUSH16) {
 }
 
 TEST(DiracoqReduction, R_SUM_ADDS0) {
-    TEST_RULE({R_SUM_ADDS0}, "SUM[M, FUN[i, T, ADDS[a, b]]]", "ADDS[SUM[M, FUN[i, T, a]], SUM[M, FUN[i, T, b]]]");
+    unique_var_id = 0;
+    TEST_RULE({R_SUM_ADDS0}, "SUM[M, FUN[i, T, ADDS[a, b]]]", "ADDS[SUM[M, FUN[@0, T, a]], SUM[M, FUN[@1, T, b]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD0) {
-    TEST_RULE({R_SUM_ADD0}, "SUM[M, FUN[i, T, ADD[X, Y]]]", "ADD[SUM[M, FUN[i, T, X]], SUM[M, FUN[i, T, Y]]]");
+    unique_var_id = 0;
+    TEST_RULE({R_SUM_ADD0}, "SUM[M, FUN[i, T, ADD[X, Y]]]", "ADD[SUM[M, FUN[@0, T, X]], SUM[M, FUN[@1, T, Y]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD1) {
-    TEST_RULE({R_SUM_ADD1}, "SUM[M, FUN[i, T, SCR[ADDS[a, b, c], X]]]", "ADD[SUM[M, FUN[i, T, SCR[a, X]]], SUM[M, FUN[i, T, SCR[b, X]]], SUM[M, FUN[i, T, SCR[c, X]]]]");
+    unique_var_id = 0;
+    TEST_RULE({R_SUM_ADD1}, "SUM[M, FUN[i, T, SCR[ADDS[a, b, c], KET[i]]]]", "ADD[SUM[M, FUN[@0, T, SCR[a, KET[@0]]]], SUM[M, FUN[@1, T, SCR[b, KET[@1]]]], SUM[M, FUN[@2, T, SCR[c, KET[@2]]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX0) {
