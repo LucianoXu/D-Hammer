@@ -1,5 +1,11 @@
 {
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.testArgs": ["--parallel", "4"],
+    "cmake.ctestArgs": ["--output-on-failure"],
+    "cmake.ctest.parallelJobs": 8,
+
     "files.associations": {
         "*.lean4": "lean4",
         "*.olean": "lean4",
@@ -88,6 +94,6 @@
         "cfenv": "cpp",
         "strstream": "cpp",
         "__errc": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
     }
 }

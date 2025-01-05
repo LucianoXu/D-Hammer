@@ -168,7 +168,10 @@ namespace diracoq {
         auto& bank = kernel.get_bank();
         auto& sig = kernel.get_sig();
 
-        if (term->is_atomic()) {
+        auto head = term->get_head();
+
+        // expand atomic terms
+        if (term->is_atomic() || head == APPLY){
             auto type = kernel.calc_type(term);
             auto type_head = type->get_head();
             auto type_args = type->get_args();

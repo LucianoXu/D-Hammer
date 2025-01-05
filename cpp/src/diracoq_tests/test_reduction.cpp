@@ -22,6 +22,20 @@ TEST(DiracoqReduction, variable_expand_K) {
 }
 
 
+TEST(DiracoqReduction, variable_expand_K_apply) {
+    Kernel kernel;
+    unique_var_id = 0;
+    kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("fK"), kernel.parse("BASIS[A] -> KTYPE[A]"));
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("BASIS[A]"));
+
+    auto term = kernel.parse("APPLY[fK, a]");
+    auto actual_res = variable_expand(kernel, term);
+    auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SCR[DOT[BRA[@0], APPLY[fK, a]], KET[@0]]]]");
+
+    EXPECT_EQ(actual_res, expected_res);
+}
+
 TEST(DiracoqReduction, variable_expand_B) {
     Kernel kernel;
     unique_var_id = 0;

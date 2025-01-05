@@ -353,14 +353,33 @@ namespace diracoq {
                 SUMO[IDX[{i, USET[T1]}, {j, USET[T1]}], (Ket[{i}]\[SmallCircle]Bra[{j}])\[CircleTimes]e[Ket[{i}]\[SmallCircle]Bra[{j}]]]
             ];
         *)
-        Def so2choi := idx T1 => idx T2 => fun E : OTYPE[T1, T1] -> OTYPE[T2, T2] => Sum i in USET[T1], Sum j in USET[T1], (|i> <j|) * (E (|i> <j|)).
+        Def so2choi := idx T1 => idx T2 => fun E : OTYPE[T2, T2] -> OTYPE[T1, T1] => Sum i in USET[T2], Sum j in USET[T2], (|i> <j|) * (E (|i> <j|)).
 
+        (* choi2so
+        choi2so[A_, T1_, T2_]:=DNPTr1[A~MLTO~(TPO[#, T1, T1] ~TSRO~ ONEO[T2]), T1, T2, T2]&;
+        *)
+        Def choi2so := idx T1 => idx T2 => fun A : OTYPE[T2 * T1, T2 * T1] => fun X : OTYPE[T2, T2] => PTr1 T2 T1 T1 (A ((TPO T2 T2 X) * 1O[T1])).
 
         (* krausso
         krausso[M_, f_]:=superop[M,f,f];
         *)
         Def krausso := idx S => fun M : SET[S] => idx T1 => idx T2 => fun f : BASIS[S]->OTYPE[T1, T2] => superop S M T1 T2 f f.
         
+        (* dualso
+        dualso[e_, T1_, T2_]:=choi2so[SWAP[TPO[so2choi[e, T1], T1 ~ProdType~ T2, T1 ~ProdType~ T2], T1, T2, T1, T2], T2, T1];
+        *)
+        Def dualso := idx T2 => idx T1 => fun E : OTYPE[T2, T2] -> OTYPE[T1, T1] => choi2so T2 T1 (SWAP T2 T1 T2 T1 (TPO (T2 * T1) (T2 * T1) (so2choi T1 T2 E))).
+
+        (* elemso
+        elemso[f_, k_]:= (f[k]\[SmallCircle]#\[SmallCircle]SuperDagger[f[k]])&;
+        *)
+        Def elemso := idx S => idx T1 => idx T2 => fun f : BASIS[S] -> OTYPE[T1, T2] => fun k : BASIS[S] => fun X : OTYPE[T2, T2] => (f k) X (f k)^D.
+
+        (* dualqm
+        dualqm[M_, f_, X_]:= Module[{i}, SUMO[IDX[{i, M}], (SuperDagger[f[i]])\[SmallCircle]X[i]\[SmallCircle]f[i]]];
+        *)
+        Def dualqm := idx S => fun M : SET[S] => idx T1 => idx T2 => fun f : BASIS[S] -> OTYPE[T2, T1] => fun X : BASIS[S] -> OTYPE[T2, T2] => Sum i in M, (f i)^D (X i) (f i).
+
         (* idso 
         idso[T_] := (#)&;
         *)
