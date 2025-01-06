@@ -6,6 +6,16 @@
 
 namespace diracoq {
 
+    template <class T>
+    inline ualg::TermPtr<T> create_term(const T& head) {
+        return std::make_shared<const ualg::Term<T>>(head);
+    }
+
+    template <class T>
+    inline ualg::TermPtr<T> create_term(const T& head, ualg::ListArgs<T> args) {
+        return std::make_shared<const ualg::Term<T>>(head, std::move(args));
+    }
+
     extern const int deBruijn_index_num;
 
     extern std::vector<std::string> diracoq_symbols;
@@ -32,12 +42,5 @@ namespace diracoq {
 
     extern const std::set<int> a_symbols;
     extern const std::set<int> c_symbols;
-
-
-    extern unsigned long long unique_var_id;
-
-    inline std::string unique_var() {
-        return "@" + std::to_string(unique_var_id++);
-    }
     
 } // namespace diracoq

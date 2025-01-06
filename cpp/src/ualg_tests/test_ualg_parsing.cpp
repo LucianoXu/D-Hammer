@@ -6,37 +6,34 @@ using namespace ualg;
 using namespace std;
 
 TEST(TermParsing, Basics1) {
-    TermBank<string> bank{};
     Signature<string> sig = {
         {{"f", "f"}}
     };
 
-    auto actual_res = parse(sig, bank, "f");
-    auto expected_res = bank.get_term("f");
+    auto actual_res = sig.parse("f");
+    auto expected_res = make_shared<const Term<string>>("f");
 
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 TEST(TermParsing, Basics2) {
-    TermBank<string> bank{};
     Signature<string> sig = {
         {{"f", "f"}, {"g", "g"}}
     };
 
-    auto actual_res = parse(sig, bank, "f[g, g]");
-    auto expected_res = bank.get_term("f", {bank.get_term("g"), bank.get_term("g")});
+    auto actual_res = sig.parse("f[g, g]");
+    auto expected_res = make_shared<const Term<string>>("f", vector{make_shared<const Term<string>>("g"), make_shared<const Term<string>>("g")});
 
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 TEST(TermParsing, AutomaticRegistration) {
-    TermBank<string> bank{};
     Signature<string> sig = {
         {}
     };
 
-    auto actual_res = parse(sig, bank, "f[g, g]");
-    auto expected_res = bank.get_term("f", {bank.get_term("g"), bank.get_term("g")});
+    auto actual_res = sig.parse("f[g, g]");
+    auto expected_res = make_shared<const Term<string>>("f", vector{make_shared<const Term<string>>("g"), make_shared<const Term<string>>("g")});
 
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }

@@ -1,5 +1,4 @@
 #include "term.hpp"
-#include "termbank.hpp"
 
 namespace ualg {
 

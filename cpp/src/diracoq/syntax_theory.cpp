@@ -14,7 +14,7 @@ namespace diracoq {
     }
 
     // bound_var_stack: the outermost variable is at the front of the vector
-    const Term<int>* to_deBruijn(Signature<int>& sig, TermBank<int>& bank, const Term<int>* term, vector<int>& bound_var_stack) {
+    TermPtr<int> to_deBruijn(Signature<int>& sig, TermPtr<int> term, vector<int>& bound_var_stack) {
 
         auto head = term->get_head();
 
@@ -23,35 +23,35 @@ namespace diracoq {
             if (search_res == -1) {
                 return term;
             }
-            return bank.get_term(search_res);
+            return create_term(search_res);
         }
 
         auto& args = term->get_args();
         
         if (head == IDX || head == FORALL) {
             bound_var_stack.push_back(args[0]->get_head());
-            auto res = bank.get_term(head, {to_deBruijn(sig, bank, args[1], bound_var_stack)});
+            auto res = create_term(head, {to_deBruijn(sig, args[1], bound_var_stack)});
             bound_var_stack.pop_back();
             return res;
         }
 
         if (head == FUN) {
-            auto T = to_deBruijn(sig, bank, args[1], bound_var_stack);
+            auto T = to_deBruijn(sig, args[1], bound_var_stack);
             bound_var_stack.push_back(args[0]->get_head());
-            auto body = to_deBruijn(sig, bank, args[2], bound_var_stack);
+            auto body = to_deBruijn(sig, args[2], bound_var_stack);
             bound_var_stack.pop_back();
-            return bank.get_term(head, {T, body});
+            return create_term(head, {T, body});
         }
 
         ListArgs<int> new_args;
         for (const auto& arg : args) {
-            new_args.push_back(to_deBruijn(sig, bank, arg, bound_var_stack));
+            new_args.push_back(to_deBruijn(sig, arg, bound_var_stack));
         }
-        return bank.get_term(head, std::move(new_args));
+        return create_term(head, std::move(new_args));
     }
 
-    const Term<int>* to_deBruijn(Signature<int>& sig, TermBank<int>& bank, const Term<int>* term) {
+    TermPtr<int> to_deBruijn(Signature<int>& sig, TermPtr<int> term) {
         vector<int> bound_var_stack;
-        return to_deBruijn(sig, bank, term, bound_var_stack);
+        return to_deBruijn(sig, term, bound_var_stack);
     }
 }

@@ -8,27 +8,25 @@ using namespace ualg;
 using namespace std;
 using namespace diracoq;
 
-void TEST_RULE(Kernel& kernel, const vector<PosRewritingRule>& rules, string input, string expected) {
-    auto term = static_cast<const Term<int>*>(kernel.parse(input));
-    auto actual_res = pos_rewrite_repeated(kernel, term, rules);
-    auto expected_res = static_cast<const Term<int>*>(kernel.parse(expected));
-
-    cout << "Actual: "<< kernel.term_to_string(actual_res) << endl;
-    cout << "Expected: "<< kernel.term_to_string(expected_res) << endl;
-}
-
-
-void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expected) {
-    Kernel kernel;
-    TEST_RULE(kernel, rules, input, expected);
-}
-
 int main(int , const char **) {
     
     Prover* prover = std_prover();
 
     cout << "Diracoq Prover top level built by Yingte Xu." << endl;
+
+    // prover->process(R"(
+    //             Var T1 : INDEX.
+    //             Var T2 : INDEX.
+    //             Var T3 : INDEX.
+    //             Var T4 : INDEX.
+    //             Var A : OTYPE[T1 * T2, T3 * T4].
+    // )");
+
+    // prover->process("Normalize A with trace.");
+    // // prover->process("Normalize Tr (T1 * T2) (A * B) with trace.");
     
+    // return 0;
+
     while (true) {
         string code;
         cout << "> ";

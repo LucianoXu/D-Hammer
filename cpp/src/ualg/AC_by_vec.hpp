@@ -3,7 +3,6 @@
 #include <string>
 #include <set>
 #include "term.hpp"
-#include "termbank.hpp"
 
 namespace ualg {
 
@@ -15,12 +14,11 @@ namespace ualg {
      * 
      * @tparam T 
      * @param term 
-     * @param bank 
      * @param c_symbols 
      * @return const Term<T>* 
      */
     template <class T>
-    const Term<T>* flatten(const Term<T>* term, TermBank<T>& bank, const std::set<T>& c_symbols) {
+    TermPtr<T> flatten(TermPtr<T> term, const std::set<T>& c_symbols) {
 
         // If the term is atomic or not an AC symbol, return the term
         if (term->is_atomic() || c_symbols.find(term->get_head()) == c_symbols.end()) return term;
@@ -30,7 +28,7 @@ namespace ualg {
 
         for (const auto& arg : args) {
             // flatten the subterm first
-            const auto new_arg = flatten<T>(arg, bank, c_symbols);
+            auto new_arg = flatten<T>(arg, c_symbols);
             if (new_arg->get_head() == term->get_head()) {
                 auto& arg_args = new_arg->get_args();
 
@@ -41,21 +39,20 @@ namespace ualg {
             }
         }
 
-        return bank.get_term(term->get_head(), std::move(new_args));
+        return std::make_shared<Term<T>>(term->get_head(), std::move(new_args));
     }
     
     /**
      * @brief sort the commutative terms in the term.
      * 
      * @tparam T 
-     * @param term 
-     * @param bank 
+     * @param term
      * @param c_symbols 
      * @param comp 
      * @return const Term<T>* 
      */
     template <class T, class Compare>
-    const Term<T>* sort_C_terms(const Term<T>* term, TermBank<T>& bank, const std::set<T>& c_symbols, Compare comp) {
+    TermPtr<T> sort_C_terms(TermPtr<T> term, const std::set<T>& c_symbols, Compare comp) {
 
         if (term->get_args().size() == 0) return term;
 
@@ -65,8 +62,7 @@ namespace ualg {
         ListArgs<T> res_subterm_sort;
         for (unsigned i = 0; i < args.size(); ++i) {
             auto sorted_arg = sort_C_terms(
-                args[i],
-                bank, c_symbols, comp
+                args[i], c_symbols, comp
             );
             res_subterm_sort.push_back(sorted_arg);
         }
@@ -76,7 +72,7 @@ namespace ualg {
             std::sort(res_subterm_sort.begin(), res_subterm_sort.end(), comp);
         }
 
-        return  bank.get_term(term->get_head(), std::move(res_subterm_sort));
+        return  std::make_shared<Term<T>>(term->get_head(), std::move(res_subterm_sort));
     }
 
     /**
@@ -89,7 +85,7 @@ namespace ualg {
      * @return false 
      */
     template <class T>
-    bool std_comp(const Term<T>* a, const Term<T>* b) {
+    bool std_comp(TermPtr<T> a, TermPtr<T> b) {
         return *a < *b;
     }
 
@@ -102,12 +98,12 @@ namespace ualg {
      * @return bool
      */
     template <class T>
-    bool check_C_eq(const Term<T>* termA, const Term<T>* termB, TermBank<T>& bank, const std::set<T>& c_symbols) {
+    bool check_C_eq(TermPtr<T> termA, TermPtr<T> termB, const std::set<T>& c_symbols) {
 
         // sort the two terms first
-        auto sortedA = sort_C_terms(termA, bank, c_symbols, std_comp<T>);
-        auto sortedB = sort_C_terms(termB, bank, c_symbols, std_comp<T>);
+        auto sortedA = sort_C_terms(termA, c_symbols, std_comp<T>);
+        auto sortedB = sort_C_terms(termB, c_symbols, std_comp<T>);
 
-        return sortedA == sortedB;
+        return *sortedA == *sortedB;
     }
 }

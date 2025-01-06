@@ -7,8 +7,8 @@
 namespace diracoq {
 
     struct Declaration {
-        std::optional<const ualg::Term<int>*> def;
-        const ualg::Term<int>* type;
+        std::optional<ualg::TermPtr<int>> def;
+        ualg::TermPtr<int> type;
 
         inline bool is_def() const {
             return def.has_value();
@@ -35,7 +35,6 @@ namespace diracoq {
      */
     class Kernel {
     protected:
-        ualg::TermBank<int> bank;
         ualg::Signature<int> sig;
         std::vector<std::pair<int, Declaration>> env;
         std::vector<std::pair<int, Declaration>> ctx;
@@ -50,21 +49,13 @@ namespace diracoq {
         Kernel() : sig(diracoq_sig) {}
 
         // copy constructor
-        Kernel(const Kernel& other) : bank(other.bank), sig(other.sig), env(other.env), ctx(other.ctx) {
-            throw std::runtime_error("Copy constructor is forbidden.");
-        }
+        Kernel(const Kernel& other) : sig(other.sig), env(other.env), ctx(other.ctx) {}
 
         // move constructor
-        Kernel(Kernel&& other) : bank(std::move(other.bank)), sig(std::move(other.sig)), env(std::move(other.env)), ctx(std::move(other.ctx)) {
-            throw std::runtime_error("Move constructor is forbidden.");
-        }
+        Kernel(Kernel&& other) : sig(std::move(other.sig)), env(std::move(other.env)), ctx(std::move(other.ctx)) {}
 
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);
-        }
-
-        inline ualg::TermBank<int>& get_bank() {
-            return bank;
         }
 
         inline ualg::Signature<int>& get_sig() {
@@ -91,7 +82,7 @@ namespace diracoq {
          * @param code 
          * @return const Term<int>* 
          */
-        const ualg::Term<int>* parse(const std::string& code);
+        ualg::TermPtr<int> parse(const std::string& code);
 
 
         /**
@@ -100,7 +91,7 @@ namespace diracoq {
          * @param ast 
          * @return const ualg::Term<int>* 
          */
-        const ualg::Term<int>* parse(const astparser::AST& ast);
+        ualg::TermPtr<int> parse(const astparser::AST& ast);
 
         /**
          * @brief Transform the term to a string.
@@ -108,7 +99,7 @@ namespace diracoq {
          * @param term 
          * @return string 
          */
-        std::string term_to_string(const ualg::Term<int>* term) const;
+        std::string term_to_string(ualg::TermPtr<int> term) const;
 
         std::string env_to_string() const;
 
@@ -119,7 +110,7 @@ namespace diracoq {
          * @return true 
          * @return false 
          */
-        bool is_index(const ualg::Term<int>* term);
+        bool is_index(ualg::TermPtr<int> term);
 
         /**
          * @brief Checks if the expression is a type.
@@ -128,7 +119,7 @@ namespace diracoq {
          * @return true 
          * @return false 
          */
-        bool is_type(const ualg::Term<int>* term);
+        bool is_type(ualg::TermPtr<int> term);
 
         /**
          * @brief Calculate and return the least type of the term.
@@ -138,7 +129,7 @@ namespace diracoq {
          * @param term 
          * @return const ualg::Term<int>* , the least type of the term.
          */
-        const ualg::Term<int>* calc_type(const ualg::Term<int>* term);
+        ualg::TermPtr<int> calc_type(ualg::TermPtr<int> term);
 
 
         /**
@@ -149,7 +140,7 @@ namespace diracoq {
          * @return true 
          * @return false 
          */
-        bool is_judgemental_eq(const ualg::Term<int>* termA, const ualg::Term<int>* termB);
+        bool is_judgemental_eq(ualg::TermPtr<int> termA, ualg::TermPtr<int> termB);
 
 
         /**
@@ -159,7 +150,7 @@ namespace diracoq {
          * @return true 
          * @return false 
          */
-        bool type_check(const ualg::Term<int>* term, const ualg::Term<int>* type) {
+        bool type_check(ualg::TermPtr<int> term, ualg::TermPtr<int> type) {
             return is_judgemental_eq(calc_type(term), type);
         }
 
@@ -169,7 +160,7 @@ namespace diracoq {
          * @param symbol 
          * @param type 
          */
-        void assum(int symbol, const ualg::Term<int>* type);
+        void assum(int symbol, ualg::TermPtr<int> type);
 
         /**
          * @brief Make a definition in the environment.
@@ -178,7 +169,7 @@ namespace diracoq {
          * @param def 
          * @param type if not provided, the type will be calculated.
          */
-        void def(int symbol, const ualg::Term<int>* def, std::optional<const ualg::Term<int>*> type = std::nullopt);
+        void def(int symbol, ualg::TermPtr<int> def, std::optional<ualg::TermPtr<int>> type = std::nullopt);
 
         /**
          * @brief Pop the last assumption/definition in the environment.
@@ -186,7 +177,7 @@ namespace diracoq {
          */
         void env_pop();
 
-        void context_push(int symbol, const ualg::Term<int>* type);
+        void context_push(int symbol, ualg::TermPtr<int> type);
 
         void context_pop();
     };

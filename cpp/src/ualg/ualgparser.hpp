@@ -1,5 +1,4 @@
 #include "term.hpp"
-#include "termbank.hpp"
 #include "astparser.hpp"
 
 // Transform code, or AST, to terms in the bank
@@ -9,6 +8,8 @@ namespace ualg {
     template <class T>
     class Signature {
     protected:
+        long long unique_var_id = 0;
+
         // The mapping from inner representations to head names
         std::map<T, std::string> head2name;
 
@@ -29,6 +30,10 @@ namespace ualg {
             name2head = other.name2head;
         }
 
+        inline std::string unique_var() {
+            return "@" + std::to_string(unique_var_id++);
+        }
+
         inline T register_symbol(const std::string& name) {
             auto find = name2head.find(name);
 
@@ -44,7 +49,7 @@ namespace ualg {
                     return repr;
                 }
                 else {
-                    throw std::runtime_error("Unknown symbol: " + name);
+                    throw std::runtime_error("Unimplemented error for symbol: " + name);
                 }
             }
 
@@ -81,16 +86,17 @@ namespace ualg {
             head2name[head] = name;
         }
 
-        inline std::string term_to_string(const Term<T>* term) const {
-            return term->to_string(std::make_shared<const std::map<T, std::string>>(head2name));
+        inline std::string term_to_string(TermPtr<T> term) const {
+            return term->to_string(&head2name);
         }
+
+        TermPtr<T> ast2term(const astparser::AST& ast);
+
+        TermPtr<T> parse(const std::string& code);
+
+        TermPtr<T> parse(const astparser::AST& ast);
     };
 
-    template <class T>
-    const Term<T>* ast2term(Signature<T>& sig, TermBank<T>& bank, const astparser::AST& ast);
-
-    template <class T>
-    const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const std::string& code);
 
     /**
      * @brief Complie the Signature from a mapping of symbol names to symbol types.
@@ -103,58 +109,37 @@ namespace ualg {
     //////////////////////////////////////////////////////////
     // Implementation
 
-    /**
-     * @brief Transform the AST to a term in the bank.
-     * 
-     * Note that it will try to register new symbols (head of the terms) in the signature, using signature.register_symbol.
-     * 
-     * @tparam T 
-     * @param sig 
-     * @param bank 
-     * @param ast 
-     * @return const Term<T>* 
-     */
     template <class T>
-    const Term<T>* ast2term(Signature<T>& sig, TermBank<T>& bank, const astparser::AST& ast) {
+    TermPtr<T> Signature<T>::ast2term(const astparser::AST& ast) {
         
-        auto head = sig.register_symbol(ast.head);
+        auto head = register_symbol(ast.head);
 
         if (ast.children.size() == 0) {
-            return bank.get_term(head);
+            return std::make_shared<Term<T>>(head);
         }
         else {
             ListArgs<T> args;
             for (const auto& child : ast.children) {
-                args.push_back(ast2term(sig, bank, child));
+                args.push_back(ast2term(child));
             }
-            return bank.get_term(head, std::move(args));
+            return std::make_shared<Term<T>>(head, std::move(args));
         }
     }
 
-    /**
-     * @brief Parse the code into a term in the bank.
-     * 
-     * @throws std::runtime_error if the code is not valid.
-     * 
-     * @tparam T 
-     * @param sig 
-     * @param bank 
-     * @param code 
-     * @return const Term<T>* 
-     */
+
     template <class T>
-    const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const std::string& code) {
+    TermPtr<T> Signature<T>::parse(const std::string& code) {
         auto ast = astparser::parse(code);
         if (!ast.has_value()) {
             throw std::runtime_error("Error: the code to parse is not valid.");
         }
 
-        return ast2term(sig, bank, ast.value());
+        return ast2term(ast.value());
     }
 
     template <class T>
-    const Term<T>* parse(Signature<T>& sig, TermBank<T>& bank, const astparser::AST& ast) {
-        return ast2term(sig, bank, ast);
+    TermPtr<T> Signature<T>::parse(const astparser::AST& ast) {
+        return ast2term(ast);
     }
 
 } // namespace ualg

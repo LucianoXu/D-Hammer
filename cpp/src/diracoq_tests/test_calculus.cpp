@@ -10,23 +10,22 @@ TEST(DiracoqParsing, Basics1) {
     
     Kernel kernel;
 
-    auto& bank = kernel.get_bank();
     auto& sig = kernel.get_sig();
 
     auto actual_res = kernel.parse("FUN[x, y, APPLY[z, x]]");
     
-    auto expected_res = bank.get_term(
+    auto expected_res = create_term(
         sig.get_repr("FUN"), {
-            bank.get_term(sig.get_repr("x")),
-            bank.get_term(sig.get_repr("y")),
-            bank.get_term(sig.get_repr("APPLY"), {
-                bank.get_term(sig.get_repr("z")),
-                bank.get_term(sig.get_repr("x"))
+            create_term(sig.get_repr("x")),
+            create_term(sig.get_repr("y")),
+            create_term(sig.get_repr("APPLY"), {
+                create_term(sig.get_repr("z")),
+                create_term(sig.get_repr("x"))
             })
         }
     );
 
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 
@@ -46,7 +45,7 @@ TEST(DiracoqTypeCalc, assum) {
 
     // (Assum)
     kernel.assum(kernel.register_symbol("x"), kernel.parse("TYPE"));
-    EXPECT_EQ(kernel.calc_type(kernel.parse("x")), kernel.parse("TYPE"));
+    EXPECT_EQ(*kernel.calc_type(kernel.parse("x")), *kernel.parse("TYPE"));
 }
 
 TEST(DiracoqTypeCalc, def_fun) {
@@ -55,7 +54,7 @@ TEST(DiracoqTypeCalc, def_fun) {
     // (DEF)
     kernel.assum(kernel.register_symbol("T"), kernel.parse("TYPE"));
     kernel.def(kernel.register_symbol("f"), kernel.parse("FUN[x, T, x]"), kernel.parse("ARROW[T, T]"));
-    EXPECT_EQ(kernel.calc_type(kernel.parse("f")), kernel.parse("ARROW[T, T]"));
+    EXPECT_EQ(*kernel.calc_type(kernel.parse("f")), *kernel.parse("ARROW[T, T]"));
 }
 
 //////////////////////////////////////////////////////

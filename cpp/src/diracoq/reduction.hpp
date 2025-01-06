@@ -5,16 +5,16 @@
 namespace diracoq {
 
     // The rewriting rules of the Diracoq kernel.
-    using PosRewritingRule = std::optional<const ualg::Term<int>*> (*)(Kernel& kernel, const ualg::Term<int>* term);
+    using PosRewritingRule = std::optional<ualg::TermPtr<int>> (*)(Kernel& kernel, ualg::TermPtr<int> term);
 
-#define DIRACOQ_RULE_DEF(name, kernel, term) std::optional<const ualg::Term<int>*> name(diracoq::Kernel& kernel, const ualg::Term<int>* term)
+#define DIRACOQ_RULE_DEF(name, kernel, term) std::optional<ualg::TermPtr<int>> name(diracoq::Kernel& kernel, ualg::TermPtr<int> term)
 
     // The struct for the rewriting trace. It records which rule is applied, at which position, and the new replacement.
     struct PosReplaceRecord {
-        const ualg::Term<int>* init_term;
+        ualg::TermPtr<int> init_term;
         PosRewritingRule rule;
         ualg::TermPos pos;
-        const ualg::Term<int>* replacement;
+        ualg::TermPtr<int> replacement;
     };
 
 
@@ -26,7 +26,7 @@ namespace diracoq {
      * @param rules 
      * @return std::optional<PosReplaceRecord> 
      */
-    std::optional<PosReplaceRecord> get_pos_replace(Kernel& kernel, const ualg::Term<int>* term, const std::vector<PosRewritingRule>& rules);
+    std::optional<PosReplaceRecord> get_pos_replace(Kernel& kernel, ualg::TermPtr<int> term, const std::vector<PosRewritingRule>& rules);
 
 
     /**
@@ -38,7 +38,7 @@ namespace diracoq {
      * @param trace The container to store the trace of the rewriting.
      * @return const NormalTerm<int>* 
      */
-    const ualg::Term<int>* pos_rewrite_repeated(Kernel& kernel, const ualg::Term<int>* term, const std::vector<PosRewritingRule>& rules, 
+    ualg::TermPtr<int> pos_rewrite_repeated(Kernel& kernel, ualg::TermPtr<int> term, const std::vector<PosRewritingRule>& rules, 
     std::vector<PosReplaceRecord>* trace = nullptr);
 
     /**
@@ -47,18 +47,18 @@ namespace diracoq {
      * @param kernel 
      * @param term 
      * @param bound_vars 
-     * @return const ualg::Term<int>* 
+     * @return ualg::TermPtr<int> 
      */
-    const ualg::Term<int>* bound_variable_rename(Kernel& kernel, const ualg::Term<int>* term);
+    ualg::TermPtr<int> bound_variable_rename(Kernel& kernel, ualg::TermPtr<int> term);
 
     /**
      * @brief Expand all the variables in the term once.
      * 
      * @param kernel 
      * @param term 
-     * @return const ualg::Term<int>* 
+     * @return ualg::TermPtr<int> 
      */
-    const ualg::Term<int>* variable_expand(Kernel& kernel, const ualg::Term<int>* term);
+    ualg::TermPtr<int> variable_expand(Kernel& kernel, ualg::TermPtr<int> term);
 
     /**
      * @brief Iterate through the whole term and rename the bound variables.
@@ -69,8 +69,8 @@ namespace diracoq {
      * @param term 
      * @return const ualg::NormalTerm<int>* 
      */
-    inline const ualg::Term<int>* deBruijn_normalize(Kernel& kernel, const ualg::Term<int>* term){
-        return to_deBruijn(kernel.get_sig(), kernel.get_bank(), term);
+    inline ualg::TermPtr<int> deBruijn_normalize(Kernel& kernel, ualg::TermPtr<int> term){
+        return to_deBruijn(kernel.get_sig(), term);
     }
 
     
@@ -80,7 +80,7 @@ namespace diracoq {
      * @param term 
      * @return std::set<int> 
      */
-    std::set<int> get_bound_vars(const ualg::Term<int>* term);
+    std::set<int> get_bound_vars(ualg::TermPtr<int> term);
 
 
     /**
@@ -92,7 +92,7 @@ namespace diracoq {
      * @return true termA < termB
      * @return false termA >= termB
      */
-    bool comp_modulo_bound_vars(const ualg::Term<int>* termA, const ualg::Term<int>* termB, const std::set<int>& bound_vars);
+    bool comp_modulo_bound_vars(ualg::TermPtr<int> termA, ualg::TermPtr<int> termB, const std::set<int>& bound_vars);
 
 
     /**
@@ -100,9 +100,9 @@ namespace diracoq {
      * 
      * @param kernel 
      * @param term 
-     * @return const ualg::Term<int>* 
+     * @return ualg::TermPtr<int> 
      */
-    const ualg::Term<int>* sum_swap_normalization(Kernel& kernel, const ualg::Term<int>* term);
+    ualg::TermPtr<int> sum_swap_normalization(Kernel& kernel, ualg::TermPtr<int> term);
 
 
 

@@ -154,8 +154,8 @@ namespace diracoq {
                     auto bound_vars = get_bound_vars(temp);
 
                     // sorting modulo the bound variables
-                    temp = sort_C_terms(temp, kernel.get_bank(), c_symbols, 
-                        [&](const Term<int>* a, const Term<int>* b) {
+                    temp = sort_C_terms(temp, c_symbols, 
+                        [&](TermPtr<int> a, TermPtr<int> b) {
                             return comp_modulo_bound_vars(a, b, bound_vars);
                         }
                     );
@@ -241,8 +241,8 @@ namespace diracoq {
         auto expanded_termA = variable_expand(kernel, tempA);
         tempA = pos_rewrite_repeated(kernel, expanded_termA, all_rules, &traceA);
         auto bound_varsA = get_bound_vars(tempA);
-        tempA = sort_C_terms(tempA, kernel.get_bank(), c_symbols, 
-            [&](const Term<int>* a, const Term<int>* b) {
+        tempA = sort_C_terms(tempA, c_symbols, 
+            [&](TermPtr<int> a, TermPtr<int> b) {
                 return comp_modulo_bound_vars(a, b, bound_varsA);
             }
         );
@@ -255,8 +255,8 @@ namespace diracoq {
         auto expanded_termB = variable_expand(kernel, tempB);
         tempB = pos_rewrite_repeated(kernel, expanded_termB, all_rules, &traceB);
         auto bound_varsB = get_bound_vars(tempB);
-        tempB = sort_C_terms(tempB, kernel.get_bank(), c_symbols, 
-            [&](const Term<int>* a, const Term<int>* b) {
+        tempB = sort_C_terms(tempB, c_symbols, 
+            [&](TermPtr<int> a, TermPtr<int> b) {
                 return comp_modulo_bound_vars(a, b, bound_varsB);
             }
         );
@@ -267,7 +267,7 @@ namespace diracoq {
         auto final_termB = normalized_termB;
         
         // Output the result
-        if (final_termA == final_termB) {
+        if (*final_termA == *final_termB) {
             output << "The two terms are equal." << endl;
             output << "[Normalized Term] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
 

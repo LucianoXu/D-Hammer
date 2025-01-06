@@ -11,7 +11,7 @@ namespace diracoq {
      * @param term 
      * @return std::string 
      */
-    std::string term_to_coq(Kernel& kernel, const ualg::Term<int>* term);
+    std::string term_to_coq(Kernel& kernel, ualg::TermPtr<int> term);
 
     std::string pos_to_string(const ualg::TermPos& pos);
 

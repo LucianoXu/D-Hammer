@@ -148,6 +148,4 @@ namespace diracoq {
     const std::set<int> a_symbols = {ADDS, MULS, ADD};
     const std::set<int> c_symbols = {ADDS, MULS, DELTA, ADD};
 
-    unsigned long long unique_var_id = 0;
-
 } // namespace diracoq

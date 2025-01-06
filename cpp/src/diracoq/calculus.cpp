@@ -38,21 +38,21 @@ namespace diracoq {
     }
 
 
-    const Term<int>* Kernel::parse(const std::string& code) {
+    TermPtr<int> Kernel::parse(const std::string& code) {
         auto ast = diracoq::parse(code);
         if (ast.has_value()) {
-            return ualg::parse(sig, bank, ast.value());
+            return sig.parse(ast.value());
         }
         else{
             throw std::runtime_error("The code is not valid.");
         }
     }
 
-    const Term<int>* Kernel::parse(const astparser::AST& ast) {
-        return ualg::parse(sig, bank, ast);
+    TermPtr<int> Kernel::parse(const astparser::AST& ast) {
+        return sig.parse(ast);
     }
 
-    string Kernel::term_to_string(const Term<int>* term) const {
+    string Kernel::term_to_string(TermPtr<int> term) const {
         return sig.term_to_string(term);
     }
 
@@ -64,7 +64,7 @@ namespace diracoq {
         return res;
     }
 
-    bool Kernel::is_index(const Term<int>* term) {
+    bool Kernel::is_index(TermPtr<int> term) {
         auto type = calc_type(term);
 
         if (type->get_head() == INDEX) {
@@ -74,7 +74,7 @@ namespace diracoq {
         return false;
     }
 
-    bool Kernel::is_type(const Term<int>* term) {
+    bool Kernel::is_type(TermPtr<int> term) {
         auto type = calc_type(term);
 
         if (type->get_head() == TYPE) {
@@ -87,7 +87,7 @@ namespace diracoq {
 
 
 
-    const Term<int>* Kernel::calc_type(const Term<int>* term) {
+    TermPtr<int> Kernel::calc_type(TermPtr<int> term) {
         auto head = term->get_head();
         auto args = term->get_args();
 
@@ -101,7 +101,7 @@ namespace diracoq {
             if (typeA->get_head() == STYPE) {
                 // S @ S : S
                 if (typeB->get_head() == STYPE) {
-                    return bank.get_term(STYPE);
+                    return create_term(STYPE);
                 }
                 // S @ K(A) : K(A)
                 if (typeB->get_head() == KTYPE) {
@@ -124,12 +124,12 @@ namespace diracoq {
                 }
                 // K(A) @ K(B) : K(PROD(A B))
                 if (typeB->get_head() == KTYPE) {
-                    return bank.get_term(KTYPE, 
-                        {bank.get_term(PROD, {typeA->get_args()[0], typeB->get_args()[0]})});
+                    return create_term(KTYPE, 
+                        {create_term(PROD, {typeA->get_args()[0], typeB->get_args()[0]})});
                 }
                 // K(A) @ B(B) : O(A, B)
                 if (typeB->get_head() == BTYPE) {
-                    return bank.get_term(OTYPE, {typeA->get_args()[0], typeB->get_args()[0]});
+                    return create_term(OTYPE, {typeA->get_args()[0], typeB->get_args()[0]});
                 }
                 // K(A) @ O(B, C) --- NOT VALID
             }
@@ -141,7 +141,7 @@ namespace diracoq {
                 // B(A) @ K(A) : S
                 if (typeB->get_head() == KTYPE) {
                     if (is_judgemental_eq(typeA->get_args()[0], typeB->get_args()[0])) {
-                        return bank.get_term(STYPE);
+                        return create_term(STYPE);
                     }
                     else {
                         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[0]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
@@ -149,13 +149,13 @@ namespace diracoq {
                 }
                 // B(A) @ B(B) : B(PROD(A, B))
                 if (typeB->get_head() == BTYPE) {
-                    return bank.get_term(BTYPE, 
-                        {bank.get_term(PROD, {typeA->get_args()[0], typeB->get_args()[0]})});
+                    return create_term(BTYPE, 
+                        {create_term(PROD, {typeA->get_args()[0], typeB->get_args()[0]})});
                 }
                 // B(A) @ O(A, B) : B(B)
                 if (typeB->get_head() == OTYPE) {
                     if (is_judgemental_eq(typeA->get_args()[0], typeB->get_args()[0])) {
-                        return bank.get_term(BTYPE, {typeB->get_args()[1]});
+                        return create_term(BTYPE, {typeB->get_args()[1]});
                     }
                     else {
                         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[0]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
@@ -170,7 +170,7 @@ namespace diracoq {
                 // O(A, B) @ K(B) : K(A)
                 if (typeB->get_head() == KTYPE) {
                     if (is_judgemental_eq(typeA->get_args()[1], typeB->get_args()[0])) {
-                        return bank.get_term(KTYPE, {typeA->get_args()[0]});
+                        return create_term(KTYPE, {typeA->get_args()[0]});
                     }
                     else {
                         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[1]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
@@ -180,7 +180,7 @@ namespace diracoq {
                 // O(A, B) @ O(B, C) : O(A, C)
                 if (typeB->get_head() == OTYPE) {
                     if (is_judgemental_eq(typeA->get_args()[1], typeB->get_args()[0])) {
-                        return bank.get_term(OTYPE, {typeA->get_args()[0], typeB->get_args()[1]});
+                        return create_term(OTYPE, {typeA->get_args()[0], typeB->get_args()[1]});
                     }
                     else {
                         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[1]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
@@ -200,7 +200,7 @@ namespace diracoq {
                 if (!is_index(args[1])) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second term is not equal to the index.");
                 }
-                return subst(sig, bank, args_typeA[1], args_typeA[0]->get_head(), args[1]);
+                return subst(sig, args_typeA[1], args_typeA[0]->get_head(), args[1]);
             }
 
             throw std::runtime_error("Typing error: invalid composition of " + sig.term_to_string(typeA) + " and " + sig.term_to_string(typeB) + ".");
@@ -221,7 +221,7 @@ namespace diracoq {
                         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not a scalar.");
                     }
                 }
-                return bank.get_term(STYPE);
+                return create_term(STYPE);
             }
 
             // STAR(INDEX INDEX) : INDEX
@@ -231,7 +231,7 @@ namespace diracoq {
                 if (typeSecond->get_head() != INDEX) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[1]) + " is not an index.");
                 }
-                return bank.get_term(INDEX);
+                return create_term(INDEX);
             }
 
             // STAR(O(a b) O(c d)) : O(PROD(a b) PROD(c d))
@@ -241,12 +241,10 @@ namespace diracoq {
                 if (typeSecond->get_head() != OTYPE) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[1]) + " is not an operator.");
                 }
-                return bank.get_term(OTYPE, 
+                return create_term(OTYPE, 
                     {
-                        bank.get_term(PROD, 
-                        {typeFirst->get_args()[0], typeSecond->get_args()[0]}),
-                        bank.get_term(PROD, 
-                        {typeFirst->get_args()[1], typeSecond->get_args()[1]})
+                        create_term(PROD, {typeFirst->get_args()[0], typeSecond->get_args()[0]}),
+                        create_term(PROD, {typeFirst->get_args()[1], typeSecond->get_args()[1]})
                     }
                 );
             }
@@ -258,10 +256,9 @@ namespace diracoq {
                 if (typeSecond->get_head() != SET) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[1]) + " is not a set.");
                 }
-                return bank.get_term(SET, 
+                return create_term(SET, 
                     {
-                        bank.get_term(PROD, 
-                        {typeFirst->get_args()[0], typeSecond->get_args()[0]})
+                        create_term(PROD, {typeFirst->get_args()[0], typeSecond->get_args()[0]})
                     }
                 );
             }
@@ -285,7 +282,7 @@ namespace diracoq {
                         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not a scalar.");
                     }
                 }
-                return bank.get_term(STYPE);
+                return create_term(STYPE);
             }
 
             // ADDG(K(a) K(a) ... K(a)) : K(a), ...
@@ -313,10 +310,10 @@ namespace diracoq {
             }
 
             // form the function temporarily
-            auto func = bank.get_term(FUN, 
+            auto func = create_term(FUN, 
                 {
                     args[0], 
-                    bank.get_term(BASIS, {args_s[0]}),
+                    create_term(BASIS, {args_s[0]}),
                     args[2]
                 }
             );
@@ -348,7 +345,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not an index.");
             }
 
-            return bank.get_term(INDEX);
+            return create_term(INDEX);
         }
 
         // (TYPE-ARROW)
@@ -362,7 +359,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the body " + sig.term_to_string(args[1]) + " is not a well-typed type.");
             }
 
-            return bank.get_term(TYPE);
+            return create_term(TYPE);
         }
 
         // (TYPE-INDEX)
@@ -373,7 +370,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not a variable.");
             }
 
-            context_push(args[0]->get_head(), bank.get_term(INDEX));
+            context_push(args[0]->get_head(), create_term(INDEX));
 
             try {
                 if (!is_type(args[1])) {
@@ -381,7 +378,7 @@ namespace diracoq {
                 }
 
                 context_pop();
-                return bank.get_term(TYPE, {});
+                return create_term(TYPE);
             }
             catch (const std::runtime_error& e) {
                 context_pop();
@@ -396,7 +393,7 @@ namespace diracoq {
             if (!is_index(args[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
-            return bank.get_term(TYPE);
+            return create_term(TYPE);
         }
         // (TYPE-Ket)
         if (head == KTYPE) {
@@ -405,7 +402,7 @@ namespace diracoq {
             if (!is_index(args[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
-            return bank.get_term(TYPE);
+            return create_term(TYPE);
         }
         // (TYPE-Bra)
         if (head == BTYPE) {
@@ -414,7 +411,7 @@ namespace diracoq {
             if (!is_index(args[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
-            return bank.get_term(TYPE);
+            return create_term(TYPE);
         }
         // (TYPE-Opt)
         if (head == OTYPE) {
@@ -423,13 +420,13 @@ namespace diracoq {
             if (!(is_index(args[0]) && is_index(args[1]))) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not indices.");
             }
-            return bank.get_term(TYPE);
+            return create_term(TYPE);
         }
         // (TYPE-Scalar)
         if (head == STYPE) {
             arg_number_check(args, 0);
 
-            return bank.get_term(TYPE);
+            return create_term(TYPE);
         }
         // (TYPE-SET)
         if (head == SET) {
@@ -439,7 +436,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
-            return bank.get_term(TYPE);
+            return create_term(TYPE);
         }
 
         // (Lam)
@@ -466,7 +463,7 @@ namespace diracoq {
                 }
 
                 context_pop();
-                return bank.get_term(ARROW, {args[1], type_body});
+                return create_term(ARROW, {args[1], type_body});
             }
             catch (const std::runtime_error& e) {
                 // pop the definition
@@ -481,7 +478,7 @@ namespace diracoq {
             arg_number_check(args, 2);
 
             // try to add to the context
-            context_push(args[0]->get_head(), bank.get_term(INDEX));
+            context_push(args[0]->get_head(), create_term(INDEX));
 
             try {
                 // calculate the type of the body
@@ -492,7 +489,7 @@ namespace diracoq {
                 }
 
                 context_pop();
-                return bank.get_term(FORALL, {args[0], type_body});
+                return create_term(FORALL, {args[0], type_body});
             }
             catch (const std::runtime_error& e) {
                 // pop the definition
@@ -528,7 +525,7 @@ namespace diracoq {
                 }
 
                 // return the instantiated type
-                return subst(sig, bank, args_f[1], args_f[0]->get_head(), args[1]);
+                return subst(sig, args_f[1], args_f[0]->get_head(), args[1]);
             }
 
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the function " + sig.term_to_string(args[0]) + " is not an arrow type or forall type.");
@@ -551,20 +548,20 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the types of the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type BASIS.");
             }
 
-            return bank.get_term(BASIS, {bank.get_term(PROD, {args_a[0], args_b[0]})});
+            return create_term(BASIS, {create_term(PROD, {args_a[0], args_b[0]})});
         }
 
         // (Sca-0)
         if (head == ZERO) {
             arg_number_check(args, 0);
 
-            return bank.get_term(STYPE);
+            return create_term(STYPE);
         }
         // (Sca-1)
         if (head == ONE) {
             arg_number_check(args, 0);
             
-            return bank.get_term(STYPE);
+            return create_term(STYPE);
         }
         // (Sca-Delta)
         if (head == DELTA) {
@@ -583,11 +580,11 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type " + sig.term_to_string(type_a) + ".");
             }
             
-            return bank.get_term(STYPE);
+            return create_term(STYPE);
         }
         // (Sca-Add)
         if (head == ADDS) {
-            auto SType_term = bank.get_term(STYPE);
+            auto SType_term = create_term(STYPE);
             if (args.size() == 0) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has no arguments.");
             }
@@ -600,7 +597,7 @@ namespace diracoq {
         }
         // (Sca-Mul)
         if (head == MULS) {
-            auto SType_term = bank.get_term(STYPE);
+            auto SType_term = create_term(STYPE);
             if (args.size() == 0) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has no arguments.");
             }
@@ -613,7 +610,7 @@ namespace diracoq {
         }
         // (Sca-Conj)
         if (head == CONJ) {
-            auto SType_term = bank.get_term(STYPE);
+            auto SType_term = create_term(STYPE);
             arg_number_check(args, 1);
             
             if (!type_check(args[0], SType_term)) {
@@ -642,7 +639,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
-            return bank.get_term(STYPE);
+            return create_term(STYPE);
         }
 
         // (Ket-Adj), (Bra-Adj), (Opt-Adj)
@@ -653,13 +650,13 @@ namespace diracoq {
             auto type_X_head = type_X->get_head();
             auto& args_X = type_X->get_args();
             if (type_X_head == BTYPE) {
-                return bank.get_term(KTYPE, {args_X[0]});
+                return create_term(KTYPE, {args_X[0]});
             }
             else if (type_X_head == KTYPE) {
-                return bank.get_term(BTYPE, {args_X[0]});
+                return create_term(BTYPE, {args_X[0]});
             }
             else if (type_X_head == OTYPE) {
-                return bank.get_term(OTYPE, {args_X[1], args_X[0]});
+                return create_term(OTYPE, {args_X[1], args_X[0]});
             }
 
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type BTYPE, KTYPE or OTYPE.");            
@@ -717,18 +714,18 @@ namespace diracoq {
             auto& args_X2 = type_X2->get_args();
             // (Ket-Tsr)
             if (type_X1_head == KTYPE && type_X2_head == KTYPE) {
-                return bank.get_term(KTYPE, {bank.get_term(PROD, {args_X1[0], args_X2[0]})});
+                return create_term(KTYPE, {create_term(PROD, {args_X1[0], args_X2[0]})});
             }
             // (Bra-Tsr)
             else if (type_X1_head == BTYPE && type_X2_head == BTYPE) {
-                return bank.get_term(BTYPE, {bank.get_term(PROD, {args_X1[0], args_X2[0]})});
+                return create_term(BTYPE, {create_term(PROD, {args_X1[0], args_X2[0]})});
             }
             // (Opt-Tsr)
             else if (type_X1_head == OTYPE && type_X2_head == OTYPE) {
-                return bank.get_term(OTYPE, 
+                return create_term(OTYPE, 
                     {
-                        bank.get_term(PROD, {args_X1[0], args_X2[0]}), 
-                        bank.get_term(PROD, {args_X1[1], args_X2[1]})
+                        create_term(PROD, {args_X1[0], args_X2[0]}), 
+                        create_term(PROD, {args_X1[1], args_X2[1]})
                     }
                 );
             }
@@ -744,7 +741,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
-            return bank.get_term(KTYPE, {args[0]});
+            return create_term(KTYPE, {args[0]});
         }
 
         // (Ket-Base)
@@ -757,7 +754,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
             }
 
-            return bank.get_term(KTYPE, {args_t[0]});
+            return create_term(KTYPE, {args_t[0]});
         }
 
         // (Ket-MulK)
@@ -781,7 +778,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
-            return bank.get_term(KTYPE, {args_O[0]});
+            return create_term(KTYPE, {args_O[0]});
         }
 
         // (Bra-0)
@@ -792,7 +789,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
-            return bank.get_term(BTYPE, {args[0]});
+            return create_term(BTYPE, {args[0]});
         }
 
         // (Bra-Base)
@@ -805,7 +802,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type Base.");
             }
 
-            return bank.get_term(BTYPE, {args_t[0]});
+            return create_term(BTYPE, {args_t[0]});
         }
 
         // (Bra-MulB)
@@ -829,7 +826,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the first index of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
-            return bank.get_term(BTYPE, {args_O[1]});
+            return create_term(BTYPE, {args_O[1]});
         }
 
         // (Opt-0)
@@ -840,7 +837,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not indices.");
             }
 
-            return bank.get_term(OTYPE, {args[0], args[1]});
+            return create_term(OTYPE, {args[0], args[1]});
         }
 
         // (Opt-1)
@@ -851,7 +848,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
-            return bank.get_term(OTYPE, {args[0], args[0]});
+            return create_term(OTYPE, {args[0], args[0]});
         }
 
         // (Opt-Outer)
@@ -870,7 +867,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type BTYPE.");
             }
 
-            return bank.get_term(OTYPE, {args_K[0], args_B[0]});
+            return create_term(OTYPE, {args_K[0], args_B[0]});
         }
 
         // (Opt-MulO)
@@ -895,7 +892,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the first index of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
-            return bank.get_term(OTYPE, {args_O1[0], args_O2[1]});
+            return create_term(OTYPE, {args_O1[0], args_O2[1]});
         }
 
         // (SET-U)
@@ -906,7 +903,7 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
 
-            return bank.get_term(SET, {args[0]});
+            return create_term(SET, {args[0]});
         }
 
         // (SET-PROD)
@@ -922,9 +919,9 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type SET.");
             }
             
-            return bank.get_term(
+            return create_term(
                 SET, {
-                    bank.get_term(PROD, {args_a[0], args_b[0]})
+                    create_term(PROD, {args_a[0], args_b[0]})
                 }
             );
         }
@@ -977,39 +974,37 @@ namespace diracoq {
         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' cannot be typed.");
     }
 
-    void Kernel::assum(int symbol, const Term<int>* type) {
-        auto TYPE_term = bank.get_term(TYPE, {});
-        auto INDEX_term = bank.get_term(INDEX, {});
+    void Kernel::assum(int symbol, TermPtr<int> type) {
 
         if (is_reserved(symbol)) {
-            throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_term(symbol, {})) + "' is reserved.");
+            throw std::runtime_error("The symbol '" + sig.term_to_string(create_term(symbol)) + "' is reserved.");
         }
         if (find_in_env(symbol) != std::nullopt) {
-            throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_term(symbol, {})) + "' is already in the environment.");
+            throw std::runtime_error("The symbol '" + sig.term_to_string(create_term(symbol)) + "' is already in the environment.");
         }
 
         // W-Assum-INDEX
-        if (type == INDEX_term) {
+        if (*type == Term<int>(INDEX)) {
             env.push_back({symbol, {std::nullopt, type}});
         }
 
         // W-Assum-TYPE
-        else if (type == TYPE_term) {
+        else if (*type == Term<int>(TYPE)) {
             env.push_back({symbol, {std::nullopt, type}});
         }
 
         // W-Assum-Term
         else {
             if (!is_type(type)) {
-                throw std::runtime_error("The type of the symbol '" + sig.term_to_string(bank.get_term(symbol, {})) + "' is not a well-typed type.");
+                throw std::runtime_error("The type of the symbol '" + sig.term_to_string(create_term(symbol)) + "' is not a well-typed type.");
             }
             env.push_back({symbol, {std::nullopt, type}});
         }
     }
 
-    void Kernel::def(int symbol, const Term<int>* term, std::optional<const ualg::Term<int>*> type) {
+    void Kernel::def(int symbol, TermPtr<int> term, std::optional<TermPtr<int>> type) {
         if (is_reserved(symbol)) {
-            throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_term(symbol)) + "' is reserved.");
+            throw std::runtime_error("The symbol '" + sig.term_to_string(create_term(symbol)) + "' is reserved.");
         }
 
         if (ctx.size() != 0) {
@@ -1017,7 +1012,7 @@ namespace diracoq {
         }
 
         if (find_in_env(symbol) != std::nullopt) {
-            throw std::runtime_error("The symbol '" + sig.term_to_string(bank.get_term(symbol)) + "' is already in the environment."); 
+            throw std::runtime_error("The symbol '" + sig.term_to_string(create_term(symbol)) + "' is already in the environment."); 
         }
 
         auto deducted_type = calc_type(term);
@@ -1044,7 +1039,7 @@ namespace diracoq {
     }
 
 
-    void Kernel::context_push(int symbol, const ualg::Term<int>* type) {
+    void Kernel::context_push(int symbol, TermPtr<int> type) {
         if (!((type->get_head() == INDEX && type->get_args().size()) == 0 || is_type(type))) {
 
             throw std::runtime_error("The term '" + sig.term_to_string(type) + "' is not a valid type for bound index.");
@@ -1061,10 +1056,10 @@ namespace diracoq {
     }
 
 
-    bool Kernel::is_judgemental_eq(const ualg::Term<int>* termA, const ualg::Term<int>* termB) {
+    bool Kernel::is_judgemental_eq(TermPtr<int> termA, TermPtr<int> termB) {
         auto reduced_A = pos_rewrite_repeated(*this, termA, all_rules);
         auto reduced_B = pos_rewrite_repeated(*this, termB, all_rules);
-        return is_eq(sig, bank, reduced_A, reduced_B);
+        return is_eq(sig, reduced_A, reduced_B);
     }
 
     

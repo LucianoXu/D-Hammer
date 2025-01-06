@@ -14,7 +14,6 @@
 #include <map>
 
 #include "term.hpp"
-#include "termbank.hpp"
 #include "AC_by_vec.hpp"
 #include "ualgparser.hpp"
 #include "rewrite.hpp"

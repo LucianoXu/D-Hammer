@@ -39,8 +39,8 @@ add_library(
 
     symbols.cpp
     diracoq_parser.cpp
-    calculus.cpp
     syntax_theory.cpp
+    calculus.cpp
     reduction.cpp
     trace.cpp
     prover.cpp

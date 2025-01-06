@@ -10,7 +10,6 @@ using namespace diracoq;
 
 TEST(DiracoqReduction, variable_expand_K) {
     Kernel kernel;
-    unique_var_id = 0;
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[A]"));
 
@@ -18,13 +17,12 @@ TEST(DiracoqReduction, variable_expand_K) {
     auto actual_res = variable_expand(kernel, term);
     auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SCR[DOT[BRA[@0], K], KET[@0]]]]");
 
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 
 TEST(DiracoqReduction, variable_expand_K_apply) {
     Kernel kernel;
-    unique_var_id = 0;
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("fK"), kernel.parse("BASIS[A] -> KTYPE[A]"));
     kernel.assum(kernel.register_symbol("a"), kernel.parse("BASIS[A]"));
@@ -33,12 +31,11 @@ TEST(DiracoqReduction, variable_expand_K_apply) {
     auto actual_res = variable_expand(kernel, term);
     auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SCR[DOT[BRA[@0], APPLY[fK, a]], KET[@0]]]]");
 
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 TEST(DiracoqReduction, variable_expand_B) {
     Kernel kernel;
-    unique_var_id = 0;
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[A]"));
 
@@ -46,13 +43,12 @@ TEST(DiracoqReduction, variable_expand_B) {
     auto actual_res = variable_expand(kernel, term);
     auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SCR[DOT[B, KET[@0]], BRA[@0]]]]");
 
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 
 TEST(DiracoqReduction, variable_expand_O) {
     Kernel kernel;
-    unique_var_id = 0;
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[A, B]"));
@@ -61,7 +57,7 @@ TEST(DiracoqReduction, variable_expand_O) {
     auto actual_res = variable_expand(kernel, term);
     auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SUM[USET[B], FUN[@1, BASIS[B], SCR[DOT[BRA[@0], MULK[O, KET[@1]]], OUTER[KET[@0], BRA[@1]]]]]]]");
 
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 
@@ -82,7 +78,9 @@ void TEST_RULE(Kernel& kernel, const vector<PosRewritingRule>& rules, string inp
     auto term = kernel.parse(input);
     auto actual_res = pos_rewrite_repeated(kernel, term, rules);
     auto expected_res = kernel.parse(expected);
-    EXPECT_EQ(actual_res, expected_res);
+    cout << "actual_res: " << kernel.term_to_string(actual_res) << endl;
+    cout << "expected_res: " << kernel.term_to_string(expected_res) << endl;
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 void TEST_RULE(const vector<PosRewritingRule>& rules, string input, string expected) {
@@ -289,7 +287,7 @@ TEST(DiracoqReduction, R_BETA_ARROW) {
     auto term = kernel.parse("APPLY[FUN[x, T, x], a]");
     auto actual_res = pos_rewrite_repeated(kernel, term, {R_BETA_ARROW});
     auto expected_res = kernel.parse("a");
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 TEST(DiracoqReduction, R_BETA_INDEX) {
@@ -298,7 +296,7 @@ TEST(DiracoqReduction, R_BETA_INDEX) {
     auto term = kernel.parse("APPLY[IDX[sigma, 0K[sigma]], sigma]");
     auto actual_res = pos_rewrite_repeated(kernel, term, {R_BETA_INDEX});
     auto expected_res = kernel.parse("0K[sigma]");
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 TEST(DiracoqReduction, R_DELTA) {
@@ -309,7 +307,7 @@ TEST(DiracoqReduction, R_DELTA) {
     auto term = kernel.parse("APPLY[f, a]");
     auto actual_res = pos_rewrite_repeated(kernel, term, {R_DELTA, R_BETA_ARROW});
     auto expected_res = kernel.parse("a");
-    EXPECT_EQ(actual_res, expected_res);
+    EXPECT_EQ(*actual_res, *expected_res);
 }
 
 TEST(DiracoqReduction, R_FLATTEN) {
@@ -884,7 +882,6 @@ TEST(DiracoqReduction, R_SUM_CONST3) {
 }
 
 TEST(DiracoqReduction, R_SUM_CONST4) {
-    unique_var_id = 0;
     TEST_RULE({R_SUM_CONST4}, "1O[T]", "SUM[USET[T], FUN[@0, BASIS[T], OUTER[KET[@0], BRA[@0]]]]");
 }
 
@@ -1200,27 +1197,22 @@ TEST(DiracoqReduction, R_SUM_PUSH16) {
 }
 
 TEST(DiracoqReduction, R_SUM_ADDS0) {
-    unique_var_id = 0;
     TEST_RULE({R_SUM_ADDS0}, "SUM[M, FUN[i, T, ADDS[a, b]]]", "ADDS[SUM[M, FUN[@0, T, a]], SUM[M, FUN[@1, T, b]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD0) {
-    unique_var_id = 0;
     TEST_RULE({R_SUM_ADD0}, "SUM[M, FUN[i, T, ADD[X, Y]]]", "ADD[SUM[M, FUN[@0, T, X]], SUM[M, FUN[@1, T, Y]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD1) {
-    unique_var_id = 0;
     TEST_RULE({R_SUM_ADD1}, "SUM[M, FUN[i, T, SCR[ADDS[a, b, c], KET[i]]]]", "ADD[SUM[M, FUN[@0, T, SCR[a, KET[@0]]]], SUM[M, FUN[@1, T, SCR[b, KET[@1]]]], SUM[M, FUN[@2, T, SCR[c, KET[@2]]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX0) {
-    unique_var_id = 0;
     TEST_RULE({R_SUM_INDEX0}, "SUM[USET[PROD[T1, T2]], FUN[i, BASIS[PROD[T1, T2]], X]]", "SUM[USET[T1], FUN[@0, BASIS[T1], SUM[USET[T2], FUN[@1, BASIS[T2], X]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX1) {
-    unique_var_id = 0;
     TEST_RULE({R_SUM_INDEX1}, "SUM[CATPROD[M1, M2], FUN[i, BASIS[PROD[T1, T2]], X]]", "SUM[M1, FUN[@0, BASIS[T1], SUM[M2, FUN[@1, BASIS[T2], X]]]]");
 }
 

@@ -4,7 +4,7 @@ namespace diracoq {
     using namespace std;
     using namespace ualg;
 
-    std::string term_to_coq(Kernel& kernel, const Term<int>* term) {
+    std::string term_to_coq(Kernel& kernel, TermPtr<int> term) {
         auto head = term->get_head();
         auto& args = term->get_args();
         // TYPE
