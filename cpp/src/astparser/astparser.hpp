@@ -45,14 +45,14 @@ namespace astparser {
                 return head;
             }
 
-            std::string res = head + "(";
+            std::string res = head + "[";
             for (size_t i = 0; i < children.size(); ++i) {
                 res += children[i].to_string();
                 if (i < children.size() - 1) {
-                    res += " ";
+                    res += ", ";
                 }
             }
-            res += ")";
+            res += "]";
             return res;
         }
     };

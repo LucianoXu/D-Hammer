@@ -13,9 +13,12 @@ To compile in VSCode:
 - Generate the ANTLR C++ files using the command above.
 - In VSCode, press`Ctrl + shift + P` or `Cmd + shift + P`, type and select `Tasks: Run Task`, and run the task `Compile Debug Version` or `Compile Release Version`.
 
+## Mathematica
+Version 14.0.0
+
 ## Dependency
 - ANTLR4
-- Boost (https://www.boost.org/)
+- WSTP4
 
 TODO:
 ...

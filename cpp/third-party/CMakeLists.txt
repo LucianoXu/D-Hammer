@@ -13,11 +13,21 @@ target_include_directories(
     DEPENDENCIES 
     PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/antlr_runtime)
+    ${CMAKE_CURRENT_SOURCE_DIR}/antlr_runtime
+    ${CMAKE_CURRENT_SOURCE_DIR}/Wolfram)
 
-# Boost
-target_link_libraries(
-    DEPENDENCIES
-    PUBLIC
-    Boost::boost
-)
+
+# MacOS
+if (APPLE)
+    target_link_libraries(
+        DEPENDENCIES
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/Wolfram/libWSTPi4.a
+            "-framework CoreFoundation" # for apple systems
+    )
+
+else ()
+# throw an error
+    message(FATAL_ERROR "Unsupported platform. Please use MacOS.")
+
+endif ()
