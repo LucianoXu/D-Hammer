@@ -13,6 +13,15 @@
 
 namespace wstp {
 
+    /**
+     * @brief Format the arguments (this is because name with "" cannot be passed directly).
+     * 
+     * @param argc 
+     * @param argv 
+     * @return std::pair<int, char**>
+     */
+    std::pair<int, char **> args_format(int argc, const char** argv);
+
     extern const int MACOS_ARGC;
     extern char** const MACOS_ARGV;
 

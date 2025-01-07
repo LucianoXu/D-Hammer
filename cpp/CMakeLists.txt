@@ -42,7 +42,7 @@ target_link_libraries(
 
 
 add_custom_target(toplevel
-    COMMAND ./TOP "output.txt"
+    COMMAND ./TOP
     DEPENDS TOP
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Running the TOPLEVEL executable"

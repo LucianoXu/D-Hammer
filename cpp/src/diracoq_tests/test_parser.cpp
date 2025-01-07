@@ -141,7 +141,7 @@ TEST(DiracoqParser, Star) {
 
 TEST(DiracoqParser, Conj) {
     auto actual_res = parse("a^*");
-    auto expected_res = astparser::parse("CONJ[a]");
+    auto expected_res = astparser::parse("Conjugate[a]");
     EXPECT_EQ(actual_res, expected_res);
 }
 

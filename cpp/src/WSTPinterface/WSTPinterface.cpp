@@ -7,7 +7,35 @@ namespace wstp {
     using namespace std;
     using namespace astparser;
 
+    std::pair<int, char**> args_format(int argc, const char** argv) {
+        // Allocate a new array for the modified argv
+        char** new_argv = new char*[argc];
+
+        // Copy the original arguments
+        for (int i = 0; i < argc; ++i) {
+            new_argv[i] = strdup(argv[i]); // Duplicate each argument
+        }
+
+        // Search for the argument next to "-linkname" and modify it if necessary
+        for (int i = 0; i < argc; ++i) {
+            if (strcmp(argv[i], "-linkname") == 0 && (i + 1) < argc && argv[i + 1][0] != '"') {
+                // Create a new string with quotes
+                std::string modified = "\"" + std::string(argv[i + 1]) + "\"";
+
+                // Free the original duplicated string
+                free(new_argv[i + 1]);
+
+                // Duplicate the modified string and assign it back
+                new_argv[i + 1] = strdup(modified.c_str());
+                break; // Assuming only the first occurrence needs to be modified
+            }
+        }
+
+        return {argc, new_argv};
+    }
+
     // define the arguments for the Wolfram Engine (MacOS)
+    // -linkmode launch -linkname "/Applications/Wolfram Engine.app/Contents/Resources/Wolfram Player.app/Contents/MacOS/WolframKernel" -wstp
     const char* MacOS_args[] = {
         "-linkmode", "launch",
         "-linkname", "\"/Applications/Wolfram Engine.app/Contents/Resources/Wolfram Player.app/Contents/MacOS/WolframKernel\" -wstp"
@@ -30,6 +58,10 @@ namespace wstp {
 
     pair<WSENV, WSLINK> init_and_openlink(int argc, char* argv[])
     {
+        // if there are no arguments, return nullptr
+        if (argc == 1) {
+            return {nullptr, nullptr};
+        }
 
         // static wolfram engine environment and link
         WSENV ep = (WSENV)0;
@@ -37,10 +69,10 @@ namespace wstp {
         int err;
 
         ep =  WSInitialize((WSParametersPointer)0);
-        if (ep == (WSENV)0) exit(1);
+        if (ep == (WSENV)0) return {ep, lp};
 
         lp = WSOpenArgv(ep, argv, argv + argc, &err);
-        if (lp == (WSLINK)0) exit(2);
+        if (lp == (WSLINK)0) return {ep, lp};
 
         links.push_back({ep, lp});
 

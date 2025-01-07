@@ -55,9 +55,9 @@ namespace diracoq {
 
             "0",
             "1",
-            "ADDS",
-            "MULS",
-            "CONJ",
+            "Plus",
+            "Times",
+            "Conjugate",
             "DELTA",
             "DOT",
 
@@ -119,9 +119,9 @@ namespace diracoq {
 
     const auto ZERO = diracoq_sig.get_repr("0");
     const auto ONE = diracoq_sig.get_repr("1");
-    const auto ADDS = diracoq_sig.get_repr("ADDS");
-    const auto MULS = diracoq_sig.get_repr("MULS");
-    const auto CONJ = diracoq_sig.get_repr("CONJ");
+    const auto ADDS = diracoq_sig.get_repr("Plus");
+    const auto MULS = diracoq_sig.get_repr("Times");
+    const auto CONJ = diracoq_sig.get_repr("Conjugate");
     const auto DELTA = diracoq_sig.get_repr("DELTA");
     const auto DOT = diracoq_sig.get_repr("DOT");
 

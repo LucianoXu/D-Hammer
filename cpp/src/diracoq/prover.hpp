@@ -29,7 +29,7 @@ namespace diracoq {
     public:
         Kernel& get_kernel() { return kernel; }
         
-        Prover(std::ostream& _output = std::cout) : output(_output) {}
+        Prover(WSLINK wstp_link = nullptr, std::ostream& _output = std::cout) : kernel(wstp_link), output(_output) {}
 
         // copy constructor (coq_file is not copied)
         Prover(const Prover& other) : kernel(other.kernel), output(other.output) {}
@@ -78,6 +78,6 @@ namespace diracoq {
      * 
      * @return Prover 
      */
-    Prover* std_prover();
+    Prover std_prover(WSLINK wstp_link = nullptr);
 
 } // namespace diracoq

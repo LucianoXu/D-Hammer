@@ -9,14 +9,32 @@ using namespace std;
 using namespace diracoq;
 using namespace examples;
 
+
+unique_ptr<Prover> prover = nullptr;
+
+unique_ptr<Prover> init_prover() {
+    if (!prover) {
+
+        // use the Wolfram Engine on MacOS
+        auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
+
+        cout << "WSTP link: " << lp << endl;
+        
+        prover = make_unique<Prover>(std_prover(lp));
+
+        // avoid using the Wolfram Engine
+        // prover = make_unique<Prover>(std_prover());
+    }
+    return make_unique<Prover>(*prover);
+}
+
 class EqExampleTest : public ::testing::TestWithParam<EqExample> {
 protected:
     void RunTest(const EqExample& example) {
-        auto prover = std_prover();
-        prover->process(example.preproc_code);
+        auto new_prover = init_prover();
+        new_prover->process(example.preproc_code);
         cout << "TEST NAME: " << example.name << endl;
-        EXPECT_EQ(prover->check_eq(example.termA, example.termB), example.expected_res);
-        delete prover;
+        EXPECT_EQ(new_prover->check_eq(example.termA, example.termB), example.expected_res);
     }
 };
 

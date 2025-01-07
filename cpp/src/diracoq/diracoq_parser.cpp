@@ -252,7 +252,7 @@ namespace diracoq {
         node_stack.pop();
 
         // push Conj node
-        node_stack.push(AST{"CONJ", {std::move(term)}});
+        node_stack.push(AST{"Conjugate", {std::move(term)}});
     }
 
     void DIRACOQBuilder::exitScr(DIRACOQParser::ScrContext *ctx) {

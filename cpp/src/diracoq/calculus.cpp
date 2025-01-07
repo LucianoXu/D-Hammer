@@ -1057,8 +1057,8 @@ namespace diracoq {
 
 
     bool Kernel::is_judgemental_eq(TermPtr<int> termA, TermPtr<int> termB) {
-        auto reduced_A = pos_rewrite_repeated(*this, termA, all_rules);
-        auto reduced_B = pos_rewrite_repeated(*this, termB, all_rules);
+        auto reduced_A = pos_rewrite_repeated(*this, termA, rules);
+        auto reduced_B = pos_rewrite_repeated(*this, termB, rules);
         return is_eq(sig, reduced_A, reduced_B);
     }
 

@@ -35,7 +35,7 @@ namespace diracoq {
      */
     class Kernel {
     protected:
-        // The Wolfram Engine link
+        // The Wolfram Engine link. nullptr means not connected.
         WSLINK lp;
         ualg::Signature<int> sig;
         std::vector<std::pair<int, Declaration>> env;
@@ -53,10 +53,14 @@ namespace diracoq {
         Kernel(WSLINK _lp) : lp(_lp), sig(diracoq_sig) {}
 
         // copy constructor
-        Kernel(const Kernel& other) : sig(other.sig), env(other.env), ctx(other.ctx) {}
+        Kernel(const Kernel& other) : lp(other.lp), sig(other.sig), env(other.env), ctx(other.ctx) {}
 
         // move constructor
-        Kernel(Kernel&& other) : sig(std::move(other.sig)), env(std::move(other.env)), ctx(std::move(other.ctx)) {}
+        Kernel(Kernel&& other) : lp(std::move(other.lp)), sig(std::move(other.sig)), env(std::move(other.env)), ctx(std::move(other.ctx)) {}
+
+        inline bool wolfram_connected() {
+            return lp != nullptr;
+        }
 
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);

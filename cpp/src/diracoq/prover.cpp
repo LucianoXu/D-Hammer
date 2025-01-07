@@ -4,6 +4,31 @@ namespace diracoq {
     using namespace std;
     using namespace ualg;
 
+
+    inline TermPtr<int> rewrite_with_wolfram(Kernel& kernel, TermPtr<int> term, vector<PosReplaceRecord>& trace) {
+        auto temp = term;
+
+        // use different rules depending on the wolfram connection
+        
+        if (kernel.wolfram_connected()) {
+            while (true) {
+                temp = pos_rewrite_repeated(kernel, temp, rules_with_wolfram, &trace);
+
+                auto wolfram_simplified = wolfram_fullsimplify(kernel, temp);
+
+                if (*temp == *wolfram_simplified) {
+                    break;
+                }
+
+                temp = wolfram_simplified;
+            }
+            return temp;
+        }
+        else {
+            return pos_rewrite_repeated(kernel, temp, rules, &trace);
+        }
+    }
+
     bool Prover::process(const astparser::AST& ast) {
         // GROUP ( ... )
         try {
@@ -138,7 +163,8 @@ namespace diracoq {
                     auto renamed_res = bound_variable_rename(kernel, term);
 
                     // first rewriting
-                    auto temp = pos_rewrite_repeated(kernel, renamed_res, all_rules, &trace);
+                    TermPtr<int> temp = rewrite_with_wolfram(kernel, renamed_res, trace);
+
 
                     // NEED TO CONSIDER DIFFERENT PHASES
 
@@ -146,7 +172,7 @@ namespace diracoq {
                     auto expanded_term = variable_expand(kernel, temp);
 
                     // second rewriting
-                    temp = pos_rewrite_repeated(kernel, expanded_term, all_rules, &trace);
+                    temp = rewrite_with_wolfram(kernel, expanded_term, trace);
                     
                     // cout << "[Normalized]:\t\t\t\t" << kernel.term_to_string(temp) << endl;
 
@@ -237,9 +263,9 @@ namespace diracoq {
         // calculate the normalized term
         vector<PosReplaceRecord> traceA;
         auto renamed_resA = bound_variable_rename(kernel, termA);
-        auto tempA = pos_rewrite_repeated(kernel, renamed_resA, all_rules, &traceA);
+        auto tempA = rewrite_with_wolfram(kernel, renamed_resA, traceA);
         auto expanded_termA = variable_expand(kernel, tempA);
-        tempA = pos_rewrite_repeated(kernel, expanded_termA, all_rules, &traceA);
+        tempA = rewrite_with_wolfram(kernel, expanded_termA, traceA);
         auto bound_varsA = get_bound_vars(tempA);
         tempA = sort_C_terms(tempA, c_symbols, 
             [&](TermPtr<int> a, TermPtr<int> b) {
@@ -251,9 +277,9 @@ namespace diracoq {
 
         vector<PosReplaceRecord> traceB;
         auto renamed_resB = bound_variable_rename(kernel, termB);
-        auto tempB = pos_rewrite_repeated(kernel, renamed_resB, all_rules, &traceB);
+        auto tempB = rewrite_with_wolfram(kernel, renamed_resB, traceB);
         auto expanded_termB = variable_expand(kernel, tempB);
-        tempB = pos_rewrite_repeated(kernel, expanded_termB, all_rules, &traceB);
+        tempB = rewrite_with_wolfram(kernel, expanded_termB, traceB);
         auto bound_varsB = get_bound_vars(tempB);
         tempB = sort_C_terms(tempB, c_symbols, 
             [&](TermPtr<int> a, TermPtr<int> b) {
@@ -281,10 +307,11 @@ namespace diracoq {
         }
     }
 
-    Prover* std_prover() {
-        auto res = new Prover{std::cout};
+    Prover std_prover(WSLINK wstp_link) {
 
-        res->process(R"(
+        auto res = Prover{wstp_link, std::cout};
+
+        res.process(R"(
         (* Trace
         DNTr[M_, T_]:=Module[{i}, SUMS[IDX[{i, USET[T]}], Bra[{i}]\[SmallCircle]M\[SmallCircle]Ket[{i}]]];
         *)

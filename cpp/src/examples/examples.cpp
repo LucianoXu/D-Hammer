@@ -3,6 +3,17 @@
 namespace examples {
 
     std::vector<EqExample> eq_examples = {
+
+        {
+            "Scalar1",
+            R"(
+                Var a : STYPE.
+            )",
+            "a",
+            "a + 0"
+        },
+
+
         {
             "Example 1",
             R"(

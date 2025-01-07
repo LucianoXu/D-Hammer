@@ -105,6 +105,15 @@ namespace diracoq {
      */
     ualg::TermPtr<int> sum_swap_normalization(Kernel& kernel, ualg::TermPtr<int> term);
 
+    /**
+     * @brief Use the Wolfram engine to simplify the term.
+     * 
+     * @param kernel 
+     * @param term 
+     * @return ualg::TermPtr<int> 
+     */
+    ualg::TermPtr<int> wolfram_fullsimplify(Kernel& kernel, ualg::TermPtr<int> term);
+
 
 
     //////////////// Rules
@@ -661,15 +670,12 @@ namespace diracoq {
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term);
 
 
-    // Special Rule to simplify throw the Wolfram Engine
-    DIRACOQ_RULE_DEF(R_WOLFRAM, kernel, term);
-    
-
     // The rule list.
     extern const std::vector<PosRewritingRule> rules;
 
-    // All the rules
-    extern const std::vector<PosRewritingRule> all_rules;
+
+    // The rule list when combined with wolfram engine. (scalar rules are not included)
+    extern const std::vector<PosRewritingRule> rules_with_wolfram;
 
     ///////////////// Trace Output
 

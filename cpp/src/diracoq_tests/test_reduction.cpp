@@ -61,6 +61,25 @@ TEST(DiracoqReduction, variable_expand_O) {
 }
 
 
+TEST(DiracoqReduction, wolfram_fullsimplify) {
+    auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
+    Kernel kernel(lp);
+
+    auto actual_res = wolfram_fullsimplify(kernel, kernel.parse("Plus[1, 2]"));
+    auto expected_res = kernel.parse("3");
+    EXPECT_EQ(*actual_res, *expected_res);
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T]"));
+    
+    auto temp = wolfram_fullsimplify(kernel, kernel.parse("Plus[Minus[1], 1] . K"));
+    actual_res = pos_rewrite_repeated(kernel, temp, {R_SCRK0});
+    expected_res = kernel.parse("0K[T]");
+    EXPECT_EQ(*actual_res, *expected_res);
+}
+
+
+
 /////////////////////////////////////////////////
 // Test Rules
 
@@ -92,7 +111,7 @@ TEST(DiracoqReduction, R_COMPO_SS) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
-    TEST_RULE(kernel, {R_COMPO_SS}, "COMPO[a, b]", "MULS[a, b]");
+    TEST_RULE(kernel, {R_COMPO_SS}, "COMPO[a, b]", "Times[a, b]");
 } 
 
 TEST(DiracoqReduction, R_COMPO_SK) {
@@ -234,7 +253,7 @@ TEST(DiracoqReduction, R_STAR_MULS) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
-    TEST_RULE(kernel, {R_STAR_MULS}, "STAR[a, b, a]", "MULS[a, b, a]");
+    TEST_RULE(kernel, {R_STAR_MULS}, "STAR[a, b, a]", "Times[a, b, a]");
 }
 
 TEST(DiracoqReduction, R_STAR_TSRO) {
@@ -260,7 +279,7 @@ TEST(DiracoqReduction, R_ADDG_ADDS) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
-    TEST_RULE(kernel, {R_ADDG_ADDS}, "ADDG[a, b]", "ADDS[a, b]");
+    TEST_RULE(kernel, {R_ADDG_ADDS}, "ADDG[a, b]", "Plus[a, b]");
 }
 
 TEST(DiracoqReduction, R_ADDG_ADD) {
@@ -311,71 +330,71 @@ TEST(DiracoqReduction, R_DELTA) {
 }
 
 TEST(DiracoqReduction, R_FLATTEN) {
-    TEST_RULE({R_FLATTEN}, "MULS[a, MULS[a, b], b]", "MULS[a, a, b, b]");
-    TEST_RULE({R_FLATTEN}, "MULS[a, ADDS[a, b], b]", "MULS[a, ADDS[a, b], b]");
+    TEST_RULE({R_FLATTEN}, "Times[a, Times[a, b], b]", "Times[a, a, b, b]");
+    TEST_RULE({R_FLATTEN}, "Times[a, Plus[a, b], b]", "Times[a, Plus[a, b], b]");
     TEST_RULE({R_FLATTEN}, "ADD[a, ADD[b, c], d]", "ADD[a, b, c, d]");
 }
 
 TEST(DiracoqReduction, R_ADDS0) {
-    TEST_RULE({R_ADDSID, R_ADDS0}, "ADDS[0, a, b]", "ADDS[a, b]");
-    TEST_RULE({R_ADDSID, R_ADDS0}, "ADDS[0, a, b, 0, 0]", "ADDS[a, b]");
-    TEST_RULE({R_ADDSID, R_ADDS0}, "ADDS[0, b]", "b");
-    TEST_RULE({R_ADDS0}, "ADDS[0, 0]", "ADDS[0]");
-    TEST_RULE({R_ADDS0}, "ADDS[0]", "ADDS[0]");
+    TEST_RULE({R_ADDSID, R_ADDS0}, "Plus[0, a, b]", "Plus[a, b]");
+    TEST_RULE({R_ADDSID, R_ADDS0}, "Plus[0, a, b, 0, 0]", "Plus[a, b]");
+    TEST_RULE({R_ADDSID, R_ADDS0}, "Plus[0, b]", "b");
+    TEST_RULE({R_ADDS0}, "Plus[0, 0]", "Plus[0]");
+    TEST_RULE({R_ADDS0}, "Plus[0]", "Plus[0]");
 }
 
 TEST(DiracoqReduction, R_MULS0) {
-    TEST_RULE({R_MULSID, R_MULS0}, "MULS[0, a, b]", "0");
+    TEST_RULE({R_MULSID, R_MULS0}, "Times[0, a, b]", "0");
 }
 
 TEST(DiracoqReduction, R_MULS1) {
-    TEST_RULE({R_MULSID, R_MULS1}, "MULS[1, a, b]", "MULS[a, b]");
-    TEST_RULE({R_MULSID, R_MULS1}, "MULS[1, a, 1, b, 1]", "MULS[a, b]");
-    TEST_RULE({R_MULSID, R_MULS1}, "MULS[1, b]", "b");
-    TEST_RULE({R_MULS1}, "MULS[1, 1]", "MULS[1]");
-    TEST_RULE({R_MULS1}, "MULS[1]", "MULS[1]");
+    TEST_RULE({R_MULSID, R_MULS1}, "Times[1, a, b]", "Times[a, b]");
+    TEST_RULE({R_MULSID, R_MULS1}, "Times[1, a, 1, b, 1]", "Times[a, b]");
+    TEST_RULE({R_MULSID, R_MULS1}, "Times[1, b]", "b");
+    TEST_RULE({R_MULS1}, "Times[1, 1]", "Times[1]");
+    TEST_RULE({R_MULS1}, "Times[1]", "Times[1]");
 }
 
 TEST(DiracoqReduction, R_MULS2) {
-    TEST_RULE({R_MULS2}, "MULS[a, ADDS[b, c]]", "ADDS[MULS[a, b], MULS[a, c]]");
-    TEST_RULE({R_MULS2}, "MULS[a, ADDS[b, c], b]", "ADDS[MULS[a, b, b], MULS[a, c, b]]");
+    TEST_RULE({R_MULS2}, "Times[a, Plus[b, c]]", "Plus[Times[a, b], Times[a, c]]");
+    TEST_RULE({R_MULS2}, "Times[a, Plus[b, c], b]", "Plus[Times[a, b, b], Times[a, c, b]]");
 }
 
 TEST(DiracoqReduction, R_MULS2_nasty) {
-    TEST_RULE({R_MULS2}, "MULS[ADDS[b, c]]", "MULS[ADDS[b, c]]");
+    TEST_RULE({R_MULS2}, "Times[Plus[b, c]]", "Times[Plus[b, c]]");
 }
 
 TEST(DiracoqReduction, R_CONJ0) {
-    TEST_RULE({R_CONJ0}, "CONJ[0]", "0");
-    TEST_RULE({R_CONJ0}, "ADDS[CONJ[0], a]", "ADDS[0, a]");
+    TEST_RULE({R_CONJ0}, "Conjugate[0]", "0");
+    TEST_RULE({R_CONJ0}, "Plus[Conjugate[0], a]", "Plus[0, a]");
 }
 
 TEST(DiracoqReduction, R_CONJ1) {
-    TEST_RULE({R_CONJ1}, "CONJ[1]", "1");
-    TEST_RULE({R_CONJ1}, "ADDS[CONJ[1], a]", "ADDS[1, a]");
+    TEST_RULE({R_CONJ1}, "Conjugate[1]", "1");
+    TEST_RULE({R_CONJ1}, "Plus[Conjugate[1], a]", "Plus[1, a]");
 }
 
 TEST(DiracoqReduction, R_CONJ2) {
-    TEST_RULE({R_CONJ2}, "CONJ[ADDS[a, b]]", "ADDS[CONJ[a], CONJ[b]]");
-    TEST_RULE({R_CONJ2}, "CONJ[ADDS[a, b, c]]", "ADDS[CONJ[a], CONJ[b], CONJ[c]]");
+    TEST_RULE({R_CONJ2}, "Conjugate[Plus[a, b]]", "Plus[Conjugate[a], Conjugate[b]]");
+    TEST_RULE({R_CONJ2}, "Conjugate[Plus[a, b, c]]", "Plus[Conjugate[a], Conjugate[b], Conjugate[c]]");
 }
 
 TEST(DiracoqReduction, R_CONJ3) {
-    TEST_RULE({R_CONJ3}, "CONJ[MULS[a, b]]", "MULS[CONJ[a], CONJ[b]]");
-    TEST_RULE({R_CONJ3}, "CONJ[MULS[a, b, c]]", "MULS[CONJ[a], CONJ[b], CONJ[c]]");
+    TEST_RULE({R_CONJ3}, "Conjugate[Times[a, b]]", "Times[Conjugate[a], Conjugate[b]]");
+    TEST_RULE({R_CONJ3}, "Conjugate[Times[a, b, c]]", "Times[Conjugate[a], Conjugate[b], Conjugate[c]]");
 }
 
 TEST(DiracoqReduction, R_CONJ4) {
-    TEST_RULE({R_CONJ4}, "CONJ[CONJ[a]]", "a");
-    TEST_RULE({R_CONJ4}, "CONJ[CONJ[ADDS[a, b]]]", "ADDS[a, b]");
+    TEST_RULE({R_CONJ4}, "Conjugate[Conjugate[a]]", "a");
+    TEST_RULE({R_CONJ4}, "Conjugate[Conjugate[Plus[a, b]]]", "Plus[a, b]");
 }
 
 TEST(DiracoqReduction, R_CONJ5) {
-    TEST_RULE({R_CONJ5}, "CONJ[DELTA[a, b]]", "DELTA[a, b]");
+    TEST_RULE({R_CONJ5}, "Conjugate[DELTA[a, b]]", "DELTA[a, b]");
 }
 
 TEST(DiracoqReduction, R_CONJ6) {
-    TEST_RULE({R_CONJ6}, "CONJ[DOT[B, K]]", "DOT[ADJ[K], ADJ[B]]");
+    TEST_RULE({R_CONJ6}, "Conjugate[DOT[B, K]]", "DOT[ADJ[K], ADJ[B]]");
 }
 
 TEST(DiracoqReduction, R_DOT0) {
@@ -387,23 +406,23 @@ TEST(DiracoqReduction, R_DOT1) {
 }
 
 TEST(DiracoqReduction, R_DOT2) {
-    TEST_RULE({R_DOT2}, "DOT[SCR[a, B], K]", "MULS[a, DOT[B, K]]");
+    TEST_RULE({R_DOT2}, "DOT[SCR[a, B], K]", "Times[a, DOT[B, K]]");
 }
 
 TEST(DiracoqReduction, R_DOT3) {
-    TEST_RULE({R_DOT3}, "DOT[B, SCR[a, K]]", "MULS[a, DOT[B, K]]");
+    TEST_RULE({R_DOT3}, "DOT[B, SCR[a, K]]", "Times[a, DOT[B, K]]");
 }
 
 TEST(DiracoqReduction, R_DOT4) {
-    TEST_RULE({R_DOT4}, "DOT[ADD[B1], K]", "ADDS[DOT[B1, K]]");
-    TEST_RULE({R_DOT4}, "DOT[ADD[B1, B2], K]", "ADDS[DOT[B1, K], DOT[B2, K]]");
-    TEST_RULE({R_DOT4}, "DOT[ADD[B1, B2, B3], K]", "ADDS[DOT[B1, K], DOT[B2, K], DOT[B3, K]]");
+    TEST_RULE({R_DOT4}, "DOT[ADD[B1], K]", "Plus[DOT[B1, K]]");
+    TEST_RULE({R_DOT4}, "DOT[ADD[B1, B2], K]", "Plus[DOT[B1, K], DOT[B2, K]]");
+    TEST_RULE({R_DOT4}, "DOT[ADD[B1, B2, B3], K]", "Plus[DOT[B1, K], DOT[B2, K], DOT[B3, K]]");
 }
 
 TEST(DiracoqReduction, R_DOT5) {
-    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1]]", "ADDS[DOT[B, K1]]");
-    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1, K2]]", "ADDS[DOT[B, K1], DOT[B, K2]]");
-    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1, K2, K3]]", "ADDS[DOT[B, K1], DOT[B, K2], DOT[B, K3]]");
+    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1]]", "Plus[DOT[B, K1]]");
+    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1, K2]]", "Plus[DOT[B, K1], DOT[B, K2]]");
+    TEST_RULE({R_DOT5}, "DOT[B, ADD[K1, K2, K3]]", "Plus[DOT[B, K1], DOT[B, K2], DOT[B, K3]]");
 }
 
 TEST(DiracoqReduction, R_DOT6) {
@@ -411,15 +430,15 @@ TEST(DiracoqReduction, R_DOT6) {
 }
 
 TEST(DiracoqReduction, R_DOT7) {
-    TEST_RULE({R_DOT7}, "DOT[TSR[B1, B2], KET[PAIR[s, t]]]", "MULS[DOT[B1, KET[s]], DOT[B2, KET[t]]]");
+    TEST_RULE({R_DOT7}, "DOT[TSR[B1, B2], KET[PAIR[s, t]]]", "Times[DOT[B1, KET[s]], DOT[B2, KET[t]]]");
 }
 
 TEST(DiracoqReduction, R_DOT8) {
-    TEST_RULE({R_DOT8}, "DOT[BRA[PAIR[s, t]], TSR[K1, K2]]", "MULS[DOT[BRA[s], K1], DOT[BRA[t], K2]]");
+    TEST_RULE({R_DOT8}, "DOT[BRA[PAIR[s, t]], TSR[K1, K2]]", "Times[DOT[BRA[s], K1], DOT[BRA[t], K2]]");
 }
 
 TEST(DiracoqReduction, R_DOT9) {
-    TEST_RULE({R_DOT9}, "DOT[TSR[B1, B2], TSR[K1, K2]]", "MULS[DOT[B1, K1], DOT[B2, K2]]");
+    TEST_RULE({R_DOT9}, "DOT[TSR[B1, B2], TSR[K1, K2]]", "Times[DOT[B1, K1], DOT[B2, K2]]");
 }
 
 TEST(DiracoqReduction, R_DOT10) {
@@ -439,7 +458,7 @@ TEST(DiracoqReduction, R_DELTA0) {
 }
 
 TEST(DiracoqReduction, R_DELTA1) {
-    TEST_RULE({R_DELTA1}, "DELTA[PAIR[a, b], PAIR[c, d]]", "MULS[DELTA[a, c], DELTA[b, d]]");
+    TEST_RULE({R_DELTA1}, "DELTA[PAIR[a, b], PAIR[c, d]]", "Times[DELTA[a, c], DELTA[b, d]]");
 }
 
 TEST(DiracoqReduction, R_SCR0) {
@@ -447,7 +466,7 @@ TEST(DiracoqReduction, R_SCR0) {
 }
 
 TEST(DiracoqReduction, R_SCR1) {
-    TEST_RULE({R_SCR1}, "SCR[a, SCR[b, X]]", "SCR[MULS[a, b], X]");
+    TEST_RULE({R_SCR1}, "SCR[a, SCR[b, X]]", "SCR[Times[a, b], X]");
 }
 
 TEST(DiracoqReduction, R_SCR2) {
@@ -497,20 +516,20 @@ TEST(DiracoqReduction, R_ADDID) {
 }
 
 TEST(DiracoqReduction, R_ADD0) {
-    TEST_RULE({R_ADD0}, "ADD[X, X, Y, Z]", "ADD[Y, Z, SCR[ADDS[1, 1], X]]");
-    TEST_RULE({R_ADD0}, "ADD[a, X, b, X, Y, Z]", "ADD[a, b, Y, Z, SCR[ADDS[1, 1], X]]");
+    TEST_RULE({R_ADD0}, "ADD[X, X, Y, Z]", "ADD[Y, Z, SCR[Plus[1, 1], X]]");
+    TEST_RULE({R_ADD0}, "ADD[a, X, b, X, Y, Z]", "ADD[a, b, Y, Z, SCR[Plus[1, 1], X]]");
 }
 
 TEST(DiracoqReduction, R_ADD1) {
-    TEST_RULE({R_ADD1}, "ADD[X, Y, Z, SCR[a, X], W]", "ADD[Y, Z, W, SCR[ADDS[1, a], X]]");
+    TEST_RULE({R_ADD1}, "ADD[X, Y, Z, SCR[a, X], W]", "ADD[Y, Z, W, SCR[Plus[1, a], X]]");
 }
 
 TEST(DiracoqReduction, R_ADD2) {
-    TEST_RULE({R_ADD2}, "ADD[SCR[a, X], Y, X, Z]", "ADD[Y, Z, SCR[ADDS[a, 1], X]]");
+    TEST_RULE({R_ADD2}, "ADD[SCR[a, X], Y, X, Z]", "ADD[Y, Z, SCR[Plus[a, 1], X]]");
 }
 
 TEST(DiracoqReduction, R_ADD3) {
-    TEST_RULE({R_ADD3}, "ADD[SCR[b, X], Y, Z, SCR[a, X], W]", "ADD[Y, Z, W, SCR[ADDS[b, a], X]]");
+    TEST_RULE({R_ADD3}, "ADD[SCR[b, X], Y, Z, SCR[a, X], W]", "ADD[Y, Z, W, SCR[Plus[b, a], X]]");
 }
 
 TEST(DiracoqReduction, R_ADDK0) {
@@ -530,7 +549,7 @@ TEST(DiracoqReduction, R_ADJ0) {
 }
 
 TEST(DiracoqReduction, R_ADJ1) {
-    TEST_RULE({R_ADJ1}, "ADJ[SCR[a, X]]", "SCR[CONJ[a], ADJ[X]]");
+    TEST_RULE({R_ADJ1}, "ADJ[SCR[a, X]]", "SCR[Conjugate[a], ADJ[X]]");
 }
 
 TEST(DiracoqReduction, R_ADJ2) {
@@ -917,18 +936,18 @@ TEST(DiracoqReduction, R_SUM_ELIM1) {
     TEST_RULE({R_SUM_ELIM1}, 
         R"(
             SUM[USET[T], FUN[i, T, 
-                MULS[
+                Times[
                     DOT[BRA[i], KET[i]],
                     DELTA[i, j]
                 ]
             ]]
         )", 
-        "MULS[DOT[BRA[j], KET[j]]]");
+        "Times[DOT[BRA[j], KET[j]]]");
     TEST_RULE({R_SUM_ELIM1},
         R"(
         SUM[USET[T], FUN[i, T,
             SUM[USET[T2], FUN[k, T2, 
-                MULS[
+                Times[
                     DELTA[i, j],
                     b,
                     c
@@ -936,7 +955,7 @@ TEST(DiracoqReduction, R_SUM_ELIM1) {
             ]]
         ]]
         )", 
-        "SUM[USET[T2], FUN[k, T2, MULS[b, c]]]");
+        "SUM[USET[T2], FUN[k, T2, Times[b, c]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM2) {
@@ -969,26 +988,26 @@ TEST(DiracoqReduction, R_SUM_ELIM3) {
         R"(
             SUM[USET[T], FUN[i, T, 
                 SCR[
-                    MULS[
+                    Times[
                         DELTA[i, j], a, b
                     ],
                     A
                 ]
             ]]
         )", 
-        "SCR[MULS[a, b], A]");
+        "SCR[Times[a, b], A]");
     TEST_RULE({R_SUM_ELIM3},
         R"(
         SUM[USET[T], FUN[i, T,
             SUM[USET[T2], FUN[k, T2, 
                 SCR[
-                    MULS[DELTA[i, j], a],
+                    Times[DELTA[i, j], a],
                     BRA[i]
                 ]
             ]]
         ]]
         )", 
-        "SUM[USET[T2], FUN[k, T2, SCR[MULS[a], BRA[j]]]]");
+        "SUM[USET[T2], FUN[k, T2, SCR[Times[a], BRA[j]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM4) {
@@ -1020,23 +1039,23 @@ TEST(DiracoqReduction, R_SUM_ELIM5) {
         R"(
         SUM[M, FUN[i, T,
             SUM[M, FUN[j, T, 
-                MULS[a, DELTA[i, j], b]
+                Times[a, DELTA[i, j], b]
             ]]
         ]]
         )", 
-        "SUM[M, FUN[j, T, MULS[a, b]]]");
+        "SUM[M, FUN[j, T, Times[a, b]]]");
     
     TEST_RULE({R_SUM_ELIM5},
         R"(
         SUM[M, FUN[i, T,
             SUM[M, FUN[j, T, 
                 SUM[N, FUN[k, T,
-                    MULS[a, DELTA[i, j], b]
+                    Times[a, DELTA[i, j], b]
                 ]]
             ]]
         ]]
         )", 
-        "SUM[M, FUN[j, T, SUM[N, FUN[k, T, MULS[a, b]]]]]");
+        "SUM[M, FUN[j, T, SUM[N, FUN[k, T, Times[a, b]]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM6) {
@@ -1088,13 +1107,13 @@ TEST(DiracoqReduction, R_SUM_ELIM7) {
         SUM[M, FUN[i, T,
             SUM[M, FUN[j, T, 
                 SCR[
-                    MULS[a, DELTA[i, j], b],
+                    Times[a, DELTA[i, j], b],
                     A
                 ]
             ]]
         ]]
         )", 
-        "SUM[M, FUN[j, T, SCR[MULS[a, b], A]]]");
+        "SUM[M, FUN[j, T, SCR[Times[a, b], A]]]");
     
     TEST_RULE({R_SUM_ELIM7},
         R"(
@@ -1102,7 +1121,7 @@ TEST(DiracoqReduction, R_SUM_ELIM7) {
             SUM[M, FUN[j, T, 
                 SUM[N, FUN[k, T,
                     SCR[
-                        MULS[a, DELTA[i, j], b],
+                        Times[a, DELTA[i, j], b],
                         KET[j]
                     ]
                 ]]
@@ -1113,7 +1132,7 @@ TEST(DiracoqReduction, R_SUM_ELIM7) {
         SUM[M, FUN[j, T, 
             SUM[N, FUN[k, T, 
                 SCR[
-                    MULS[a, b], 
+                    Times[a, b], 
                     KET[j]
                 ]
             ]]
@@ -1124,17 +1143,17 @@ TEST(DiracoqReduction, R_SUM_ELIM7) {
 TEST(DiracoqReduction, R_SUM_PUSH0) {
     TEST_RULE({R_SUM_PUSH0},
         R"(
-        MULS[
+        Times[
             a, b, c,
             SUM[M, FUN[i, T, d]],
             d, e
         ]
         )", 
-        "SUM[M, FUN[i, T, MULS[a, b, c, d, d, e]]]");
+        "SUM[M, FUN[i, T, Times[a, b, c, d, d, e]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH1) {
-    TEST_RULE({R_SUM_PUSH1}, "CONJ[SUM[M, FUN[i, T, a]]]", "SUM[M, FUN[i, T, CONJ[a]]]");
+    TEST_RULE({R_SUM_PUSH1}, "Conjugate[SUM[M, FUN[i, T, a]]]", "SUM[M, FUN[i, T, Conjugate[a]]]");
 }
 TEST(DiracoqReduction, R_SUM_PUSH2) {
     TEST_RULE({R_SUM_PUSH2}, "ADJ[SUM[M, FUN[i, T, X]]]", "SUM[M, FUN[i, T, ADJ[X]]]");
@@ -1197,7 +1216,7 @@ TEST(DiracoqReduction, R_SUM_PUSH16) {
 }
 
 TEST(DiracoqReduction, R_SUM_ADDS0) {
-    TEST_RULE({R_SUM_ADDS0}, "SUM[M, FUN[i, T, ADDS[a, b]]]", "ADDS[SUM[M, FUN[$0, T, a]], SUM[M, FUN[$1, T, b]]]");
+    TEST_RULE({R_SUM_ADDS0}, "SUM[M, FUN[i, T, Plus[a, b]]]", "Plus[SUM[M, FUN[$0, T, a]], SUM[M, FUN[$1, T, b]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD0) {
@@ -1205,7 +1224,7 @@ TEST(DiracoqReduction, R_SUM_ADD0) {
 }
 
 TEST(DiracoqReduction, R_SUM_ADD1) {
-    TEST_RULE({R_SUM_ADD1}, "SUM[M, FUN[i, T, SCR[ADDS[a, b, c], KET[i]]]]", "ADD[SUM[M, FUN[$0, T, SCR[a, KET[$0]]]], SUM[M, FUN[$1, T, SCR[b, KET[$1]]]], SUM[M, FUN[$2, T, SCR[c, KET[$2]]]]]");
+    TEST_RULE({R_SUM_ADD1}, "SUM[M, FUN[i, T, SCR[Plus[a, b, c], KET[i]]]]", "ADD[SUM[M, FUN[$0, T, SCR[a, KET[$0]]]], SUM[M, FUN[$1, T, SCR[b, KET[$1]]]], SUM[M, FUN[$2, T, SCR[c, KET[$2]]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX0) {
@@ -1216,27 +1235,15 @@ TEST(DiracoqReduction, R_SUM_INDEX1) {
     TEST_RULE({R_SUM_INDEX1}, "SUM[CATPROD[M1, M2], FUN[i, BASIS[PROD[T1, T2]], X]]", "SUM[M1, FUN[$0, BASIS[T1], SUM[M2, FUN[$1, BASIS[T2], X]]]]");
 }
 
-TEST(DiracoqReduction, R_WOLFRAM) {
-    auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
-    Kernel kernel(lp);
-
-    TEST_RULE(kernel, {R_WOLFRAM}, "Plus[1, 2]", "3");
-
-    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
-    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T]"));
-    TEST_RULE(kernel, rules, "Plus[Minus[1], 1] . K", "0K[T]");
-}
-
-
 // ///////////////////////////////////////////////////////
 // // Combined Tests
 
 // // (a + (b * 0))^* -> 0
 // TEST(DiracoqReduction, Combined1) {
-//     TEST_RULE(rules, "CONJ(ADDS(a MULS(b 0)))", "CONJ(a)");
+//     TEST_RULE(rules, "Conjugate(Plus(a Times(b 0)))", "Conjugate(a)");
 // }
 
 // // (b * 0)^*^* -> 0
 // TEST(DiracoqReduction, Combined2) {
-//     TEST_RULE(rules, "CONJ(CONJ(MULS(b 0)))", "0");
+//     TEST_RULE(rules, "Conjugate(Conjugate(Times(b 0)))", "0");
 // }

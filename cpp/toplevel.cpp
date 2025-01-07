@@ -10,38 +10,38 @@ using namespace diracoq;
 #include <csignal>
 
 void signalHandler(int signum) {
-    std::cout << "Interrupt signal (" << signum << ") received.\n";
+    std::cout << std::endl << "< Interrupt signal (" << signum << ") received.\n";
     // Add cleanup logic here (e.g., close files, release resources, etc.)
     exit(signum);
 }
 
 int main(int argc, const char **argv) {
+
     // Register signal handler
     signal(SIGINT, signalHandler);
 
+    cout << "< Diracoq Prover top level built by Yingte Xu." << endl;
 
-    Prover* prover;
+    auto [formatted_argc, formatted_argv] = wstp::args_format(argc, argv);
 
-    if (argc == 1) {
-        prover = new Prover{std::cout};
+    auto [ep, lp] = wstp::init_and_openlink(formatted_argc, formatted_argv);
+
+    if (!lp) {
+        cout << "< Failed to establish WSTP link. The prover will run without Wolfram Engine." << endl;
     }
-    
     else {
-        cout << "Too many arguments." << endl;
-        return 1;
+        cout << "< WSTP link established." << endl;
     }
 
-    cout << "Diracoq Prover top level built by Yingte Xu." << endl;
+    Prover prover = std_prover(lp);
 
     while (true) {
         string code;
         cout << "> ";
         getline(cin, code);
 
-        prover->process(code);
+        prover.process(code);
     }
-
-    delete prover;
 
     return 0;
 }
