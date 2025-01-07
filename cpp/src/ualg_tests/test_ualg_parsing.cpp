@@ -37,3 +37,20 @@ TEST(TermParsing, AutomaticRegistration) {
 
     EXPECT_EQ(*actual_res, *expected_res);
 }
+
+TEST(TermParsing, Term2Ast) {
+    Signature<string> sig = {
+        {{"f", "f"}, {"g", "g"}}
+    };
+
+    auto ast = astparser::AST{
+        "f",
+        vector{astparser::AST{"g"}, astparser::AST{"g"}}
+    };
+
+    auto term = sig.ast2term(ast);
+
+    auto actual_res = sig.term2ast(term);
+
+    EXPECT_EQ(actual_res, ast);
+}

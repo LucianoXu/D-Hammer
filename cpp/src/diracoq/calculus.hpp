@@ -2,7 +2,7 @@
 
 #include "symbols.hpp"
 #include "ualg.hpp"
-#include <boost/unordered_map.hpp>
+#include "WSTPinterface.hpp"
 
 namespace diracoq {
 
@@ -35,6 +35,8 @@ namespace diracoq {
      */
     class Kernel {
     protected:
+        // The Wolfram Engine link
+        WSLINK lp;
         ualg::Signature<int> sig;
         std::vector<std::pair<int, Declaration>> env;
         std::vector<std::pair<int, Declaration>> ctx;
@@ -46,7 +48,9 @@ namespace diracoq {
         }
 
     public:
-        Kernel() : sig(diracoq_sig) {}
+        Kernel() : lp(nullptr), sig(diracoq_sig) {}
+
+        Kernel(WSLINK _lp) : lp(_lp), sig(diracoq_sig) {}
 
         // copy constructor
         Kernel(const Kernel& other) : sig(other.sig), env(other.env), ctx(other.ctx) {}
@@ -56,6 +60,10 @@ namespace diracoq {
 
         inline int register_symbol(const std::string& name) {
             return sig.register_symbol(name);
+        }
+
+        inline WSLINK get_wstp_link() {
+            return lp;
         }
 
         inline ualg::Signature<int>& get_sig() {

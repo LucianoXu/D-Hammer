@@ -44,6 +44,11 @@ namespace diracoq {
         void exitFun(DIRACOQParser::FunContext *ctx) override;
         void exitForall(DIRACOQParser::ForallContext *ctx) override;
 
+        void exitZeroK(DIRACOQParser::ZeroKContext *ctx) override;
+        void exitZeroB(DIRACOQParser::ZeroBContext *ctx) override;
+        void exitZeroO(DIRACOQParser::ZeroOContext *ctx) override;
+        void exitOneO(DIRACOQParser::OneOContext *ctx) override;
+
         void exitApplication(DIRACOQParser::ApplicationContext *ctx) override;
         void exitParen(DIRACOQParser::ParenContext *ctx) override;
         void exitIdentifier(DIRACOQParser::IdentifierContext *ctx) override;
@@ -379,6 +384,45 @@ namespace diracoq {
         // push FORALL node
         node_stack.push(AST{"FORALL", {AST(name, {}), std::move(body)}});
     }
+
+    void DIRACOQBuilder::exitZeroK(DIRACOQParser::ZeroKContext *ctx) {
+        // get the type
+        AST type = std::move(node_stack.top());
+        node_stack.pop();
+
+        // push ZeroK node
+        node_stack.push(AST{"ZEROK", {std::move(type)}});
+    }
+
+    void DIRACOQBuilder::exitZeroB(DIRACOQParser::ZeroBContext *ctx) {
+        // get the type
+        AST type = std::move(node_stack.top());
+        node_stack.pop();
+
+        // push ZeroB node
+        node_stack.push(AST{"ZEROB", {std::move(type)}});
+    }
+
+    void DIRACOQBuilder::exitZeroO(DIRACOQParser::ZeroOContext *ctx) {
+        // get the type
+        AST type2 = std::move(node_stack.top());
+        node_stack.pop();
+        AST type1 = std::move(node_stack.top());
+        node_stack.pop();
+
+        // push ZeroO node
+        node_stack.push(AST{"ZEROO", {std::move(type1), std::move(type2)}});
+    }
+
+    void DIRACOQBuilder::exitOneO(DIRACOQParser::OneOContext *ctx) {
+        // get the type
+        AST type = std::move(node_stack.top());
+        node_stack.pop();
+
+        // push OneO node
+        node_stack.push(AST{"ONEO", {std::move(type)}});
+    }
+        
 
 
     // Handle Application node

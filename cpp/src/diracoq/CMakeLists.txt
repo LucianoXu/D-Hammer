@@ -53,6 +53,7 @@ target_link_libraries(
     PUBLIC
         UALG
         ASTPARSER
+        WSTPINTERFACE
         DEPENDENCIES
 )
 

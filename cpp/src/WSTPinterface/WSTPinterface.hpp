@@ -12,10 +12,13 @@
 
 
 namespace wstp {
-    extern WSENV ep;
-    extern WSLINK lp;
 
-    void init_and_openlink(int argc, char* argv[]);
+    extern const int MACOS_ARGC;
+    extern char** const MACOS_ARGV;
+
+    extern std::vector<std::pair<WSENV, WSLINK>> links;
+
+    std::pair<WSENV, WSLINK> init_and_openlink(int argc, char* argv[]);
 
     /**
      * @brief Transform and push the AST to the WSTP link.

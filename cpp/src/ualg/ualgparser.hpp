@@ -31,7 +31,7 @@ namespace ualg {
         }
 
         inline std::string unique_var() {
-            return "@" + std::to_string(unique_var_id++);
+            return "$" + std::to_string(unique_var_id++);
         }
 
         inline T register_symbol(const std::string& name) {
@@ -90,11 +90,11 @@ namespace ualg {
             return term->to_string(&head2name);
         }
 
+        astparser::AST term2ast(TermPtr<T> term) const;
+
         TermPtr<T> ast2term(const astparser::AST& ast);
 
         TermPtr<T> parse(const std::string& code);
-
-        TermPtr<T> parse(const astparser::AST& ast);
     };
 
 
@@ -126,6 +126,16 @@ namespace ualg {
         }
     }
 
+    template <class T>
+    astparser::AST Signature<T>::term2ast(TermPtr<T> term) const {
+        astparser::AST ast;
+        ast.head = get_name(term->get_head());
+        for (const auto& arg : term->get_args()) {
+            ast.children.push_back(term2ast(arg));
+        }
+        return ast;
+    }
+
 
     template <class T>
     TermPtr<T> Signature<T>::parse(const std::string& code) {
@@ -135,11 +145,6 @@ namespace ualg {
         }
 
         return ast2term(ast.value());
-    }
-
-    template <class T>
-    TermPtr<T> Signature<T>::parse(const astparser::AST& ast) {
-        return ast2term(ast);
     }
 
 } // namespace ualg

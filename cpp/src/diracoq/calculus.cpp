@@ -41,7 +41,7 @@ namespace diracoq {
     TermPtr<int> Kernel::parse(const std::string& code) {
         auto ast = diracoq::parse(code);
         if (ast.has_value()) {
-            return sig.parse(ast.value());
+            return sig.ast2term(ast.value());
         }
         else{
             throw std::runtime_error("The code is not valid.");
@@ -49,7 +49,7 @@ namespace diracoq {
     }
 
     TermPtr<int> Kernel::parse(const astparser::AST& ast) {
-        return sig.parse(ast);
+        return sig.ast2term(ast);
     }
 
     string Kernel::term_to_string(TermPtr<int> term) const {

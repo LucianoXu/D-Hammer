@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ualg.hpp"
+#include "WSTPinterface.hpp"
 
 namespace diracoq {
 
@@ -658,6 +659,11 @@ namespace diracoq {
 
     // SUM(CATPROD(M1 M2) FUN(i BASIS(PROD(T1 T2)) X)) -> SUM(M1 FUN(j BASIS(T1) SUM(M2 FUN(k BASIS(T2) X{i/PAIR(j k)})))
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term);
+
+
+    // Special Rule to simplify throw the Wolfram Engine
+    DIRACOQ_RULE_DEF(R_WOLFRAM, kernel, term);
+    
 
     // The rule list.
     extern const std::vector<PosRewritingRule> rules;

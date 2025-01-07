@@ -13,7 +13,7 @@ namespace diracoq {
         vector<string> res = {};
 
         for (int i = 0; i < deBruijn_index_num; ++i) {
-            res.push_back("$" + to_string(i));
+            res.push_back("@" + to_string(i));
         }
         
         vector<string> defined = {
@@ -61,10 +61,10 @@ namespace diracoq {
             "DELTA",
             "DOT",
 
-            "0K",
-            "0B",
-            "0O",
-            "1O",
+            "ZEROK",
+            "ZEROB",
+            "ZEROO",
+            "ONEO",
             "KET",
             "BRA",
             "ADJ",
@@ -125,10 +125,10 @@ namespace diracoq {
     const auto DELTA = diracoq_sig.get_repr("DELTA");
     const auto DOT = diracoq_sig.get_repr("DOT");
 
-    const auto ZEROK = diracoq_sig.get_repr("0K");
-    const auto ZEROB = diracoq_sig.get_repr("0B");
-    const auto ZEROO = diracoq_sig.get_repr("0O");
-    const auto ONEO = diracoq_sig.get_repr("1O");
+    const auto ZEROK = diracoq_sig.get_repr("ZEROK");
+    const auto ZEROB = diracoq_sig.get_repr("ZEROB");
+    const auto ZEROO = diracoq_sig.get_repr("ZEROO");
+    const auto ONEO = diracoq_sig.get_repr("ONEO");
     const auto KET = diracoq_sig.get_repr("KET");
     const auto BRA = diracoq_sig.get_repr("BRA");
     const auto ADJ = diracoq_sig.get_repr("ADJ");

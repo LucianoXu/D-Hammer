@@ -3953,6 +3953,31 @@ namespace diracoq {
         );
     }
 
+    // TODO : move this outof the rewriting.
+    // Special Rule to simplify throw the Wolfram Engine
+    DIRACOQ_RULE_DEF(R_WOLFRAM, kernel, term) {
+
+        // check whether it has the link
+        auto link = kernel.get_wstp_link();
+        if (!link) return std::nullopt;
+
+        auto &sig = kernel.get_sig();
+        auto ast = astparser::AST("FullSimplify", {sig.term2ast(term)});
+
+        // Call the Wolfram Engine
+        wstp::ast_to_WS(link, ast);
+
+        // Get the result
+        auto res_ast = wstp::WS_to_ast(link);
+        auto res_temp = sig.ast2term(res_ast);
+
+        // Check if the result is the same
+        if (*res_temp == *term) return std::nullopt;
+
+        return res_temp;
+    }
+
+
     const std::vector<PosRewritingRule> rules = {
         R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_FLATTEN,
         
@@ -3984,7 +4009,9 @@ namespace diracoq {
 
         R_SUM_PUSH0, R_SUM_PUSH1, R_SUM_PUSH2, R_SUM_PUSH3, R_SUM_PUSH4, R_SUM_PUSH5, R_SUM_PUSH6, R_SUM_PUSH7, R_SUM_PUSH8, R_SUM_PUSH9, R_SUM_PUSH10, R_SUM_PUSH11, R_SUM_PUSH12, R_SUM_PUSH13, R_SUM_PUSH14, R_SUM_PUSH15, R_SUM_PUSH16,
 
-        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1
+        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1,
+
+        R_WOLFRAM
     };
 
     std::vector<PosRewritingRule> get_all_rules() {

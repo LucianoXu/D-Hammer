@@ -19,6 +19,7 @@ namespace diracoq {
         auto head = term->get_head();
 
         if (term->is_atomic()) {
+            // decide the number of this bound variable
             auto search_res = search_bound(bound_var_stack, head);
             if (search_res == -1) {
                 return term;

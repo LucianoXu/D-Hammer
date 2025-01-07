@@ -15,7 +15,7 @@ TEST(DiracoqReduction, variable_expand_K) {
 
     auto term = kernel.parse("K");
     auto actual_res = variable_expand(kernel, term);
-    auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SCR[DOT[BRA[@0], K], KET[@0]]]]");
+    auto expected_res = kernel.parse("SUM[USET[A], FUN[$0, BASIS[A], SCR[DOT[BRA[$0], K], KET[$0]]]]");
 
     EXPECT_EQ(*actual_res, *expected_res);
 }
@@ -29,7 +29,7 @@ TEST(DiracoqReduction, variable_expand_K_apply) {
 
     auto term = kernel.parse("APPLY[fK, a]");
     auto actual_res = variable_expand(kernel, term);
-    auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SCR[DOT[BRA[@0], APPLY[fK, a]], KET[@0]]]]");
+    auto expected_res = kernel.parse("SUM[USET[A], FUN[$0, BASIS[A], SCR[DOT[BRA[$0], APPLY[fK, a]], KET[$0]]]]");
 
     EXPECT_EQ(*actual_res, *expected_res);
 }
@@ -41,7 +41,7 @@ TEST(DiracoqReduction, variable_expand_B) {
 
     auto term = kernel.parse("B");
     auto actual_res = variable_expand(kernel, term);
-    auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SCR[DOT[B, KET[@0]], BRA[@0]]]]");
+    auto expected_res = kernel.parse("SUM[USET[A], FUN[$0, BASIS[A], SCR[DOT[B, KET[$0]], BRA[$0]]]]");
 
     EXPECT_EQ(*actual_res, *expected_res);
 }
@@ -55,7 +55,7 @@ TEST(DiracoqReduction, variable_expand_O) {
 
     auto term = kernel.parse("O");
     auto actual_res = variable_expand(kernel, term);
-    auto expected_res = kernel.parse("SUM[USET[A], FUN[@0, BASIS[A], SUM[USET[B], FUN[@1, BASIS[B], SCR[DOT[BRA[@0], MULK[O, KET[@1]]], OUTER[KET[@0], BRA[@1]]]]]]]");
+    auto expected_res = kernel.parse("SUM[USET[A], FUN[$0, BASIS[A], SUM[USET[B], FUN[$1, BASIS[B], SCR[DOT[BRA[$0], MULK[O, KET[$1]]], OUTER[KET[$0], BRA[$1]]]]]]]");
 
     EXPECT_EQ(*actual_res, *expected_res);
 }
@@ -882,7 +882,7 @@ TEST(DiracoqReduction, R_SUM_CONST3) {
 }
 
 TEST(DiracoqReduction, R_SUM_CONST4) {
-    TEST_RULE({R_SUM_CONST4}, "1O[T]", "SUM[USET[T], FUN[@0, BASIS[T], OUTER[KET[@0], BRA[@0]]]]");
+    TEST_RULE({R_SUM_CONST4}, "1O[T]", "SUM[USET[T], FUN[$0, BASIS[T], OUTER[KET[$0], BRA[$0]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM0) {
@@ -1197,23 +1197,34 @@ TEST(DiracoqReduction, R_SUM_PUSH16) {
 }
 
 TEST(DiracoqReduction, R_SUM_ADDS0) {
-    TEST_RULE({R_SUM_ADDS0}, "SUM[M, FUN[i, T, ADDS[a, b]]]", "ADDS[SUM[M, FUN[@0, T, a]], SUM[M, FUN[@1, T, b]]]");
+    TEST_RULE({R_SUM_ADDS0}, "SUM[M, FUN[i, T, ADDS[a, b]]]", "ADDS[SUM[M, FUN[$0, T, a]], SUM[M, FUN[$1, T, b]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD0) {
-    TEST_RULE({R_SUM_ADD0}, "SUM[M, FUN[i, T, ADD[X, Y]]]", "ADD[SUM[M, FUN[@0, T, X]], SUM[M, FUN[@1, T, Y]]]");
+    TEST_RULE({R_SUM_ADD0}, "SUM[M, FUN[i, T, ADD[X, Y]]]", "ADD[SUM[M, FUN[$0, T, X]], SUM[M, FUN[$1, T, Y]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ADD1) {
-    TEST_RULE({R_SUM_ADD1}, "SUM[M, FUN[i, T, SCR[ADDS[a, b, c], KET[i]]]]", "ADD[SUM[M, FUN[@0, T, SCR[a, KET[@0]]]], SUM[M, FUN[@1, T, SCR[b, KET[@1]]]], SUM[M, FUN[@2, T, SCR[c, KET[@2]]]]]");
+    TEST_RULE({R_SUM_ADD1}, "SUM[M, FUN[i, T, SCR[ADDS[a, b, c], KET[i]]]]", "ADD[SUM[M, FUN[$0, T, SCR[a, KET[$0]]]], SUM[M, FUN[$1, T, SCR[b, KET[$1]]]], SUM[M, FUN[$2, T, SCR[c, KET[$2]]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX0) {
-    TEST_RULE({R_SUM_INDEX0}, "SUM[USET[PROD[T1, T2]], FUN[i, BASIS[PROD[T1, T2]], X]]", "SUM[USET[T1], FUN[@0, BASIS[T1], SUM[USET[T2], FUN[@1, BASIS[T2], X]]]]");
+    TEST_RULE({R_SUM_INDEX0}, "SUM[USET[PROD[T1, T2]], FUN[i, BASIS[PROD[T1, T2]], X]]", "SUM[USET[T1], FUN[$0, BASIS[T1], SUM[USET[T2], FUN[$1, BASIS[T2], X]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_INDEX1) {
-    TEST_RULE({R_SUM_INDEX1}, "SUM[CATPROD[M1, M2], FUN[i, BASIS[PROD[T1, T2]], X]]", "SUM[M1, FUN[@0, BASIS[T1], SUM[M2, FUN[@1, BASIS[T2], X]]]]");
+    TEST_RULE({R_SUM_INDEX1}, "SUM[CATPROD[M1, M2], FUN[i, BASIS[PROD[T1, T2]], X]]", "SUM[M1, FUN[$0, BASIS[T1], SUM[M2, FUN[$1, BASIS[T2], X]]]]");
+}
+
+TEST(DiracoqReduction, R_WOLFRAM) {
+    auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
+    Kernel kernel(lp);
+
+    TEST_RULE(kernel, {R_WOLFRAM}, "Plus[1, 2]", "3");
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T]"));
+    TEST_RULE(kernel, rules, "Plus[Minus[1], 1] . K", "0K[T]");
 }
 
 
