@@ -37,6 +37,7 @@ namespace diracoq {
             "TYPE",
 
             "PROD",
+            "QBIT", "BASIS0", "BASIS1",
 
             "BASIS",
             "STYPE",
@@ -102,6 +103,9 @@ namespace diracoq {
     const auto TYPE = diracoq_sig.get_repr("TYPE");
 
     const auto PROD = diracoq_sig.get_repr("PROD");
+    const auto QBIT = diracoq_sig.get_repr("QBIT");
+    const auto BASIS0 = diracoq_sig.get_repr("BASIS0");
+    const auto BASIS1 = diracoq_sig.get_repr("BASIS1");
 
     const auto BASIS = diracoq_sig.get_repr("BASIS");
     const auto STYPE = diracoq_sig.get_repr("STYPE");

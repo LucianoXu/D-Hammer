@@ -133,6 +133,7 @@ namespace diracoq {
                 }
                 // K(A) @ O(B, C) --- NOT VALID
             }
+
             if (typeA->get_head() == BTYPE) {
                 // B(A) @ S : B(A)
                 if (typeB->get_head() == STYPE) {
@@ -346,6 +347,18 @@ namespace diracoq {
             }
 
             return create_term(INDEX);
+        }
+        
+        // (INDEX-QBIT)
+        if (head == QBIT) {
+            arg_number_check(args, 0);
+            return create_term(INDEX);
+        }
+
+        // (TYPE-BASIS0) (TYPE-BASIS1)
+        if (head == BASIS0 || head == BASIS1) {
+            arg_number_check(args, 0);
+            return create_term(BASIS, {create_term(QBIT)});
         }
 
         // (TYPE-ARROW)

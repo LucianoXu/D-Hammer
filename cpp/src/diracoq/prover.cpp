@@ -432,6 +432,10 @@ namespace diracoq {
         *)
         Def sumso := idx S => fun M : SET[S] => idx T1 => idx T2 => fun f : BASIS[S] -> OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => Sum i in M, f i X.
 
+        (* oppso 
+        oppso[e_] := (CPX[-1] ~SCRO~ e[#])&;
+        *)
+        Def oppso := idx T1 => idx T2 => fun e : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => -1 . (e X).
 
         (* scaleso 
         scaleso[c_, e_]:= (c ~SCRO~ e[#])&;

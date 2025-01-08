@@ -292,6 +292,21 @@ TEST(DiracoqTypeCheck, Index_Prod) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("PROD[sigma, tau]"), kernel.parse("INDEX")));
 }
 
+TEST(DiracoqTypeCheck, Index_Qbit) {
+    Kernel kernel;
+    EXPECT_TRUE(kernel.type_check(kernel.parse("QBIT"), kernel.parse("INDEX")));
+}
+
+TEST(DiracoqTypeCheck, Type_Basis0) {
+    Kernel kernel;
+    EXPECT_TRUE(kernel.type_check(kernel.parse("#0"), kernel.parse("BASIS[QBIT]")));
+}
+
+TEST(DiracoqTypeCheck, Type_Basis1) {
+    Kernel kernel;
+    EXPECT_TRUE(kernel.type_check(kernel.parse("#1"), kernel.parse("BASIS[QBIT]")));
+}
+
 TEST(DiracoqTypeCheck, Type_Arrow) {
     Kernel kernel;
 

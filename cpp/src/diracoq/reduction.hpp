@@ -670,6 +670,16 @@ namespace diracoq {
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term);
 
 
+
+    // DELTA(BASIS0 BASIS1) -> 0
+    DIRACOQ_RULE_DEF(R_QBIT_DELTA, kernel, term);
+
+    // ONEO(QBIT) -> ADD(OUTER(KET(#0) BRA(#0)) OUTER(KET(#1) BRA(#1))
+    DIRACOQ_RULE_DEF(R_QBIT_ONEO, kernel, term);
+
+    // SUM(USET(QBIT) FUN(i BASIS(QBIT) X)) -> ADD(X{i/#0} X{i/#1})
+    DIRACOQ_RULE_DEF(R_QBIT_SUM, kernel, term);
+
     // The rule list.
     extern const std::vector<PosRewritingRule> rules;
 

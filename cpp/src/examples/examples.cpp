@@ -1668,15 +1668,21 @@ Block[
  ]
 */
     
-        // {
-        //     "COQQ-47 cplmtE",
-        //     R"(
-        //         Var T : INDEX.
-        //         Var A : OTYPE[T, T].
-        //     )",
-        //     "1O[T] + (-1 * A)",
-        //     "cplmt A T"
-        // },
+        {
+            "COQQ-47 cplmtE",
+            R"(
+                (* cplmt 
+                cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
+                *)
+                Def cplmt := idx T => fun A : OTYPE[T, T] => 1O[T] + (-1) . A.
+
+                Var T : INDEX.
+                Var A : OTYPE[T, T].
+            )",
+            "1O[T] + (-1) . A",
+            "cplmt T A"
+        },
+
 
 /*
 COQQ-48 cplmtK
@@ -1690,19 +1696,21 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-48 cplmtK",
-        //     R"(
-        //         (* 
-        //             cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
-        //         *)
+        {
+            "COQQ-48 cplmtK",
+            R"(
+                (* cplmt 
+                cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
+                *)
+                Def cplmt := idx T => fun A : OTYPE[T, T] => 1O[T] + (-1) . A.
 
-        //         Var T : INDEX.
-        //         Var A : OTYPE[T, T].
-        //     )",
-        //     "cplmt (cplmt A T) T",
-        //     "A"
-        // },
+                Var T : INDEX.
+                Var A : OTYPE[T, T].
+            )",
+            "cplmt T (cplmt T A )",
+            "A",
+            false   // It faild because of SUM[ -1 A] + SUM[ 1 A] cannot be reduced now 
+        },
 
 /*
 COQQ-49 cplmt1
@@ -1716,18 +1724,20 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-49 cplmt1",
-        //     R"(
-        //         (* 
-        //             cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
-        //         *)
+        {
+            "COQQ-49 cplmt1",
+            R"(
+                (* cplmt 
+                cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
+                *)
+                Def cplmt := idx T => fun A : OTYPE[T, T] => 1O[T] + (-1) . A.
 
-        //         Var T : INDEX.
-        //     )",
-        //     "cplmt 1O[T] T",
-        //     "0O[T, T]"
-        // },
+                Var T : INDEX.
+            )",
+            "cplmt T 1O[T]",
+            "0O[T, T]",
+            false
+        },
 
 /*
 COQQ-50 cplmt0
@@ -1741,18 +1751,19 @@ Block[
  ]
 */
     
-        // {
-        //     "COQQ-50 cplmt0",
-        //     R"(
-        //         (* 
-        //             cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
-        //         *)
+        {
+            "COQQ-50 cplmt0",
+            R"(
+                (* cplmt 
+                cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
+                *)
+                Def cplmt := idx T => fun A : OTYPE[T, T] => 1O[T] + (-1) . A.
 
-        //         Var T : INDEX.
-        //     )",
-        //     "cplmt 0O[T, T] T",
-        //     "1O[T]"
-        // },
+                Var T : INDEX.
+            )",
+            "cplmt T 0O[T, T]",
+            "1O[T]"
+        },
 
 
 
@@ -2090,22 +2101,23 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-62 addNso",
-        //     R"(
-        //         Var S : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var M : SET[S].
-        //         Var e : BASIS[S]->OTYPE[T1, T2].
-        //         Var f : BASIS[S]->OTYPE[T1, T2].
-        //         Var X : OTYPE[T2, T2].
+        {
+            "COQQ-62 addNso",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
 
-        //         Def E1 := superop S M T1 T2 e f.
-        //     )",
-        //     "addso T1 T2 (oppso T1 T2 E1) E1 X",
-        //     "abortso T1 T2 X"
-        // },
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "addso T1 T2 (oppso T1 T2 E1) E1 X",
+            "abortso T1 T2 X",
+            false
+        },
 
 /*
 COQQ-63 scale1so
@@ -2320,22 +2332,22 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-69 opp_soE",
-        //     R"(
-        //         Var S : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var M : SET[S].
-        //         Var e : BASIS[S]->OTYPE[T1, T2].
-        //         Var f : BASIS[S]->OTYPE[T1, T2].
-        //         Var X : OTYPE[T2, T2].
+        {
+            "COQQ-69 opp_soE",
+            R"(
+                Var S : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var M : SET[S].
+                Var e : BASIS[S]->OTYPE[T1, T2].
+                Var f : BASIS[S]->OTYPE[T1, T2].
+                Var X : OTYPE[T2, T2].
 
-        //         Def E1 := superop S M T1 T2 e f.
-        //     )",
-        //     "oppso T1 T2 E1 X",
-        //     "(-1 * E1 X)"
-        // },
+                Def E1 := superop S M T1 T2 e f.
+            )",
+            "oppso T1 T2 E1 X",
+            "-1 . (E1 X)"
+        },
 
 /*
 COQQ-70 sum_soE
@@ -3092,28 +3104,28 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-89 comp_soNl",
-        //     R"(
-        //         Var S1 : INDEX.
-        //         Var S2 : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var T3 : INDEX.
-        //         Var M1 : SET[S1].
-        //         Var e1 : BASIS[S1]->OTYPE[T1, T2].
-        //         Var f1 : BASIS[S1]->OTYPE[T1, T2].
-        //         Var M2 : SET[S2].
-        //         Var e2 : BASIS[S2]->OTYPE[T2, T3].
-        //         Var f2 : BASIS[S2]->OTYPE[T2, T3].
-        //         Var X : OTYPE[T3, T3].
+        {
+            "COQQ-89 comp_soNl",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
 
-        //         Def E1 := superop S1 M1 T1 T2 e1 f1.
-        //         Def E2 := superop S2 M2 T2 T3 e2 f2.
-        //     )",
-        //     "compso T1 T2 T3 (oppso T1 T2 E1) E2 X",
-        //     "oppso T1 T3 (compso T1 T2 T3 E1 E2) X"
-        // },
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+            )",
+            "compso T1 T2 T3 (oppso T1 T2 E1) E2 X",
+            "oppso T1 T3 (compso T1 T2 T3 E1 E2) X"
+        },
 
 
 /*
@@ -3132,28 +3144,28 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-90 comp_soNr",
-        //     R"(
-        //         Var S1 : INDEX.
-        //         Var S2 : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var T3 : INDEX.
-        //         Var M1 : SET[S1].
-        //         Var e1 : BASIS[S1]->OTYPE[T1, T2].
-        //         Var f1 : BASIS[S1]->OTYPE[T1, T2].
-        //         Var M2 : SET[S2].
-        //         Var e2 : BASIS[S2]->OTYPE[T2, T3].
-        //         Var f2 : BASIS[S2]->OTYPE[T2, T3].
-        //         Var X : OTYPE[T3, T3].
+        {
+            "COQQ-90 comp_soNr",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T2, T3].
+                Var f2 : BASIS[S2]->OTYPE[T2, T3].
+                Var X : OTYPE[T3, T3].
 
-        //         Def E1 := superop S1 M1 T1 T2 e1 f1.
-        //         Def E2 := superop S2 M2 T2 T3 e2 f2.
-        //     )",
-        //     "compso T1 T2 T3 E1 (oppso T2 T3 E2) X",
-        //     "oppso T1 T3 (compso T1 T2 T3 E1 E2) X"
-        // },
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T2 T3 e2 f2.
+            )",
+            "compso T1 T2 T3 E1 (oppso T2 T3 E2) X",
+            "oppso T1 T3 (compso T1 T2 T3 E1 E2) X"
+        },
 
 /*
 COQQ-91 comp_soZl
@@ -3567,28 +3579,28 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-101 comp_sorNl",
-        //     R"(
-        //         Var S1 : INDEX.
-        //         Var S2 : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var T3 : INDEX.
-        //         Var M1 : SET[S1].
-        //         Var e1 : BASIS[S1]->OTYPE[T1, T2].
-        //         Var f1 : BASIS[S1]->OTYPE[T1, T2].
-        //         Var M2 : SET[S2].
-        //         Var e2 : BASIS[S2]->OTYPE[T3, T1].
-        //         Var f2 : BASIS[S2]->OTYPE[T3, T1].
-        //         Var X : OTYPE[T2, T2].
+        {
+            "COQQ-101 comp_sorNl",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T3, T1].
+                Var f2 : BASIS[S2]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
 
-        //         Def E1 := superop S1 M1 T1 T2 e1 f1.
-        //         Def E2 := superop S2 M2 T3 T1 e2 f2.
-        //     )",
-        //     "compsor T1 T2 T2 (oppso T1 T2 E1) E2 X",
-        //     "oppso T1 T2 (compsor T1 T2 T2 E1 E2) X"
-        // },
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T3 T1 e2 f2.
+            )",
+            "compsor T3 T1 T2 (oppso T1 T2 E1) E2 X",
+            "oppso T3 T2 (compsor T3 T1 T2 E1 E2) X"
+        },
 
 /*
 COQQ-102 comp_sorNr
@@ -3606,28 +3618,28 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-102 comp_sorNr",
-        //     R"(
-        //         Var S1 : INDEX.
-        //         Var S2 : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var T3 : INDEX.
-        //         Var M1 : SET[S1].
-        //         Var e1 : BASIS[S1]->OTYPE[T1, T2].
-        //         Var f1 : BASIS[S1]->OTYPE[T1, T2].
-        //         Var M2 : SET[S2].
-        //         Var e2 : BASIS[S2]->OTYPE[T3, T1].
-        //         Var f2 : BASIS[S2]->OTYPE[T3, T1].
-        //         Var X : OTYPE[T2, T2].
+        {
+            "COQQ-102 comp_sorNr",
+            R"(
+                Var S1 : INDEX.
+                Var S2 : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var M1 : SET[S1].
+                Var e1 : BASIS[S1]->OTYPE[T1, T2].
+                Var f1 : BASIS[S1]->OTYPE[T1, T2].
+                Var M2 : SET[S2].
+                Var e2 : BASIS[S2]->OTYPE[T3, T1].
+                Var f2 : BASIS[S2]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
 
-        //         Def E1 := superop S1 M1 T1 T2 e1 f1.
-        //         Def E2 := superop S2 M2 T3 T1 e2 f2.
-        //     )",
-        //     "compsor T1 T2 T2 E1 (oppso T3 T1 E2) X",
-        //     "oppso T1 T2 (compsor T1 T2 T2 E1 E2) X"
-        // },
+                Def E1 := superop S1 M1 T1 T2 e1 f1.
+                Def E2 := superop S2 M2 T3 T1 e2 f2.
+            )",
+            "compsor T3 T1 T2 E1 (oppso T3 T1 E2) X",
+            "oppso T3 T2 (compsor T3 T1 T2 E1 E2) X"
+        },
 
 /*
 COQQ-103 comp_sorZl
@@ -5437,6 +5449,88 @@ Block[
             "formlf T1 T2 A X",
             "formso T1 T2 A X"
         },
+
+/*
+Jens2024-1
+
+Block[
+ {DiracCtx = {u0 -> SType, u1 -> SType, 0 -> {0, 1}, 1 -> {0, 1}}},
+ DNEqQ[
+  Ct[Diag[u0, u1]],
+  (Ket[{0}]\[SmallCircle]Bra[{0}])\[CircleTimes]Id + (Ket[{1}]\
+\[SmallCircle]Bra[{1}])\[CircleTimes]Diag[u0, u1]
+  ]
+ ]
+*/
+
+        {
+            "Jens2024-1",
+            R"(
+                Var u0 : STYPE.
+                Var u1 : STYPE.
+
+                (* Diag
+                Diag[c0_, c1_] := c0 Ket[{0}]\[SmallCircle]Bra[{0}] + c1 Ket[{1}]\[SmallCircle]Bra[{1}];
+                *)
+                Def Diag := fun c0 : STYPE => fun c1 : STYPE => c0 (|#0> <#0|) + c1 (|#1> <#1|).
+
+                (* Ct 
+                Ct[e_] := (Ket[{0}]\[SmallCircle]Bra[{0}])\[CircleTimes]Id + (Ket[{1}]\[SmallCircle]Bra[{1}])\[CircleTimes]e;
+                *)
+
+                Def Id := |#0> <#0| + |#1> <#1|.
+
+                Def Ct := fun e : OTYPE[QBIT, QBIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
+
+            )",
+            "Ct (Diag u0 u1)",
+            "(|#0> <#0|) * Id + (|#1> <#1|) * (Diag u0 u1)"
+        },
+
+/*
+Jens2024-2
+
+Block[
+ {DiracCtx = {u0 -> SType, u1 -> SType, 0 -> {0, 1}, 1 -> {0, 1}, 
+    P -> OType[{0, 1}, {0, 1}]}},
+ DNEqQ[
+  (Id\[CircleTimes]P)\[SmallCircle]Ct[Diag[u0, u1]],
+  (Ket[{0}]\[SmallCircle]Bra[{0}])\[CircleTimes]P + (Ket[{1}]\
+\[SmallCircle]Bra[{1}])\[CircleTimes](P\[SmallCircle]Diag[u0, u1])
+  ]
+ ]
+*/
+
+        {
+            "Jens2024-2",
+            R"(
+                Var u0 : STYPE.
+                Var u1 : STYPE.
+                Var P : OTYPE[QBIT, QBIT].
+
+                (* Diag
+                Diag[c0_, c1_] := c0 Ket[{0}]\[SmallCircle]Bra[{0}] + c1 Ket[{1}]\[SmallCircle]Bra[{1}];
+                *)
+                Def Diag := fun c0 : STYPE => fun c1 : STYPE => c0 (|#0> <#0|) + c1 (|#1> <#1|).
+
+                (* Ct 
+                Ct[e_] := (Ket[{0}]\[SmallCircle]Bra[{0}])\[CircleTimes]Id + (Ket[{1}]\[SmallCircle]Bra[{1}])\[CircleTimes]e;
+                *)
+
+                Def Id := |#0> <#0| + |#1> <#1|.
+
+                Def Ct := fun e : OTYPE[QBIT, QBIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
+
+            )",
+            "(Id * P) (Ct (Diag u0 u1))",
+            "(|#0> <#0|) * P + (|#1> <#1|) * (P (Diag u0 u1))"
+        },
+
+/*
+Jens2024-3
+
+
+*/
     };
 
 

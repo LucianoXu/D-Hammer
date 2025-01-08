@@ -99,6 +99,7 @@ namespace diracoq {
         while (true) {
             auto replace_res = get_pos_replace(kernel, current_term, rules);
             if (replace_res.has_value()) {
+
                 if (trace != nullptr) {
                     trace->push_back(replace_res.value());
                 }
@@ -565,13 +566,26 @@ namespace diracoq {
 
 
     TermPtr<int> wolfram_fullsimplify(Kernel& kernel, ualg::TermPtr<int> term) {
-
+        using namespace astparser;
         // check whether it has the link
         auto link = kernel.get_wstp_link();
         if (!link) return term;
 
         auto &sig = kernel.get_sig();
-        auto ast = astparser::AST("FullSimplify", {sig.term2ast(term)});
+
+        // we use this special simplification to avoid factoring
+        auto ast = AST(
+            "FullSimplify", {
+                sig.term2ast(term), 
+                AST("Rule", {
+                AST("TransformationFunctions"), 
+                    AST("List", {
+                        AST("FunctionExpand"),
+                        AST("TrigExpand"),
+                        AST("PowerExpand")
+                    })
+                })
+            });
 
         // Call the Wolfram Engine
         wstp::ast_to_WS(link, ast);
@@ -3964,6 +3978,56 @@ namespace diracoq {
         );
     }
 
+
+    // DELTA(BASIS0 BASIS1) -> 0
+    DIRACOQ_RULE_DEF(R_QBIT_DELTA, kernel, term) {
+
+        MATCH_HEAD(term, DELTA, args_DELTA_BASIS0_BASIS1)
+
+        auto head_0 = args_DELTA_BASIS0_BASIS1[0]->get_head();
+        auto head_1 = args_DELTA_BASIS0_BASIS1[1]->get_head();
+
+        if (!((head_0 == BASIS0 && head_1 == BASIS1) || (head_0 == BASIS1 && head_1 == BASIS0))) return std::nullopt;
+
+        return create_term(ZERO);
+    }
+
+    // ONEO(QBIT) -> ADD(OUTER(KET(#0) BRA(#0)) OUTER(KET(#1) BRA(#1))
+    DIRACOQ_RULE_DEF(R_QBIT_ONEO, kernel, term) {
+
+        MATCH_HEAD(term, ONEO, args_ONEO_QBIT)
+
+        if (args_ONEO_QBIT[0]->get_head() != QBIT) return std::nullopt;
+
+        return create_term(ADD, 
+            {
+                create_term(OUTER, {create_term(KET, {create_term(BASIS0)}), create_term(BRA, {create_term(BASIS0)})}),
+                create_term(OUTER, {create_term(KET, {create_term(BASIS1)}), create_term(BRA, {create_term(BASIS1)})})
+            }
+        );
+    }
+
+    // SUM(USET(QBIT) FUN(i BASIS(QBIT) X)) -> ADD(X{i/#0} X{i/#1})
+    DIRACOQ_RULE_DEF(R_QBIT_SUM, kernel, term) {
+        auto &sig = kernel.get_sig();
+
+        MATCH_HEAD(term, SUM, args_SUM_USET_QBIT_FUN_i_BASIS_QBIT_X)
+
+        MATCH_HEAD(args_SUM_USET_QBIT_FUN_i_BASIS_QBIT_X[0], USET, args_USET_QBIT)
+
+        if (args_USET_QBIT[0]->get_head() != QBIT) return std::nullopt;
+
+        MATCH_HEAD(args_SUM_USET_QBIT_FUN_i_BASIS_QBIT_X[1], FUN, args_FUN_i_BASIS_QBIT_X)
+
+        return create_term(ADD, 
+            {
+                subst(sig, args_FUN_i_BASIS_QBIT_X[2], args_FUN_i_BASIS_QBIT_X[0]->get_head(), create_term(BASIS0)),
+                subst(sig, args_FUN_i_BASIS_QBIT_X[2], args_FUN_i_BASIS_QBIT_X[0]->get_head(), create_term(BASIS1))
+            }
+        );
+    }
+
+
     const std::vector<PosRewritingRule> rules = {
 
         // pre processing rules
@@ -4007,7 +4071,10 @@ namespace diracoq {
 
         R_SUM_PUSH0, R_SUM_PUSH1, R_SUM_PUSH2, R_SUM_PUSH3, R_SUM_PUSH4, R_SUM_PUSH5, R_SUM_PUSH6, R_SUM_PUSH7, R_SUM_PUSH8, R_SUM_PUSH9, R_SUM_PUSH10, R_SUM_PUSH11, R_SUM_PUSH12, R_SUM_PUSH13, R_SUM_PUSH14, R_SUM_PUSH15, R_SUM_PUSH16,
 
-        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1
+        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1,
+
+        // Qubit rules
+        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM
     };
 
     const std::vector<PosRewritingRule> rules_with_wolfram = {
@@ -4053,7 +4120,10 @@ namespace diracoq {
 
         R_SUM_PUSH0, R_SUM_PUSH1, R_SUM_PUSH2, R_SUM_PUSH3, R_SUM_PUSH4, R_SUM_PUSH5, R_SUM_PUSH6, R_SUM_PUSH7, R_SUM_PUSH8, R_SUM_PUSH9, R_SUM_PUSH10, R_SUM_PUSH11, R_SUM_PUSH12, R_SUM_PUSH13, R_SUM_PUSH14, R_SUM_PUSH15, R_SUM_PUSH16,
 
-        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1
+        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1,
+
+        // Qubit rules
+        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM
     };
 
 } // namespace diracoq

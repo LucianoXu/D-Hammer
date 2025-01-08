@@ -49,6 +49,9 @@ namespace diracoq {
         void exitZeroO(DIRACOQParser::ZeroOContext *ctx) override;
         void exitOneO(DIRACOQParser::OneOContext *ctx) override;
 
+        void exitBasis0(DIRACOQParser::Basis0Context *ctx) override;
+        void exitBasis1(DIRACOQParser::Basis1Context *ctx) override;
+
         void exitApplication(DIRACOQParser::ApplicationContext *ctx) override;
         void exitParen(DIRACOQParser::ParenContext *ctx) override;
         void exitIdentifier(DIRACOQParser::IdentifierContext *ctx) override;
@@ -421,6 +424,14 @@ namespace diracoq {
 
         // push OneO node
         node_stack.push(AST{"ONEO", {std::move(type)}});
+    }
+
+    void DIRACOQBuilder::exitBasis0(DIRACOQParser::Basis0Context *ctx) {
+        node_stack.push(AST{"BASIS0", {}});
+    }
+
+    void DIRACOQBuilder::exitBasis1(DIRACOQParser::Basis1Context *ctx) {
+        node_stack.push(AST{"BASIS1", {}});
     }
         
 
