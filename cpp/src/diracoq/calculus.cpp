@@ -980,11 +980,12 @@ namespace diracoq {
             if (dec_find != std::nullopt) {
                 return dec_find->type;
             }
-
-            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not assumed or defined.");
         }
 
-        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' cannot be typed.");
+        // Other symbols will be considered as symbols in Wolfram Language and will be typed as STYPE
+        return create_term(STYPE);
+
+        // throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' cannot be typed.");
     }
 
     void Kernel::assum(int symbol, TermPtr<int> type) {

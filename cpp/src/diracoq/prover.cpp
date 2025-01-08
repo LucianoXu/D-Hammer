@@ -29,6 +29,41 @@ namespace diracoq {
         }
     }
 
+    /**
+     * @brief Checks if two terms are equal (taking the scalars into consideration) using Wolfram Engine.
+     * 
+     * @param kernel 
+     * @param a 
+     * @param b 
+     * @return true 
+     * @return false 
+     */
+    bool syntax_eq_with_wolfram(Kernel& kernel, TermPtr<int> a, TermPtr<int> b) {
+        using namespace astparser;
+        if (*a == *b) return true;
+
+        // try to check by Wolfram Engine
+        if (kernel.wolfram_connected()) {
+            auto &sig = kernel.get_sig();
+            auto request = AST("FullSimplify", {
+                AST("Equal", {
+                    sig.term2ast(a),
+                    sig.term2ast(b)
+                })
+            });
+
+            wstp::ast_to_WS(kernel.get_wstp_link(), request);
+
+            auto response = wstp::WS_to_ast(kernel.get_wstp_link());
+
+            if (response == AST("True")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool Prover::process(const astparser::AST& ast) {
         // GROUP ( ... )
         try {
@@ -293,7 +328,7 @@ namespace diracoq {
         auto final_termB = normalized_termB;
         
         // Output the result
-        if (*final_termA == *final_termB) {
+        if (syntax_eq_with_wolfram(kernel, final_termA, final_termB)) {
             output << "The two terms are equal." << endl;
             output << "[Normalized Term] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
 

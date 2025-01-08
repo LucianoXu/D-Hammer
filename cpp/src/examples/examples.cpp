@@ -472,7 +472,65 @@ Block[
             "psi^D ((M m)^D (M m) psi)"
         },
 
-// QCQI-17 omitted, complex scalar calculations
+/*
+QCQI-17
+
+Block[
+ {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
+ Module[{
+   X = (KET[0]~OUTER~BRA[1])~ADDO~(KET[1]~OUTER~BRA[0]),
+   Y = (CPX[-I]~SCRO~(KET[0]~OUTER~BRA[1]))~
+     ADDO~(CPX[I]~SCRO~(KET[1]~OUTER~BRA[0])),
+   Z = (KET[0]~OUTER~BRA[0])~ADDO~(CPX[-1]~SCRO~(KET[1]~OUTER~BRA[1])),
+   I2 = (KET[0]~OUTER~BRA[0])~ADDO~(KET[1]~OUTER~BRA[1])
+   },
+  Module[
+   {
+    Rx = (CPX[Cos[#/2]]~SCRO~I2)~ADDO~(CPX[-I Sin[#/2]]~SCRO~X) &,
+    Ry = (CPX[Cos[#/2]]~SCRO~I2)~ADDO~(CPX[-I Sin[#/2]]~SCRO~Y) &,
+    Rz = (CPX[Cos[#/2]]~SCRO~I2)~ADDO~(CPX[-I Sin[#/2]]~SCRO~Z) &
+    },
+   DNEqQ[
+    CPX[Exp[I a]]~SCRO~Rz[b]~MLTO~Ry[g]~MLTO~Rz[d],
+    (CPX[Exp[I (a - b/2 - d/2)] Cos[g/2]]~SCRO~(KET[0]~OUTER~BRA[0]))~
+     ADDO~
+     (CPX[-Exp[I (a - b/2 + d/2)] Sin[g/2]]~
+       SCRO~(KET[0]~OUTER~BRA[1]))~ADDO~
+     (CPX[Exp[I (a + b/2 - d/2)] Sin[g/2]]~
+       SCRO~(KET[1]~OUTER~BRA[0]))~ADDO~
+     (CPX[Exp[I (a + b/2 + d/2)] Cos[g/2]]~
+       SCRO~(KET[1]~OUTER~BRA[1]))
+    ]
+   ]
+  ]
+ ]
+*/
+
+        {
+            "QCQI-17",
+            R"(
+                Def X := |#0> <#1| + |#1> <#0|.
+                Def Y := Minus[I] (|#0> <#1|) + I (|#1> <#0|).
+                Def Z := |#0> <#0| + Minus[1] (|#1> <#1|).
+                Def I2 := |#0> <#0| + |#1> <#1|.
+                Def half := fun x : STYPE => Divide[x, 2].
+                Def Rx := fun x : STYPE => Cos[half x] I2 + (Minus[I] Sin[half x]) X.
+                Def Ry := fun x : STYPE => Cos[half x] I2 + (Minus[I] Sin[half x]) Y.
+                Def Rz := fun x : STYPE => Cos[half x] I2 + (Minus[I] Sin[half x]) Z.
+                Var a : STYPE.
+                Var b : STYPE.
+                Var g : STYPE.
+                Var d : STYPE.
+            )",
+            "Exp[I a] (Rz b) (Ry g) (Rz d)",
+            
+            R"(
+                Exp[I (a + Minus[half b] + Minus[half d])] Cos[half g] (|#0> <#0|) + 
+                Minus[Exp[I (a + Minus[half b] + (half d))]] Sin[half g] (|#0> <#1|) + 
+                Exp[I (a + (half b) + Minus[half d])] Sin[half g] (|#1> <#0|) + 
+                Exp[I (a + (half b) + (half d))] Cos[half g] (|#1> <#1|)
+            )"
+        },
 
 /*
 QCQI-18
@@ -934,16 +992,13 @@ Block[{DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
  ]
 */
 
-        // {
-        //     "COQQ-19 sumonb_out_bool(CB)",
-        //     R"(
-        //         Var qubit : INDEX.
-        //         Var #0 : BASIS[qubit].
-        //         Var #1 : BASIS[qubit].
-        //     )",
-        //     "|#0> <#0| + |#1> <#1|",
-        //     "1O[qubit]"
-        // },
+        {
+            "COQQ-19 sumonb_out_bool(CB)",
+            R"(
+            )",
+            "|#0> <#0| + |#1> <#1|",
+            "1O[QBIT]"
+        },
 
 
 /*
@@ -5257,22 +5312,23 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-156-1 ifso_boolE",
-        //     R"(
-        //         Var Sn : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var T3 : INDEX.
-        //         Var e : BASIS[{0, 1}]->OTYPE[T1, T2].
-        //         Var fl : BASIS[{0, 1}]->BASIS[Sn]->OTYPE[T3, T1].
-        //         Var fr : BASIS[{0, 1}]->BASIS[Sn]->OTYPE[T3, T1].
-        //         Var X : OTYPE[T2, T2].
+        {
+            "COQQ-156-1 ifso_boolE",
+            R"(
+                Var Sn : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var Nm : SET[Sn].
+                Var e : BASIS[QBIT]->OTYPE[T1, T2].
+                Var fl : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
 
-        //     )",
-        //     "ifso {0, 1} T3 T1 T2 e (fun i : BASIS[{0, 1}] => superop Sn i T3 T1 (fl i) (fr i)) X",
-        //     "compso T3 T1 T2 (superop Sn 0 T3 T1 (fl 0) (fr 0)) (elemso {0, 1} T1 T2 e 0) X + compso T3 T1 T2 (superop Sn 1 T3 T1 (fl 1) (fr 1)) (elemso {0, 1} T1 T2 e 1) X"
-        // },
+            )",
+            "ifso QBIT USET[QBIT] T3 T1 T2 e (fun i : BASIS[QBIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
+            "compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso QBIT T1 T2 e #0) X + compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso QBIT T1 T2 e #1) X"
+        },
 
 // This example involves qubits
 /*
@@ -5290,22 +5346,23 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-156-2 ifso_boolE",
-        //     R"(
-        //         Var Sn : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var T3 : INDEX.
-        //         Var e : BASIS[{0, 1}]->OTYPE[T1, T2].
-        //         Var fl : BASIS[{0, 1}]->BASIS[Sn]->OTYPE[T3, T1].
-        //         Var fr : BASIS[{0, 1}]->BASIS[Sn]->OTYPE[T3, T1].
-        //         Var X : OTYPE[T2, T2].
+        {
+            "COQQ-156-2 ifso_boolE",
+            R"(
+                Var Sn : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var Nm : SET[Sn].
+                Var e : BASIS[QBIT]->OTYPE[T1, T2].
+                Var fl : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
 
-        //     )",
-        //     "ifso {0, 1} T3 T1 T2 e (fun i : BASIS[{0, 1}] => superop Sn i T3 T1 (fl i) (fr i)) X",
-        //     "compso T3 T1 T2 (superop Sn 1 T3 T1 (fl 1) (fr 1)) (elemso {0, 1} T1 T2 e 1) X + compso T3 T1 T2 (superop Sn 0 T3 T1 (fl 0) (fr 0)) (elemso {0, 1} T1 T2 e 0) X"
-        // },
+            )",
+            "ifso QBIT USET[QBIT] T3 T1 T2 e (fun i : BASIS[QBIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
+            "compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso QBIT T1 T2 e #1) X + compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso QBIT T1 T2 e #0) X"
+        },
 
 
 /*
@@ -5323,22 +5380,23 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-157-1 ifso_bool",
-        //     R"(
-        //         Var Sn : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var T3 : INDEX.
-        //         Var e : BASIS[{0, 1}]->OTYPE[T1, T2].
-        //         Var fl : BASIS[{0, 1}]->BASIS[Sn]->OTYPE[T3, T1].
-        //         Var fr : BASIS[{0, 1}]->BASIS[Sn]->OTYPE[T3, T1].
-        //         Var X : OTYPE[T2, T2].
+        {
+            "COQQ-157-1 ifso_bool",
+            R"(
+                Var Sn : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var Nm : SET[Sn].
+                Var e : BASIS[QBIT]->OTYPE[T1, T2].
+                Var fl : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
 
-        //     )",
-        //     "ifso {0, 1} T3 T1 T2 e (fun i : BASIS[{0, 1}] => superop Sn i T3 T1 (fl i) (fr i)) X",
-        //     "addso (compso T3 T1 T2 (superop Sn 0 T3 T1 (fl 0) (fr 0)) (elemso {0, 1} T1 T2 e 0)) (compso T3 T1 T2 (superop Sn 1 T3 T1 (fl 1) (fr 1)) (elemso {0, 1} T1 T2 e 1)) X"
-        // },
+            )",
+            "ifso QBIT USET[QBIT] T3 T1 T2 e (fun i : BASIS[QBIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
+            "addso T3 T2 (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso QBIT T1 T2 e #0)) (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso QBIT T1 T2 e #1)) X"
+        },
 
 /*
 COQQ-157-2 ifso_bool
@@ -5355,22 +5413,23 @@ Block[
  ]
 */
 
-        // {
-        //     "COQQ-157-2 ifso_bool",
-        //     R"(
-        //         Var Sn : INDEX.
-        //         Var T1 : INDEX.
-        //         Var T2 : INDEX.
-        //         Var T3 : INDEX.
-        //         Var e : BASIS[{0, 1}]->OTYPE[T1, T2].
-        //         Var fl : BASIS[{0, 1}]->BASIS[Sn]->OTYPE[T3, T1].
-        //         Var fr : BASIS[{0, 1}]->BASIS[Sn]->OTYPE[T3, T1].
-        //         Var X : OTYPE[T2, T2].
+        {
+            "COQQ-157-2 ifso_bool",
+            R"(
+                Var Sn : INDEX.
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var Nm : SET[Sn].
+                Var e : BASIS[QBIT]->OTYPE[T1, T2].
+                Var fl : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var X : OTYPE[T2, T2].
 
-        //     )",
-        //     "ifso {0, 1} T3 T1 T2 e (fun i : BASIS[{0, 1}] => superop Sn i T3 T1 (fl i) (fr i)) X",
-        //     "addso (compso T3 T1 T2 (superop Sn 1 T3 T1 (fl 1) (fr 1)) (elemso {0, 1} T1 T2 e 1)) (compso T3 T1 T2 (superop Sn 0 T3 T1 (fl 0) (fr 0)) (elemso {0, 1} T1 T2 e 0)) X"
-        // },
+            )",
+            "ifso QBIT USET[QBIT] T3 T1 T2 e (fun i : BASIS[QBIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
+            "addso T3 T2 (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso QBIT T1 T2 e #1)) (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso QBIT T1 T2 e #0)) X"
+        },
 
 
 /*
@@ -5529,8 +5588,82 @@ Block[
 /*
 Jens2024-3
 
-
+Block[
+ {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}, P},
+ P = CPX[Exp[-I theta/2]] Ket[{0}]\[CircleTimes]Bra[{0}] + 
+   CPX[Exp[I theta/2]] Ket[{1}]\[CircleTimes]Bra[{1}];
+ DNEqQ[
+  P \[SmallCircle] XGate \[SmallCircle] P \[SmallCircle] XGate,
+  Id
+  ]
+ ]
 */
+        
+        {
+            "Jens2024-3",
+            R"(
+                Var theta : STYPE.
+
+                Def P := Exp[Minus[I] Divide[theta, 2]] (|#0> <#0|) + Exp[I Divide[theta, 2]] (|#1> <#1|).
+
+                (* XGate
+                XGate = Ket[{0}]\[CircleTimes]Ket[{1}] + Ket[{1}]\[CircleTimes]Ket[{0}];
+                *)
+
+                Def XGate := |#0> <#1| + |#1> <#0|.
+
+                Def Id := |#0> <#0| + |#1> <#1|.
+            )",
+            "P XGate P XGate",
+            "Id"
+        },
+
+/*
+Jens2024-4
+
+Block[
+ {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}, P, U, V},
+ P = CPX[Exp[-I theta/2]] Ket[{0}]\[CircleTimes]Bra[{0}] + 
+   CPX[Exp[I theta/2]] Ket[{1}]\[CircleTimes]Bra[{1}];
+ U = (Ket[{0}]\[CircleTimes]Bra[{0}])\[CircleTimes]XGate + (Ket[{1}]\
+\[CircleTimes]Bra[{1}])\[CircleTimes]Id;
+ V = Ct[P];
+ DNEqQ[
+  (Id\[CircleTimes]P)\[SmallCircle]U\[SmallCircle](Id\[CircleTimes]P)\
+\[SmallCircle](SuperDagger[U]),
+  Ct[P \[SmallCircle] P]
+  ]
+ ]
+*/
+
+        {
+            "Jens2024-4",
+            R"(
+                Var theta : STYPE.
+
+                Def P := Exp[Minus[I] Divide[theta, 2]] (|#0> <#0|) + Exp[I Divide[theta, 2]] (|#1> <#1|).
+
+                (* XGate
+                XGate = Ket[{0}]\[CircleTimes]Ket[{1}] + Ket[{1}]\[CircleTimes]Ket[{0}];
+                *)
+
+                Def XGate := |#0> <#1| + |#1> <#0|.
+
+                Def Id := |#0> <#0| + |#1> <#1|.
+
+                Def U := (|#0> <#0|) * XGate + (|#1> <#1|) * Id.
+
+                (* Ct
+                Ct[e_] := (Ket[{0}]\[SmallCircle]Bra[{0}])\[CircleTimes]Id + (Ket[{1}]\[SmallCircle]Bra[{1}])\[CircleTimes]e;
+                *)
+
+                Def Ct := fun e : OTYPE[QBIT, QBIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
+
+                Def V := Ct P.
+            )",
+            "(Id * P) U (Id * P) U^D",
+            "Ct (P P)"
+        },
     };
 
 

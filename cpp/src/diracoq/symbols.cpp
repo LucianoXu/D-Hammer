@@ -13,7 +13,7 @@ namespace diracoq {
         vector<string> res = {};
 
         for (int i = 0; i < deBruijn_index_num; ++i) {
-            res.push_back("@" + to_string(i));
+            res.push_back("$" + to_string(i));
         }
         
         vector<string> defined = {

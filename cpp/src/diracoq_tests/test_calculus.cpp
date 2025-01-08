@@ -458,8 +458,6 @@ TEST(DiracoqTypeCheck, Sca_Add) {
     kernel.assum(kernel.register_symbol("c"), kernel.parse("STYPE"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("Plus[a, b, c]"), kernel.parse("STYPE")));
-
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("Plus[a, Base]"), kernel.parse("STYPE")));
 }
 
 TEST(DiracoqTypeCheck, Sca_Mul) {
@@ -469,8 +467,6 @@ TEST(DiracoqTypeCheck, Sca_Mul) {
     kernel.assum(kernel.register_symbol("c"), kernel.parse("STYPE"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("Times[a, b, c]"), kernel.parse("STYPE")));
-
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("Times[a, Base]"), kernel.parse("STYPE")));
 }
 
 TEST(DiracoqTypeCheck, Sca_Conj) {
@@ -482,7 +478,6 @@ TEST(DiracoqTypeCheck, Sca_Conj) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("Conjugate[a]"), kernel.parse("STYPE")));
 
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("Conjugate[a, b]"), kernel.parse("STYPE")));
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("Conjugate[Base]"), kernel.parse("STYPE")));
 }
 
 TEST(DiracoqTypeCheck, Sca_Dot) {
