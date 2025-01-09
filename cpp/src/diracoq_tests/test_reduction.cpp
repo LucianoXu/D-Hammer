@@ -55,7 +55,7 @@ TEST(DiracoqReduction, variable_expand_O) {
 
     auto term = kernel.parse("O");
     auto actual_res = variable_expand(kernel, term);
-    auto expected_res = kernel.parse("SUM[USET[A], FUN[$0, BASIS[A], SUM[USET[B], FUN[$1, BASIS[B], SCR[DOT[BRA[$0], MULK[O, KET[$1]]], OUTER[KET[$0], BRA[$1]]]]]]]");
+    auto expected_res = kernel.parse("SUM[USET[A], FUN[$0, BASIS[A], SUM[USET[B], FUN[$1, BASIS[B], SCR[DOT[BRA[$0], DOT[O, KET[$1]]], DOT[KET[$0], BRA[$1]]]]]]]");
 
     EXPECT_EQ(*actual_res, *expected_res);
 }
@@ -162,7 +162,7 @@ TEST(DiracoqReduction, R_COMPO_KB) {
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[T2]"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T1]"));
-    TEST_RULE(kernel, {R_COMPO_KB}, "COMPO[K, B]", "OUTER[K, B]");
+    TEST_RULE(kernel, {R_COMPO_KB}, "COMPO[K, B]", "DOT[K, B]");
 }
 
 TEST(DiracoqReduction, R_COMPO_BS) {
@@ -195,7 +195,7 @@ TEST(DiracoqReduction, R_COMPO_BO) {
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[T1]"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T1, T2]"));
-    TEST_RULE(kernel, {R_COMPO_BO}, "COMPO[B, O]", "MULB[B, O]");
+    TEST_RULE(kernel, {R_COMPO_BO}, "COMPO[B, O]", "DOT[B, O]");
 }
 
 TEST(DiracoqReduction, R_COMPO_OS) {
@@ -213,7 +213,7 @@ TEST(DiracoqReduction, R_COMPO_OK) {
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T1, T2]"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T2]"));
-    TEST_RULE(kernel, {R_COMPO_OK}, "COMPO[O, K]", "MULK[O, K]");
+    TEST_RULE(kernel, {R_COMPO_OK}, "COMPO[O, K]", "DOT[O, K]");
 }
 
 TEST(DiracoqReduction, R_COMPO_OO) {
@@ -223,7 +223,7 @@ TEST(DiracoqReduction, R_COMPO_OO) {
     kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OTYPE[T1, T2]"));
     kernel.assum(kernel.register_symbol("O2"), kernel.parse("OTYPE[T2, T3]"));
-    TEST_RULE(kernel, {R_COMPO_OO}, "COMPO[O1, O2]", "MULO[O1, O2]");
+    TEST_RULE(kernel, {R_COMPO_OO}, "COMPO[O1, O2]", "DOT[O1, O2]");
 }
 
 TEST(DiracoqReduction, R_COMPO_ARROW) {
@@ -442,15 +442,15 @@ TEST(DiracoqReduction, R_DOT9) {
 }
 
 TEST(DiracoqReduction, R_DOT10) {
-    TEST_RULE({R_DOT10}, "DOT[MULB[B, O], K]", "DOT[B, MULK[O, K]]");
+    TEST_RULE({R_DOT10}, "DOT[DOT[B, O], K]", "DOT[B, DOT[O, K]]");
 }
 
 TEST(DiracoqReduction, R_DOT11) {
-    TEST_RULE({R_DOT11}, "DOT[BRA[PAIR[s, t]], MULK[TSR[O1, O2], K]]", "DOT[TSR[MULB[BRA[s], O1], MULB[BRA[t], O2]], K]");
+    TEST_RULE({R_DOT11}, "DOT[BRA[PAIR[s, t]], DOT[TSR[O1, O2], K]]", "DOT[TSR[DOT[BRA[s], O1], DOT[BRA[t], O2]], K]");
 }
 
 TEST(DiracoqReduction, R_DOT12) {
-    TEST_RULE({R_DOT12}, "DOT[TSR[B1, B2], MULK[TSR[O1, O2], K]]", "DOT[TSR[MULB[B1, O1], MULB[B2, O2]], K]");
+    TEST_RULE({R_DOT12}, "DOT[TSR[B1, B2], DOT[TSR[O1, O2], K]]", "DOT[TSR[DOT[B1, O1], DOT[B2, O2]], K]");
 }
 
 TEST(DiracoqReduction, R_DELTA0) {
@@ -569,7 +569,7 @@ TEST(DiracoqReduction, R_ADJK1) {
 }
 
 TEST(DiracoqReduction, R_ADJK2) {
-    TEST_RULE({R_ADJK2}, "ADJ[MULB[B, O]]", "MULK[ADJ[O], ADJ[B]]");
+    TEST_RULE({R_ADJK2}, "ADJ[DOT[B, O]]", "DOT[ADJ[O], ADJ[B]]");
 }
 
 TEST(DiracoqReduction, R_ADJB0) {
@@ -581,7 +581,7 @@ TEST(DiracoqReduction, R_ADJB1) {
 }
 
 TEST(DiracoqReduction, R_ADJB2) {
-    TEST_RULE({R_ADJB2}, "ADJ[MULK[O, K]]", "MULB[ADJ[K], ADJ[O]]");
+    TEST_RULE({R_ADJB2}, "ADJ[DOT[O, K]]", "DOT[ADJ[K], ADJ[O]]");
 }
 
 TEST(DiracoqReduction, R_ADJO0) {
@@ -593,11 +593,11 @@ TEST(DiracoqReduction, R_ADJO1) {
 }
 
 TEST(DiracoqReduction, R_ADJO2) {
-    TEST_RULE({R_ADJO2}, "ADJ[OUTER[K, B]]", "OUTER[ADJ[B], ADJ[K]]");
+    TEST_RULE({R_ADJO2}, "ADJ[DOT[K, B]]", "DOT[ADJ[B], ADJ[K]]");
 }
 
 TEST(DiracoqReduction, R_ADJO3) {
-    TEST_RULE({R_ADJO3}, "ADJ[MULO[O1, O2]]", "MULO[ADJ[O2], ADJ[O1]]");
+    TEST_RULE({R_ADJO3}, "ADJ[DOT[O1, O2]]", "DOT[ADJ[O2], ADJ[O1]]");
 }
 
 TEST(DiracoqReduction, R_TSR0) {
@@ -680,11 +680,11 @@ TEST(DiracoqReduction, R_TSRO2) {
 }
 
 TEST(DiracoqReduction, R_TSRO3) {
-    TEST_RULE({R_TSRO3}, "TSR[OUTER[K1, B1], OUTER[K2, B2]]", "OUTER[TSR[K1, K2], TSR[B1, B2]]");
+    TEST_RULE({R_TSRO3}, "TSR[DOT[K1, B1], DOT[K2, B2]]", "DOT[TSR[K1, K2], TSR[B1, B2]]");
 }
 
 TEST(DiracoqReduction, R_MULK0) {
-    TEST_RULE({R_MULK0}, "MULK[0O[T1, T2], K]", "0K[T1]");
+    TEST_RULE({R_MULK0}, "DOT[0O[T1, T2], K]", "0K[T1]");
 }
 
 TEST(DiracoqReduction, R_MULK1) {
@@ -692,51 +692,28 @@ TEST(DiracoqReduction, R_MULK1) {
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T1, T2]"));
-    TEST_RULE(kernel, {R_MULK1}, "MULK[O, 0K[T2]]", "0K[T1]");
-}
-
-TEST(DiracoqReduction, R_MULK2) {
-    TEST_RULE({R_MULK2}, "MULK[1O[T], K]", "K");
-}
-
-TEST(DiracoqReduction, R_MULK3) {
-    TEST_RULE({R_MULK3}, "MULK[SCR[a, O], K]", "SCR[a, MULK[O, K]]");
-}
-
-TEST(DiracoqReduction, R_MULK4) {
-    TEST_RULE({R_MULK4}, "MULK[O, SCR[a, K]]", "SCR[a, MULK[O, K]]");
-}
-
-TEST(DiracoqReduction, R_MULK5) {
-    TEST_RULE({R_MULK5}, "MULK[ADD[O1, O2], K]", "ADD[MULK[O1, K], MULK[O2, K]]");
-}
-
-TEST(DiracoqReduction, R_MULK6) {
-    TEST_RULE({R_MULK6}, "MULK[O, ADD[K1, K2]]", "ADD[MULK[O, K1], MULK[O, K2]]");
+    TEST_RULE(kernel, {R_MULK1}, "DOT[O, 0K[T2]]", "0K[T1]");
 }
 
 TEST(DiracoqReduction, R_MULK7) {
-    TEST_RULE({R_MULK7}, "MULK[OUTER[K1, B], K2]", "SCR[DOT[B, K2], K1]");
+    TEST_RULE({R_MULK7}, "DOT[DOT[K1, B], K2]", "SCR[DOT[B, K2], K1]");
 }
 
 TEST(DiracoqReduction, R_MULK8) {
-    TEST_RULE({R_MULK8}, "MULK[MULO[O1, O2], K]", "MULK[O1, MULK[O2, K]]");
+    TEST_RULE({R_MULK8}, "DOT[DOT[O1, O2], K]", "DOT[O1, DOT[O2, K]]");
 }
 
-TEST(DiracoqReduction, R_MULK9) {
-    TEST_RULE({R_MULK9}, "MULK[TSR[O1, O2], MULK[TSR[O3, O4], K]]", "MULK[TSR[MULO[O1, O3], MULO[O2, O4]], K]");
-}
 
 TEST(DiracoqReduction, R_MULK10) {
-    TEST_RULE({R_MULK10}, "MULK[TSR[O1, O2], KET[PAIR[s, t]]]", "TSR[MULK[O1, KET[s]], MULK[O2, KET[t]]]");
+    TEST_RULE({R_MULK10}, "DOT[TSR[O1, O2], KET[PAIR[s, t]]]", "TSR[DOT[O1, KET[s]], DOT[O2, KET[t]]]");
 }
 
 TEST(DiracoqReduction, R_MULK11) {
-    TEST_RULE({R_MULK11}, "MULK[TSR[O1, O2], TSR[K1, K2]]", "TSR[MULK[O1, K1], MULK[O2, K2]]");
+    TEST_RULE({R_MULK11}, "DOT[TSR[O1, O2], TSR[K1, K2]]", "TSR[DOT[O1, K1], DOT[O2, K2]]");
 }
 
 TEST(DiracoqReduction, R_MULB0) {
-    TEST_RULE({R_MULB0}, "MULB[B, 0O[T1, T2]]", "0B[T2]");
+    TEST_RULE({R_MULB0}, "DOT[B, 0O[T1, T2]]", "0B[T2]");
 }
 
 TEST(DiracoqReduction, R_MULB1) {
@@ -744,47 +721,27 @@ TEST(DiracoqReduction, R_MULB1) {
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T1, T2]"));
-    TEST_RULE(kernel, {R_MULB1}, "MULB[0B[T1], O]", "0B[T2]");
-}
-
-TEST(DiracoqReduction, R_MULB2) {
-    TEST_RULE({R_MULB2}, "MULB[B, 1O[T]]", "B");
-}
-
-TEST(DiracoqReduction, R_MULB3) {
-    TEST_RULE({R_MULB3}, "MULB[SCR[a, B], O]", "SCR[a, MULB[B, O]]");
-}
-
-TEST(DiracoqReduction, R_MULB4) {
-    TEST_RULE({R_MULB4}, "MULB[B, SCR[a, O]]", "SCR[a, MULB[B, O]]");
-}
-
-TEST(DiracoqReduction, R_MULB5) {
-    TEST_RULE({R_MULB5}, "MULB[ADD[B1, B2], O]", "ADD[MULB[B1, O], MULB[B2, O]]");
-}
-
-TEST(DiracoqReduction, R_MULB6) {
-    TEST_RULE({R_MULB6}, "MULB[B, ADD[O1, O2]]", "ADD[MULB[B, O1], MULB[B, O2]]");
+    TEST_RULE(kernel, {R_MULB1}, "DOT[0B[T1], O]", "0B[T2]");
 }
 
 TEST(DiracoqReduction, R_MULB7) {
-    TEST_RULE({R_MULB7}, "MULB[B1, OUTER[K, B2]]", "SCR[DOT[B1, K], B2]");
+    TEST_RULE({R_MULB7}, "DOT[B1, DOT[K, B2]]", "SCR[DOT[B1, K], B2]");
 }
 
 TEST(DiracoqReduction, R_MULB8) {
-    TEST_RULE({R_MULB8}, "MULB[B, MULO[O1, O2]]", "MULB[MULB[B, O1], O2]");
+    TEST_RULE({R_MULB8}, "DOT[B, DOT[O1, O2]]", "DOT[DOT[B, O1], O2]");
 }
 
 TEST(DiracoqReduction, R_MULB9) {
-    TEST_RULE({R_MULB9}, "MULB[MULB[B, TSR[O1, O2]], TSR[O3, O4]]", "MULB[B, TSR[MULO[O1, O3], MULO[O2, O4]]]");
+    TEST_RULE({R_MULB9}, "DOT[DOT[B, TSR[O1, O2]], TSR[O3, O4]]", "DOT[B, TSR[DOT[O1, O3], DOT[O2, O4]]]");
 }
 
 TEST(DiracoqReduction, R_MULB10) {
-    TEST_RULE({R_MULB10}, "MULB[BRA[PAIR[s, t]], TSR[O1, O2]]", "TSR[MULB[BRA[s], O1], MULB[BRA[t], O2]]");
+    TEST_RULE({R_MULB10}, "DOT[BRA[PAIR[s, t]], TSR[O1, O2]]", "TSR[DOT[BRA[s], O1], DOT[BRA[t], O2]]");
 }
 
 TEST(DiracoqReduction, R_MULB11) {
-    TEST_RULE({R_MULB11}, "MULB[TSR[B1, B2], TSR[O1, O2]]", "TSR[MULB[B1, O1], MULB[B2, O2]]");
+    TEST_RULE({R_MULB11}, "DOT[TSR[B1, B2], TSR[O1, O2]]", "TSR[DOT[B1, O1], DOT[B2, O2]]");
 }
 
 TEST(DiracoqReduction, R_OUTER0) {
@@ -792,7 +749,7 @@ TEST(DiracoqReduction, R_OUTER0) {
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[T2]"));
-    TEST_RULE(kernel, {R_OUTER0}, "OUTER[0K[T1], B]", "0O[T1, T2]");
+    TEST_RULE(kernel, {R_OUTER0}, "DOT[0K[T1], B]", "0O[T1, T2]");
 }
 
 TEST(DiracoqReduction, R_OUTER1) {
@@ -800,31 +757,16 @@ TEST(DiracoqReduction, R_OUTER1) {
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T1]"));
-    TEST_RULE(kernel, {R_OUTER1}, "OUTER[K, 0B[T2]]", "0O[T1, T2]");
+    TEST_RULE(kernel, {R_OUTER1}, "DOT[K, 0B[T2]]", "0O[T1, T2]");
 }
 
-TEST(DiracoqReduction, R_OUTER2) {
-    TEST_RULE({R_OUTER2}, "OUTER[SCR[a, K], B]", "SCR[a, OUTER[K, B]]");
-}
-
-TEST(DiracoqReduction, R_OUTER3) {
-    TEST_RULE({R_OUTER3}, "OUTER[K, SCR[a, B]]", "SCR[a, OUTER[K, B]]");
-}
-
-TEST(DiracoqReduction, R_OUTER4) {
-    TEST_RULE({R_OUTER4}, "OUTER[ADD[K1, K2], B]", "ADD[OUTER[K1, B], OUTER[K2, B]]");
-}
-
-TEST(DiracoqReduction, R_OUTER5) {
-    TEST_RULE({R_OUTER5}, "OUTER[K, ADD[B1, B2]]", "ADD[OUTER[K, B1], OUTER[K, B2]]");
-}
 TEST(DiracoqReduction, R_MULO0) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T2, T3]"));
-    TEST_RULE(kernel, {R_MULO0}, "MULO[0O[T1, T2], O]", "0O[T1, T3]");
+    TEST_RULE(kernel, {R_MULO0}, "DOT[0O[T1, T2], O]", "0O[T1, T3]");
 }
 
 TEST(DiracoqReduction, R_MULO1) {
@@ -833,51 +775,31 @@ TEST(DiracoqReduction, R_MULO1) {
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T1, T2]"));
-    TEST_RULE(kernel, {R_MULO1}, "MULO[O, 0O[T2, T3]]", "0O[T1, T3]");
+    TEST_RULE(kernel, {R_MULO1}, "DOT[O, 0O[T2, T3]]", "0O[T1, T3]");
 }
 
 TEST(DiracoqReduction, R_MULO2) {
-    TEST_RULE({R_MULO2}, "MULO[1O[T], O]", "O");
+    TEST_RULE({R_MULO2}, "DOT[1O[T], O]", "O");
 }
 
 TEST(DiracoqReduction, R_MULO3) {
-    TEST_RULE({R_MULO3}, "MULO[O, 1O[T]]", "O");
+    TEST_RULE({R_MULO3}, "DOT[O, 1O[T]]", "O");
 }
 
 TEST(DiracoqReduction, R_MULO4) {
-    TEST_RULE({R_MULO4}, "MULO[OUTER[K, B], O]", "OUTER[K, MULB[B, O]]");
+    TEST_RULE({R_MULO4}, "DOT[DOT[K, B], O]", "DOT[K, DOT[B, O]]");
 }
 
 TEST(DiracoqReduction, R_MULO5) {
-    TEST_RULE({R_MULO5}, "MULO[O, OUTER[K, B]]", "OUTER[MULK[O, K], B]");
-}
-
-TEST(DiracoqReduction, R_MULO6) {
-    TEST_RULE({R_MULO6}, "MULO[SCR[a, O], O]", "SCR[a, MULO[O, O]]");
-}
-
-TEST(DiracoqReduction, R_MULO7) {
-    TEST_RULE({R_MULO7}, "MULO[O, SCR[a, O]]", "SCR[a, MULO[O, O]]");
-}
-
-TEST(DiracoqReduction, R_MULO8) {
-    TEST_RULE({R_MULO8}, "MULO[ADD[O1, O2], O]", "ADD[MULO[O1, O], MULO[O2, O]]");
-}
-
-TEST(DiracoqReduction, R_MULO9) {
-    TEST_RULE({R_MULO9}, "MULO[O, ADD[O1, O2]]", "ADD[MULO[O, O1], MULO[O, O2]]");
+    TEST_RULE({R_MULO5}, "DOT[O, DOT[K, B]]", "DOT[DOT[O, K], B]");
 }
 
 TEST(DiracoqReduction, R_MULO10) {
-    TEST_RULE({R_MULO10}, "MULO[MULO[O1, O2], O]", "MULO[O1, MULO[O2, O]]");
+    TEST_RULE({R_MULO10}, "DOT[DOT[O1, O2], O]", "DOT[O1, DOT[O2, O]]");
 }
 
 TEST(DiracoqReduction, R_MULO11) {
-    TEST_RULE({R_MULO11}, "MULO[TSR[O1, O2], TSR[O3, O4]]", "TSR[MULO[O1, O3], MULO[O2, O4]]");
-}
-
-TEST(DiracoqReduction, R_MULO12) {
-    TEST_RULE({R_MULO12}, "MULO[TSR[O1, O2], MULO[TSR[O3, O4], O]]", "MULO[TSR[MULO[O1, O3], MULO[O2, O4]], O]");
+    TEST_RULE({R_MULO11}, "DOT[TSR[O1, O2], TSR[O3, O4]]", "TSR[DOT[O1, O3], DOT[O2, O4]]");
 }
 
 TEST(DiracoqReduction, R_SET0) {
@@ -901,7 +823,7 @@ TEST(DiracoqReduction, R_SUM_CONST3) {
 }
 
 TEST(DiracoqReduction, R_SUM_CONST4) {
-    TEST_RULE({R_SUM_CONST4}, "1O[T]", "SUM[USET[T], FUN[$0, BASIS[T], OUTER[KET[$0], BRA[$0]]]]");
+    TEST_RULE({R_SUM_CONST4}, "1O[T]", "SUM[USET[T], FUN[$0, BASIS[T], DOT[KET[$0], BRA[$0]]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_ELIM0) {
@@ -1172,19 +1094,19 @@ TEST(DiracoqReduction, R_SUM_PUSH5) {
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH6) {
-    TEST_RULE({R_SUM_PUSH6}, "MULK[SUM[M, FUN[i, T, O]], K]", "SUM[M, FUN[i, T, MULK[O, K]]]");
+    TEST_RULE({R_SUM_PUSH6}, "DOT[SUM[M, FUN[i, T, O]], K]", "SUM[M, FUN[i, T, DOT[O, K]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH7) {
-    TEST_RULE({R_SUM_PUSH7}, "MULB[SUM[M, FUN[i, T, B]], O]", "SUM[M, FUN[i, T, MULB[B, O]]]");
+    TEST_RULE({R_SUM_PUSH7}, "DOT[SUM[M, FUN[i, T, B]], O]", "SUM[M, FUN[i, T, DOT[B, O]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH8) {
-    TEST_RULE({R_SUM_PUSH8}, "OUTER[SUM[M, FUN[i, T, K]], B]", "SUM[M, FUN[i, T, OUTER[K, B]]]");
+    TEST_RULE({R_SUM_PUSH8}, "DOT[SUM[M, FUN[i, T, K]], B]", "SUM[M, FUN[i, T, DOT[K, B]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH9) {
-    TEST_RULE({R_SUM_PUSH9}, "MULO[SUM[M, FUN[i, T, O1]], O2]", "SUM[M, FUN[i, T, MULO[O1, O2]]]");
+    TEST_RULE({R_SUM_PUSH9}, "DOT[SUM[M, FUN[i, T, O1]], O2]", "SUM[M, FUN[i, T, DOT[O1, O2]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH10) {
@@ -1192,19 +1114,19 @@ TEST(DiracoqReduction, R_SUM_PUSH10) {
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH11) {
-    TEST_RULE({R_SUM_PUSH11}, "MULK[O, SUM[M, FUN[i, T, K]]]", "SUM[M, FUN[i, T, MULK[O, K]]]");
+    TEST_RULE({R_SUM_PUSH11}, "DOT[O, SUM[M, FUN[i, T, K]]]", "SUM[M, FUN[i, T, DOT[O, K]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH12) {
-    TEST_RULE({R_SUM_PUSH12}, "MULB[B, SUM[M, FUN[i, T, O]]]", "SUM[M, FUN[i, T, MULB[B, O]]]");
+    TEST_RULE({R_SUM_PUSH12}, "DOT[B, SUM[M, FUN[i, T, O]]]", "SUM[M, FUN[i, T, DOT[B, O]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH13) {
-    TEST_RULE({R_SUM_PUSH13}, "OUTER[K, SUM[M, FUN[i, T, B]]]", "SUM[M, FUN[i, T, OUTER[K, B]]]");
+    TEST_RULE({R_SUM_PUSH13}, "DOT[K, SUM[M, FUN[i, T, B]]]", "SUM[M, FUN[i, T, DOT[K, B]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH14) {
-    TEST_RULE({R_SUM_PUSH14}, "MULO[O1, SUM[M, FUN[i, T, O2]]]", "SUM[M, FUN[i, T, MULO[O1, O2]]]");
+    TEST_RULE({R_SUM_PUSH14}, "DOT[O1, SUM[M, FUN[i, T, O2]]]", "SUM[M, FUN[i, T, DOT[O1, O2]]]");
 }
 
 TEST(DiracoqReduction, R_SUM_PUSH15) {
@@ -1236,11 +1158,11 @@ TEST(DiracoqReduction, R_SUM_INDEX1) {
 }
 
 TEST(DiracoqReduction, R_QBIT_ONEO) {
-    TEST_RULE({R_QBIT_ONEO}, "1O[QBIT]", "ADD[OUTER[KET[#0], BRA[#0]], OUTER[KET[#1], BRA[#1]]]");
+    TEST_RULE({R_QBIT_ONEO}, "1O[QBIT]", "ADD[DOT[KET[#0], BRA[#0]], DOT[KET[#1], BRA[#1]]]");
 }
 
 TEST(DiracoqReduction, R_QBIT_ZEROO) {
-    TEST_RULE({R_QBIT_SUM}, "SUM[USET[QBIT], FUN[i, BASIS[QBIT], OUTER[KET[i], BRA[i]]]]", "ADD[OUTER[KET[#0], BRA[#0]], OUTER[KET[#1], BRA[#1]]]");
+    TEST_RULE({R_QBIT_SUM}, "SUM[USET[QBIT], FUN[i, BASIS[QBIT], DOT[KET[i], BRA[i]]]]", "ADD[DOT[KET[#0], BRA[#0]], DOT[KET[#1], BRA[#1]]]");
 }
 
 // ///////////////////////////////////////////////////////

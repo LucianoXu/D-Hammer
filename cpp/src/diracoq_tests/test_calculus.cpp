@@ -550,10 +550,10 @@ TEST(DiracoqTypeCheck, Ket_MulK) {
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OTYPE[T1, T2]"));
     kernel.assum(kernel.register_symbol("K1"), kernel.parse("KTYPE[T2]"));
 
-    EXPECT_TRUE(kernel.type_check(kernel.parse("MULK[O1, K1]"), kernel.parse("KTYPE[T1]")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("DOT[O1, K1]"), kernel.parse("KTYPE[T1]")));
 
     kernel.assum(kernel.register_symbol("O2"), kernel.parse("OTYPE[T2, T1]"));  
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("MULK[O2, K1]"), kernel.parse("KTYPE[T1]")));
+    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("DOT[O2, K1]"), kernel.parse("KTYPE[T1]")));
 }
 
 TEST(DiracoqTypeCheck, Ket_Tsr) {
@@ -625,10 +625,10 @@ TEST(DiracoqTypeCheck, Bra_MulB) {
     kernel.assum(kernel.register_symbol("B1"), kernel.parse("BTYPE[T1]"));
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OTYPE[T1, T2]"));
 
-    EXPECT_TRUE(kernel.type_check(kernel.parse("MULB[B1, O1]"), kernel.parse("BTYPE[T2]")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("DOT[B1, O1]"), kernel.parse("BTYPE[T2]")));
 
     kernel.assum(kernel.register_symbol("B2"), kernel.parse("BTYPE[T2]"));
-    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("MULB[B2, O1]"), kernel.parse("BTYPE[T2]")));
+    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("DOT[B2, O1]"), kernel.parse("BTYPE[T2]")));
 }
 
 TEST(DiracoqTypeCheck, Bra_Tsr) {
@@ -706,7 +706,7 @@ TEST(DiracoqTypeCheck, Opt_Outer) {
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T1]"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[T2]"));
 
-    EXPECT_TRUE(kernel.type_check(kernel.parse("OUTER[K, B]"), kernel.parse("OTYPE[T1, T2]")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("DOT[K, B]"), kernel.parse("OTYPE[T1, T2]")));
 }
 
 TEST(DiracoqTypeCheck, Opt_MulO) {
@@ -718,10 +718,10 @@ TEST(DiracoqTypeCheck, Opt_MulO) {
     kernel.assum(kernel.register_symbol("O1"), kernel.parse("OTYPE[T1, T2]"));
     kernel.assum(kernel.register_symbol("O2"), kernel.parse("OTYPE[T2, T3]"));
 
-    EXPECT_TRUE(kernel.type_check(kernel.parse("MULO[O1, O2]"), kernel.parse("OTYPE[T1, T3]")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("DOT[O1, O2]"), kernel.parse("OTYPE[T1, T3]")));
 
     kernel.assum(kernel.register_symbol("O3"), kernel.parse("OTYPE[T3, T1]"));
-    EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("MULO[O1, O3]")));
+    EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("DOT[O1, O3]")));
 }
 
 TEST(DiracoqTypeCheck, Opt_Tsr) {

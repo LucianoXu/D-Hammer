@@ -100,6 +100,13 @@ namespace diracoq {
             auto replace_res = get_pos_replace(kernel, current_term, rules);
             if (replace_res.has_value()) {
 
+                
+                cout << "Initial: " << kernel.term_to_string(replace_res->init_term) << endl;
+                kernel.calc_type(current_term);
+                cout << "Rule: " << pos_replace_record_to_string(kernel, replace_res.value()) << endl;
+                cout << "Replacement: " << kernel.term_to_string(replace_res->replacement) << endl;
+                cout << endl;
+
                 if (trace != nullptr) {
                     trace->push_back(replace_res.value());
                 }
@@ -222,8 +229,8 @@ namespace diracoq {
             // O : BTYPE(A, B) -> SUM(USET(A) FUN(i BASIS(A) 
             //                          SUM(USET(B) FUN(j BASIS(B)
             //                              SCR(
-            //                                  DOT(BRA(i) MULK(O KET(j)))
-            //                                  OUTER(KET(i) BRA(j))
+            //                                  DOT(BRA(i) DOT(O KET(j)))
+            //                                  DOT(KET(i) BRA(j))
             //                              )
             //                          ))
             //                    ))
@@ -248,9 +255,9 @@ namespace diracoq {
                                         create_term(SCR, {
                                             create_term(DOT, {
                                                 create_term(BRA, {new_bound_A}),
-                                                create_term(MULK, {term, create_term(KET, {new_bound_B})})
+                                                create_term(DOT, {term, create_term(KET, {new_bound_B})})
                                             }),
-                                            create_term(OUTER, {create_term(KET, {new_bound_A}), create_term(BRA, {new_bound_B})})
+                                            create_term(DOT, {create_term(KET, {new_bound_A}), create_term(BRA, {new_bound_B})})
                                         })
                                     })
                                 }
@@ -678,7 +685,7 @@ namespace diracoq {
         return create_term(TSR, args);
     }
 
-    // K : KTYPE(T1), B : BTYPE(T2) => COMPO(K B) -> OUTER(K B)
+    // K : KTYPE(T1), B : BTYPE(T2) => COMPO(K B) -> DOT(K B)
     DIRACOQ_RULE_DEF(R_COMPO_KB, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeK = kernel.calc_type(args[0]);
@@ -686,7 +693,7 @@ namespace diracoq {
 
         if (!(typeK->get_head() == KTYPE and typeB->get_head() == BTYPE)) return std::nullopt;
         
-        return create_term(OUTER, args);
+        return create_term(DOT, args);
     }
 
 
@@ -723,7 +730,7 @@ namespace diracoq {
         return create_term(TSR, args);
     }
 
-    // B : BTYPE(T1), O : OTYPE(T1 T2) => COMPO(B O) -> MULB(B O)
+    // B : BTYPE(T1), O : OTYPE(T1 T2) => COMPO(B O) -> DOT(B O)
     DIRACOQ_RULE_DEF(R_COMPO_BO, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB = kernel.calc_type(args[0]);
@@ -731,7 +738,7 @@ namespace diracoq {
 
         if (!(typeB->get_head() == BTYPE and typeO->get_head() == OTYPE)) return std::nullopt;
         
-        return create_term(MULB, args);
+        return create_term(DOT, args);
     }
 
     // O : OTYPE(T1 T2), a : STYPE => COMPO(O a) -> SCR(a O)
@@ -745,7 +752,7 @@ namespace diracoq {
         return create_term(SCR, {args[1], args[0]});
     }
 
-    // O : OTYPE(T1 T2), K : KTYPE(T2) => COMPO(O K) -> MULK(O K)
+    // O : OTYPE(T1 T2), K : KTYPE(T2) => COMPO(O K) -> DOT(O K)
     DIRACOQ_RULE_DEF(R_COMPO_OK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeO = kernel.calc_type(args[0]);
@@ -753,10 +760,10 @@ namespace diracoq {
 
         if (!(typeO->get_head() == OTYPE and typeK->get_head() == KTYPE)) return std::nullopt;
         
-        return create_term(MULK, args);
+        return create_term(DOT, args);
     }
 
-    // O1 : OTYPE(T1 T2), O2 : OTYPE(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
+    // O1 : OTYPE(T1 T2), O2 : OTYPE(T2 T3) => COMPO(O1 O2) -> DOT(O1 O2)
     DIRACOQ_RULE_DEF(R_COMPO_OO, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeO1 = kernel.calc_type(args[0]);
@@ -764,7 +771,7 @@ namespace diracoq {
 
         if (!(typeO1->get_head() == OTYPE and typeO2->get_head() == OTYPE)) return std::nullopt;
         
-        return create_term(MULO, args);
+        return create_term(DOT, args);
     }
 
     // f : T1 -> T2 => COMPO(f a) -> APPLY(f a)
@@ -1094,216 +1101,6 @@ namespace diracoq {
                 create_term(ADJ, {args_DOT_B_K[0]})
             }
         );
-    }
-
-    // DOT(0B(sigma) K) -> 0
-    DIRACOQ_RULE_DEF(R_DOT0, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_0B_sigma_K)
-        
-        if (args_DOT_0B_sigma_K[0]->get_head() != ZEROB) return std::nullopt;
-        
-        return create_term(ZERO);
-    }
-
-    // DOT(B 0K(sigma)) -> 0
-    DIRACOQ_RULE_DEF(R_DOT1, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_B_0K_sigma)
-
-        if (args_DOT_B_0K_sigma[1]->get_head() != ZEROK) return std::nullopt;
-        
-        return create_term(ZERO);
-    }
-
-    // DOT(SCR(a B) K) -> MULS(a DOT(B K))
-    DIRACOQ_RULE_DEF(R_DOT2, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_SCR_a_B_K)
-        
-        MATCH_HEAD(args_DOT_SCR_a_B_K[0], SCR, args_SCR_a_B)
-            
-        return create_term(MULS, 
-            {
-                args_SCR_a_B[0], 
-                create_term(DOT, {args_SCR_a_B[1], args_DOT_SCR_a_B_K[1]})
-            }
-        );
-    }
-
-    // DOT(B SCR(a K)) -> MULS(a DOT(B K))
-    DIRACOQ_RULE_DEF(R_DOT3, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_B_SCR_a_K)
-        
-        MATCH_HEAD(args_DOT_B_SCR_a_K[1], SCR, args_SCR_a_K)
-            
-        return create_term(MULS, 
-            {
-                args_SCR_a_K[0], 
-                create_term(DOT, {args_DOT_B_SCR_a_K[0], args_SCR_a_K[1]})
-            }
-        );
-    }
-
-    // DOT(ADD(B1 ... Bn) K) -> ADDS(DOT(B1 K) ... DOT(Bn K))
-    DIRACOQ_RULE_DEF(R_DOT4, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_ADD_B1_Bn_K)
-        
-        MATCH_HEAD(args_DOT_ADD_B1_Bn_K[0], ADD, args_ADD_B1_Bn)
-            
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_B1_Bn) {
-            new_args.push_back(create_term(DOT, {arg, args_DOT_ADD_B1_Bn_K[1]}));
-        }
-        return create_term(ADDS, std::move(new_args));
-    }
-
-    // DOT(B ADD(K1 ... Kn)) -> ADDS(DOT(B K1) ... DOT(B Kn))
-    DIRACOQ_RULE_DEF(R_DOT5, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_B_ADD_K1_Kn)
-        
-        MATCH_HEAD(args_DOT_B_ADD_K1_Kn[1], ADD, args_ADD_K1_Kn)
-                
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_K1_Kn) {
-            new_args.push_back(create_term(DOT, {args_DOT_B_ADD_K1_Kn[0], arg}));
-        }
-        return create_term(ADDS, std::move(new_args));
-    }
-
-    // DOT(BRA(s) KET(t)) -> DELTA(s t)
-    DIRACOQ_RULE_DEF(R_DOT6, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_BRA_s_KET_t)
-        
-        MATCH_HEAD(args_DOT_BRA_s_KET_t[0], BRA, args_BRA_s)
-            
-        MATCH_HEAD(args_DOT_BRA_s_KET_t[1], KET, args_KET_t)
-        
-        return create_term(DELTA, {args_BRA_s[0], args_KET_t[0]});
-    }
-
-    // DOT(TSR(B1 B2) KET(PAIR(s t))) -> MULS(DOT(B1 KET(s)) DOT(B2 KET(t)))
-    DIRACOQ_RULE_DEF(R_DOT7, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_KET_PAIR_s_t)
-
-        MATCH_HEAD(args_DOT_TSR_B1_B2_KET_PAIR_s_t[0], TSR, args_TSR_B1_B2)
-        
-        MATCH_HEAD(args_DOT_TSR_B1_B2_KET_PAIR_s_t[1], KET, args_KET_PAIR_s_t)
-
-        MATCH_HEAD(args_KET_PAIR_s_t[0], PAIR, args_PAIR_s_t)
-
-        return create_term(MULS, 
-            {
-                create_term(DOT, {args_TSR_B1_B2[0], create_term(KET, {args_PAIR_s_t[0]})}),
-                create_term(DOT, {args_TSR_B1_B2[1], create_term(KET, {args_PAIR_s_t[1]})})
-            }
-        );
-    }
-
-    // DOT(BRA(PAIR(s t)) TSR(K1 K2)) -> MULS(DOT(BRA(s) K1) DOT(BRA(t) K2))
-    DIRACOQ_RULE_DEF(R_DOT8, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_BRA_PAIR_s_t_TSR_K1_K2)
-        
-        MATCH_HEAD(args_DOT_BRA_PAIR_s_t_TSR_K1_K2[0], BRA, args_BRA_PAIR_s_t)
-            
-        MATCH_HEAD(args_BRA_PAIR_s_t[0], PAIR, args_PAIR_s_t)
-                
-        MATCH_HEAD(args_DOT_BRA_PAIR_s_t_TSR_K1_K2[1], TSR, args_TSR_K1_K2)
-                    
-        return create_term(MULS, 
-            {
-                create_term(DOT, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_K1_K2[0]}),
-                create_term(DOT, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_K1_K2[1]})
-            }
-        );
-    }
-
-    // DOT(TSR(B1 B2) TSR(K1 K2)) -> MULS(DOT(B1 K1) DOT(B2 K2))
-    DIRACOQ_RULE_DEF(R_DOT9, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_TSR_K1_K2)
-        
-        MATCH_HEAD(args_DOT_TSR_B1_B2_TSR_K1_K2[0], TSR, args_TSR_B1_B2)
-            
-        MATCH_HEAD(args_DOT_TSR_B1_B2_TSR_K1_K2[1], TSR, args_TSR_K1_K2)
-                
-        return create_term(MULS, 
-            {
-                create_term(DOT, {args_TSR_B1_B2[0], args_TSR_K1_K2[0]}),
-                create_term(DOT, {args_TSR_B1_B2[1], args_TSR_K1_K2[1]})
-            }
-        );
-    }
-
-    // DOT(MULB(B O) K) -> DOT(B MULK(O K))
-    DIRACOQ_RULE_DEF(R_DOT10, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_MULB_B_O_K)
-        
-        MATCH_HEAD(args_DOT_MULB_B_O_K[0], MULB, args_MULB_B_O)
-            
-        return create_term(DOT, 
-            {
-                args_MULB_B_O[0], 
-                create_term(MULK, {args_MULB_B_O[1], args_DOT_MULB_B_O_K[1]})
-            }
-        );
-    }
-
-    // DOT(BRA(PAIR(s t)) MULK(TSR(O1 O2) K)) -> DOT(TSR(MULB(BRA(s) O1) MULB(BRA(t) O2)) K)
-    DIRACOQ_RULE_DEF(R_DOT11, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K)
-
-        MATCH_HEAD(args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K[0], BRA, args_BRA_PAIR_s_t)
-        
-        MATCH_HEAD(args_BRA_PAIR_s_t[0], PAIR, args_PAIR_s_t)
-        
-        MATCH_HEAD(args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K[1], MULK, args_MULK_TSR_O1_O2_K)
-
-        MATCH_HEAD(args_MULK_TSR_O1_O2_K[0], TSR, args_TSR_O1_O2)
-
-        return create_term(DOT, 
-            {
-                create_term(TSR, 
-                    {
-                        create_term(MULB, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_O1_O2[0]}),
-                        create_term(MULB, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_O1_O2[1]})
-                    }
-                ),
-                args_MULK_TSR_O1_O2_K[1]
-            }
-        );                
-    }
-
-    // DOT(TSR(B1 B2) MULK(TSR(O1 O2) K)) -> DOT(TSR(MULB(B1 O1) MULB(B2 O2)) K)
-    DIRACOQ_RULE_DEF(R_DOT12, kernel, term) {
-
-        MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K)
-        
-        MATCH_HEAD(args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K[0], TSR, args_TSR_B1_B2)
-
-        MATCH_HEAD(args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K[1], MULK, args_MULK_TSR_O1_O2_K)
-
-        MATCH_HEAD(args_MULK_TSR_O1_O2_K[0], TSR, args_TSR_O1_O2)
-
-        return create_term(DOT, 
-            {
-                create_term(TSR, 
-                    {
-                        create_term(MULB, {args_TSR_B1_B2[0], args_TSR_O1_O2[0]}),
-                        create_term(MULB, {args_TSR_B1_B2[1], args_TSR_O1_O2[1]})
-                    }
-                ),
-                args_MULK_TSR_O1_O2_K[1]
-            }
-        );                
     }
 
     // DELTA(a a) -> 1
@@ -1758,15 +1555,15 @@ namespace diracoq {
         return create_term(KET, {args_BRA_t[0]});
     }
 
-    // ADJ(MULB(B O)) -> MULK(ADJ(O) ADJ(B))
+    // ADJ(DOT(B O)) -> DOT(ADJ(O) ADJ(B))
     DIRACOQ_RULE_DEF(R_ADJK2, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_MULB_B_O)
 
-        MATCH_HEAD(args_ADJ_MULB_B_O[0], MULB, args_MULB_B_O)
+        MATCH_HEAD(args_ADJ_MULB_B_O[0], DOT, args_MULB_B_O)
 
-        return create_term(MULK, 
+        return create_term(DOT, 
             {
                 create_term(ADJ, {args_MULB_B_O[1]}),
                 create_term(ADJ, {args_MULB_B_O[0]})
@@ -1797,15 +1594,15 @@ namespace diracoq {
         return create_term(BRA, {args_KET_t[0]});
     }
 
-    // ADJ(MULK(O K)) -> MULB(ADJ(K) ADJ(O))
+    // ADJ(DOT(O K)) -> DOT(ADJ(K) ADJ(O))
     DIRACOQ_RULE_DEF(R_ADJB2, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_MULK_O_K)
 
-        MATCH_HEAD(args_ADJ_MULK_O_K[0], MULK, args_MULK_O_K)
+        MATCH_HEAD(args_ADJ_MULK_O_K[0], DOT, args_MULK_O_K)
 
-        return create_term(MULB, 
+        return create_term(DOT, 
             {
                 create_term(ADJ, {args_MULK_O_K[1]}),
                 create_term(ADJ, {args_MULK_O_K[0]})
@@ -1835,15 +1632,15 @@ namespace diracoq {
         return args_ADJ_1O_T[0];
     }
 
-    // ADJ(OUTER(K B)) -> OUTER(ADJ(B) ADJ(K))
+    // ADJ(DOT(K B)) -> DOT(ADJ(B) ADJ(K))
     DIRACOQ_RULE_DEF(R_ADJO2, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_OUTER_K_B)
 
-        MATCH_HEAD(args_ADJ_OUTER_K_B[0], OUTER, args_OUTER_K_B)
+        MATCH_HEAD(args_ADJ_OUTER_K_B[0], DOT, args_OUTER_K_B)
 
-        return create_term(OUTER, 
+        return create_term(DOT, 
             {
                 create_term(ADJ, {args_OUTER_K_B[1]}),
                 create_term(ADJ, {args_OUTER_K_B[0]})
@@ -1851,15 +1648,15 @@ namespace diracoq {
         );
     }
 
-    // ADJ(MULO(O1 O2)) -> MULO(ADJ(O2) ADJ(O1))
+    // ADJ(DOT(O1 O2)) -> DOT(ADJ(O2) ADJ(O1))
     DIRACOQ_RULE_DEF(R_ADJO3, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_MULO_O1_O2)
 
-        MATCH_HEAD(args_ADJ_MULO_O1_O2[0], MULO, args_MULO_O1_O2)
+        MATCH_HEAD(args_ADJ_MULO_O1_O2[0], DOT, args_MULO_O1_O2)
 
-        return create_term(MULO, 
+        return create_term(DOT, 
             {
                 create_term(ADJ, {args_MULO_O1_O2[1]}),
                 create_term(ADJ, {args_MULO_O1_O2[0]})
@@ -2064,7 +1861,6 @@ namespace diracoq {
     // TSR(1O(T1) 1O(T2)) -> 1O(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_TSRO2, kernel, term) {
 
-
         MATCH_HEAD(term, TSR, args_TSR_1O_T1_1O_T2)
 
         MATCH_HEAD(args_TSR_1O_T1_1O_T2[0], ONEO, args_ONEO_T1)
@@ -2074,17 +1870,22 @@ namespace diracoq {
         return create_term(ONEO, {create_term(PROD, {args_ONEO_T1[0], args_ONEO_T2[0]})});
     }
 
-    // TSR(OUTER(K1 B1) OUTER(K2 B2)) -> OUTER(TSR(K1 K2) TSR(B1 B2))
+    // TSR(DOT(K1 B1) DOT(K2 B2)) -> DOT(TSR(K1 K2) TSR(B1 B2))
     DIRACOQ_RULE_DEF(R_TSRO3, kernel, term) {
-
 
         MATCH_HEAD(term, TSR, args_TSR_OUTER_K1_B1_OUTER_K2_B2)
 
-        MATCH_HEAD(args_TSR_OUTER_K1_B1_OUTER_K2_B2[0], OUTER, args_OUTER_K1_B1)
+        MATCH_HEAD(args_TSR_OUTER_K1_B1_OUTER_K2_B2[0], DOT, args_OUTER_K1_B1)
 
-        MATCH_HEAD(args_TSR_OUTER_K1_B1_OUTER_K2_B2[1], OUTER, args_OUTER_K2_B2)
+        MATCH_HEAD(args_TSR_OUTER_K1_B1_OUTER_K2_B2[1], DOT, args_OUTER_K2_B2)
 
-        return create_term(OUTER, 
+        // conditional type checking
+        auto type = kernel.calc_type(args_OUTER_K1_B1[0]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+        type = kernel.calc_type(args_OUTER_K2_B2[0]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+
+        return create_term(DOT, 
             {
                 create_term(TSR, {args_OUTER_K1_B1[0], args_OUTER_K2_B2[0]}),
                 create_term(TSR, {args_OUTER_K1_B1[1], args_OUTER_K2_B2[1]})
@@ -2092,22 +1893,369 @@ namespace diracoq {
         );
     }
 
-    // MULK(0O(T1 T2) K) -> 0K(T1)
+
+    // DOT(1O(T) O) -> O
+    DIRACOQ_RULE_DEF(R_MULO2, kernel, term) {
+        MATCH_HEAD(term, DOT, args_MULO_1O_T_O)
+
+        if (args_MULO_1O_T_O[0]->get_head() != ONEO) return std::nullopt;
+
+        return args_MULO_1O_T_O[1];
+    }
+
+    // DOT(O 1O(T)) -> O
+    DIRACOQ_RULE_DEF(R_MULO3, kernel, term) {
+        MATCH_HEAD(term, DOT, args_MULO_O_1O_T)
+
+        if (args_MULO_O_1O_T[1]->get_head() != ONEO) return std::nullopt;
+
+        return args_MULO_O_1O_T[0];
+    }
+
+
+    // DOT(SCR(a X) Y) -> SCR(a DOT(X Y))
+    DIRACOQ_RULE_DEF(R_MULK3, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_SCR_a_X_Y)
+        
+        MATCH_HEAD(args_DOT_SCR_a_X_Y[0], SCR, args_SCR_a_X)
+
+        // conditional type checking
+        auto type = kernel.calc_type(term);
+        if (type->get_head() == STYPE) return std::nullopt;
+
+        return create_term(SCR, {args_SCR_a_X[0], create_term(DOT, {args_SCR_a_X[1], args_DOT_SCR_a_X_Y[1]})});
+    }
+
+    // DOT(X SCR(a Y)) -> SCR(a DOT(X Y))
+    DIRACOQ_RULE_DEF(R_MULK4, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_X_SCR_a_Y)
+        
+        MATCH_HEAD(args_DOT_X_SCR_a_Y[1], SCR, args_SCR_a_Y)
+
+        // conditional type checking
+        auto type = kernel.calc_type(term);
+        if (type->get_head() == STYPE) return std::nullopt;
+
+        return create_term(SCR, {args_SCR_a_Y[0], create_term(DOT, {args_DOT_X_SCR_a_Y[0], args_SCR_a_Y[1]})});
+    }
+
+
+    // DOT(ADD(B1 ... Bn) K) -> ADD(DOT(B1 K) ... DOT(Bn K))
+    DIRACOQ_RULE_DEF(R_MULK5, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_ADD_B1_Bn_K)
+        
+        MATCH_HEAD(args_DOT_ADD_B1_Bn_K[0], ADD, args_ADD_B1_Bn)
+
+        // conditional type checking
+        auto type = kernel.calc_type(term);
+        if (type->get_head() == STYPE) return std::nullopt;
+            
+        ListArgs<int> new_args;
+        for (const auto& arg : args_ADD_B1_Bn) {
+            new_args.push_back(create_term(DOT, {arg, args_DOT_ADD_B1_Bn_K[1]}));
+        }
+        return create_term(ADD, std::move(new_args));
+    }
+
+    // DOT(B1 ADD(B2 ... Bn) K) -> ADD(DOT(B1 K) ... DOT(Bn K))
+    DIRACOQ_RULE_DEF(R_MULK6, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_B_ADD_K1_Kn)
+        
+        MATCH_HEAD(args_DOT_B_ADD_K1_Kn[1], ADD, args_ADD_K1_Kn)
+
+        // conditional type checking
+        auto type = kernel.calc_type(term);
+        if (type->get_head() == STYPE) return std::nullopt;
+                
+        ListArgs<int> new_args;
+        for (const auto& arg : args_ADD_K1_Kn) {
+            new_args.push_back(create_term(DOT, {args_DOT_B_ADD_K1_Kn[0], arg}));
+        }
+        return create_term(ADD, std::move(new_args));
+    }
+
+
+
+    // DOT(TSR(B1 B2) DOT(TSR(O1 O2) K)) -> DOT(TSR(DOT(B1 O1) DOT(B2 O2)) K)
+    DIRACOQ_RULE_DEF(R_DOT12, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K)
+        
+        MATCH_HEAD(args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K[0], TSR, args_TSR_B1_B2)
+
+        MATCH_HEAD(args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K[1], DOT, args_MULK_TSR_O1_O2_K)
+
+        MATCH_HEAD(args_MULK_TSR_O1_O2_K[0], TSR, args_TSR_O1_O2)
+
+        return create_term(DOT, 
+            {
+                create_term(TSR, 
+                    {
+                        create_term(DOT, {args_TSR_B1_B2[0], args_TSR_O1_O2[0]}),
+                        create_term(DOT, {args_TSR_B1_B2[1], args_TSR_O1_O2[1]})
+                    }
+                ),
+                args_MULK_TSR_O1_O2_K[1]
+            }
+        );                
+    }
+
+    // DOT(0B(sigma) K) -> 0
+    DIRACOQ_RULE_DEF(R_DOT0, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_0B_sigma_K)
+        
+        if (args_DOT_0B_sigma_K[0]->get_head() != ZEROB) return std::nullopt;
+
+        // conditional type checking
+        auto type = kernel.calc_type(args_DOT_0B_sigma_K[1]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+        
+        return create_term(ZERO);
+    }
+
+    // DOT(B 0K(sigma)) -> 0
+    DIRACOQ_RULE_DEF(R_DOT1, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_B_0K_sigma)
+
+        if (args_DOT_B_0K_sigma[1]->get_head() != ZEROK) return std::nullopt;
+
+        // conditional type checking
+        auto type = kernel.calc_type(args_DOT_B_0K_sigma[0]);
+        if (type->get_head() != BTYPE) return std::nullopt;
+        
+        return create_term(ZERO);
+    }
+
+
+    // DOT(SCR(a B) K) -> MULS(a DOT(B K))
+    DIRACOQ_RULE_DEF(R_DOT2, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_SCR_a_B_K)
+        
+        MATCH_HEAD(args_DOT_SCR_a_B_K[0], SCR, args_SCR_a_B)
+            
+        // conditional type checking
+        auto type = kernel.calc_type(term);
+        if (type->get_head() != STYPE) return std::nullopt;
+
+        return create_term(MULS, 
+            {
+                args_SCR_a_B[0], 
+                create_term(DOT, {args_SCR_a_B[1], args_DOT_SCR_a_B_K[1]})
+            }
+        );
+    }
+
+    // DOT(B SCR(a K)) -> MULS(a DOT(B K))
+    DIRACOQ_RULE_DEF(R_DOT3, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_B_SCR_a_K)
+        
+        MATCH_HEAD(args_DOT_B_SCR_a_K[1], SCR, args_SCR_a_K)
+
+        // conditional type checking
+        auto type = kernel.calc_type(term);
+        if (type->get_head() != STYPE) return std::nullopt;
+            
+        return create_term(MULS, 
+            {
+                args_SCR_a_K[0], 
+                create_term(DOT, {args_DOT_B_SCR_a_K[0], args_SCR_a_K[1]})
+            }
+        );
+    }
+
+
+    // DOT(ADD(B1 ... Bn) K) -> ADDS(DOT(B1 K) ... DOT(Bn K))
+    DIRACOQ_RULE_DEF(R_DOT4, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_ADD_B1_Bn_K)
+        
+        MATCH_HEAD(args_DOT_ADD_B1_Bn_K[0], ADD, args_ADD_B1_Bn)
+
+        // conditional type checking
+        auto type = kernel.calc_type(term);
+        if (type->get_head() != STYPE) return std::nullopt;
+            
+        ListArgs<int> new_args;
+        for (const auto& arg : args_ADD_B1_Bn) {
+            new_args.push_back(create_term(DOT, {arg, args_DOT_ADD_B1_Bn_K[1]}));
+        }
+        return create_term(ADDS, std::move(new_args));
+    }
+
+    // DOT(B ADD(K1 ... Kn)) -> ADDS(DOT(B K1) ... DOT(B Kn))
+    DIRACOQ_RULE_DEF(R_DOT5, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_B_ADD_K1_Kn)
+        
+        MATCH_HEAD(args_DOT_B_ADD_K1_Kn[1], ADD, args_ADD_K1_Kn)
+
+        // conditional type checking
+        auto type = kernel.calc_type(term);
+        if (type->get_head() != STYPE) return std::nullopt;
+                
+        ListArgs<int> new_args;
+        for (const auto& arg : args_ADD_K1_Kn) {
+            new_args.push_back(create_term(DOT, {args_DOT_B_ADD_K1_Kn[0], arg}));
+        }
+        return create_term(ADDS, std::move(new_args));
+    }
+
+
+    // DOT(BRA(s) KET(t)) -> DELTA(s t)
+    DIRACOQ_RULE_DEF(R_DOT6, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_BRA_s_KET_t)
+        
+        MATCH_HEAD(args_DOT_BRA_s_KET_t[0], BRA, args_BRA_s)
+            
+        MATCH_HEAD(args_DOT_BRA_s_KET_t[1], KET, args_KET_t)
+        
+        return create_term(DELTA, {args_BRA_s[0], args_KET_t[0]});
+    }
+
+    // DOT(TSR(B1 B2) KET(PAIR(s t))) -> MULS(DOT(B1 KET(s)) DOT(B2 KET(t)))
+    DIRACOQ_RULE_DEF(R_DOT7, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_KET_PAIR_s_t)
+
+        MATCH_HEAD(args_DOT_TSR_B1_B2_KET_PAIR_s_t[0], TSR, args_TSR_B1_B2)
+        
+        MATCH_HEAD(args_DOT_TSR_B1_B2_KET_PAIR_s_t[1], KET, args_KET_PAIR_s_t)
+
+        MATCH_HEAD(args_KET_PAIR_s_t[0], PAIR, args_PAIR_s_t)
+
+        // conditional type checking
+        auto type = kernel.calc_type(args_DOT_TSR_B1_B2_KET_PAIR_s_t[0]);
+        if (type->get_head() != BTYPE) return std::nullopt;
+
+        return create_term(MULS, 
+            {
+                create_term(DOT, {args_TSR_B1_B2[0], create_term(KET, {args_PAIR_s_t[0]})}),
+                create_term(DOT, {args_TSR_B1_B2[1], create_term(KET, {args_PAIR_s_t[1]})})
+            }
+        );
+    }
+
+    // DOT(BRA(PAIR(s t)) TSR(K1 K2)) -> MULS(DOT(BRA(s) K1) DOT(BRA(t) K2))
+    DIRACOQ_RULE_DEF(R_DOT8, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_BRA_PAIR_s_t_TSR_K1_K2)
+        
+        MATCH_HEAD(args_DOT_BRA_PAIR_s_t_TSR_K1_K2[0], BRA, args_BRA_PAIR_s_t)
+            
+        MATCH_HEAD(args_BRA_PAIR_s_t[0], PAIR, args_PAIR_s_t)
+                
+        MATCH_HEAD(args_DOT_BRA_PAIR_s_t_TSR_K1_K2[1], TSR, args_TSR_K1_K2)
+
+        // conditional type checking
+        auto type = kernel.calc_type(args_DOT_BRA_PAIR_s_t_TSR_K1_K2[1]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+                    
+        return create_term(MULS, 
+            {
+                create_term(DOT, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_K1_K2[0]}),
+                create_term(DOT, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_K1_K2[1]})
+            }
+        );
+    }
+
+    // DOT(TSR(B1 B2) TSR(K1 K2)) -> MULS(DOT(B1 K1) DOT(B2 K2))
+    DIRACOQ_RULE_DEF(R_DOT9, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_TSR_K1_K2)
+        
+        MATCH_HEAD(args_DOT_TSR_B1_B2_TSR_K1_K2[0], TSR, args_TSR_B1_B2)
+            
+        MATCH_HEAD(args_DOT_TSR_B1_B2_TSR_K1_K2[1], TSR, args_TSR_K1_K2)
+
+        // conditional type checking
+        auto type = kernel.calc_type(args_DOT_TSR_B1_B2_TSR_K1_K2[0]);
+        if (type->get_head() != BTYPE) return std::nullopt;
+        type = kernel.calc_type(args_DOT_TSR_B1_B2_TSR_K1_K2[1]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+                
+        return create_term(MULS, 
+            {
+                create_term(DOT, {args_TSR_B1_B2[0], args_TSR_K1_K2[0]}),
+                create_term(DOT, {args_TSR_B1_B2[1], args_TSR_K1_K2[1]})
+            }
+        );
+    }
+
+    // DOT(DOT(B O) K) -> DOT(B DOT(O K))
+    DIRACOQ_RULE_DEF(R_DOT10, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_MULB_B_O_K)
+        
+        MATCH_HEAD(args_DOT_MULB_B_O_K[0], DOT, args_MULB_B_O)
+
+        // conditional type checking
+        auto type = kernel.calc_type(args_DOT_MULB_B_O_K[0]);
+        if (type->get_head() != BTYPE) return std::nullopt;
+        type = kernel.calc_type(args_DOT_MULB_B_O_K[1]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+            
+        return create_term(DOT, 
+            {
+                args_MULB_B_O[0], 
+                create_term(DOT, {args_MULB_B_O[1], args_DOT_MULB_B_O_K[1]})
+            }
+        );
+    }
+
+    // DOT(BRA(PAIR(s t)) DOT(TSR(O1 O2) K)) -> DOT(TSR(DOT(BRA(s) O1) DOT(BRA(t) O2)) K)
+    DIRACOQ_RULE_DEF(R_DOT11, kernel, term) {
+
+        MATCH_HEAD(term, DOT, args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K)
+
+        MATCH_HEAD(args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K[0], BRA, args_BRA_PAIR_s_t)
+        
+        MATCH_HEAD(args_BRA_PAIR_s_t[0], PAIR, args_PAIR_s_t)
+        
+        MATCH_HEAD(args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K[1], DOT, args_MULK_TSR_O1_O2_K)
+
+        MATCH_HEAD(args_MULK_TSR_O1_O2_K[0], TSR, args_TSR_O1_O2)
+
+        return create_term(DOT, 
+            {
+                create_term(TSR, 
+                    {
+                        create_term(DOT, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_O1_O2[0]}),
+                        create_term(DOT, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_O1_O2[1]})
+                    }
+                ),
+                args_MULK_TSR_O1_O2_K[1]
+            }
+        );                
+    }
+
+
+    // DOT(0O(T1 T2) K) -> 0K(T1)
     DIRACOQ_RULE_DEF(R_MULK0, kernel, term) {
 
-
-        MATCH_HEAD(term, MULK, args_MULK_0O_T1_T2_K)
+        MATCH_HEAD(term, DOT, args_MULK_0O_T1_T2_K)
 
         MATCH_HEAD(args_MULK_0O_T1_T2_K[0], ZEROO, args_ZEROO_T1_T2)
+
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULK_0O_T1_T2_K[1]);
+        if (type->get_head() != KTYPE) return std::nullopt;
 
         return create_term(ZEROK, {args_ZEROO_T1_T2[0]});
     }
 
-    // O : OTYPE(T1 T2) => MULK(O 0K(T2)) -> 0K(T1)
+    // O : OTYPE(T1 T2) => DOT(O 0K(T2)) -> 0K(T1)
     DIRACOQ_RULE_DEF(R_MULK1, kernel, term) {
 
-
-        MATCH_HEAD(term, MULK, args_MULK_O_0K_T2)
+        MATCH_HEAD(term, DOT, args_MULK_O_0K_T2)
 
         if (args_MULK_O_0K_T2[1]->get_head() != ZEROK) return std::nullopt;
 
@@ -2119,85 +2267,18 @@ namespace diracoq {
         return create_term(ZEROK, {args_OType_T1_T2[0]});
     }
 
-    // MULK(1O(T) K) -> K
-    DIRACOQ_RULE_DEF(R_MULK2, kernel, term) {
-
-        MATCH_HEAD(term, MULK, args_MULK_1O_T_K)
-
-        if (args_MULK_1O_T_K[0]->get_head() != ONEO) return std::nullopt;
-
-        return args_MULK_1O_T_K[1];
-    }
-
-    // MULK(SCR(a O) K) -> SCR(a MULK(O K))
-    DIRACOQ_RULE_DEF(R_MULK3, kernel, term) {
-
-
-        MATCH_HEAD(term, MULK, args_MULK_SCR_a_O_K)
-
-        MATCH_HEAD(args_MULK_SCR_a_O_K[0], SCR, args_SCR_a_O)
-
-        return create_term(SCR, 
-            {
-                args_SCR_a_O[0],
-                create_term(MULK, {args_SCR_a_O[1], args_MULK_SCR_a_O_K[1]})
-            }
-        );
-    }
-
-    // MULK(O SCR(a K)) -> SCR(a MULK(O K))
-    DIRACOQ_RULE_DEF(R_MULK4, kernel, term) {
-
-
-        MATCH_HEAD(term, MULK, args_MULK_O_SCR_a_K)
-
-        MATCH_HEAD(args_MULK_O_SCR_a_K[1], SCR, args_SCR_a_K)
-
-        return create_term(SCR, 
-            {
-                args_SCR_a_K[0],
-                create_term(MULK, {args_MULK_O_SCR_a_K[0], args_SCR_a_K[1]})
-            }
-        );
-    }
-
-    // MULK(ADD(O1 ... On) K) -> ADD(MULK(O1 K) ... MULK(On K))
-    DIRACOQ_RULE_DEF(R_MULK5, kernel, term) {
-
-
-        MATCH_HEAD(term, MULK, args_MULK_ADD_O1_On_K)
-
-        MATCH_HEAD(args_MULK_ADD_O1_On_K[0], ADD, args_ADD_O1_On)
-
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_O1_On) {
-            new_args.push_back(create_term(MULK, {arg, args_MULK_ADD_O1_On_K[1]}));
-        }
-        return create_term(ADD, std::move(new_args));
-    }
-
-    // MULK(O ADD(K1 ... Kn)) -> ADD(MULK(O K1) ... MULK(O Kn))
-    DIRACOQ_RULE_DEF(R_MULK6, kernel, term) {
-
-
-        MATCH_HEAD(term, MULK, args_MULK_O_ADD_K1_Kn)
-
-        MATCH_HEAD(args_MULK_O_ADD_K1_Kn[1], ADD, args_ADD_K1_Kn)
-
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_K1_Kn) {
-            new_args.push_back(create_term(MULK, {args_MULK_O_ADD_K1_Kn[0], arg}));
-        }
-        return create_term(ADD, std::move(new_args));
-    }
-
-    // MULK(OUTER(K1 B) K2) -> SCR(DOT(B K2) K1)
+    // DOT(DOT(K1 B) K2) -> SCR(DOT(B K2) K1)
     DIRACOQ_RULE_DEF(R_MULK7, kernel, term) {
 
+        MATCH_HEAD(term, DOT, args_MULK_OUTER_K1_B_K2)
 
-        MATCH_HEAD(term, MULK, args_MULK_OUTER_K1_B_K2)
+        MATCH_HEAD(args_MULK_OUTER_K1_B_K2[0], DOT, args_OUTER_K1_B)
 
-        MATCH_HEAD(args_MULK_OUTER_K1_B_K2[0], OUTER, args_OUTER_K1_B)
+        // conditional type checking
+        auto type = kernel.calc_type(args_OUTER_K1_B[0]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+        type = kernel.calc_type(args_MULK_OUTER_K1_B_K2[1]);
+        if (type->get_head() != KTYPE) return std::nullopt;
 
         return create_term(SCR, 
             {
@@ -2207,52 +2288,31 @@ namespace diracoq {
         );
     }
 
-    // MULK(MULO(O1 O2) K) -> MULK(O1 MULK(O2 K))
+    // DOT(DOT(O1 O2) K) -> DOT(O1 DOT(O2 K))
     DIRACOQ_RULE_DEF(R_MULK8, kernel, term) {
 
+        MATCH_HEAD(term, DOT, args_MULK_MULO_O1_O2_K)
 
-        MATCH_HEAD(term, MULK, args_MULK_MULO_O1_O2_K)
+        MATCH_HEAD(args_MULK_MULO_O1_O2_K[0], DOT, args_MULO_O1_O2)
 
-        MATCH_HEAD(args_MULK_MULO_O1_O2_K[0], MULO, args_MULO_O1_O2)
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULO_O1_O2[0]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+        type = kernel.calc_type(args_MULK_MULO_O1_O2_K[1]);
+        if (type->get_head() != KTYPE) return std::nullopt;
 
-        return create_term(MULK, 
+        return create_term(DOT, 
             {
                 args_MULO_O1_O2[0],
-                create_term(MULK, {args_MULO_O1_O2[1], args_MULK_MULO_O1_O2_K[1]})
+                create_term(DOT, {args_MULO_O1_O2[1], args_MULK_MULO_O1_O2_K[1]})
             }
         );
     }
 
-    // MULK(TSR(O1 O2) MULK(TSR(O3 O4) K)) -> MULK(TSR(MULO(O1 O3) MULO(O2 O4)) K)
-    DIRACOQ_RULE_DEF(R_MULK9, kernel, term) {
-
-
-        MATCH_HEAD(term, MULK, args_MULK_TSR_O1_O2_MULK_TSR_O3_O4_K)
-
-        MATCH_HEAD(args_MULK_TSR_O1_O2_MULK_TSR_O3_O4_K[0], TSR, args_TSR_O1_O2)
-
-        MATCH_HEAD(args_MULK_TSR_O1_O2_MULK_TSR_O3_O4_K[1], MULK, args_MULK_TSR_O3_O4_K)
-
-        MATCH_HEAD(args_MULK_TSR_O3_O4_K[0], TSR, args_TSR_O3_O4)
-
-        return create_term(MULK, 
-            {
-                create_term(TSR, 
-                    {
-                        create_term(MULO, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
-                        create_term(MULO, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
-                    }
-                ),
-                args_MULK_TSR_O3_O4_K[1]
-            }
-        );
-    }
-
-    // MULK(TSR(O1 O2) KET(PAIR(s t))) -> TSR(MULK(O1 KET(s)) MULK(O2 KET(t)))
+    // DOT(TSR(O1 O2) KET(PAIR(s t))) -> TSR(DOT(O1 KET(s)) DOT(O2 KET(t)))
     DIRACOQ_RULE_DEF(R_MULK10, kernel, term) {
 
-
-        MATCH_HEAD(term, MULK, args_MULK_TSR_O1_O2_KET_PAIR_s_t)
+        MATCH_HEAD(term, DOT, args_MULK_TSR_O1_O2_KET_PAIR_s_t)
 
         MATCH_HEAD(args_MULK_TSR_O1_O2_KET_PAIR_s_t[0], TSR, args_TSR_O1_O2)
 
@@ -2260,48 +2320,59 @@ namespace diracoq {
 
         MATCH_HEAD(args_KET_PAIR_s_t[0], PAIR, args_PAIR_s_t)
 
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULK_TSR_O1_O2_KET_PAIR_s_t[0]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+
         return create_term(TSR, 
             {
-                create_term(MULK, {args_TSR_O1_O2[0], create_term(KET, {args_PAIR_s_t[0]})}),
-                create_term(MULK, {args_TSR_O1_O2[1], create_term(KET, {args_PAIR_s_t[1]})})
+                create_term(DOT, {args_TSR_O1_O2[0], create_term(KET, {args_PAIR_s_t[0]})}),
+                create_term(DOT, {args_TSR_O1_O2[1], create_term(KET, {args_PAIR_s_t[1]})})
             }
         );
     }
 
-    // MULK(TSR(O1 O2) TSR(K1 K2)) -> TSR(MULK(O1 K1) MULK(O2 K2))
+    // DOT(TSR(O1 O2) TSR(K1 K2)) -> TSR(DOT(O1 K1) DOT(O2 K2))
     DIRACOQ_RULE_DEF(R_MULK11, kernel, term) {
 
-
-        MATCH_HEAD(term, MULK, args_MULK_TSR_O1_O2_TSR_K1_K2)
+        MATCH_HEAD(term, DOT, args_MULK_TSR_O1_O2_TSR_K1_K2)
 
         MATCH_HEAD(args_MULK_TSR_O1_O2_TSR_K1_K2[0], TSR, args_TSR_O1_O2)
 
         MATCH_HEAD(args_MULK_TSR_O1_O2_TSR_K1_K2[1], TSR, args_TSR_K1_K2)
 
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULK_TSR_O1_O2_TSR_K1_K2[0]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+        type = kernel.calc_type(args_MULK_TSR_O1_O2_TSR_K1_K2[1]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+
         return create_term(TSR, 
             {
-                create_term(MULK, {args_TSR_O1_O2[0], args_TSR_K1_K2[0]}),
-                create_term(MULK, {args_TSR_O1_O2[1], args_TSR_K1_K2[1]})
+                create_term(DOT, {args_TSR_O1_O2[0], args_TSR_K1_K2[0]}),
+                create_term(DOT, {args_TSR_O1_O2[1], args_TSR_K1_K2[1]})
             }
         );
     }
 
-    // MULB(B 0O(T1 T2)) -> 0B(T2)
+    // DOT(B 0O(T1 T2)) -> 0B(T2)
     DIRACOQ_RULE_DEF(R_MULB0, kernel, term) {
 
-
-        MATCH_HEAD(term, MULB, args_MULB_B_0O_T1_T2)
+        MATCH_HEAD(term, DOT, args_MULB_B_0O_T1_T2)
 
         MATCH_HEAD(args_MULB_B_0O_T1_T2[1], ZEROO, args_ZEROO_T1_T2)
+
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULB_B_0O_T1_T2[0]);
+        if (type->get_head() != BTYPE) return std::nullopt;
 
         return create_term(ZEROB, {args_ZEROO_T1_T2[1]});
     }
 
-    // O : OTYPE(T1 T2) => MULB(0B(T1) O) -> 0B(T2)
+    // O : OTYPE(T1 T2) => DOT(0B(T1) O) -> 0B(T2)
     DIRACOQ_RULE_DEF(R_MULB1, kernel, term) {
 
-
-        MATCH_HEAD(term, MULB, args_MULB_0B_T1_O)
+        MATCH_HEAD(term, DOT, args_MULB_0B_T1_O)
 
         if (args_MULB_0B_T1_O[0]->get_head() != ZEROB) return std::nullopt;
 
@@ -2313,85 +2384,18 @@ namespace diracoq {
         return create_term(ZEROB, {args_OType_T1_T2[1]});
     }
 
-    // MULB(B 1O(T)) -> B
-    DIRACOQ_RULE_DEF(R_MULB2, kernel, term) {
-
-        MATCH_HEAD(term, MULB, args_MULB_B_1O_T)
-
-        if (args_MULB_B_1O_T[1]->get_head() != ONEO) return std::nullopt;
-
-        return args_MULB_B_1O_T[0];
-    }
-
-    // MULB(SCR(a B) O) -> SCR(a MULB(B O))
-    DIRACOQ_RULE_DEF(R_MULB3, kernel, term) {
-
-
-        MATCH_HEAD(term, MULB, args_MULB_SCR_a_B_O)
-
-        MATCH_HEAD(args_MULB_SCR_a_B_O[0], SCR, args_SCR_a_B)
-
-        return create_term(SCR, 
-            {
-                args_SCR_a_B[0],
-                create_term(MULB, {args_SCR_a_B[1], args_MULB_SCR_a_B_O[1]})
-            }
-        );
-    }
-
-    // MULB(B SCR(a O)) -> SCR(a MULB(B O))
-    DIRACOQ_RULE_DEF(R_MULB4, kernel, term) {
-
-
-        MATCH_HEAD(term, MULB, args_MULB_B_SCR_a_O)
-
-        MATCH_HEAD(args_MULB_B_SCR_a_O[1], SCR, args_SCR_a_O)
-
-        return create_term(SCR, 
-            {
-                args_SCR_a_O[0],
-                create_term(MULB, {args_MULB_B_SCR_a_O[0], args_SCR_a_O[1]})
-            }
-        );
-    }
-
-    // MULB(ADD(B1 ... Bn) O) -> ADD(MULB(B1 O) ... MULB(Bn O))
-    DIRACOQ_RULE_DEF(R_MULB5, kernel, term) {
-
-
-        MATCH_HEAD(term, MULB, args_MULB_ADD_B1_Bn_O)
-
-        MATCH_HEAD(args_MULB_ADD_B1_Bn_O[0], ADD, args_ADD_B1_Bn)
-
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_B1_Bn) {
-            new_args.push_back(create_term(MULB, {arg, args_MULB_ADD_B1_Bn_O[1]}));
-        }
-        return create_term(ADD, std::move(new_args));
-    }
-
-    // MULB(B ADD(O1 ... On)) -> ADD(MULB(B O1) ... MULB(B On))
-    DIRACOQ_RULE_DEF(R_MULB6, kernel, term) {
-
-
-        MATCH_HEAD(term, MULB, args_MULB_B_ADD_O1_On)
-
-        MATCH_HEAD(args_MULB_B_ADD_O1_On[1], ADD, args_ADD_O1_On)
-
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_O1_On) {
-            new_args.push_back(create_term(MULB, {args_MULB_B_ADD_O1_On[0], arg}));
-        }
-        return create_term(ADD, std::move(new_args));
-    }
-
-    // MULB(B1 OUTER(K B2)) -> SCR(DOT(B1 K) B2)
+    // DOT(B1 DOT(K B2)) -> SCR(DOT(B1 K) B2)
     DIRACOQ_RULE_DEF(R_MULB7, kernel, term) {
 
+        MATCH_HEAD(term, DOT, args_MULB_B1_OUTER_K_B2)
 
-        MATCH_HEAD(term, MULB, args_MULB_B1_OUTER_K_B2)
+        MATCH_HEAD(args_MULB_B1_OUTER_K_B2[1], DOT, args_OUTER_K_B2)
 
-        MATCH_HEAD(args_MULB_B1_OUTER_K_B2[1], OUTER, args_OUTER_K_B2)
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULB_B1_OUTER_K_B2[0]);
+        if (type->get_head() != BTYPE) return std::nullopt;
+        type = kernel.calc_type(args_OUTER_K_B2[1]);
+        if (type->get_head() != BTYPE) return std::nullopt;
 
         return create_term(SCR, 
             {
@@ -2401,52 +2405,55 @@ namespace diracoq {
         );
     }
 
-    // MULB(B MULO(O1 O2)) -> MULB(MULB(B O1) O2)
+    // DOT(B DOT(O1 O2)) -> DOT(DOT(B O1) O2)
     DIRACOQ_RULE_DEF(R_MULB8, kernel, term) {
 
+        MATCH_HEAD(term, DOT, args_MULB_B_MULO_O1_O2)
 
-        MATCH_HEAD(term, MULB, args_MULB_B_MULO_O1_O2)
+        MATCH_HEAD(args_MULB_B_MULO_O1_O2[1], DOT, args_MULO_O1_O2)
 
-        MATCH_HEAD(args_MULB_B_MULO_O1_O2[1], MULO, args_MULO_O1_O2)
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULB_B_MULO_O1_O2[0]);
+        if (type->get_head() != BTYPE) return std::nullopt;
+        type = kernel.calc_type(args_MULO_O1_O2[1]);
+        if (type->get_head() != OTYPE) return std::nullopt;
 
-        return create_term(MULB, 
+        return create_term(DOT, 
             {
-                create_term(MULB, {args_MULB_B_MULO_O1_O2[0], args_MULO_O1_O2[0]}),
+                create_term(DOT, {args_MULB_B_MULO_O1_O2[0], args_MULO_O1_O2[0]}),
                 args_MULO_O1_O2[1]
             }
         );
     }
 
-    // MULB(MULB(B TSR(O1 O2)) TSR(O3 O4)) -> MULB(B TSR(MULO(O1 O3) MULO(O2 O4)))
+    // DOT(DOT(B TSR(O1 O2)) TSR(O3 O4)) -> DOT(B TSR(DOT(O1 O3) DOT(O2 O4)))
     DIRACOQ_RULE_DEF(R_MULB9, kernel, term) {
 
+        MATCH_HEAD(term, DOT, args_MULB_MULB_B_TSR_O1_O2_TSR_O3_O4)
 
-        MATCH_HEAD(term, MULB, args_MULB_MULB_B_TSR_O1_O2_TSR_O3_O4)
-
-        MATCH_HEAD(args_MULB_MULB_B_TSR_O1_O2_TSR_O3_O4[0], MULB, args_MULB_B_TSR_O1_O2)
+        MATCH_HEAD(args_MULB_MULB_B_TSR_O1_O2_TSR_O3_O4[0], DOT, args_MULB_B_TSR_O1_O2)
 
         MATCH_HEAD(args_MULB_B_TSR_O1_O2[1], TSR, args_TSR_O1_O2)
 
         MATCH_HEAD(args_MULB_MULB_B_TSR_O1_O2_TSR_O3_O4[1], TSR, args_TSR_O3_O4)
 
-        return create_term(MULB, 
+        return create_term(DOT, 
             {
                 args_MULB_B_TSR_O1_O2[0],
                 create_term(TSR, 
                     {
-                        create_term(MULO, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
-                        create_term(MULO, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
+                        create_term(DOT, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
+                        create_term(DOT, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
                     }
                 )
             }
         );
     }
 
-    // MULB(BRA(PAIR(s t)) TSR(O1 O2)) -> TSR(MULB(BRA(s) O1) MULB(BRA(t) O2))
+    // DOT(BRA(PAIR(s t)) TSR(O1 O2)) -> TSR(DOT(BRA(s) O1) DOT(BRA(t) O2))
     DIRACOQ_RULE_DEF(R_MULB10, kernel, term) {
 
-
-        MATCH_HEAD(term, MULB, args_MULB_BRA_PAIR_s_t_TSR_O1_O2)
+        MATCH_HEAD(term, DOT, args_MULB_BRA_PAIR_s_t_TSR_O1_O2)
 
         MATCH_HEAD(args_MULB_BRA_PAIR_s_t_TSR_O1_O2[0], BRA, args_BRA_PAIR_s_t)
 
@@ -2454,37 +2461,45 @@ namespace diracoq {
 
         MATCH_HEAD(args_MULB_BRA_PAIR_s_t_TSR_O1_O2[1], TSR, args_TSR_O1_O2)
 
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULB_BRA_PAIR_s_t_TSR_O1_O2[1]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+
         return create_term(TSR, 
             {
-                create_term(MULB, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_O1_O2[0]}),
-                create_term(MULB, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_O1_O2[1]})
+                create_term(DOT, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_O1_O2[0]}),
+                create_term(DOT, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_O1_O2[1]})
             }
         );
     }
 
-    // MULB(TSR(B1 B2) TSR(O1 O2)) -> TSR(MULB(B1 O1) MULB(B2 O2))
+    // DOT(TSR(B1 B2) TSR(O1 O2)) -> TSR(DOT(B1 O1) DOT(B2 O2))
     DIRACOQ_RULE_DEF(R_MULB11, kernel, term) {
 
-
-        MATCH_HEAD(term, MULB, args_MULB_TSR_B1_B2_TSR_O1_O2)
+        MATCH_HEAD(term, DOT, args_MULB_TSR_B1_B2_TSR_O1_O2)
 
         MATCH_HEAD(args_MULB_TSR_B1_B2_TSR_O1_O2[0], TSR, args_TSR_B1_B2)
 
         MATCH_HEAD(args_MULB_TSR_B1_B2_TSR_O1_O2[1], TSR, args_TSR_O1_O2)
 
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULB_TSR_B1_B2_TSR_O1_O2[0]);
+        if (type->get_head() != BTYPE) return std::nullopt;
+        type = kernel.calc_type(args_MULB_TSR_B1_B2_TSR_O1_O2[1]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+
         return create_term(TSR, 
             {
-                create_term(MULB, {args_TSR_B1_B2[0], args_TSR_O1_O2[0]}),
-                create_term(MULB, {args_TSR_B1_B2[1], args_TSR_O1_O2[1]})
+                create_term(DOT, {args_TSR_B1_B2[0], args_TSR_O1_O2[0]}),
+                create_term(DOT, {args_TSR_B1_B2[1], args_TSR_O1_O2[1]})
             }
         );
     }
 
-    // B : B(T2) => OUTER(0K(T1) B) -> 0O(T1 T2)
+    // B : B(T2) => DOT(0K(T1) B) -> 0O(T1 T2)
     DIRACOQ_RULE_DEF(R_OUTER0, kernel, term) {
 
-
-        MATCH_HEAD(term, OUTER, args_OUTER_0K_T1_B)
+        MATCH_HEAD(term, DOT, args_OUTER_0K_T1_B)
 
         MATCH_HEAD(args_OUTER_0K_T1_B[0], ZEROK, args_ZEROK_T1)
 
@@ -2496,11 +2511,10 @@ namespace diracoq {
         return create_term(ZEROO, {args_ZEROK_T1[0], args_BType_T2[0]});
     }
 
-    // K : K(T1) => OUTER(K 0B(T2)) -> 0O(T1 T2)
+    // K : K(T1) => DOT(K 0B(T2)) -> 0O(T1 T2)
     DIRACOQ_RULE_DEF(R_OUTER1, kernel, term) {
 
-
-        MATCH_HEAD(term, OUTER, args_OUTER_K_0B_T2)
+        MATCH_HEAD(term, DOT, args_OUTER_K_0B_T2)
 
         MATCH_HEAD(args_OUTER_K_0B_T2[1], ZEROB, args_ZEROB_T2)
 
@@ -2512,73 +2526,10 @@ namespace diracoq {
         return create_term(ZEROO, {args_KType_T1[0], args_ZEROB_T2[0]});
     }
 
-    // OUTER(SCR(a K) B) -> SCR(a OUTER(K B))
-    DIRACOQ_RULE_DEF(R_OUTER2, kernel, term) {
-
-
-        MATCH_HEAD(term, OUTER, args_OUTER_SCR_a_K_B)
-
-        MATCH_HEAD(args_OUTER_SCR_a_K_B[0], SCR, args_SCR_a_K)
-
-        return create_term(SCR, 
-            {
-                args_SCR_a_K[0],
-                create_term(OUTER, {args_SCR_a_K[1], args_OUTER_SCR_a_K_B[1]})
-            }
-        );
-    }
-
-    // OUTER(K SCR(a B)) -> SCR(a OUTER(K B))
-    DIRACOQ_RULE_DEF(R_OUTER3, kernel, term) {
-
-
-        MATCH_HEAD(term, OUTER, args_OUTER_K_SCR_a_B)
-
-        MATCH_HEAD(args_OUTER_K_SCR_a_B[1], SCR, args_SCR_a_B)
-
-        return create_term(SCR, 
-            {
-                args_SCR_a_B[0],
-                create_term(OUTER, {args_OUTER_K_SCR_a_B[0], args_SCR_a_B[1]})
-            }
-        );
-    }
-
-    // OUTER(ADD(K1 ... Kn) B) -> ADD(OUTER(K1 B) ... OUTER(Kn B))
-    DIRACOQ_RULE_DEF(R_OUTER4, kernel, term) {
-
-
-        MATCH_HEAD(term, OUTER, args_OUTER_ADD_K1_Kn_B)
-
-        MATCH_HEAD(args_OUTER_ADD_K1_Kn_B[0], ADD, args_ADD_K1_Kn)
-
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_K1_Kn) {
-            new_args.push_back(create_term(OUTER, {arg, args_OUTER_ADD_K1_Kn_B[1]}));
-        }
-        return create_term(ADD, std::move(new_args));
-    }
-
-    // OUTER(K ADD(B1 ... Bn)) -> ADD(OUTER(K B1) ... OUTER(K Bn))
-    DIRACOQ_RULE_DEF(R_OUTER5, kernel, term) {
-
-
-        MATCH_HEAD(term, OUTER, args_OUTER_K_ADD_B1_Bn)
-
-        MATCH_HEAD(args_OUTER_K_ADD_B1_Bn[1], ADD, args_ADD_B1_Bn)
-
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_B1_Bn) {
-            new_args.push_back(create_term(OUTER, {args_OUTER_K_ADD_B1_Bn[0], arg}));
-        }
-        return create_term(ADD, std::move(new_args));
-    }
-
-    // O : OTYPE(T2 T3) => MULO(0O(T1 T2) O) -> 0O(T1 T3)
+    // O : OTYPE(T2 T3) => DOT(0O(T1 T2) O) -> 0O(T1 T3)
     DIRACOQ_RULE_DEF(R_MULO0, kernel, term) {
 
-
-        MATCH_HEAD(term, MULO, args_MULO_0O_T1_T2_O)
+        MATCH_HEAD(term, DOT, args_MULO_0O_T1_T2_O)
 
         MATCH_HEAD(args_MULO_0O_T1_T2_O[0], ZEROO, args_ZEROO_T1_T2)
 
@@ -2590,11 +2541,10 @@ namespace diracoq {
         return create_term(ZEROO, {args_ZEROO_T1_T2[0], args_OType_T2_T3[1]});
     }
 
-    // O : OTYPE(T1 T2) => MULO(O 0O(T2 T3)) -> 0O(T1 T3)
+    // O : OTYPE(T1 T2) => DOT(O 0O(T2 T3)) -> 0O(T1 T3)
     DIRACOQ_RULE_DEF(R_MULO1, kernel, term) {
 
-
-        MATCH_HEAD(term, MULO, args_MULO_O_0O_T2_T3)
+        MATCH_HEAD(term, DOT, args_MULO_O_0O_T2_T3)
 
         MATCH_HEAD(args_MULO_O_0O_T2_T3[1], ZEROO, args_ZEROO_T2_T3)
 
@@ -2606,173 +2556,88 @@ namespace diracoq {
         return create_term(ZEROO, {args_OType_T1_T2[0], args_ZEROO_T2_T3[1]});
     }
 
-    // MULO(1O(T) O) -> O
-    DIRACOQ_RULE_DEF(R_MULO2, kernel, term) {
-        MATCH_HEAD(term, MULO, args_MULO_1O_T_O)
-
-        if (args_MULO_1O_T_O[0]->get_head() != ONEO) return std::nullopt;
-
-        return args_MULO_1O_T_O[1];
-    }
-
-    // MULO(O 1O(T)) -> O
-    DIRACOQ_RULE_DEF(R_MULO3, kernel, term) {
-        MATCH_HEAD(term, MULO, args_MULO_O_1O_T)
-
-        if (args_MULO_O_1O_T[1]->get_head() != ONEO) return std::nullopt;
-
-        return args_MULO_O_1O_T[0];
-    }
-
-    // MULO(OUTER(K B) O) -> OUTER(K MULB(B O))
+    // DOT(DOT(K B) O) -> DOT(K DOT(B O))
     DIRACOQ_RULE_DEF(R_MULO4, kernel, term) {
 
+        MATCH_HEAD(term, DOT, args_MULO_OUTER_K_B_O)
 
-        MATCH_HEAD(term, MULO, args_MULO_OUTER_K_B_O)
+        MATCH_HEAD(args_MULO_OUTER_K_B_O[0], DOT, args_OUTER_K_B)
 
-        MATCH_HEAD(args_MULO_OUTER_K_B_O[0], OUTER, args_OUTER_K_B)
+        // conditional type checking
+        auto type = kernel.calc_type(args_OUTER_K_B[0]);
+        if (type->get_head() != KTYPE) return std::nullopt;
+        type = kernel.calc_type(args_MULO_OUTER_K_B_O[1]);
+        if (type->get_head() != OTYPE) return std::nullopt;
 
-        return create_term(OUTER, 
+        return create_term(DOT, 
             {
                 args_OUTER_K_B[0],
-                create_term(MULB, {args_OUTER_K_B[1], args_MULO_OUTER_K_B_O[1]})
+                create_term(DOT, {args_OUTER_K_B[1], args_MULO_OUTER_K_B_O[1]})
             }
         );
     }
 
-    // MULO(O OUTER(K B)) -> OUTER(MULK(O K) B)
+    // DOT(O DOT(K B)) -> DOT(DOT(O K) B)
     DIRACOQ_RULE_DEF(R_MULO5, kernel, term) {
 
+        MATCH_HEAD(term, DOT, args_MULO_O_OUTER_K_B)
 
-        MATCH_HEAD(term, MULO, args_MULO_O_OUTER_K_B)
+        MATCH_HEAD(args_MULO_O_OUTER_K_B[1], DOT, args_OUTER_K_B)
 
-        MATCH_HEAD(args_MULO_O_OUTER_K_B[1], OUTER, args_OUTER_K_B)
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULO_O_OUTER_K_B[0]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+        type = kernel.calc_type(args_OUTER_K_B[0]);
+        if (type->get_head() != KTYPE) return std::nullopt;
 
-        return create_term(OUTER, 
+        return create_term(DOT, 
             {
-                create_term(MULK, {args_MULO_O_OUTER_K_B[0], args_OUTER_K_B[0]}),
+                create_term(DOT, {args_MULO_O_OUTER_K_B[0], args_OUTER_K_B[0]}),
                 args_OUTER_K_B[1]
             }
         );
     }
 
-    // MULO(SCR(a O1) O2) -> SCR(a MULO(O1 O2))
-    DIRACOQ_RULE_DEF(R_MULO6, kernel, term) {
-
-
-        MATCH_HEAD(term, MULO, args_MULO_SCR_a_O1_O2)
-
-        MATCH_HEAD(args_MULO_SCR_a_O1_O2[0], SCR, args_SCR_a_O1)
-
-        return create_term(SCR, 
-            {
-                args_SCR_a_O1[0],
-                create_term(MULO, {args_SCR_a_O1[1], args_MULO_SCR_a_O1_O2[1]})
-            }
-        );
-    }
-
-    // MULO(O1 SCR(a O2)) -> SCR(a MULO(O1 O2))
-    DIRACOQ_RULE_DEF(R_MULO7, kernel, term) {
-
-
-        MATCH_HEAD(term, MULO, args_MULO_O1_SCR_a_O2)
-
-        MATCH_HEAD(args_MULO_O1_SCR_a_O2[1], SCR, args_SCR_a_O2)
-
-        return create_term(SCR, 
-            {
-                args_SCR_a_O2[0],
-                create_term(MULO, {args_MULO_O1_SCR_a_O2[0], args_SCR_a_O2[1]})
-            }
-        );
-    }
-
-    // MULO(ADD(O1 ... On) O) -> ADD(MULO(O1 O) ... MULO(On O))
-    DIRACOQ_RULE_DEF(R_MULO8, kernel, term) {
-
-
-        MATCH_HEAD(term, MULO, args_MULO_ADD_O1_On_O)
-
-        MATCH_HEAD(args_MULO_ADD_O1_On_O[0], ADD, args_ADD_O1_On)
-
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_O1_On) {
-            new_args.push_back(create_term(MULO, {arg, args_MULO_ADD_O1_On_O[1]}));
-        }
-        return create_term(ADD, std::move(new_args));
-    }
-
-    // MULO(O ADD(O1 ... On)) -> ADD(MULO(O O1) ... MULO(O On))
-    DIRACOQ_RULE_DEF(R_MULO9, kernel, term) {
-
-
-        MATCH_HEAD(term, MULO, args_MULO_O_ADD_O1_On)
-
-        MATCH_HEAD(args_MULO_O_ADD_O1_On[1], ADD, args_ADD_O1_On)
-
-        ListArgs<int> new_args;
-        for (const auto& arg : args_ADD_O1_On) {
-            new_args.push_back(create_term(MULO, {args_MULO_O_ADD_O1_On[0], arg}));
-        }
-        return create_term(ADD, std::move(new_args));
-    }
-
-    // MULO(MULO(O1 O2) O3) -> MULO(O1 MULO(O2 O3))
+    // DOT(DOT(O1 O2) O3) -> DOT(O1 DOT(O2 O3))
     DIRACOQ_RULE_DEF(R_MULO10, kernel, term) {
 
+        MATCH_HEAD(term, DOT, args_MULO_MULO_O1_O2_O3)
 
-        MATCH_HEAD(term, MULO, args_MULO_MULO_O1_O2_O3)
+        MATCH_HEAD(args_MULO_MULO_O1_O2_O3[0], DOT, args_MULO_O1_O2)
 
-        MATCH_HEAD(args_MULO_MULO_O1_O2_O3[0], MULO, args_MULO_O1_O2)
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULO_MULO_O1_O2_O3[0]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+        type = kernel.calc_type(args_MULO_O1_O2[0]);
+        if (type->get_head() != OTYPE) return std::nullopt;
 
-        return create_term(MULO, 
+        return create_term(DOT, 
             {
                 args_MULO_O1_O2[0],
-                create_term(MULO, {args_MULO_O1_O2[1], args_MULO_MULO_O1_O2_O3[1]})
+                create_term(DOT, {args_MULO_O1_O2[1], args_MULO_MULO_O1_O2_O3[1]})
             }
         );
     }
 
-    // MULO(TSR(O1 O2) TSR(O3 O4)) -> TSR(MULO(O1 O3) MULO(O2 O4))
+    // DOT(TSR(O1 O2) TSR(O3 O4)) -> TSR(DOT(O1 O3) DOT(O2 O4))
     DIRACOQ_RULE_DEF(R_MULO11, kernel, term) {
 
-
-        MATCH_HEAD(term, MULO, args_MULO_TSR_O1_O2_TSR_O3_O4)
+        MATCH_HEAD(term, DOT, args_MULO_TSR_O1_O2_TSR_O3_O4)
 
         MATCH_HEAD(args_MULO_TSR_O1_O2_TSR_O3_O4[0], TSR, args_TSR_O1_O2)
 
         MATCH_HEAD(args_MULO_TSR_O1_O2_TSR_O3_O4[1], TSR, args_TSR_O3_O4)
 
+        // conditional type checking
+        auto type = kernel.calc_type(args_MULO_TSR_O1_O2_TSR_O3_O4[0]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+        type = kernel.calc_type(args_MULO_TSR_O1_O2_TSR_O3_O4[1]);
+        if (type->get_head() != OTYPE) return std::nullopt;
+
         return create_term(TSR, 
             {
-                create_term(MULO, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
-                create_term(MULO, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
-            }
-        );
-    }
-
-    // MULO(TSR(O1 O2) MULO(TSR(O3 O4) O)) -> MULO(TSR(MULO(O1 O3) MULO(O2 O4)) O)
-    DIRACOQ_RULE_DEF(R_MULO12, kernel, term) {
-
-
-        MATCH_HEAD(term, MULO, args_MULO_TSR_O1_O2_MULO_TSR_O3_O4_O)
-
-        MATCH_HEAD(args_MULO_TSR_O1_O2_MULO_TSR_O3_O4_O[0], TSR, args_TSR_O1_O2)
-
-        MATCH_HEAD(args_MULO_TSR_O1_O2_MULO_TSR_O3_O4_O[1], MULO, args_MULO_TSR_O3_O4_O)
-
-        MATCH_HEAD(args_MULO_TSR_O3_O4_O[0], TSR, args_TSR_O3_O4)
-
-        return create_term(MULO, 
-            {
-                create_term(TSR, 
-                    {
-                        create_term(MULO, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
-                        create_term(MULO, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
-                    }
-                ),
-                args_MULO_TSR_O3_O4_O[1]
+                create_term(DOT, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
+                create_term(DOT, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
             }
         );
     }
@@ -2834,7 +2699,7 @@ namespace diracoq {
         return args_FUN_x_T1_0O_T2_T3[2];
     }
 
-    // 1O(T) -> SUM(USET(T) FUN(i T OUTER(KET(i) BRA(i))))
+    // 1O(T) -> SUM(USET(T) FUN(i T DOT(KET(i) BRA(i))))
     DIRACOQ_RULE_DEF(R_SUM_CONST4, kernel, term) {
         auto &sig = kernel.get_sig();
 
@@ -2850,7 +2715,7 @@ namespace diracoq {
                     {
                         new_var,
                         create_term(BASIS, {args_ONEO_T[0]}),
-                        create_term(OUTER, 
+                        create_term(DOT, 
                             {
                                 create_term(KET, {new_var}),
                                 create_term(BRA, {new_var})
@@ -3528,11 +3393,11 @@ namespace diracoq {
         );
     }
 
-    // MULK(SUM(M FUN(i T O)) K) -> SUM(M FUN(i T MULK(O K)))
+    // DOT(SUM(M FUN(i T O)) K) -> SUM(M FUN(i T DOT(O K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH6, kernel, term) {
 
 
-        MATCH_HEAD(term, MULK, args_MULK_SUM_M_fun_i_T_O_K)
+        MATCH_HEAD(term, DOT, args_MULK_SUM_M_fun_i_T_O_K)
 
         MATCH_HEAD(args_MULK_SUM_M_fun_i_T_O_K[0], SUM, args_SUM_M_fun_i_T_O)
 
@@ -3545,18 +3410,18 @@ namespace diracoq {
                     {
                         args_FUN_i_T_O[0],
                         args_FUN_i_T_O[1],
-                        create_term(MULK, {args_FUN_i_T_O[2], args_MULK_SUM_M_fun_i_T_O_K[1]})
+                        create_term(DOT, {args_FUN_i_T_O[2], args_MULK_SUM_M_fun_i_T_O_K[1]})
                     }
                 )
             }
         );
     }
 
-    // MULB(SUM(M FUN(i T B)) O) -> SUM(M FUN(i T MULB(B O)))
+    // DOT(SUM(M FUN(i T B)) O) -> SUM(M FUN(i T DOT(B O)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH7, kernel, term) {
 
 
-        MATCH_HEAD(term, MULB, args_MULB_SUM_M_fun_i_T_B_O)
+        MATCH_HEAD(term, DOT, args_MULB_SUM_M_fun_i_T_B_O)
 
         MATCH_HEAD(args_MULB_SUM_M_fun_i_T_B_O[0], SUM, args_SUM_M_fun_i_T_B)
 
@@ -3569,18 +3434,18 @@ namespace diracoq {
                     {
                         args_FUN_i_T_B[0],
                         args_FUN_i_T_B[1],
-                        create_term(MULB, {args_FUN_i_T_B[2], args_MULB_SUM_M_fun_i_T_B_O[1]})
+                        create_term(DOT, {args_FUN_i_T_B[2], args_MULB_SUM_M_fun_i_T_B_O[1]})
                     }
                 )
             }
         );
     }
     
-    // OUTER(SUM(M FUN(i T K)) B) -> SUM(M FUN(i T OUTER(K B)))
+    // DOT(SUM(M FUN(i T K)) B) -> SUM(M FUN(i T DOT(K B)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH8, kernel, term) {
 
 
-        MATCH_HEAD(term, OUTER, args_OUTER_SUM_M_fun_i_T_K_B)
+        MATCH_HEAD(term, DOT, args_OUTER_SUM_M_fun_i_T_K_B)
 
         MATCH_HEAD(args_OUTER_SUM_M_fun_i_T_K_B[0], SUM, args_SUM_M_fun_i_T_K)
 
@@ -3593,18 +3458,18 @@ namespace diracoq {
                     {
                         args_FUN_i_T_K[0],
                         args_FUN_i_T_K[1],
-                        create_term(OUTER, {args_FUN_i_T_K[2], args_OUTER_SUM_M_fun_i_T_K_B[1]})
+                        create_term(DOT, {args_FUN_i_T_K[2], args_OUTER_SUM_M_fun_i_T_K_B[1]})
                     }
                 )
             }
         );
     }
     
-    // MULO(SUM(M FUN(i T O1)) O2) -> SUM(M FUN(i T MULO(O1 O2)))
+    // DOT(SUM(M FUN(i T O1)) O2) -> SUM(M FUN(i T DOT(O1 O2)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH9, kernel, term) {
 
 
-        MATCH_HEAD(term, MULO, args_MULO_SUM_M_fun_i_T_O1_O2)
+        MATCH_HEAD(term, DOT, args_MULO_SUM_M_fun_i_T_O1_O2)
 
         MATCH_HEAD(args_MULO_SUM_M_fun_i_T_O1_O2[0], SUM, args_SUM_M_fun_i_T_O1)
 
@@ -3617,7 +3482,7 @@ namespace diracoq {
                     {
                         args_FUN_i_T_O1[0],
                         args_FUN_i_T_O1[1],
-                        create_term(MULO, {args_FUN_i_T_O1[2], args_MULO_SUM_M_fun_i_T_O1_O2[1]})
+                        create_term(DOT, {args_FUN_i_T_O1[2], args_MULO_SUM_M_fun_i_T_O1_O2[1]})
                     }
                 )
             }
@@ -3649,11 +3514,11 @@ namespace diracoq {
         );
     }
 
-    // MULK(O SUM(M FUN(i T K))) -> SUM(M FUN(i T MULK(O K)))
+    // DOT(O SUM(M FUN(i T K))) -> SUM(M FUN(i T DOT(O K)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH11, kernel, term) {
 
 
-        MATCH_HEAD(term, MULK, args_MULK_O_SUM_M_fun_i_T_K)
+        MATCH_HEAD(term, DOT, args_MULK_O_SUM_M_fun_i_T_K)
 
         MATCH_HEAD(args_MULK_O_SUM_M_fun_i_T_K[1], SUM, args_SUM_M_fun_i_T_K)
 
@@ -3666,18 +3531,18 @@ namespace diracoq {
                     {
                         args_FUN_i_T_K[0],
                         args_FUN_i_T_K[1],
-                        create_term(MULK, {args_MULK_O_SUM_M_fun_i_T_K[0], args_FUN_i_T_K[2]})
+                        create_term(DOT, {args_MULK_O_SUM_M_fun_i_T_K[0], args_FUN_i_T_K[2]})
                     }
                 )
             }
         );
     }
 
-    // MULB(B SUM(M FUN(i T O))) -> SUM(M FUN(i T MULB(B O)))
+    // DOT(B SUM(M FUN(i T O))) -> SUM(M FUN(i T DOT(B O)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH12, kernel, term) {
 
 
-        MATCH_HEAD(term, MULB, args_MULB_B_SUM_M_fun_i_T_O)
+        MATCH_HEAD(term, DOT, args_MULB_B_SUM_M_fun_i_T_O)
 
         MATCH_HEAD(args_MULB_B_SUM_M_fun_i_T_O[1], SUM, args_SUM_M_fun_i_T_O)
 
@@ -3690,18 +3555,18 @@ namespace diracoq {
                     {
                         args_FUN_i_T_O[0],
                         args_FUN_i_T_O[1],
-                        create_term(MULB, {args_MULB_B_SUM_M_fun_i_T_O[0], args_FUN_i_T_O[2]})
+                        create_term(DOT, {args_MULB_B_SUM_M_fun_i_T_O[0], args_FUN_i_T_O[2]})
                     }
                 )
             }
         );
     }
 
-    // OUTER(K SUM(M FUN(i T B))) -> SUM(M FUN(i T OUTER(K B)))
+    // DOT(K SUM(M FUN(i T B))) -> SUM(M FUN(i T DOT(K B)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH13, kernel, term) {
 
 
-        MATCH_HEAD(term, OUTER, args_OUTER_K_SUM_M_fun_i_T_B)
+        MATCH_HEAD(term, DOT, args_OUTER_K_SUM_M_fun_i_T_B)
 
         MATCH_HEAD(args_OUTER_K_SUM_M_fun_i_T_B[1], SUM, args_SUM_M_fun_i_T_B)
 
@@ -3714,18 +3579,18 @@ namespace diracoq {
                     {
                         args_FUN_i_T_B[0],
                         args_FUN_i_T_B[1],
-                        create_term(OUTER, {args_OUTER_K_SUM_M_fun_i_T_B[0], args_FUN_i_T_B[2]})
+                        create_term(DOT, {args_OUTER_K_SUM_M_fun_i_T_B[0], args_FUN_i_T_B[2]})
                     }
                 )
             }
         );
     }
 
-    // MULO(O1 SUM(M FUN(i T O2)) -> SUM(M FUN(i T MULO(O1 O2)))
+    // DOT(O1 SUM(M FUN(i T O2)) -> SUM(M FUN(i T DOT(O1 O2)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH14, kernel, term) {
 
 
-        MATCH_HEAD(term, MULO, args_MULO_O1_SUM_M_fun_i_T_O2)
+        MATCH_HEAD(term, DOT, args_MULO_O1_SUM_M_fun_i_T_O2)
 
         MATCH_HEAD(args_MULO_O1_SUM_M_fun_i_T_O2[1], SUM, args_SUM_M_fun_i_T_O2)
 
@@ -3738,7 +3603,7 @@ namespace diracoq {
                     {
                         args_FUN_i_T_O2[0],
                         args_FUN_i_T_O2[1],
-                        create_term(MULO, {args_MULO_O1_SUM_M_fun_i_T_O2[0], args_FUN_i_T_O2[2]})
+                        create_term(DOT, {args_MULO_O1_SUM_M_fun_i_T_O2[0], args_FUN_i_T_O2[2]})
                     }
                 )
             }
@@ -3992,7 +3857,7 @@ namespace diracoq {
         return create_term(ZERO);
     }
 
-    // ONEO(QBIT) -> ADD(OUTER(KET(#0) BRA(#0)) OUTER(KET(#1) BRA(#1))
+    // ONEO(QBIT) -> ADD(DOT(KET(#0) BRA(#0)) DOT(KET(#1) BRA(#1))
     DIRACOQ_RULE_DEF(R_QBIT_ONEO, kernel, term) {
 
         MATCH_HEAD(term, ONEO, args_ONEO_QBIT)
@@ -4001,8 +3866,8 @@ namespace diracoq {
 
         return create_term(ADD, 
             {
-                create_term(OUTER, {create_term(KET, {create_term(BASIS0)}), create_term(BRA, {create_term(BASIS0)})}),
-                create_term(OUTER, {create_term(KET, {create_term(BASIS1)}), create_term(BRA, {create_term(BASIS1)})})
+                create_term(DOT, {create_term(KET, {create_term(BASIS0)}), create_term(BRA, {create_term(BASIS0)})}),
+                create_term(DOT, {create_term(KET, {create_term(BASIS1)}), create_term(BRA, {create_term(BASIS1)})})
             }
         );
     }
@@ -4046,7 +3911,6 @@ namespace diracoq {
         R_ADDSID, R_MULSID, R_ADDS0, R_MULS0, R_MULS1, R_MULS2,
 
         R_CONJ0, R_CONJ1, R_CONJ2, R_CONJ3, R_CONJ4, R_CONJ5, R_CONJ6,
-        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12, 
         R_DELTA0, R_DELTA1,
 
         R_SCR0, R_SCR1, R_SCR2, R_SCRK0, R_SCRK1, R_SCRB0, R_SCRB1, R_SCRO0, R_SCRO1,
@@ -4057,13 +3921,12 @@ namespace diracoq {
 
         R_TSR0, R_TSR1, R_TSR2, R_TSR3, R_TSRK0, R_TSRK1, R_TSRK2, R_TSRB0, R_TSRB1, R_TSRB2, R_TSRO0, R_TSRO1, R_TSRO2, R_TSRO3,
 
-        R_MULK0, R_MULK1, R_MULK2, R_MULK3, R_MULK4, R_MULK5, R_MULK6, R_MULK7, R_MULK8, R_MULK9, R_MULK10, R_MULK11,
-
-        R_MULB0, R_MULB1, R_MULB2, R_MULB3, R_MULB4, R_MULB5, R_MULB6, R_MULB7, R_MULB8, R_MULB9, R_MULB10, R_MULB11,
-
-        R_OUTER0, R_OUTER1, R_OUTER2, R_OUTER3, R_OUTER4, R_OUTER5,
-
-        R_MULO0, R_MULO1, R_MULO2, R_MULO3, R_MULO4, R_MULO5, R_MULO6, R_MULO7, R_MULO8, R_MULO9, R_MULO10, R_MULO11, R_MULO12,
+        R_MULO2, R_MULO3, R_MULK3, R_MULK4, R_MULK5, R_MULK6, R_DOT12,
+        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, 
+        R_MULK0, R_MULK1, R_MULK7, R_MULK8, R_MULK10, R_MULK11,
+        R_MULB0, R_MULB1, R_MULB7, R_MULB8, R_MULB9, R_MULB10, R_MULB11,
+        R_OUTER0, R_OUTER1,
+        R_MULO0, R_MULO1, R_MULO4, R_MULO5, R_MULO10, R_MULO11,
 
         R_SET0, R_SUM_CONST0, R_SUM_CONST1, R_SUM_CONST2, R_SUM_CONST3, R_SUM_CONST4,
 
@@ -4095,7 +3958,6 @@ namespace diracoq {
         R_MULS2,    // This rules is still necessary because FullSimplify will not transform a * (b + c) to a * b + a * c
 
         R_CONJ5, R_CONJ6,
-        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12, 
         R_DELTA0, R_DELTA1,
 
         R_SCR0, R_SCR1, R_SCR2, R_SCRK0, R_SCRK1, R_SCRB0, R_SCRB1, R_SCRO0, R_SCRO1,
@@ -4106,13 +3968,12 @@ namespace diracoq {
 
         R_TSR0, R_TSR1, R_TSR2, R_TSR3, R_TSRK0, R_TSRK1, R_TSRK2, R_TSRB0, R_TSRB1, R_TSRB2, R_TSRO0, R_TSRO1, R_TSRO2, R_TSRO3,
 
-        R_MULK0, R_MULK1, R_MULK2, R_MULK3, R_MULK4, R_MULK5, R_MULK6, R_MULK7, R_MULK8, R_MULK9, R_MULK10, R_MULK11,
-
-        R_MULB0, R_MULB1, R_MULB2, R_MULB3, R_MULB4, R_MULB5, R_MULB6, R_MULB7, R_MULB8, R_MULB9, R_MULB10, R_MULB11,
-
-        R_OUTER0, R_OUTER1, R_OUTER2, R_OUTER3, R_OUTER4, R_OUTER5,
-
-        R_MULO0, R_MULO1, R_MULO2, R_MULO3, R_MULO4, R_MULO5, R_MULO6, R_MULO7, R_MULO8, R_MULO9, R_MULO10, R_MULO11, R_MULO12,
+        R_MULO2, R_MULO3, R_MULK3, R_MULK4, R_MULK5, R_MULK6, R_DOT12,
+        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, 
+        R_MULK0, R_MULK1, R_MULK7, R_MULK8, R_MULK10, R_MULK11,
+        R_MULB0, R_MULB1, R_MULB7, R_MULB8, R_MULB9, R_MULB10, R_MULB11,
+        R_OUTER0, R_OUTER1,
+        R_MULO0, R_MULO1, R_MULO4, R_MULO5, R_MULO10, R_MULO11,
 
         R_SET0, R_SUM_CONST0, R_SUM_CONST1, R_SUM_CONST2, R_SUM_CONST3, R_SUM_CONST4,
 

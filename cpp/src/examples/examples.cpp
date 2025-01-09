@@ -177,7 +177,7 @@ QCQI-6
 Block[
  {DiracCtx = {M -> SetType[T], v -> KType[T]}},
  DNEqQ[
-  SUMO[i, M, KET[i]~OUTER~BRA[i]]~MLTK~v,
+  SUMO[i, M, KET[i]~DOT~BRA[i]]~MLTK~v,
   SUMK[i, M, (BRA[i]~DOT~v)~SCRK~KET[i]]
   ]
  ]
@@ -198,7 +198,7 @@ Block[
 QCQI-7
 
 DNEqQ[
- SUMO[i, USET[sigma], KET[i]~OUTER~BRA[i]],
+ SUMO[i, USET[sigma], KET[i]~DOT~BRA[i]],
  ONEO[sigma]
  ]
 */
@@ -216,7 +216,7 @@ DNEqQ[
 QCQI-8
 
 DNEqQ[
- SUMO[i, USET[sigma], KET[i]~OUTER~BRA[i]],
+ SUMO[i, USET[sigma], KET[i]~DOT~BRA[i]],
  ONEO[tau]
  ]
 */
@@ -240,11 +240,11 @@ Block[
     A -> OType[T1, T2], v[_] -> KType[T2]}},
  DNEqQ[
   SUMO[i, M, 
-   SUMO[j, T, (w[j]~OUTER~ADJB[w[j]])~MLTO~A~
-     MLTO~(v[i]~OUTER~ADJB[v[i]])]],
+   SUMO[j, T, (w[j]~DOT~ADJB[w[j]])~MLTO~A~
+     MLTO~(v[i]~DOT~ADJB[v[i]])]],
   SUMO[i, M, 
    SUMO[j, T, (ADJB[w[j]]~DOT~(A~MLTK~v[i]))~
-     SCRO~(w[j]~OUTER~ADJB[v[i]])]]
+     SCRO~(w[j]~DOT~ADJB[v[i]])]]
   ]
  ]
 */
@@ -324,7 +324,7 @@ QCQI-12
 Block[
  {DiracCtx = {M -> SetType[m]}},
  With[
-  {P = SUMO[i, M, KET[i]~OUTER~BRA[i]]},
+  {P = SUMO[i, M, KET[i]~DOT~BRA[i]]},
   DNEqQ[
    P~MLTO~P,
    P
@@ -452,7 +452,7 @@ Block[
   SUMS[i, USET[T2], 
    SUMS[j, USET[
      T2], (((ADJB[psi]~MLTB~ADJO[M[m]])~TSRB~BRA[i])~
-       MLTB~(ONEO[T1]~TSRO~(KET[m]~OUTER~BRA[m])))~
+       MLTB~(ONEO[T1]~TSRO~(KET[m]~DOT~BRA[m])))~
      DOT~((M[j]~MLTK~psi)~TSRK~KET[j])]],
   ADJB[psi]~DOT~(ADJO[M[m]]~MLTO~M[m]~MLTK~psi)
   ]
@@ -478,11 +478,11 @@ QCQI-17
 Block[
  {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
  Module[{
-   X = (KET[0]~OUTER~BRA[1])~ADDO~(KET[1]~OUTER~BRA[0]),
-   Y = (CPX[-I]~SCRO~(KET[0]~OUTER~BRA[1]))~
-     ADDO~(CPX[I]~SCRO~(KET[1]~OUTER~BRA[0])),
-   Z = (KET[0]~OUTER~BRA[0])~ADDO~(CPX[-1]~SCRO~(KET[1]~OUTER~BRA[1])),
-   I2 = (KET[0]~OUTER~BRA[0])~ADDO~(KET[1]~OUTER~BRA[1])
+   X = (KET[0]~DOT~BRA[1])~ADDO~(KET[1]~DOT~BRA[0]),
+   Y = (CPX[-I]~SCRO~(KET[0]~DOT~BRA[1]))~
+     ADDO~(CPX[I]~SCRO~(KET[1]~DOT~BRA[0])),
+   Z = (KET[0]~DOT~BRA[0])~ADDO~(CPX[-1]~SCRO~(KET[1]~DOT~BRA[1])),
+   I2 = (KET[0]~DOT~BRA[0])~ADDO~(KET[1]~DOT~BRA[1])
    },
   Module[
    {
@@ -492,14 +492,14 @@ Block[
     },
    DNEqQ[
     CPX[Exp[I a]]~SCRO~Rz[b]~MLTO~Ry[g]~MLTO~Rz[d],
-    (CPX[Exp[I (a - b/2 - d/2)] Cos[g/2]]~SCRO~(KET[0]~OUTER~BRA[0]))~
+    (CPX[Exp[I (a - b/2 - d/2)] Cos[g/2]]~SCRO~(KET[0]~DOT~BRA[0]))~
      ADDO~
      (CPX[-Exp[I (a - b/2 + d/2)] Sin[g/2]]~
-       SCRO~(KET[0]~OUTER~BRA[1]))~ADDO~
+       SCRO~(KET[0]~DOT~BRA[1]))~ADDO~
      (CPX[Exp[I (a + b/2 - d/2)] Sin[g/2]]~
-       SCRO~(KET[1]~OUTER~BRA[0]))~ADDO~
+       SCRO~(KET[1]~DOT~BRA[0]))~ADDO~
      (CPX[Exp[I (a + b/2 + d/2)] Cos[g/2]]~
-       SCRO~(KET[1]~OUTER~BRA[1]))
+       SCRO~(KET[1]~DOT~BRA[1]))
     ]
    ]
   ]
@@ -699,7 +699,7 @@ COQQ-7 outp_trlf
 Block[
  {DiracCtx = {u -> KType[T], v -> BType[T]}},
  DNEqQ[
-  DNTr[u~OUTER~v, T],
+  DNTr[u~DOT~v, T],
   v~DOT~u
   ]
  ]
@@ -722,7 +722,7 @@ COQQ-8 sumeb_out
 Block[
  {DiracCtx = {}},
  DNEqQ[
-  SUMO[i, USET[T], KET[i]~OUTER~BRA[i]],
+  SUMO[i, USET[T], KET[i]~DOT~BRA[i]],
   ONEO[T]
   ]
  ]
@@ -768,8 +768,8 @@ COQQ-10 comp_delta_lf_cond
 Block[
  {DiracCtx = {i -> T1, j -> T2, k -> T2, l -> T3}},
  DNEqQ[
-  (KET[i]~OUTER~BRA[j])~MLTO~(KET[k]~OUTER~BRA[l]),
-  DELTA[j, k]~SCRO~(KET[i]~OUTER~BRA[l])
+  (KET[i]~DOT~BRA[j])~MLTO~(KET[k]~DOT~BRA[l]),
+  DELTA[j, k]~SCRO~(KET[i]~DOT~BRA[l])
   ]
  ]
 */
@@ -795,8 +795,8 @@ COQQ-11 comp_delta_lf
 Block[
  {DiracCtx = {i -> T1, j -> T2, k -> T3}},
  DNEqQ[
-  (KET[i]~OUTER~BRA[j])~MLTO~(KET[j]~OUTER~BRA[k]),
-  KET[i]~OUTER~BRA[k]
+  (KET[i]~DOT~BRA[j])~MLTO~(KET[j]~DOT~BRA[k]),
+  KET[i]~DOT~BRA[k]
   ]
  ]
 */
@@ -821,7 +821,7 @@ COQQ-12 trlf_deltar
 Block[
  {DiracCtx = {f -> OType[T1, T2], i -> T2, j -> T1}},
  DNEqQ[
-  DNTr[f~MLTO~(KET[i]~OUTER~BRA[j]), T1],
+  DNTr[f~MLTO~(KET[i]~DOT~BRA[j]), T1],
   BRA[j]~DOT~(f~MLTK~KET[i])
   ]
  ]
@@ -848,7 +848,7 @@ Block[
  DNEqQ[
   SUMO[j, USET[T2], 
    SUMO[i, USET[T1], (BRA[i]~DOT~(A~MLTK~KET[j]))~
-     SCRO~(KET[i]~OUTER~BRA[j])]],
+     SCRO~(KET[i]~DOT~BRA[j])]],
   A
   ]
  ]
@@ -912,8 +912,8 @@ COQQ-16 outp_complV
 Block[
  {DiracCtx = {A -> OType[T1, T2], u -> KType[T2], v -> BType[T3]}},
  DNEqQ[
-  (A~MLTK~u)~OUTER~v,
-  A~MLTO~(u~OUTER~v)
+  (A~MLTK~u)~DOT~v,
+  A~MLTO~(u~DOT~v)
   ]
  ]
 */
@@ -938,8 +938,8 @@ COQQ-17 outp_comprV
 Block[
  {DiracCtx = {u -> KType[T1], v -> KType[T2], A -> OType[T3, T2]}},
  DNEqQ[
-  u~OUTER~ADJB[A~MLTK~v],
-  (u~OUTER~ADJB[v])~MLTO~ADJO[A]
+  u~DOT~ADJB[A~MLTK~v],
+  (u~DOT~ADJB[v])~MLTO~ADJO[A]
   ]
  ]
 */
@@ -1570,7 +1570,7 @@ Block[
     A -> OType[T3~ProdType~T2, T5], q -> T5}},
  DNEqQ[
   BRA[PAIR[k, p]]~
-   DOT~(((KET[i]~OUTER~BRA[j]~TSRO~ONEO[T2])~MLTO~A)~MLTK~KET[q]),
+   DOT~(((KET[i]~DOT~BRA[j]~TSRO~ONEO[T2])~MLTO~A)~MLTK~KET[q]),
   DELTA[i, k]~MLTS~(BRA[PAIR[j, p]]~DOT~(A~MLTK~KET[q]))
   ]
  ]
@@ -1602,7 +1602,7 @@ Block[
     j -> T4, k -> T4, q -> T3}},
  DNEqQ[
   BRA[p]~
-   DOT~((A~MLTO~((KET[i]~OUTER~BRA[j])~TSRO~ONEO[T3]))~MLTK~
+   DOT~((A~MLTO~((KET[i]~DOT~BRA[j])~TSRO~ONEO[T3]))~MLTK~
      KET[PAIR[k, q]]),
   DELTA[j, k]~MLTS~(BRA[p]~DOT~(A~MLTK~KET[PAIR[i, q]]))
   ]
@@ -4921,7 +4921,7 @@ Block[
  {DiracCtx = {K -> KType[T1], X -> OType[T2, T2]}},
  DNEqQ[
   initialso[K, T2][X],
-  DNTr[X, T2]~SCRO~(K~OUTER~ADJB[K])
+  DNTr[X, T2]~SCRO~(K~DOT~ADJB[K])
   ]
  ]
 */
@@ -4935,7 +4935,7 @@ Block[
                 Var X : OTYPE[T2, T2].
 
                 (* initialso
-                initialso[K_, T2_] := Module[{i}, SUMO[i, USET[T2],(K~OUTER~Bra[{i}])\[SmallCircle]#\[SmallCircle](Ket[{i}]~OUTER~SuperDagger[(K)])]&];
+                initialso[K_, T2_] := Module[{i}, SUMO[i, USET[T2],(K~DOT~Bra[{i}])\[SmallCircle]#\[SmallCircle](Ket[{i}]~DOT~SuperDagger[(K)])]&];
                  *)
                 Def initialso := idx T1 => idx T2 => fun K : KTYPE[T1] => fun X : OTYPE[T2, T2] => Sum i in USET[T2], (K <i|) X (|i> K^D).
             )",
@@ -4949,7 +4949,7 @@ COQQ-145 initialso_onb(CB)
 Block[
  {DiracCtx = {K -> KType[T1], X -> OType[T2, T2]}},
  DNEqQ[
-  krausso[USET[T2], (K~OUTER~Bra[{#}]) &][X],
+  krausso[USET[T2], (K~DOT~Bra[{#}]) &][X],
   initialso[K, T2][X]
   ]
  ]
@@ -4964,7 +4964,7 @@ Block[
                 Var X : OTYPE[T2, T2].
 
                 (* initialso
-                initialso[K_, T2_] := Module[{i}, SUMO[i, USET[T2],(K~OUTER~Bra[{i}])\[SmallCircle]#\[SmallCircle](Ket[{i}]~OUTER~SuperDagger[(K)])]&];
+                initialso[K_, T2_] := Module[{i}, SUMO[i, USET[T2],(K~DOT~Bra[{i}])\[SmallCircle]#\[SmallCircle](Ket[{i}]~DOT~SuperDagger[(K)])]&];
                  *)
                 Def initialso := idx T1 => idx T2 => fun K : KTYPE[T1] => fun X : OTYPE[T2, T2] => Sum i in USET[T2], (K <i|) X (|i> K^D).
             )",
@@ -4993,7 +4993,7 @@ Block[
                 Var X : OTYPE[T2, T2].
 
                 (* initialso
-                initialso[K_, T2_] := Module[{i}, SUMO[i, USET[T2],(K~OUTER~Bra[{i}])\[SmallCircle]#\[SmallCircle](Ket[{i}]~OUTER~SuperDagger[(K)])]&];
+                initialso[K_, T2_] := Module[{i}, SUMO[i, USET[T2],(K~DOT~Bra[{i}])\[SmallCircle]#\[SmallCircle](Ket[{i}]~DOT~SuperDagger[(K)])]&];
                  *)
                 Def initialso := idx T1 => idx T2 => fun K : KTYPE[T1] => fun X : OTYPE[T2, T2] => Sum i in USET[T2], (K <i|) X (|i> K^D).
             )",

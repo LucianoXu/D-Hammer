@@ -37,7 +37,7 @@ namespace diracoq {
 
     extern const int PAIR, FUN, IDX, APPLY;
     
-    extern const int ZERO, ONE, ADDS, MULS, CONJ, DELTA, DOT, ZEROK, ZEROB, ZEROO, ONEO, KET, BRA, ADJ, SCR, ADD, TSR, MULK, MULB, OUTER, MULO;
+    extern const int ZERO, ONE, ADDS, MULS, CONJ, DELTA, ZEROK, ZEROB, ZEROO, ONEO, KET, BRA, ADJ, SCR, ADD, TSR, DOT;
 
     extern const int USET, CATPROD, SUM;
 

@@ -332,29 +332,11 @@ UNEXPECTED_ERROR:
         if (record.rule == R_MULK1) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULK1" + ")";
         }
-        if (record.rule == R_MULK2) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULK2" + ")";
-        }
-        if (record.rule == R_MULK3) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULK3" + ")";
-        }
-        if (record.rule == R_MULK4) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULK4" + ")";
-        }
-        if (record.rule == R_MULK5) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULK5" + ")";
-        }
-        if (record.rule == R_MULK6) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULK6" + ")";
-        }
         if (record.rule == R_MULK7) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULK7" + ")";
         }
         if (record.rule == R_MULK8) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULK8" + ")";
-        }
-        if (record.rule == R_MULK9) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULK9" + ")";
         }
         if (record.rule == R_MULK10) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULK10" + ")";
@@ -367,21 +349,6 @@ UNEXPECTED_ERROR:
         }
         if (record.rule == R_MULB1) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULB1" + ")";
-        }
-        if (record.rule == R_MULB2) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULB2" + ")";
-        }
-        if (record.rule == R_MULB3) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULB3" + ")";
-        }
-        if (record.rule == R_MULB4) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULB4" + ")";
-        }
-        if (record.rule == R_MULB5) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULB5" + ")";
-        }
-        if (record.rule == R_MULB6) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULB6" + ")";
         }
         if (record.rule == R_MULB7) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULB7" + ")";
@@ -404,18 +371,6 @@ UNEXPECTED_ERROR:
         if (record.rule == R_OUTER1) {
             return "(" + pos_to_string(record.pos) + ", " + "R_OUTER1" + ")";
         }
-        if (record.rule == R_OUTER2) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_OUTER2" + ")";
-        }
-        if (record.rule == R_OUTER3) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_OUTER3" + ")";
-        }
-        if (record.rule == R_OUTER4) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_OUTER4" + ")";
-        }
-        if (record.rule == R_OUTER5) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_OUTER5" + ")";
-        }
         if (record.rule == R_MULO0) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULO0" + ")";
         }
@@ -434,26 +389,11 @@ UNEXPECTED_ERROR:
         if (record.rule == R_MULO5) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULO5" + ")";
         }
-        if (record.rule == R_MULO6) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULO6" + ")";
-        }
-        if (record.rule == R_MULO7) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULO7" + ")";
-        }
-        if (record.rule == R_MULO8) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULO8" + ")";
-        }
-        if (record.rule == R_MULO9) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULO9" + ")";
-        }
         if (record.rule == R_MULO10) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULO10" + ")";
         }
         if (record.rule == R_MULO11) {
             return "(" + pos_to_string(record.pos) + ", " + "R_MULO11" + ")";
-        }
-        if (record.rule == R_MULO12) {
-            return "(" + pos_to_string(record.pos) + ", " + "R_MULO12" + ")";
         }
         if (record.rule == R_SET0) {
             return "(" + pos_to_string(record.pos) + ", " + "R_SET0" + ")";

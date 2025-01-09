@@ -631,29 +631,7 @@ namespace diracoq {
             }
             return SType_term;
         }
-        // (Sca-Dot)
-        if (head == DOT) {
-            arg_number_check(args, 2);
-            
-            auto type_B = calc_type(args[0]);
-            auto& args_B = type_B->get_args();
-            if (type_B->get_head() != BTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type BTYPE.");
-            }
 
-            auto type_K = calc_type(args[1]);
-            auto& args_K = type_K->get_args();
-            if (type_K->get_head() != KTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type KTYPE.");
-            }
-
-            // check whether the index of type_K is the same as the index of type_B
-            if (!is_judgemental_eq(args_B[0], args_K[0])) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
-            }
-
-            return create_term(STYPE);
-        }
 
         // (Ket-Adj), (Bra-Adj), (Opt-Adj)
         if (head == ADJ) {
@@ -746,6 +724,55 @@ namespace diracoq {
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type KTYPE, BTYPE or OTYPE.");
         }
 
+        //
+        if (head == DOT) {
+            arg_number_check(args, 2);
+            
+            auto type_1 = calc_type(args[0]);
+            auto& args_1 = type_1->get_args();
+            auto type_2 = calc_type(args[1]);
+            auto& args_2 = type_2->get_args();
+
+            // (Sca-Dot)
+            if (type_1->get_head() == BTYPE && type_2->get_head() == KTYPE) {
+                if (!is_judgemental_eq(args_1[0], args_2[0])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
+                }
+                return create_term(STYPE);
+            }
+            
+            // (Ket-Mulk)
+            if (type_1->get_head() == OTYPE && type_2->get_head() == KTYPE) {
+                if (!is_judgemental_eq(args_1[1], args_2[0])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
+                }
+                return create_term(KTYPE, {args_1[0]});
+            }
+
+            // (Bra-Mulb)
+            if (type_1->get_head() == BTYPE && type_2->get_head() == OTYPE) {
+                if (!is_judgemental_eq(args_1[0], args_2[0])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the first index of the second argument " + sig.term_to_string(args[1]) + ".");
+                }
+                return create_term(BTYPE, {args_2[1]});
+            }
+
+            // (Opt-Outer)
+            if (type_1->get_head() == KTYPE && type_2->get_head() == BTYPE) {
+                return create_term(OTYPE, {args_1[0], args_2[0]});
+            }
+
+            // (Opt-Mulo)
+            if (type_1->get_head() == OTYPE && type_2->get_head() == OTYPE) {
+                if (!is_judgemental_eq(args_1[1], args_2[0])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
+                }
+                return create_term(OTYPE, {args_1[0], args_2[1]});
+            }
+
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type KTYPE, BTYPE or OTYPE.");
+        }
+
         // (Ket-0)
         if (head == ZEROK) {
             arg_number_check(args, 1);
@@ -768,30 +795,6 @@ namespace diracoq {
             }
 
             return create_term(KTYPE, {args_t[0]});
-        }
-
-        // (Ket-MulK)
-        if (head == MULK) {
-            arg_number_check(args, 2);
-
-            auto type_O = calc_type(args[0]);
-            auto& args_O = type_O->get_args();
-            if (type_O->get_head() != OTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type OTYPE.");
-            }
-
-            auto type_K = calc_type(args[1]);
-            auto& args_K = type_K->get_args();
-            if (type_K->get_head() != KTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type KTYPE.");
-            }
-
-            // check whether the index of type_K is the same as the second index of type_O
-            if (!is_judgemental_eq(args_O[1], args_K[0])) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
-            }
-
-            return create_term(KTYPE, {args_O[0]});
         }
 
         // (Bra-0)
@@ -818,30 +821,6 @@ namespace diracoq {
             return create_term(BTYPE, {args_t[0]});
         }
 
-        // (Bra-MulB)
-        if  (head == MULB) {
-            arg_number_check(args, 2);
-
-            auto type_B = calc_type(args[0]);
-            auto& args_B = type_B->get_args();
-            if (type_B->get_head() != BTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type BTYPE.");
-            }
-
-            auto type_O = calc_type(args[1]);
-            auto& args_O = type_O->get_args();
-            if (type_O->get_head() != OTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type OTYPE.");
-            }
-
-            // check whether the index of type_B is the same as the first index of type_O
-            if (!is_judgemental_eq(args_B[0], args_O[0])) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the first index of the second argument " + sig.term_to_string(args[1]) + ".");
-            }
-
-            return create_term(BTYPE, {args_O[1]});
-        }
-
         // (Opt-0)
         if (head == ZEROO) {
             arg_number_check(args, 2);
@@ -863,51 +842,7 @@ namespace diracoq {
 
             return create_term(OTYPE, {args[0], args[0]});
         }
-
-        // (Opt-Outer)
-        if (head == OUTER) {
-            arg_number_check(args, 2);
-
-            auto type_K = calc_type(args[0]);
-            auto& args_K = type_K->get_args();
-            if (type_K->get_head() != KTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type KTYPE.");
-            }
-
-            auto type_B = calc_type(args[1]);
-            auto& args_B = type_B->get_args();
-            if (type_B->get_head() != BTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type BTYPE.");
-            }
-
-            return create_term(OTYPE, {args_K[0], args_B[0]});
-        }
-
-        // (Opt-MulO)
-        if (head == MULO) {
-            arg_number_check(args, 2);
-
-            auto type_O1 = calc_type(args[0]);
-            auto& args_O1 = type_O1->get_args();
-            if (type_O1->get_head() != OTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type OTYPE.");
-            }
-
-            auto type_O2 = calc_type(args[1]);
-            auto& args_O2 = type_O2->get_args();
-            if (type_O2->get_head() != OTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type OTYPE.");
-            }
-
-            // check whether the second index of type_O1 is the same as the first index of type_O2
-
-            if (!is_judgemental_eq(args_O1[1], args_O2[0])) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the first index of the second argument " + sig.term_to_string(args[1]) + ".");
-            }
-
-            return create_term(OTYPE, {args_O1[0], args_O2[1]});
-        }
-
+        
         // (SET-U)
         if (head == USET) {
             arg_number_check(args, 1);

@@ -60,7 +60,6 @@ namespace diracoq {
             "Times",
             "Conjugate",
             "DELTA",
-            "DOT",
 
             "ZEROK",
             "ZEROB",
@@ -72,11 +71,7 @@ namespace diracoq {
             "SCR",
             "ADD",
             "TSR",
-
-            "MULK",
-            "MULB",
-            "OUTER",
-            "MULO",
+            "DOT",
 
             "USET",
             "CATPROD",
@@ -127,7 +122,6 @@ namespace diracoq {
     const auto MULS = diracoq_sig.get_repr("Times");
     const auto CONJ = diracoq_sig.get_repr("Conjugate");
     const auto DELTA = diracoq_sig.get_repr("DELTA");
-    const auto DOT = diracoq_sig.get_repr("DOT");
 
     const auto ZEROK = diracoq_sig.get_repr("ZEROK");
     const auto ZEROB = diracoq_sig.get_repr("ZEROB");
@@ -139,11 +133,7 @@ namespace diracoq {
     const auto SCR = diracoq_sig.get_repr("SCR");
     const auto ADD = diracoq_sig.get_repr("ADD");
     const auto TSR = diracoq_sig.get_repr("TSR");
-
-    const auto MULK = diracoq_sig.get_repr("MULK");
-    const auto MULB = diracoq_sig.get_repr("MULB");
-    const auto OUTER = diracoq_sig.get_repr("OUTER");
-    const auto MULO = diracoq_sig.get_repr("MULO");
+    const auto DOT = diracoq_sig.get_repr("DOT");
 
     const auto USET = diracoq_sig.get_repr("USET");
     const auto CATPROD = diracoq_sig.get_repr("CATPROD");
