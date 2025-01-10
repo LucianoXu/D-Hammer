@@ -4048,6 +4048,545 @@ namespace diracoq {
         );
     }
 
+    struct L_expand_element {
+        int bound_var;
+        TermPtr<int> index;
+        int reg;
+    };
+
+    pair<TermPtr<int>, vector<L_expand_element>> get_L_expand_info(Kernel& kernel, TermPtr<int> reg) {
+        if (reg->is_atomic()) {
+            auto type = kernel.calc_type(reg);
+            if (type->get_head() != REG) throw std::runtime_error("get_L_expand_info: not a register");
+
+            auto new_bound = kernel.register_symbol(kernel.get_sig().unique_var());
+            return {create_term(new_bound), vector{L_expand_element{new_bound, type->get_args()[0], reg->get_head()}}};
+        }
+
+        else if (reg->get_head() == PAIR) {
+            auto [left, left_info] = get_L_expand_info(kernel, reg->get_args()[0]);
+            auto [right, right_info] = get_L_expand_info(kernel, reg->get_args()[1]);
+            left_info.insert(left_info.end(), right_info.begin(), right_info.end());
+            return {create_term(PAIR, {left, right}), left_info};
+        }
+
+        else {
+            throw std::runtime_error("get_L_expand_info: invalid term");
+        }
+    }
+
+    DIRACOQ_RULE_DEF(R_LABEL_EXPAND, kernel, term) {
+        MATCH_HEAD(term, SUBS, args_SUBS_term_reg)
+
+        auto type = kernel.calc_type(term);
+
+        if (type->get_head() != DTYPE) return std::nullopt;
+
+        auto rset1 = type->get_args()[0];
+        auto rset2 = type->get_args()[1];
+
+        vector<L_expand_element> info;
+        TermPtr<int> inner_term;
+
+        // KET-like expansion
+        if (rset2->is_atomic()) {
+            
+            auto reg = args_SUBS_term_reg[1];
+
+            auto [basis, info1] = get_L_expand_info(kernel, reg);
+
+            // create LKET_basis
+            ListArgs<int> LKET_basis_args;
+            for (const auto& elem : info1) {
+                LKET_basis_args.push_back(create_term(LKET, {create_term(elem.bound_var), create_term(elem.reg)})); 
+            }
+            auto LKET_basis = create_term(LTSR, std::move(LKET_basis_args));
+
+            // create inner term
+            inner_term = create_term(SCR, {
+                create_term(DOT, {
+                    create_term(BRA, {basis}),
+                    term->get_args()[0]
+                }),
+                LKET_basis
+            });
+
+            info = std::move(info1);
+            
+        }
+
+        // BRA-like expansion
+        else if (rset1->is_atomic()) {
+            
+            auto reg = args_SUBS_term_reg[1];
+
+            auto [basis, info2] = get_L_expand_info(kernel, reg);
+
+            // create LBRA_basis
+            ListArgs<int> LBRA_basis_args;
+            for (const auto& elem : info2) {
+                LBRA_basis_args.push_back(create_term(LBRA, {create_term(elem.bound_var), create_term(elem.reg)})); 
+            }
+            auto LBRA_basis = create_term(LTSR, std::move(LBRA_basis_args));
+
+            // create inner term
+            inner_term = create_term(SCR, {
+                create_term(DOT, {
+                    term->get_args()[0],
+                    create_term(KET, {basis})
+                }),
+                LBRA_basis
+            });
+
+            info = std::move(info2);
+        }
+
+        // OPT-like expansion
+        else {
+            
+            auto reg1 = args_SUBS_term_reg[1];
+            auto reg2 = args_SUBS_term_reg[2];
+
+            auto [basis1, info1] = get_L_expand_info(kernel, reg1);
+            auto [basis2, info2] = get_L_expand_info(kernel, reg2);
+
+            // create LBRA_basis
+            ListArgs<int> LKET_basis_args;
+            for (const auto& elem : info1) {
+                LKET_basis_args.push_back(create_term(LKET, {create_term(elem.bound_var), create_term(elem.reg)})); 
+            }
+            auto LKET_basis = create_term(LTSR, std::move(LKET_basis_args));
+
+            ListArgs<int> LBRA_basis_args;
+            for (const auto& elem : info2) {
+                LBRA_basis_args.push_back(create_term(LBRA, {create_term(elem.bound_var), create_term(elem.reg)})); 
+            }
+            auto LBRA_basis = create_term(LTSR, std::move(LBRA_basis_args));
+
+            // create inner term
+            inner_term = create_term(SCR, {
+                create_term(DOT, {
+                    create_term(BRA, {basis1}),
+                    create_term(MULK, {
+                        term->get_args()[0],
+                        create_term(KET, {basis2})
+                    })
+                }),
+                create_term(LDOT, {
+                    LKET_basis,
+                    LBRA_basis
+                })
+            });
+
+            info1.insert(info1.end(), info2.begin(), info2.end());
+            info = std::move(info1);
+
+        }
+    
+        // wrap with SUM
+        for (int i = info.size() - 1; i >= 0; i--) {
+            inner_term = create_term(SUM, {
+                create_term(USET, {info[i].index}),
+                create_term(FUN, {
+                    create_term(info[i].bound_var),
+                    create_term(BASIS, {info[i].index}),
+                    inner_term
+                })
+            });
+        }
+
+        return inner_term;
+    }
+
+    // ADJ(LTSR(D1 D2 ... Dn)) -> LTSR(ADJ(Dn) ... ADJ(D2) ADJ(D1))
+    DIRACOQ_RULE_DEF(R_ADJD0, kernel, term) {
+
+        MATCH_HEAD(term, ADJ, args_ADJ_LTSR_D1_D2_Dn)
+
+        MATCH_HEAD(args_ADJ_LTSR_D1_D2_Dn[0], LTSR, args_LTSR_D1_D2_Dn)
+
+        ListArgs<int> new_args;
+        for (int i = args_LTSR_D1_D2_Dn.size() - 1; i >= 0; i--) {
+            new_args.push_back(create_term(ADJ, {args_LTSR_D1_D2_Dn[i]}));
+        }
+
+        return create_term(LTSR, std::move(new_args));
+    }
+
+    // ADJ(LDOT(D1 D2)) -> LDOT(ADJ(D2) ADJ(D1))
+    DIRACOQ_RULE_DEF(R_ADJD1, kernel, term) {
+
+        MATCH_HEAD(term, ADJ, args_ADJ_LDOT_D1_D2)
+
+        MATCH_HEAD(args_ADJ_LDOT_D1_D2[0], LDOT, args_LDOT_D1_D2)
+
+        return create_term(LDOT, 
+            {
+                create_term(ADJ, {args_LDOT_D1_D2[1]}),
+                create_term(ADJ, {args_LDOT_D1_D2[0]})
+            }
+        );
+    }
+
+    // LTSR(D1 ... SCR(a Dn) ... Dm) -> SCR(a LTSR(D1 ... Dn ... Dm))
+    DIRACOQ_RULE_DEF(R_SCRD0, kernel, term) {
+
+        MATCH_HEAD(term, LTSR, args_LTSR_D1_SCR_a_Dn_Dm)
+
+        auto it = std::find_if(args_LTSR_D1_SCR_a_Dn_Dm.begin(), args_LTSR_D1_SCR_a_Dn_Dm.end(), 
+            [](const auto& arg) { return arg->get_head() == SCR; });
+
+        if (it == args_LTSR_D1_SCR_a_Dn_Dm.end()) return std::nullopt;
+
+        auto a = (*it)->get_args()[0];
+        auto Dn = (*it)->get_args()[1];
+
+        ListArgs<int> new_args;
+
+        // use iterator to iterate and compare with it
+        for (auto it2 = args_LTSR_D1_SCR_a_Dn_Dm.begin(); it2 != args_LTSR_D1_SCR_a_Dn_Dm.end(); it2++) {
+            if (it2 == it) {
+                new_args.push_back(Dn);
+            }
+            else {
+                new_args.push_back(*it2);
+            }
+        }
+
+        return create_term(SCR, {a, create_term(LTSR, std::move(new_args))});
+    }
+
+    // LDOT(SCR(a D1) D2) -> SCR(a LDOT(D1 D2))
+    DIRACOQ_RULE_DEF(R_SCRD1, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_SCR_a_D1_D2)
+
+        MATCH_HEAD(args_LDOT_SCR_a_D1_D2[0], SCR, args_SCR_a_D1)
+
+        return create_term(SCR, 
+            {
+                args_SCR_a_D1[0],
+                create_term(LDOT, {args_SCR_a_D1[1], args_LDOT_SCR_a_D1_D2[1]})
+            }
+        );
+    }
+
+    // LDOT(D1 SCR(a D2)) -> SCR(a LDOT(D1 D2))
+    DIRACOQ_RULE_DEF(R_SCRD2, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_D1_SCR_a_D2)
+
+        MATCH_HEAD(args_LDOT_D1_SCR_a_D2[1], SCR, args_SCR_a_D2)
+
+        return create_term(SCR, 
+            {
+                args_SCR_a_D2[0],
+                create_term(LDOT, {args_LDOT_D1_SCR_a_D2[0], args_SCR_a_D2[1]})
+            }
+        );
+    }
+
+    // LTSR(X1 ... ADD(D1 ... Dn) ... Xm) -> ADD(LTSR(X1 ... D1 ... Xm) ... LTSR(X1 ... Dn ... Xm))
+    DIRACOQ_RULE_DEF(R_TSRD0, kernel, term) {
+
+        MATCH_HEAD(term, LTSR, args_LTSR_X1_ADD_D1_Dn_Xm)
+
+        auto it = std::find_if(args_LTSR_X1_ADD_D1_Dn_Xm.begin(), args_LTSR_X1_ADD_D1_Dn_Xm.end(), 
+            [](const auto& arg) { return arg->get_head() == ADD; });
+
+        if (it == args_LTSR_X1_ADD_D1_Dn_Xm.end()) return std::nullopt;
+
+        ListArgs<int> new_args;
+
+        // use iterator to iterate and compare with it
+        for (int i = 0; i < (*it)->get_args().size(); i++) {
+            ListArgs<int> LTSR_args;
+            for (auto it2 = args_LTSR_X1_ADD_D1_Dn_Xm.begin(); it2 != args_LTSR_X1_ADD_D1_Dn_Xm.end(); it2++) {
+                if (it2 == it) {
+                    LTSR_args.push_back((*it)->get_args()[i]);
+                }
+                else {
+                    LTSR_args.push_back(*it2);
+                }
+            }
+            new_args.push_back(create_term(LTSR, std::move(LTSR_args)));
+        }
+
+        return create_term(ADD, std::move(new_args));
+    }
+
+    // LDOT(ADD(X1 ... Xn) Y) -> ADD(LDOT(X1 Y) ... LDOT(Xn Y))
+    DIRACOQ_RULE_DEF(R_DOTD0, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_ADD_X1_Xn_Y)
+
+        MATCH_HEAD(args_LDOT_ADD_X1_Xn_Y[0], ADD, args_ADD_X1_Xn)
+
+        ListArgs<int> new_args;
+        for (const auto& arg : args_ADD_X1_Xn) {
+            new_args.push_back(create_term(LDOT, {arg, args_LDOT_ADD_X1_Xn_Y[1]}));
+        }
+
+        return create_term(ADD, std::move(new_args));
+    }
+
+    // LDOT(Y ADD(X1 ... Xn)) -> ADD(LDOT(Y X1) ... LDOT(Y Xn))
+    DIRACOQ_RULE_DEF(R_DOTD1, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_Y_ADD_X1_Xn)
+
+        MATCH_HEAD(args_LDOT_Y_ADD_X1_Xn[1], ADD, args_ADD_X1_Xn)
+
+        ListArgs<int> new_args;
+        for (const auto& arg : args_ADD_X1_Xn) {
+            new_args.push_back(create_term(LDOT, {args_LDOT_Y_ADD_X1_Xn[0], arg}));
+        }
+
+        return create_term(ADD, std::move(new_args));
+    }
+
+    // LTSR(X1 ... SUM(M FUN(i T Y)) ... Xn) -> SUM(M FUN(i T LTSR(X1 ... Y ... Xn)))
+    DIRACOQ_RULE_DEF(R_SUM_PUSHD0, kernel, term) {
+
+        MATCH_HEAD(term, LTSR, args_LTSR_X1_SUM_M_fun_i_T_Y_Xn)
+
+        auto it = std::find_if(args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.begin(), args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.end(), 
+            [](const auto& arg) { return arg->get_head() == SUM && arg->get_args()[1]->get_head() == FUN; });
+
+        if (it == args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.end()) return std::nullopt;
+
+        auto M = (*it)->get_args()[0];
+        auto i = (*it)->get_args()[1]->get_args()[0];
+        auto T = (*it)->get_args()[1]->get_args()[1];
+        auto Y = (*it)->get_args()[1]->get_args()[2];
+
+        ListArgs<int> new_args;
+
+        // use iterator to iterate and compare with it
+        for (auto it2 = args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.begin(); it2 != args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.end(); it2++) {
+            if (it2 == it) {
+                new_args.push_back(Y);
+            }
+            else {
+                new_args.push_back(*it2);
+            }
+        }
+
+        return create_term(SUM, 
+            {
+                M,
+                create_term(FUN, 
+                    {
+                        i,
+                        T,
+                        create_term(LTSR, std::move(new_args))
+                    }
+                )
+            }
+        );
+        
+    }
+
+
+    // LDOT(SUM(M FUN(i T Y)) X) -> SUM(M FUN(i T LDOT(Y X)))
+    DIRACOQ_RULE_DEF(R_SUM_PUSHD1, kernel, term) {
+
+        MATCH_HEAD(term, LDOT, args_LDOT_SUM_M_fun_i_T_Y_X)
+
+        MATCH_HEAD(args_LDOT_SUM_M_fun_i_T_Y_X[0], SUM, args_SUM_M_fun_i_T_Y)
+
+        MATCH_HEAD(args_SUM_M_fun_i_T_Y[1], FUN, args_FUN_i_T_Y)
+
+        return create_term(SUM, 
+            {
+                args_SUM_M_fun_i_T_Y[0],
+                create_term(FUN, 
+                    {
+                        args_FUN_i_T_Y[0],
+                        args_FUN_i_T_Y[1],
+                        create_term(LDOT, {args_FUN_i_T_Y[2], args_LDOT_SUM_M_fun_i_T_Y_X[1]})
+                    }
+                )
+            }
+        );
+    }
+
+    // LDOT(Y SUM(M FUN(i T X)) -> SUM(M FUN(i T LDOT(Y X)))
+    DIRACOQ_RULE_DEF(R_SUM_PUSHD2, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_Y_SUM_M_fun_i_T_X)
+
+        MATCH_HEAD(args_LDOT_Y_SUM_M_fun_i_T_X[1], SUM, args_SUM_M_fun_i_T_X)
+
+        MATCH_HEAD(args_SUM_M_fun_i_T_X[1], FUN, args_FUN_i_T_X)
+
+        return create_term(SUM, 
+            {
+                args_SUM_M_fun_i_T_X[0],
+                create_term(FUN, 
+                    {
+                        args_FUN_i_T_X[0],
+                        args_FUN_i_T_X[1],
+                        create_term(LDOT, {args_LDOT_Y_SUM_M_fun_i_T_X[0], args_FUN_i_T_X[2]})
+                    }
+                )
+            }
+        );
+    }
+
+    // A : DTYPE[s1, s2], B : DTYPE[s3, s4], s2 || s3 => LDOT(A B) -> LTSR(A B)
+    DIRACOQ_RULE_DEF(R_L_SORT0, kernel, term) {
+
+        MATCH_HEAD(term, LDOT, args_LDOT_A_B)
+
+        auto type_A = kernel.calc_type(args_LDOT_A_B[0]);
+        auto type_B = kernel.calc_type(args_LDOT_A_B[1]);
+
+        if (type_A->get_head() != DTYPE || type_B->get_head() != DTYPE) return std::nullopt;
+
+        auto s2 = type_A->get_args()[1];
+        auto s3 = type_B->get_args()[0];
+
+        if (!rset_disjoint(s2, s3)) return std::nullopt;
+
+        return create_term(LTSR, args_LDOT_A_B);
+    }
+
+    // LDOT(LBRA(i, r), LKET(j, r)) -> DELTA(i j)
+    DIRACOQ_RULE_DEF(R_L_SORT1, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_LBRA_i_r_LKET_j_r)
+
+        MATCH_HEAD(args_LDOT_LBRA_i_r_LKET_j_r[0], LBRA, args_LBRA_i_r)
+
+        MATCH_HEAD(args_LDOT_LBRA_i_r_LKET_j_r[1], LKET, args_LKET_j_r)
+
+        // check if r is the same
+        if (args_LBRA_i_r[1]->get_head() != args_LKET_j_r[1]->get_head()) return std::nullopt;
+
+        return create_term(DELTA, {args_LBRA_i_r[0], args_LKET_j_r[0]});
+    }
+
+    // LDOT(LBRA(i, r), LTSR(Y1 ... LKET(j, r) ... Yn)) -> SCR(DELTA(i j) LTSR(Y1 ... Yn))
+    DIRACOQ_RULE_DEF(R_L_SORT2, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_LBRA_i_r_LTSR_Y1_LKET_j_r_Yn)
+
+        MATCH_HEAD(args_LDOT_LBRA_i_r_LTSR_Y1_LKET_j_r_Yn[0], LBRA, args_LBRA_i_r)
+
+        MATCH_HEAD(args_LDOT_LBRA_i_r_LTSR_Y1_LKET_j_r_Yn[1], LTSR, args_LTSR_Y1_LKET_j_r_Yn)
+
+        if (args_LTSR_Y1_LKET_j_r_Yn.size() < 2) return std::nullopt;
+
+        auto it = std::find_if(args_LTSR_Y1_LKET_j_r_Yn.begin(), args_LTSR_Y1_LKET_j_r_Yn.end(), 
+            [&](const auto& arg) { return arg->get_head() == LKET && arg->get_args()[1]->get_head() == args_LBRA_i_r[1]->get_head(); });
+
+        if (it == args_LTSR_Y1_LKET_j_r_Yn.end()) return std::nullopt;
+
+        auto j = (*it)->get_args()[0];
+
+        ListArgs<int> new_args;
+
+        // use iterator to iterate and compare with it
+        for (auto it2 = args_LTSR_Y1_LKET_j_r_Yn.begin(); it2 != args_LTSR_Y1_LKET_j_r_Yn.end(); it2++) {
+            if (it2 == it) {
+                continue;
+            }
+            new_args.push_back(*it2);
+        }
+
+        return create_term(SCR, {create_term(DELTA, {args_LBRA_i_r[0], j}), create_term(LTSR, std::move(new_args))});
+    }
+
+    // LDOT(LTSR(X1 ... LBRA(i, r) ... Xn), LKET(j, r)) -> SCR(DELTA(i j) LTSR(X1 ... Xn))
+    DIRACOQ_RULE_DEF(R_L_SORT3, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_LTSR_X1_LBRA_i_r_Xn_LKET_j_r)
+
+
+        MATCH_HEAD(args_LDOT_LTSR_X1_LBRA_i_r_Xn_LKET_j_r[1], LKET, args_LKET_j_r)
+
+        MATCH_HEAD(args_LDOT_LTSR_X1_LBRA_i_r_Xn_LKET_j_r[0], LTSR, args_LTSR_X1_LBRA_i_r_Xn)
+
+        if (args_LTSR_X1_LBRA_i_r_Xn.size() < 2) return std::nullopt;
+
+        auto it = std::find_if(args_LTSR_X1_LBRA_i_r_Xn.begin(), args_LTSR_X1_LBRA_i_r_Xn.end(), 
+            [&](const auto& arg) { return arg->get_head() == LBRA && arg->get_args()[1]->get_head() == args_LKET_j_r[1]->get_head(); });
+
+        if (it == args_LTSR_X1_LBRA_i_r_Xn.end()) return std::nullopt;
+
+        auto i = (*it)->get_args()[0];
+
+        ListArgs<int> new_args;
+
+        // use iterator to iterate and compare with it
+        for (auto it2 = args_LTSR_X1_LBRA_i_r_Xn.begin(); it2 != args_LTSR_X1_LBRA_i_r_Xn.end(); it2++) {
+            if (it2 == it) {
+                continue;
+            }
+            new_args.push_back(*it2);
+        }
+
+        return create_term(SCR, {create_term(DELTA, {i, args_LKET_j_r[0]}), create_term(LTSR, std::move(new_args))});
+    }
+
+    // LDOT(LTSR(X1 ... LBRA(i, r) ... Xn), LTSR(Y1 ... LKET(j, r) ... Yn)) -> SCR(DELTA(i j) LDOT(LTSR(X1 ... Xn) LTSR(Y1 ... Yn)))
+    DIRACOQ_RULE_DEF(R_L_SORT4, kernel, term) {
+        
+        MATCH_HEAD(term, LDOT, args_LDOT_LTSR_X1_LBRA_i_r_Xn_LTSR_Y1_LKET_j_r_Yn)
+
+        MATCH_HEAD(args_LDOT_LTSR_X1_LBRA_i_r_Xn_LTSR_Y1_LKET_j_r_Yn[0], LTSR, args_LTSR_X1_LBRA_i_r_Xn)
+
+        MATCH_HEAD(args_LDOT_LTSR_X1_LBRA_i_r_Xn_LTSR_Y1_LKET_j_r_Yn[1], LTSR, args_LTSR_Y1_LKET_j_r_Yn)
+
+        if (args_LTSR_X1_LBRA_i_r_Xn.size() < 2 || args_LTSR_Y1_LKET_j_r_Yn.size() < 2) return std::nullopt;
+
+        // find pairing i and j
+        bool found_pair = false;
+        int i = 0, j = 0;
+        for (i = 0; i < args_LTSR_X1_LBRA_i_r_Xn.size(); ++i) {
+            if (args_LTSR_X1_LBRA_i_r_Xn[i]->get_head() == LBRA) {
+                for (j = 0; j < args_LTSR_Y1_LKET_j_r_Yn.size(); ++j) {
+                    if (args_LTSR_Y1_LKET_j_r_Yn[j]->get_head() == LKET) {
+                        if (args_LTSR_X1_LBRA_i_r_Xn[i]->get_args()[1]->get_head() == args_LTSR_Y1_LKET_j_r_Yn[j]->get_args()[1]->get_head()) {
+                            found_pair = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (found_pair) break;
+        }
+
+        if (!found_pair) return std::nullopt;
+
+        ListArgs<int> new_args1;
+        for (int i2 = 0; i2 < args_LTSR_X1_LBRA_i_r_Xn.size(); i2++) {
+            if (i2 == i) {
+                continue;
+            }
+            else {
+                new_args1.push_back(args_LTSR_X1_LBRA_i_r_Xn[i2]);
+            }
+        }
+
+
+        ListArgs<int> new_args2;
+        for (int j2 = 0; j2 < args_LTSR_Y1_LKET_j_r_Yn.size(); j2++) {
+            if (j2 == j) {
+                continue;
+            }
+            else {
+                new_args2.push_back(args_LTSR_Y1_LKET_j_r_Yn[j2]);
+            }
+        }
+
+        return create_term(SCR, {
+            create_term(DELTA, {args_LTSR_X1_LBRA_i_r_Xn[i]->get_args()[0], args_LTSR_Y1_LKET_j_r_Yn[j]->get_args()[0]}),
+            create_term(LDOT, {create_term(LTSR, std::move(new_args1)), create_term(LTSR, std::move(new_args2))})
+        });
+
+    }
 
     const std::vector<PosRewritingRule> rules = {
 
@@ -4096,7 +4635,12 @@ namespace diracoq {
         R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1,
 
         // Qubit rules
-        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM
+        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM,
+
+        // Labelled Dirac rules
+        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,
+        R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
+        R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
 
     const std::vector<PosRewritingRule> rules_with_wolfram = {
@@ -4146,7 +4690,12 @@ namespace diracoq {
         R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1,
 
         // Qubit rules
-        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM
+        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM,
+
+        // Labelled Dirac rules
+        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,
+        R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
+        R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
 
 } // namespace diracoq

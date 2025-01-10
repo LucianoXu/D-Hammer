@@ -42,6 +42,7 @@ add_library(
     syntax_theory.cpp
     calculus.cpp
     reduction.cpp
+    label_elim.cpp
     trace.cpp
     prover.cpp
 

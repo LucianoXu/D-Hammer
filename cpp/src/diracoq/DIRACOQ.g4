@@ -25,6 +25,9 @@ term:   ID '[' expr (',' expr)* ']'            # Application
     |   '{' ID (',' ID)* '}'                   # RSet
     |   '{' '}'                                # EmptyRSet 
 
+    |   term '_' term                          # Subscript1
+    |   term '_' term ';' term                 # Subscript2 
+
     |   '<' term '|'                           # Bra
     |   '|' term '>'                           # Ket
     |   'delta' '(' term ',' term ')'          # Delta
@@ -45,9 +48,6 @@ term:   ID '[' expr (',' expr)* ']'            # Application
     |   '0B' '[' term ']'                      # ZeroB
     |   '0O' '[' term ',' term ']'             # ZeroO
     |   '1O' '[' term ']'                      # OneO
-
-    |   term '_' term                          # Subscript1
-    |   term '_' term ';' term                 # Subscript2 
 
     |   '#0'                                   # Basis0
     |   '#1'                                   # Basis1

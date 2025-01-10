@@ -975,6 +975,8 @@ TEST(DiracoqTypeCheck, Label_Tsr) {
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("LTSR[SUBS[K1, r1], SUBS[K2, r2]]"), kernel.parse("DTYPE[RSET[r1, r2], RSET[]]")));
 
+    EXPECT_TRUE(kernel.type_check(kernel.parse("LTSR[SUBS[K1, r1], SUBS[K2, r2], SUBS[0B[T1], r1]]"), kernel.parse("DTYPE[RSET[r1, r2], RSET[r1]]")));
+
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("LTSR[SUBS[K1, r1], SUBS[K2, r1]]"), kernel.parse("DTYPE[RSET[r1], RSET[]]")));
 }
 
@@ -991,6 +993,18 @@ TEST(DiracoqTypeCheck, Label_Dot) {
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("LDOT[SUBS[O, r2, r1], SUBS[K, r1]]"), kernel.parse("DTYPE[RSET[r2], RSET[]]")));
     EXPECT_TRUE(kernel.type_check(kernel.parse("LDOT[SUBS[O, r2, r1], SUBS[K, r3]]"), kernel.parse("DTYPE[RSET[r2, r3], RSET[r1]]")));
+}
+
+TEST(DiracoqTypeCheck, Sum_Label) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("sigma"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("s"), kernel.parse("SET[T]"));
+    kernel.assum(kernel.register_symbol("f"), kernel.parse("ARROW[BASIS[T], DTYPE[RSET[r1], RSET[]]]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUM[s, f]"), kernel.parse("DTYPE[RSET[r1], RSET[]]")));    
 }
 
 ///////////////////////////////////////////////////////////////////////

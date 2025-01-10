@@ -25,6 +25,8 @@ namespace diracoq {
      */
     bool reg_disjoint(ualg::TermPtr<int> reg1, ualg::TermPtr<int> reg2);
 
+    bool rset_disjoint(ualg::TermPtr<int> rset1, ualg::TermPtr<int> rset2);
+
 
     struct Declaration {
         std::optional<ualg::TermPtr<int>> def;

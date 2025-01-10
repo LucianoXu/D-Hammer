@@ -52,3 +52,9 @@ INSTANTIATE_TEST_SUITE_P(
     EqExampleTest,   // Test case class
     ::testing::ValuesIn(eq_examples)  // Provide the vector of examples
 );
+
+INSTANTIATE_TEST_SUITE_P(
+    LabelledEqExampleTests,  // Test suite name
+    EqExampleTest,   // Test case class
+    ::testing::ValuesIn(labelled_eq_examples)  // Provide the vector of examples
+);

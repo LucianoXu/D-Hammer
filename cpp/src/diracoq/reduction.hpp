@@ -686,6 +686,60 @@ namespace diracoq {
     // SUM(USET(QBIT) FUN(i BASIS(QBIT) X)) -> ADD(X{i/#0} X{i/#1})
     DIRACOQ_RULE_DEF(R_QBIT_SUM, kernel, term);
 
+
+    DIRACOQ_RULE_DEF(R_LABEL_EXPAND, kernel, term);
+
+    // ADJ(LTSR(D1 D2 ... Dn)) -> LTSR(ADJ(Dn) ... ADJ(D2) ADJ(D1))
+    DIRACOQ_RULE_DEF(R_ADJD0, kernel, term);
+
+    // ADJ(LDOT(D1 D2)) -> LDOT(ADJ(D2) ADJ(D1))
+    DIRACOQ_RULE_DEF(R_ADJD1, kernel, term);
+
+    // ADJ(LDOT(D1 D2)) -> LDOT(ADJ(D2) ADJ(D1))
+    DIRACOQ_RULE_DEF(R_ADJD1, kernel, term);
+    
+    // LTSR(D1 ... SCR(a Dn) ... Dm) -> SCR(a LTSR(D1 ... Dn ... Dm))
+    DIRACOQ_RULE_DEF(R_SCRD0, kernel, term);
+
+    // LDOT(SCR(a D1) D2) -> SCR(a LDOT(D1 D2))
+    DIRACOQ_RULE_DEF(R_SCRD1, kernel, term);
+
+    // LDOT(D1 SCR(a D2)) -> SCR(a LDOT(D1 D2))
+    DIRACOQ_RULE_DEF(R_SCRD2, kernel, term);
+
+    // LTSR(X1 ... ADD(D1 ... Dn) ... Xm) -> ADD(LTSR(X1 ... D1 ... Xm) ... LTSR(X1 ... Dn ... Xm))
+    DIRACOQ_RULE_DEF(R_TSRD0, kernel, term);
+
+    // LDOT(ADD(X1 ... Xn) Y) -> ADD(LDOT(X1 Y) ... LDOT(Xn Y))
+    DIRACOQ_RULE_DEF(R_DOTD0, kernel, term);
+
+    // LDOT(Y ADD(X1 ... Xn)) -> ADD(LDOT(Y X1) ... LDOT(Y Xn))
+    DIRACOQ_RULE_DEF(R_DOTD1, kernel, term);
+
+    // LTSR(X1 ... SUM(M FUN(i T Y)) ... Xn) -> SUM(M FUN(i T LTSR(X1 ... Y ... Xn)))
+    DIRACOQ_RULE_DEF(R_SUM_PUSHD0, kernel, term);
+
+    // LDOT(SUM(M FUN(i T Y)) X) -> SUM(M FUN(i T LDOT(Y X)))
+    DIRACOQ_RULE_DEF(R_SUM_PUSHD1, kernel, term);
+
+    // LDOT(Y SUM(M FUN(i T X)) -> SUM(M FUN(i T LDOT(Y X)))
+    DIRACOQ_RULE_DEF(R_SUM_PUSHD2, kernel, term);
+
+    // A : DTYPE[s1, s2], B : DTYPE[s3, s4], s2 || s3 => LDOT(A B) -> LTSR(A B)
+    DIRACOQ_RULE_DEF(R_L_SORT0, kernel, term);
+
+    // LDOT(LBRA(i, r), LKET(j, r)) -> DELTA(i j)
+    DIRACOQ_RULE_DEF(R_L_SORT1, kernel, term);
+
+    // LDOT(LBRA(i, r), LTSR(Y1 ... LKET(j, r) ... Yn)) -> SCR(DELTA(i j) LTSR(Y1 ... Yn))
+    DIRACOQ_RULE_DEF(R_L_SORT2, kernel, term);
+
+    // LDOT(LTSR(X1 ... LBRA(i, r) ... Xn), LKET(j, r)) -> SCR(DELTA(i j) LTSR(X1 ... Xn))
+    DIRACOQ_RULE_DEF(R_L_SORT3, kernel, term);
+
+    // LDOT(LTSR(X1 ... LBRA(i, r) ... Xn), LTSR(Y1 ... LKET(j, r) ... Yn)) -> SCR(DELTA(i j) LDOT(LTSR(X1 ... Xn) LTSR(Y1 ... Yn)))
+    DIRACOQ_RULE_DEF(R_L_SORT4, kernel, term);
+
     // The rule list.
     extern const std::vector<PosRewritingRule> rules;
 

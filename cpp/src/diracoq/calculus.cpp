@@ -1099,7 +1099,7 @@ namespace diracoq {
             );
         }
 
-        // (Sum-Scalar), (Sum-Ket), (Sum-Bra), (Sum-Opt)
+        // (Sum-Scalar), (Sum-Ket), (Sum-Bra), (Sum-Opt), (Sum-Label)
         if (head == SUM) {
             arg_number_check(args, 2);
 
@@ -1125,12 +1125,12 @@ namespace diracoq {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the first argument of the second argument " + sig.term_to_string(args[1]) + ".");
             }
 
-            if (args_f[1]->get_head() == STYPE || args_f[1]->get_head() == KTYPE || args_f[1]->get_head() == BTYPE || args_f[1]->get_head() == OTYPE) {
+            if (args_f[1]->get_head() == STYPE || args_f[1]->get_head() == KTYPE || args_f[1]->get_head() == BTYPE || args_f[1]->get_head() == OTYPE || args_f[1]->get_head() == DTYPE) {
                 return args_f[1];
             }
 
             else {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type STYPE, KTYPE, BTYPE or OTYPE.");
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type STYPE, KTYPE, BTYPE, OTYPE or DTYPE.");
             }
         }
 
@@ -1284,30 +1284,31 @@ namespace diracoq {
 
         // (Label-LTSR)
         if (head == LTSR) {
-            arg_number_check(args, 2);
-
-            auto type_X1 = calc_type(args[0]);
-            auto type_X1_head = type_X1->get_head();
-            auto& args_X1 = type_X1->get_args();
-            auto type_X2 = calc_type(args[1]);
-            auto type_X2_head = type_X2->get_head();
-            auto& args_X2 = type_X2->get_args();
             
-            if (type_X1_head != DTYPE || type_X2_head != DTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type DTYPE.");
+            if (args.size() < 1) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has less than one arguments.");
             }
 
-            // check extra conditions
-            if (!rset_disjoint(args_X1[0], args_X2[0]) || !rset_disjoint(args_X1[1], args_X2[1])) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " and the second argument " + sig.term_to_string(args[1]) + " are not disjoint.");
-            }
+            TermPtr<int> rset1 = create_term(RSET, {});
+            TermPtr<int> rset2 = create_term(RSET, {});
 
-            return create_term(DTYPE, 
-                {
-                    rset_union(args_X1[0], args_X2[0]), 
-                    rset_union(args_X1[1], args_X2[1])
+            for (int i = 0; i < args.size(); i++) {
+                auto type_X = calc_type(args[i]);
+                auto type_X_head = type_X->get_head();
+                auto& args_X = type_X->get_args();
+                if (type_X_head != DTYPE) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not of type DTYPE.");
                 }
-            );  
+
+                if (!rset_disjoint(args_X[0], rset1) || !rset_disjoint(args_X[1], rset2)) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not disjoint with the previous arguments.");
+                }
+
+                rset1 = rset_union(rset1, args_X[0]);
+                rset2 = rset_union(rset2, args_X[1]);
+            }
+
+            return create_term(DTYPE, {rset1, rset2});  
             
         }
 

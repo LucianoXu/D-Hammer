@@ -162,7 +162,7 @@ namespace diracoq {
     const auto LTSR = diracoq_sig.get_repr("LTSR");
     const auto LDOT = diracoq_sig.get_repr("LDOT");
 
-    const std::set<int> a_symbols = {ADDS, MULS, ADD};
-    const std::set<int> c_symbols = {ADDS, MULS, DELTA, ADD};
+    const std::set<int> a_symbols = {ADDS, MULS, ADD, LTSR};
+    const std::set<int> c_symbols = {ADDS, MULS, DELTA, ADD, LTSR};
 
 } // namespace diracoq

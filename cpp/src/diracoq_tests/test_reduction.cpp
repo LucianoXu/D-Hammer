@@ -1266,6 +1266,113 @@ TEST(DiracoqReduction, R_QBIT_ZEROO) {
     TEST_RULE({R_QBIT_SUM}, "SUM[USET[QBIT], FUN[i, BASIS[QBIT], OUTER[KET[i], BRA[i]]]]", "ADD[OUTER[KET[#0], BRA[#0]], OUTER[KET[#1], BRA[#1]]]");
 }
 
+TEST(DiracoqReduction, R_LABEL_EXPAND_K) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T1]"));
+
+    TEST_RULE(kernel, {R_LABEL_EXPAND}, "SUBS[K, r]", "SUM[USET[T1], FUN[$0, BASIS[T1], SCR[DOT[BRA[$0], K], LTSR[LKET[$0, r]]]]]");
+}
+
+
+TEST(DiracoqReduction, R_LABEL_EXPAND_B) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[T1]"));
+
+    TEST_RULE(kernel, {R_LABEL_EXPAND}, "SUBS[B, r]", "SUM[USET[T1], FUN[$0, BASIS[T1], SCR[DOT[B, KET[$0]], LTSR[LBRA[$0, r]]]]]");
+}
+
+
+
+TEST(DiracoqReduction, R_LABEL_EXPAND_O) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T1, T1]"));
+
+    TEST_RULE(kernel, {R_LABEL_EXPAND}, "SUBS[O, r, r]", "SUM[USET[T1], FUN[$0, BASIS[T1], SUM[USET[T1], FUN[$1, BASIS[T1], SCR[DOT[BRA[$0], MULK[O, KET[$1]]], LDOT[LTSR[LKET[$0, r]], LTSR[LBRA[$1, r]]]]]]]]");
+}
+
+TEST(DiracoqReduction, R_ADJD0) {
+    TEST_RULE({R_ADJD0}, "ADJ[LTSR[X1, X2, X3]]", "LTSR[ADJ[X3], ADJ[X2], ADJ[X1]]");
+}
+
+TEST(DiracoqReduction, R_ADJD1) {
+    TEST_RULE({R_ADJD1}, "ADJ[LDOT[X1, X2]]", "LDOT[ADJ[X2], ADJ[X1]]");
+}
+
+TEST(DiracoqReduction, R_SCRD0) {
+    TEST_RULE({R_SCRD0}, "LTSR[SCR[a, X1], X2, X3]", "SCR[a, LTSR[X1, X2, X3]]");
+}
+
+TEST(DiracoqReduction, R_SCRD1) {
+    TEST_RULE({R_SCRD1}, "LDOT[SCR[a, X1], X2]", "SCR[a, LDOT[X1, X2]]");
+}
+
+TEST(DiracoqReduction, R_SCRD2) {
+    TEST_RULE({R_SCRD2}, "LDOT[X1, SCR[a, X2]]", "SCR[a, LDOT[X1, X2]]");
+}
+
+TEST(DiracoqReduction, R_TSRD0) {
+    TEST_RULE({R_TSRD0}, "LTSR[X1, ADD[X2, X3], X4]", "ADD[LTSR[X1, X2, X4], LTSR[X1, X3, X4]]");
+}
+
+TEST(DiracoqReduction, R_DOTD0) {
+    TEST_RULE({R_DOTD0}, "LDOT[ADD[X1, X2], X3]", "ADD[LDOT[X1, X3], LDOT[X2, X3]]");
+}
+
+TEST(DiracoqReduction, R_DOTD1) {
+    TEST_RULE({R_DOTD1}, "LDOT[X1, ADD[X2, X3]]", "ADD[LDOT[X1, X2], LDOT[X1, X3]]");
+}
+
+TEST(DiracoqReduction, R_SUM_PUSHD0) {
+    TEST_RULE({R_SUM_PUSHD0}, "LTSR[X1, SUM[M, FUN[i, BASIS[T], X2]], X3]", "SUM[M, FUN[i, BASIS[T], LTSR[X1, X2, X3]]]"); 
+}
+
+TEST(DiracoqReduction, R_SUM_PUSHD1) {
+    TEST_RULE({R_SUM_PUSHD1}, "LDOT[SUM[M, FUN[i, BASIS[T], X1]], X2]", "SUM[M, FUN[i, BASIS[T], LDOT[X1, X2]]]"); 
+}
+
+TEST(DiracoqReduction, R_SUM_PUSHD2) {
+    TEST_RULE({R_SUM_PUSHD2}, "LDOT[X1, SUM[M, FUN[i, BASIS[T], X2]]]", "SUM[M, FUN[i, BASIS[T], LDOT[X1, X2]]]");
+}
+
+TEST(DiracoqReduction, R_L_SORT0) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T1]"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[T2]"));
+    
+    TEST_RULE(kernel, {R_L_SORT0}, "LDOT[SUBS[K, r1], SUBS[B, r2]]", "LTSR[SUBS[K, r1], SUBS[B, r2]]");
+}
+
+TEST(DiracoqReduction, R_L_SORT1) {
+    TEST_RULE({R_L_SORT1}, "LDOT[LBRA[i, r], LKET[j, r]]", "DELTA[i, j]");
+}
+
+TEST(DiracoqReduction, R_L_SORT2) {
+    TEST_RULE({R_L_SORT2}, "LDOT[LBRA[i, r], LTSR[X1, X2, LKET[j, r], X3]]", "SCR[DELTA[i, j], LTSR[X1, X2, X3]]");
+}
+
+TEST(DiracoqReduction, R_L_SORT3) {
+    TEST_RULE({R_L_SORT3}, "LDOT[LTSR[X1, X2, LBRA[i, r], X3], LKET[j, r]]", "SCR[DELTA[i, j], LTSR[X1, X2, X3]]");
+}
+
+TEST(DiracoqReduction, R_L_SORT4) {
+    TEST_RULE({R_L_SORT4}, 
+        "LDOT[LTSR[X1, X2, LBRA[i, r]], LTSR[Y1, LKET[j, r], Y2]]", 
+        "SCR[DELTA[i, j], LDOT[LTSR[X1, X2], LTSR[Y1, Y2]]]"); 
+}
+
 // ///////////////////////////////////////////////////////
 // // Combined Tests
 

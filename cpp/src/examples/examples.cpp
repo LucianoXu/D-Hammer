@@ -5667,5 +5667,35 @@ Block[
     };
 
 
+    std::vector<EqExample> labelled_eq_examples = {
+        {
+            "Example1",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var s : BASIS[T1].
+                Var t : BASIS[T2].
+                Var Q : REG[T1].
+                Var R : REG[T2].
+            )",
+            "|s>_Q * |t>_R",
+            "|(s, t)>_(Q, R)"
+        },
+
+        {
+            "Example2",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var Q : REG[T1].
+                Var R : REG[T2].
+                Var O1 : OTYPE[T1, T1].
+                Var O2 : OTYPE[T1 * T2, T1 * T2].
+            )",
+            "O1_Q;Q O2_(Q,R);(Q,R)",
+            "((O1 * 1O[T2]) O2)_(Q,R);(Q,R)"
+        }
+    };
+
 
 };

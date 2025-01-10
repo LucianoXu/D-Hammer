@@ -14,4 +14,6 @@ namespace examples {
 
     extern std::vector<EqExample> eq_examples;
 
+    extern std::vector<EqExample> labelled_eq_examples;
+
 }   // namespace examples

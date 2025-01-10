@@ -7,5 +7,6 @@
 #include "syntax_theory.hpp"
 #include "calculus.hpp"
 #include "reduction.hpp"
+#include "label_elim.hpp"
 #include "trace.hpp"
 #include "prover.hpp"
