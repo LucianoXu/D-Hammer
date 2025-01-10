@@ -41,6 +41,11 @@ namespace diracoq {
 
     extern const int USET, CATPROD, SUM;
 
+    // about labelled Dirac notations
+    extern const int RSET;
+    extern const int DTYPE, REG;
+    extern const int LKET, LBRA, SUBS, LTSR, LDOT;
+
     extern const std::set<int> a_symbols;
     extern const std::set<int> c_symbols;
     

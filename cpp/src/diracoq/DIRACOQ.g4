@@ -20,7 +20,10 @@ cmd :   'Def' ID ':=' expr '.'         # Definition0
     |   'CheckEq' expr 'with' expr '.'      # CheckEq
     ;
 
-term:   ID '[' expr (',' expr)* ']'                # Application
+term:   ID '[' expr (',' expr)* ']'            # Application
+    |   ID '[' ']'                             # EmptyApplication
+    |   '{' ID (',' ID)* '}'                   # RSet
+    |   '{' '}'                                # EmptyRSet 
 
     |   '<' term '|'                           # Bra
     |   '|' term '>'                           # Ket
@@ -43,6 +46,9 @@ term:   ID '[' expr (',' expr)* ']'                # Application
     |   '0O' '[' term ',' term ']'             # ZeroO
     |   '1O' '[' term ']'                      # OneO
 
+    |   term '_' term                          # Subscript1
+    |   term '_' term ';' term                 # Subscript2 
+
     |   '#0'                                   # Basis0
     |   '#1'                                   # Basis1
 
@@ -51,5 +57,5 @@ term:   ID '[' expr (',' expr)* ']'                # Application
     ;
 
 // Lexer rules
-ID  :   ([a-zA-Z0-9_$][a-zA-Z0-9_]*)|([+-]?[0-9]+) ;       // standard identifier
+ID  :   ([a-zA-Z0-9$][a-zA-Z0-9]*)|([+-]?[0-9]+) ;       // standard identifier
 WS  :   [ \t\r\n]+ -> skip ;  // Skip whitespace (spaces, tabs, newlines)

@@ -83,8 +83,36 @@ namespace diracoq {
      */
     ualg::TermPtr<int> to_deBruijn(ualg::Signature<int>& sig, ualg::TermPtr<int> term);
 
+    inline bool is_eq_modulo_rset(ualg::TermPtr<int> termA, ualg::TermPtr<int> termB) {
+        if (termA->get_head() != termB->get_head()) {
+            return false;
+        }
+        auto argsA = termA->get_args();
+        auto argsB = termB->get_args();
+
+        if (argsA.size() != argsB.size()) {
+            return false;
+        }
+        // consider the case of RSET
+        if (termA->get_head() == RSET) {
+            std::sort(argsA.begin(), argsA.end(), [](const auto& a, const auto& b) {
+                return a->get_head() < b->get_head();
+            });
+            std::sort(argsB.begin(), argsB.end(), [](const auto& a, const auto& b) {
+                return a->get_head() < b->get_head();
+            });
+        }
+        for (int i = 0; i < argsA.size(); i++) {
+            if (!is_eq_modulo_rset(argsA[i], argsB[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+        
+
     inline bool is_eq(ualg::Signature<int>& sig, ualg::TermPtr<int> termA, ualg::TermPtr<int> termB) {
-        return *to_deBruijn(sig, termA) == *to_deBruijn(sig, termB);
+        return is_eq_modulo_rset(to_deBruijn(sig, termA), to_deBruijn(sig, termB));
     }
 
 } // namespace diracoq

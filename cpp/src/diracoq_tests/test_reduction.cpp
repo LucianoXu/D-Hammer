@@ -226,6 +226,17 @@ TEST(DiracoqReduction, R_COMPO_OO) {
     TEST_RULE(kernel, {R_COMPO_OO}, "COMPO[O1, O2]", "MULO[O1, O2]");
 }
 
+TEST(DiracoqReduction, R_COMPO_DD) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+    kernel.assum(kernel.register_symbol("D1"), kernel.parse("DTYPE[RSET[r1], RSET[r2]]"));
+    kernel.assum(kernel.register_symbol("D2"), kernel.parse("DTYPE[RSET[r2], RSET[r1]]"));
+    TEST_RULE(kernel, {R_COMPO_DD}, "COMPO[D1, D2]", "LDOT[D1, D2]");
+}
+
 TEST(DiracoqReduction, R_COMPO_ARROW) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("TYPE"));
@@ -273,6 +284,18 @@ TEST(DiracoqReduction, R_STAR_CATPROD) {
     kernel.assum(kernel.register_symbol("S1"), kernel.parse("SET[T1]"));
     kernel.assum(kernel.register_symbol("S2"), kernel.parse("SET[T2]"));
     TEST_RULE(kernel, {R_STAR_CATPROD}, "STAR[S1, S2]", "CATPROD[S1, S2]");
+}
+
+TEST(DiracoqReduction, R_STAR_LTSR) {
+    Kernel kernel;
+    
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+    kernel.assum(kernel.register_symbol("D1"), kernel.parse("DTYPE[RSET[r1], RSET[r2]]"));
+    kernel.assum(kernel.register_symbol("D2"), kernel.parse("DTYPE[RSET[r2], RSET[r1]]"));
+    TEST_RULE(kernel, {R_STAR_LTSR}, "STAR[D1, D2]", "LTSR[D1, D2]");
 }
 
 TEST(DiracoqReduction, R_ADDG_ADDS) {

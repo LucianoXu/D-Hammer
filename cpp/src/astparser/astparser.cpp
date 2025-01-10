@@ -16,6 +16,8 @@ namespace astparser {
         // Called when entering a 'Application' node
         void exitApplication(ASTParser::ApplicationContext *ctx) override;
 
+        void exitEmptyApplication(ASTParser::EmptyApplicationContext *ctx) override;
+
     private:
         std::stack<AST> node_stack;
     };
@@ -61,6 +63,10 @@ namespace astparser {
         node_stack.push(application_term);
     }
 
+    void ASTTermBuilder::exitEmptyApplication(ASTParser::EmptyApplicationContext *ctx) {
+        std::string function_name = ctx->ID()->getText();
+        node_stack.push(AST{function_name, {}});
+    }
 
     std::optional<AST> parse(const std::string& code) {
         using namespace antlr4;

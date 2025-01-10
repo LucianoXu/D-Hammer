@@ -197,6 +197,19 @@ TEST(DiracoqTypeCheck, COMPO_OO) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[O1, O2]"), kernel.parse("OTYPE[T1, T3]")));
 }
 
+TEST(DiracoqTypeCheck, COMPO_DD) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+    kernel.assum(kernel.register_symbol("D1"), kernel.parse("DTYPE[RSET[r1], RSET[r2]]"));
+    kernel.assum(kernel.register_symbol("D2"), kernel.parse("DTYPE[RSET[r2], RSET[r1]]"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[D1, D2]"), kernel.parse("DTYPE[RSET[r1], RSET[r1]]")));
+
+}
+
 TEST(DiracoqTypeCheck, COMPO_Arrow) {
     Kernel kernel;
 
@@ -232,6 +245,18 @@ TEST(DiracoqTypeCheck, STAR_Index) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("STAR[a, b]"), kernel.parse("INDEX")));
 }
 
+TEST(DiracoqTypeCheck, STAR_TSRO) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T3"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("O1"), kernel.parse("OTYPE[T1, T2]"));
+    kernel.assum(kernel.register_symbol("O2"), kernel.parse("OTYPE[T2, T3]"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("STAR[O1, O2]"), kernel.parse("OTYPE[PROD[T1, T2], PROD[T2, T3]]")));
+
+}
+
 TEST(DiracoqTypeCheck, STAR_SET) {
     Kernel kernel;
 
@@ -239,6 +264,18 @@ TEST(DiracoqTypeCheck, STAR_SET) {
     kernel.assum(kernel.register_symbol("a"), kernel.parse("SET[T]"));
     kernel.assum(kernel.register_symbol("b"), kernel.parse("SET[T]"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("STAR[a, b]"), kernel.parse("SET[PROD[T, T]]")));
+}
+
+TEST(DiracoqTypeCheck, STAR_DType) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+    kernel.assum(kernel.register_symbol("D1"), kernel.parse("DTYPE[RSET[r1], RSET[r2]]"));
+    kernel.assum(kernel.register_symbol("D2"), kernel.parse("DTYPE[RSET[r2], RSET[r1]]"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("STAR[D1, D2]"), kernel.parse("DTYPE[RSET[r1, r2], RSET[r2, r1]]")));
 }
 
 TEST(DiracoqTypeCheck, ADDG_SType) {
@@ -810,6 +847,151 @@ TEST(DiracoqTypeCheck, Sum_Opt) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM[s, f]"), kernel.parse("OTYPE[sigma, tau]")));
 }
 
+TEST(DiracoqTypeCheck, Type_Labelled) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("DTYPE[RSET[r1, r2], RSET[]]"), kernel.parse("TYPE")));
+
+    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("DTYPE[RSET[r2, r1], r1]"), kernel.parse("TYPE")));
+}
+
+TEST(DiracoqTypeCheck, Reg_RPair) {
+    Kernel kernel;
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("R1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("R2"), kernel.parse("REG[T2]"));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("PAIR[R1, R2]"), kernel.parse("REG[PROD[T1, T2]]")));
+}
+
+
+TEST(DiracoqTypeCheck, Type_L_Base_Ket) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("k"), kernel.parse("BASIS[T]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("LKET[k, r]"), kernel.parse("DTYPE[RSET[r], RSET[]]")));
+}
+
+TEST(DiracoqTypeCheck, Type_L_Base_Bra) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("k"), kernel.parse("BASIS[T]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("LBRA[k, r]"), kernel.parse("DTYPE[RSET[], RSET[r]]")));
+}
+
+TEST(DiracoqTypeCheck, Type_L_Ket) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUBS[K, r1]"), kernel.parse("DTYPE[RSET[r1], RSET[]]")));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUBS[TSR[K, K], PAIR[r1, r2]]"), kernel.parse("DTYPE[RSET[r2, r1], RSET[]]")));
+}
+
+TEST(DiracoqTypeCheck, Type_L_Bra) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[T]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUBS[B, r]"), kernel.parse("DTYPE[RSET[], RSET[r]]")));
+}
+
+TEST(DiracoqTypeCheck, Type_L_Opt) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T1, T2]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUBS[O, r1, r2]"), kernel.parse("DTYPE[RSET[r1], RSET[r2]]")));
+}
+
+TEST(DiracoqTypeCheck, Label_Adj) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("ADJ[SUBS[K, r]]"), kernel.parse("DTYPE[RSET[], RSET[r]]")));
+}
+
+TEST(DiracoqTypeCheck, Label_Scr) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SCR[a, SUBS[K, r]]"), kernel.parse("DTYPE[RSET[r], RSET[]]")));
+}
+
+TEST(DiracoqTypeCheck, Label_Add) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T]"));
+    kernel.assum(kernel.register_symbol("r3"), kernel.parse("REG[T]"));
+    
+    kernel.assum(kernel.register_symbol("K1"), kernel.parse("KTYPE[T]"));
+    kernel.assum(kernel.register_symbol("K2"), kernel.parse("KTYPE[T]"));
+    kernel.assum(kernel.register_symbol("K3"), kernel.parse("KTYPE[T]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("ADD[SUBS[K1, r1], SUBS[K2, r1], SUBS[K3, r1]]"), kernel.parse("DTYPE[RSET[r1], RSET[]]")));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("ADD[SUBS[TSR[K1, K2], PAIR[r1, r2]], SUBS[TSR[K2, K1], PAIR[r2, r1]]]"), kernel.parse("DTYPE[RSET[r1, r2], RSET[]]")));
+}
+
+TEST(DiracoqTypeCheck, Label_Tsr) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+    kernel.assum(kernel.register_symbol("K1"), kernel.parse("KTYPE[T1]"));
+    kernel.assum(kernel.register_symbol("K2"), kernel.parse("KTYPE[T2]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("LTSR[SUBS[K1, r1], SUBS[K2, r2]]"), kernel.parse("DTYPE[RSET[r1, r2], RSET[]]")));
+
+    EXPECT_ANY_THROW(kernel.type_check(kernel.parse("LTSR[SUBS[K1, r1], SUBS[K2, r1]]"), kernel.parse("DTYPE[RSET[r1], RSET[]]")));
+}
+
+TEST(DiracoqTypeCheck, Label_Dot) {
+    Kernel kernel;
+
+    kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
+    kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
+    kernel.assum(kernel.register_symbol("r3"), kernel.parse("REG[T1]"));
+    kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T1]"));
+    kernel.assum(kernel.register_symbol("O"), kernel.parse("OTYPE[T2, T1]"));
+
+    EXPECT_TRUE(kernel.type_check(kernel.parse("LDOT[SUBS[O, r2, r1], SUBS[K, r1]]"), kernel.parse("DTYPE[RSET[r2], RSET[]]")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("LDOT[SUBS[O, r2, r1], SUBS[K, r3]]"), kernel.parse("DTYPE[RSET[r2, r3], RSET[r1]]")));
+}
 
 ///////////////////////////////////////////////////////////////////////
 TEST(DiracoqTypeCheck, Example1) {

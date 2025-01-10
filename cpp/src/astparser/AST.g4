@@ -3,6 +3,7 @@ grammar AST;
 // Parser rules
 expr:   ID                         # Identifier
     |   ID '[' expr (',' expr)* ']'    # Application
+    |   ID '[' ']'                 # EmptyApplication
     ;
 
 // Lexer rules

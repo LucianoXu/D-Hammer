@@ -160,6 +160,9 @@ namespace diracoq {
     // O1 : OTYPE(T1 T2), O2 : OTYPE(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
     DIRACOQ_RULE_DEF(R_COMPO_OO, kernel, term);
 
+    // D1 : DTYPE[...], D2 : DTYPE[...] => COMPO(D1 D2) -> LDOT(D1 D2)
+    DIRACOQ_RULE_DEF(R_COMPO_DD, kernel, term);
+
     // f : T1 -> T2 => COMPO(f a) -> APPLY(f a)
     DIRACOQ_RULE_DEF(R_COMPO_ARROW, kernel, term);
 
@@ -177,6 +180,9 @@ namespace diracoq {
 
     // S1 : SET(T1), S2 : SET(T2) => STAR(S1 S2) -> CATPROD(S1 S2)
     DIRACOQ_RULE_DEF(R_STAR_CATPROD, kernel, term);
+
+    // D1 : DTYPE[...], D2 : DTYPE[...] => STAR(D1 D2) -> LTSR(D1 D2)
+    DIRACOQ_RULE_DEF(R_STAR_LTSR, kernel, term);
 
     // an : STYPE => ADDG(a1 ... an) -> ADDS(a1 ... an)
     DIRACOQ_RULE_DEF(R_ADDG_ADDS, kernel, term);

@@ -767,6 +767,17 @@ namespace diracoq {
         return create_term(MULO, args);
     }
 
+    // D1 : DTYPE[...], D2 : DTYPE[...] => COMPO(D1 D2) -> LDOT[D1 D2]
+    DIRACOQ_RULE_DEF(R_COMPO_DD, kernel, term) {
+        MATCH_HEAD(term, COMPO, args)
+        auto typeD1 = kernel.calc_type(args[0]);
+        auto typeD2 = kernel.calc_type(args[1]);
+
+        if (!(typeD1->get_head() == DTYPE and typeD2->get_head() == DTYPE)) return std::nullopt;
+        
+        return create_term(LDOT, args);
+    }
+
     // f : T1 -> T2 => COMPO(f a) -> APPLY(f a)
     DIRACOQ_RULE_DEF(R_COMPO_ARROW, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
@@ -825,6 +836,16 @@ namespace diracoq {
         if (!(typeA->get_head() == SET)) return std::nullopt;
 
         return create_term(CATPROD, args);
+    }
+
+    // D1 : DTYPE[...], D2 : DTYPE[...] => STAR(D1 D2) -> LTSR[D1 D2]
+    DIRACOQ_RULE_DEF(R_STAR_LTSR, kernel, term) {
+        MATCH_HEAD(term, STAR, args)
+        auto typeA = kernel.calc_type(args[0]);
+
+        if (!(typeA->get_head() == DTYPE)) return std::nullopt;
+
+        return create_term(LTSR, args);
     }
 
     // an : STYPE => ADDG(a1 ... an) -> ADDS(a1 ... an)
@@ -4035,8 +4056,9 @@ namespace diracoq {
         R_COMPO_KS, R_COMPO_KK, R_COMPO_KB,
         R_COMPO_BS, R_COMPO_BK, R_COMPO_BB, R_COMPO_BO,
         R_COMPO_OS, R_COMPO_OK,             R_COMPO_OO,
+        R_COMPO_DD,
         R_COMPO_ARROW, R_COMPO_FORALL,
-        R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD,
+        R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD, R_STAR_LTSR,
         R_ADDG_ADDS, R_ADDG_ADD,
         R_SSUM, 
 
@@ -4084,8 +4106,9 @@ namespace diracoq {
         R_COMPO_KS, R_COMPO_KK, R_COMPO_KB,
         R_COMPO_BS, R_COMPO_BK, R_COMPO_BB, R_COMPO_BO,
         R_COMPO_OS, R_COMPO_OK,             R_COMPO_OO,
+        R_COMPO_DD,
         R_COMPO_ARROW, R_COMPO_FORALL,
-        R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD,
+        R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD, R_STAR_LTSR,
         R_ADDG_ADDS, R_ADDG_ADD,
         R_SSUM, 
 

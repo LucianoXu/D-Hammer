@@ -81,6 +81,10 @@ namespace diracoq {
             "USET",
             "CATPROD",
             "SUM",
+
+            "RSET",
+            "DTYPE", "REG",
+            "LKET", "LBRA", "SUBS", "LTSR", "LDOT"
         };
 
         for (const auto &s : defined) {
@@ -148,6 +152,15 @@ namespace diracoq {
     const auto USET = diracoq_sig.get_repr("USET");
     const auto CATPROD = diracoq_sig.get_repr("CATPROD");
     const auto SUM = diracoq_sig.get_repr("SUM");
+
+    const auto RSET = diracoq_sig.get_repr("RSET");
+    const auto DTYPE = diracoq_sig.get_repr("DTYPE");
+    const auto REG = diracoq_sig.get_repr("REG");
+    const auto LKET = diracoq_sig.get_repr("LKET");
+    const auto LBRA = diracoq_sig.get_repr("LBRA");
+    const auto SUBS = diracoq_sig.get_repr("SUBS");
+    const auto LTSR = diracoq_sig.get_repr("LTSR");
+    const auto LDOT = diracoq_sig.get_repr("LDOT");
 
     const std::set<int> a_symbols = {ADDS, MULS, ADD};
     const std::set<int> c_symbols = {ADDS, MULS, DELTA, ADD};

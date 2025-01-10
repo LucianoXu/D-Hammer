@@ -26,3 +26,9 @@ TEST(DiracoqSpecialEq, SUM_SWAP) {
         "Sum j in USET[M], Sum i in USET[T], 1"
     ));
 }
+
+TEST(DiracoqSpecialEq, RSET) {
+    Kernel kernel;
+
+    EXPECT_TRUE(is_eq_modulo_rset(kernel.parse("RSET[1, 2, 3]"), kernel.parse("RSET[3, 2, 1]")));
+}

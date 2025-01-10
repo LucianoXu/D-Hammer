@@ -6,6 +6,26 @@
 
 namespace diracoq {
 
+    /**
+     * @brief The function to compute the variable set of the register term
+     * 
+     * @param reg shoulbe be a register term
+     * @return set<int> 
+     */
+    std::set<int> reg_var_set(ualg::TermPtr<int> reg);
+
+
+    /**
+     * @brief The function to decide whether two register terms are disjoint
+     * 
+     * @param reg1 
+     * @param reg2 
+     * @return true 
+     * @return false 
+     */
+    bool reg_disjoint(ualg::TermPtr<int> reg1, ualg::TermPtr<int> reg2);
+
+
     struct Declaration {
         std::optional<ualg::TermPtr<int>> def;
         ualg::TermPtr<int> type;

@@ -194,6 +194,28 @@ TEST(DiracoqParser, Application) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
+TEST(DiracoqParser, RSet) {
+    auto actual_res = parse("{a, b, c}");
+    auto expected_res = astparser::parse("RSET[a, b, c]");
+    EXPECT_EQ(actual_res, expected_res);
+
+    actual_res = parse("{}");
+    expected_res = astparser::parse("RSET[]");
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+TEST(DiracoqParser, SUBS1) {
+    auto actual_res = parse("K_r");
+    auto expected_res = astparser::parse("SUBS[K, r]");
+    EXPECT_EQ(actual_res, expected_res);
+}
+
+TEST(DiracoqParser, SUBS2) {
+    auto actual_res = parse("K_r;s");
+    auto expected_res = astparser::parse("SUBS[K, r, s]");
+    EXPECT_EQ(actual_res, expected_res);
+}
+
 ////////////////////////////////////////////////////
 // Check Precedence
 TEST(DiracoqParser, precedence1) {

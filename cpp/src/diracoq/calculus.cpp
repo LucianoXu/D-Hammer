@@ -5,6 +5,95 @@ namespace diracoq {
     using namespace std;
     using namespace ualg;
 
+
+
+    ////////////////////////////////////////////
+    // computation about labels
+
+    set<int> reg_var_set(TermPtr<int> reg) {
+        if (reg->is_atomic()) return {reg->get_head()};
+
+        auto &args = reg->get_args();
+        auto res1 = reg_var_set(args[0]);
+        auto res2 = reg_var_set(args[1]);
+        res1.insert(res2.begin(), res2.end());
+        return res1;
+    }
+
+    TermPtr<int> reg_to_rset(TermPtr<int> reg) {
+        auto ls = reg_var_set(reg);
+        ListArgs<int> args;
+
+        for (auto var : ls) {
+            args.push_back(create_term(var));
+        }
+
+        return create_term(RSET, std::move(args));
+    }
+
+    set<int> rset_var_set(TermPtr<int> rset) {
+        set<int> res;
+        for (auto var : rset->get_args()) {
+            res.insert(var->get_head());
+        }
+        return res;
+    }
+
+    TermPtr<int> rset_union(TermPtr<int> rset1, TermPtr<int> rset2) {
+        auto set1 = rset_var_set(rset1);
+        auto set2 = rset_var_set(rset2);
+        set1.insert(set2.begin(), set2.end());
+
+        ListArgs<int> args;
+        for (auto var : set1) {
+            args.push_back(create_term(var));
+        }
+
+        return create_term(RSET, std::move(args));
+    }
+
+    bool rset_disjoint(TermPtr<int> rset1, TermPtr<int> rset2) {
+        auto set1 = rset_var_set(rset1);
+        auto set2 = rset_var_set(rset2);
+        for (auto var : set1) {
+            if (set2.find(var) != set2.end()) return false;
+        }
+        for (auto var : set2) {
+            if (set1.find(var) != set1.end()) return false;
+        }
+        return true;
+    }
+
+    TermPtr<int> rset_subtract(TermPtr<int> rset1, TermPtr<int> rset2) {
+        set<int> set1 = rset_var_set(rset1);
+        set<int> set2 = rset_var_set(rset2);
+        
+        ListArgs<int> res;
+        for (auto var : set1) {
+            if (set2.find(var) == set2.end()) {
+                res.push_back(create_term(var));
+            }
+        }
+        return create_term(RSET, std::move(res));
+    }
+
+    bool reg_disjoint(TermPtr<int> reg1, TermPtr<int> reg2) {
+        auto set1 = reg_var_set(reg1);
+        auto set2 = reg_var_set(reg2);
+        for (auto var : set1) {
+            if (set2.find(var) != set2.end()) return false;
+        }
+        for (auto var : set2) {
+            if (set1.find(var) != set1.end()) return false;
+        }
+        return true;
+    }
+
+
+
+    ////////////////////////////////////////////
+
+
     std::optional<Declaration> Kernel::find_in_env(int symbol) {
         for (const auto& [sym, def] : env) {
             if (sym == symbol) {
@@ -83,7 +172,6 @@ namespace diracoq {
 
         return false;
     }
-
 
 
 
@@ -188,6 +276,38 @@ namespace diracoq {
                     }
                 }
             }
+            // A @ B -> LDOT[A, B]
+            if (typeA->get_head() == DTYPE) {
+                arg_number_check(args, 2);
+
+                auto type_X1 = calc_type(args[0]);
+                auto type_X1_head = type_X1->get_head();
+                auto& args_X1 = type_X1->get_args();
+                auto type_X2 = calc_type(args[1]);
+                auto type_X2_head = type_X2->get_head();
+                auto& args_X2 = type_X2->get_args();
+
+                if (type_X1_head != DTYPE || type_X2_head != DTYPE) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type DTYPE.");
+                }
+
+                auto s2_sub_s1p = rset_subtract(args_X2[0], args_X1[1]);
+                auto s1p_sub_s2 = rset_subtract(args_X1[1], args_X2[0]);
+
+                // check extra conditions
+                if (!rset_disjoint(args_X1[0], s2_sub_s1p) || !rset_disjoint(args_X2[1], s1p_sub_s2)) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " and the second argument " + sig.term_to_string(args[1]) + " are not disjoint.");
+                }
+
+                return create_term(DTYPE, 
+                    {
+                        rset_union(args_X1[0], s2_sub_s1p), 
+                        rset_union(s1p_sub_s2, args_X2[1])
+                    }
+                );
+            }
+
+
             // (T1 -> T2) @ T1 : T2
             if (typeA->get_head() == ARROW) {
                 if (!is_judgemental_eq(typeA->get_args()[0], typeB)) {
@@ -263,6 +383,34 @@ namespace diracoq {
                     }
                 );
             }
+
+            if (typeFirst->get_head() == DTYPE) {
+                arg_number_check(args, 2);
+
+                auto type_X1 = calc_type(args[0]);
+                auto type_X1_head = type_X1->get_head();
+                auto& args_X1 = type_X1->get_args();
+                auto type_X2 = calc_type(args[1]);
+                auto type_X2_head = type_X2->get_head();
+                auto& args_X2 = type_X2->get_args();
+                
+                if (type_X1_head != DTYPE || type_X2_head != DTYPE) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type DTYPE.");
+                }
+
+                // check extra conditions
+                if (!rset_disjoint(args_X1[0], args_X2[0]) || !rset_disjoint(args_X1[1], args_X2[1])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " and the second argument " + sig.term_to_string(args[1]) + " are not disjoint.");
+                }
+
+                return create_term(DTYPE, 
+                    {
+                        rset_union(args_X1[0], args_X2[0]), 
+                        rset_union(args_X1[1], args_X2[1])
+                    }
+                );  
+
+            } 
 
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not a scalar, an index, or a set.");
         }
@@ -544,7 +692,7 @@ namespace diracoq {
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the function " + sig.term_to_string(args[0]) + " is not an arrow type or forall type.");
         }
 
-        // (Pair-Base)
+        // (Pair-Base) (Reg-RPair)
         if (head == PAIR) {
             arg_number_check(args, 2);
 
@@ -557,11 +705,20 @@ namespace diracoq {
             auto& args_a = type_a->get_args();
             auto& args_b = type_b->get_args();
 
-            if (type_a_head != BASIS || type_b_head != BASIS) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the types of the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type BASIS.");
-            }
+            if (type_a_head == BASIS && type_b_head == BASIS) {
+                return create_term(BASIS, {create_term(PROD, {args_a[0], args_b[0]})});
 
-            return create_term(BASIS, {create_term(PROD, {args_a[0], args_b[0]})});
+            }
+            else if (type_a_head == REG && type_b_head == REG) {
+                // check disjointness
+                if (!reg_disjoint(args[0], args[1])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not disjoint.");
+                }
+                return create_term(REG, {create_term(PROD, {args_a[0], args_b[0]})});
+            }
+            else {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not bases or registers.");
+            }
         }
 
         // (Sca-0)
@@ -655,7 +812,7 @@ namespace diracoq {
             return create_term(STYPE);
         }
 
-        // (Ket-Adj), (Bra-Adj), (Opt-Adj)
+        // (Ket-Adj), (Bra-Adj), (Opt-Adj), (Label-Adj)
         if (head == ADJ) {
             arg_number_check(args, 1);
 
@@ -671,11 +828,14 @@ namespace diracoq {
             else if (type_X_head == OTYPE) {
                 return create_term(OTYPE, {args_X[1], args_X[0]});
             }
+            else if (type_X_head == DTYPE) {
+                return create_term(DTYPE, {args_X[1], args_X[0]});
+            }
 
-            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type BTYPE, KTYPE or OTYPE.");            
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type KTYPE, BTYPE, OTYPE or DTYPE.");            
         }
 
-        // (Ket-Scr), (Bra-Scr), (Opt-Scr)
+        // (Ket-Scr), (Bra-Scr), (Opt-Scr), (Label-Scr)
         if (head == SCR) {
             arg_number_check(args, 2);
 
@@ -686,14 +846,14 @@ namespace diracoq {
 
             auto type_X = calc_type(args[1]);
             auto type_X_head = type_X->get_head();
-            if (type_X_head == KTYPE || type_X_head == BTYPE || type_X_head == OTYPE) {
+            if (type_X_head == KTYPE || type_X_head == BTYPE || type_X_head == OTYPE || type_X_head == DTYPE) {
                 return type_X;
             }
 
-            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type KTYPE, BTYPE or OTYPE.");
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type KTYPE, BTYPE, OTYPE or DTYPE.");
         }
 
-        // (Ket-Add), (Bra-Add), (Opt-Add)
+        // (Ket-Add), (Bra-Add), (Opt-Add), (Label-Add)
         if (head == ADD) {
             if (args.size() == 0) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has no arguments.");
@@ -702,8 +862,8 @@ namespace diracoq {
             auto type_X = calc_type(args[0]);
             auto type_X_head = type_X->get_head();
             ListArgs<int> args_X;
-            if (type_X_head != KTYPE && type_X_head != BTYPE && type_X_head != OTYPE) {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type BTYPE, KTYPE or OTYPE.");
+            if (type_X_head != KTYPE && type_X_head != BTYPE && type_X_head != OTYPE && type_X_head != DTYPE) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type KTYPE, BTYPE, OTYPE or DTYPE.");
             }
 
             for (int i = 1; i < args.size(); i++) {
@@ -974,6 +1134,217 @@ namespace diracoq {
             }
         }
 
+
+        //////////////////////////////////////
+        // for labelled Dirac notation
+
+        // (Type-Labelled)
+        if (head == DTYPE) {
+            arg_number_check(args, 2);
+            // check types if all arguments in the two arguments
+            if (args[0]->get_head() != RSET || args[1]->get_head() != RSET) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type RSET.");
+            }
+
+            set<int> labels1;
+            for (const auto& r : args[0]->get_args()) {
+                if (labels1.find(r->get_head()) != labels1.end()) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the label " + sig.term_to_string(r) + " is repeated in the first argument.");
+                }
+                labels1.insert(r->get_head());
+                auto type_r = calc_type(r);
+                if (type_r->get_head() != REG) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(r) + " is not of type REG.");
+                }
+            }
+
+            set<int> labels2;
+            for (const auto& r : args[1]->get_args()) {
+                if (labels2.find(r->get_head()) != labels2.end()) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the label " + sig.term_to_string(r) + " is repeated in the second argument.");
+                }
+                labels2.insert(r->get_head());
+                auto type_r = calc_type(r);
+                if (type_r->get_head() != REG) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(r) + " is not of type REG.");
+                }
+            }
+
+            return create_term(TYPE);
+        }
+
+        // (Type-L-BASE-LKET)
+        if (head == LKET) {
+            arg_number_check(args, 2);
+
+            auto type_ket = calc_type(args[0]);
+            if (type_ket->get_head() != BASIS) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type BASIS.");
+            }
+
+            if (!args[1]->is_atomic()) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not atomic.");
+            }
+
+            auto type_label = calc_type(args[1]);
+            if (type_label->get_head() != REG) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type REG.");
+            }
+
+            // check the index of the label matches the index of the ket
+            if (!is_judgemental_eq(type_ket->get_args()[0], type_label->get_args()[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
+            }
+
+            return create_term(DTYPE, {create_term(RSET, {args[1]}), create_term(RSET)});
+        }
+
+        // (Type-L-BASE-BRA)
+        if (head == LBRA) {
+            arg_number_check(args, 2);
+
+            auto type_ket = calc_type(args[0]);
+            if (type_ket->get_head() != BASIS) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type BASIS.");
+            }
+
+            if (!args[1]->is_atomic()) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not atomic.");
+            }
+
+            auto type_label = calc_type(args[1]);
+            if (type_label->get_head() != REG) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type REG.");
+            }
+
+            // check the index of the label matches the index of the ket
+            if (!is_judgemental_eq(type_ket->get_args()[0], type_label->get_args()[0])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
+            }
+
+            return create_term(DTYPE, {create_term(RSET), create_term(RSET, {args[1]})});
+        }
+
+        // (Type-L-Ket) (Type-L-Bra)
+        if (head == SUBS) {
+            if (args.size() == 2) {
+
+                auto type_R = calc_type(args[1]);
+                if (type_R->get_head() != REG) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type REG.");
+                }
+
+                auto type_term = calc_type(args[0]);
+                if (type_term->get_head() == KTYPE) {
+
+                    // check the index of the label matches the index of the ket
+                    if (!is_judgemental_eq(type_term->get_args()[0], type_R->get_args()[0])) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
+                    }
+
+                    return create_term(DTYPE, {reg_to_rset(args[1]), create_term(RSET)});
+                }
+
+                if (type_term->get_head() == BTYPE) {
+                    if (!is_judgemental_eq(type_term->get_args()[0], type_R->get_args()[0])) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the index of the first argument " + sig.term_to_string(args[0]) + " is not the same as the index of the second argument " + sig.term_to_string(args[1]) + ".");
+                    }
+
+                    return create_term(DTYPE, {create_term(RSET), reg_to_rset(args[1])});
+                }
+                
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type KTYPE or BTYPE.");
+            }
+            else if (args.size() == 3) {
+
+                auto type_O = calc_type(args[0]);
+                if (type_O->get_head() != OTYPE) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type OTYPE.");
+                }
+
+                auto type_R1 = calc_type(args[1]);
+                auto type_R2 = calc_type(args[2]);
+                if (type_R1->get_head() != REG || type_R2->get_head() != REG) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[1]) + " and " + sig.term_to_string(args[2]) + " are not of type REG.");
+                }
+
+                // check the index of the label matches the index of the ket
+                if (!is_judgemental_eq(type_O->get_args()[0], type_R1->get_args()[0]) || !is_judgemental_eq(type_O->get_args()[1], type_R2->get_args()[0])) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the indices of the first argument " + sig.term_to_string(args[0]) + " are not the same as the indices of the second and third arguments " + sig.term_to_string(args[1]) + " and " + sig.term_to_string(args[2]) + ".");
+                }
+
+                return create_term(DTYPE, {reg_to_rset(args[1]), reg_to_rset(args[2])});
+            }
+
+            else {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has neither two nor three arguments.");
+            }
+        }
+
+
+        // (Label-LTSR)
+        if (head == LTSR) {
+            arg_number_check(args, 2);
+
+            auto type_X1 = calc_type(args[0]);
+            auto type_X1_head = type_X1->get_head();
+            auto& args_X1 = type_X1->get_args();
+            auto type_X2 = calc_type(args[1]);
+            auto type_X2_head = type_X2->get_head();
+            auto& args_X2 = type_X2->get_args();
+            
+            if (type_X1_head != DTYPE || type_X2_head != DTYPE) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type DTYPE.");
+            }
+
+            // check extra conditions
+            if (!rset_disjoint(args_X1[0], args_X2[0]) || !rset_disjoint(args_X1[1], args_X2[1])) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " and the second argument " + sig.term_to_string(args[1]) + " are not disjoint.");
+            }
+
+            return create_term(DTYPE, 
+                {
+                    rset_union(args_X1[0], args_X2[0]), 
+                    rset_union(args_X1[1], args_X2[1])
+                }
+            );  
+            
+        }
+
+        // (Label-LDOT)
+
+        if (head == LDOT) {
+            arg_number_check(args, 2);
+
+            auto type_X1 = calc_type(args[0]);
+            auto type_X1_head = type_X1->get_head();
+            auto& args_X1 = type_X1->get_args();
+            auto type_X2 = calc_type(args[1]);
+            auto type_X2_head = type_X2->get_head();
+            auto& args_X2 = type_X2->get_args();
+
+            if (type_X1_head != DTYPE || type_X2_head != DTYPE) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type DTYPE.");
+            }
+
+            auto s2_sub_s1p = rset_subtract(args_X2[0], args_X1[1]);
+            auto s1p_sub_s2 = rset_subtract(args_X1[1], args_X2[0]);
+
+            // check extra conditions
+            if (!rset_disjoint(args_X1[0], s2_sub_s1p) || !rset_disjoint(args_X2[1], s1p_sub_s2)) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " and the second argument " + sig.term_to_string(args[1]) + " are not disjoint.");
+            }
+
+            return create_term(DTYPE, 
+                {
+                    rset_union(args_X1[0], s2_sub_s1p), 
+                    rset_union(s1p_sub_s2, args_X2[1])
+                }
+            );
+        }
+
+
+
         if (term->is_atomic()) {
 
             auto dec_find = find_dec(term->get_head());
@@ -1004,6 +1375,11 @@ namespace diracoq {
 
         // W-Assum-TYPE
         else if (*type == Term<int>(TYPE)) {
+            env.push_back({symbol, {std::nullopt, type}});
+        }
+
+        // W-Assum-Reg
+        else if (type->get_head() == REG && type->get_args().size() == 1 && is_index(type->get_args()[0])) {
             env.push_back({symbol, {std::nullopt, type}});
         }
 

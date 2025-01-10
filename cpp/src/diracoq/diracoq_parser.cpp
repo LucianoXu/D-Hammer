@@ -49,9 +49,16 @@ namespace diracoq {
         void exitZeroO(DIRACOQParser::ZeroOContext *ctx) override;
         void exitOneO(DIRACOQParser::OneOContext *ctx) override;
 
+        void exitSubscript1(DIRACOQParser::Subscript1Context *ctx) override;
+        void exitSubscript2(DIRACOQParser::Subscript2Context *ctx) override;
+
         void exitBasis0(DIRACOQParser::Basis0Context *ctx) override;
         void exitBasis1(DIRACOQParser::Basis1Context *ctx) override;
 
+        void exitRSet(DIRACOQParser::RSetContext *ctx) override;
+        void exitEmptyRSet(DIRACOQParser::EmptyRSetContext *ctx) override;
+
+        void exitEmptyApplication(DIRACOQParser::EmptyApplicationContext *ctx) override;
         void exitApplication(DIRACOQParser::ApplicationContext *ctx) override;
         void exitParen(DIRACOQParser::ParenContext *ctx) override;
         void exitIdentifier(DIRACOQParser::IdentifierContext *ctx) override;
@@ -433,8 +440,60 @@ namespace diracoq {
     void DIRACOQBuilder::exitBasis1(DIRACOQParser::Basis1Context *ctx) {
         node_stack.push(AST{"BASIS1", {}});
     }
+
+    void DIRACOQBuilder::exitSubscript1(DIRACOQParser::Subscript1Context *ctx) {
+        // get the register
+        AST reg = std::move(node_stack.top());
+        node_stack.pop();
+
+        // get the term
+        AST term = std::move(node_stack.top());
+        node_stack.pop();
+
+        // push Subscript1 node
+        node_stack.push(AST{"SUBS", {std::move(term), std::move(reg)}});
+    }
+
+    void DIRACOQBuilder::exitSubscript2(DIRACOQParser::Subscript2Context *ctx) {
+        // get the register2
+        AST reg2 = std::move(node_stack.top());
+        node_stack.pop();
+
+        // get the register1
+        AST reg1 = std::move(node_stack.top());
+        node_stack.pop();
+
+        // get the term
+        AST term = std::move(node_stack.top());
+        node_stack.pop();
+
+        // push Subscript2 node
+        node_stack.push(AST{"SUBS", {std::move(term), std::move(reg1), std::move(reg2)}});
+    }
+
+
+    // '{' ID (',' ID)* '}'
+    void DIRACOQBuilder::exitRSet(DIRACOQParser::RSetContext *ctx) {
+        // 2. Collect all IDs in reverse order
+        vector<AST> ids;
+        for (int i = 0; i < ctx->ID().size(); ++i) {
+            ids.push_back(AST(ctx->ID(i)->getText()));
+        }
+
+        // 3. Create and push the RSet node
+        node_stack.push(AST{"RSET", std::move(ids)});
+
+    }
+
+
+    void DIRACOQBuilder::exitEmptyRSet(DIRACOQParser::EmptyRSetContext *ctx) {
+        node_stack.push(AST{"RSET"});
+    }
         
 
+    void DIRACOQBuilder::exitEmptyApplication(DIRACOQParser::EmptyApplicationContext *ctx) {
+        node_stack.push(AST{ctx->ID()->getText(), {}});
+    }
 
     // Handle Application node
     void DIRACOQBuilder::exitApplication(DIRACOQParser::ApplicationContext *ctx) {
