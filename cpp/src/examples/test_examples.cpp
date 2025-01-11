@@ -31,9 +31,9 @@ unique_ptr<Prover> init_prover() {
 class EqExampleTest : public ::testing::TestWithParam<EqExample> {
 protected:
     void RunTest(const EqExample& example) {
+        cout << "TEST NAME: " << example.name << endl;
         auto new_prover = init_prover();
         new_prover->process(example.preproc_code);
-        cout << "TEST NAME: " << example.name << endl;
         EXPECT_EQ(new_prover->check_eq(example.termA, example.termB), example.expected_res);
     }
 };

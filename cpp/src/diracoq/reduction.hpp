@@ -106,6 +106,15 @@ namespace diracoq {
     ualg::TermPtr<int> sum_swap_normalization(Kernel& kernel, ualg::TermPtr<int> term);
 
     /**
+     * @brief Sort the term modulo the bound variables.
+     * 
+     * @param kernel 
+     * @param term 
+     * @return ualg::TermPtr<int> 
+     */
+    ualg::TermPtr<int> sort_modulo_bound(Kernel& kernel, ualg::TermPtr<int> term);
+
+    /**
      * @brief Use the Wolfram engine to simplify the term.
      * 
      * @param kernel 
@@ -609,6 +618,9 @@ namespace diracoq {
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(MULS(a1 ... DELTA(i j) ... an) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(MULS(a1{j/i} ... an{j/i}) A{j/i}) ...)))
     DIRACOQ_RULE_DEF(R_SUM_ELIM7, kernel, term);
 
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1 ... DELTA(i j) ... an) ... MULS(b1 ... DELTA(i j) ... bn)) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1{j/i} ... an{j/i}) ... MULS(b1{j/i} ... bn{j/i})) A{j/i}) ...)))
+    DIRACOQ_RULE_DEF(R_SUM_ELIM8, kernel, term);
+
     // MULS(b1 ... SUM(M FUN(i T a)) ... bn) -> SUM(M FUN(i T MULS(b1 ... a ... bn)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH0, kernel, term);
 
@@ -663,6 +675,9 @@ namespace diracoq {
     // SUM(M FUN(i T ADDS(a1 ... an))) -> ADDS(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADDS0, kernel, term);
 
+    // SUM(M FUN(i T MULS(b1 ... ADDS(a1 ... an) .. bm))) -> ADDS(SUM(M FUN(i T MULS(b1 ... a1 ... bm))) ... SUM(M FUN(i T MULS(b1 ... an ... bm))))
+    DIRACOQ_RULE_DEF(R_SUM_ADDS1, kernel, term);
+
     // SUM(M FUN(i T ADD(a1 ... an))) -> ADD(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADD0, kernel, term);
 
@@ -674,6 +689,9 @@ namespace diracoq {
 
     // SUM(CATPROD(M1 M2) FUN(i BASIS(PROD(T1 T2)) X)) -> SUM(M1 FUN(j BASIS(T1) SUM(M2 FUN(k BASIS(T2) X{i/PAIR(j k)})))
     DIRACOQ_RULE_DEF(R_SUM_INDEX1, kernel, term);
+
+    // factorization addition of the sum
+    DIRACOQ_RULE_DEF(R_SUM_FACTOR, kernel, term);
 
 
 

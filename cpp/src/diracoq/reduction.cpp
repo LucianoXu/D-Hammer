@@ -104,6 +104,12 @@ namespace diracoq {
                     trace->push_back(replace_res.value());
                 }
                 current_term = current_term->replace_at(replace_res->pos, replace_res->replacement);
+
+
+                // DEBUG PURPOSE
+                // cout << pos_replace_record_to_string(kernel, replace_res.value()) << endl;
+                // cout << kernel.term_to_string(current_term) << endl;
+                // cout << endl;
             }
             else {
                 break;
@@ -564,6 +570,16 @@ namespace diracoq {
         return _sum_swap_normalization(kernel, term, var_to_order);
     }
 
+    TermPtr<int> sort_modulo_bound(Kernel& kernel, TermPtr<int> term) {
+        auto bound_vars = get_bound_vars(term);
+
+        return sort_C_terms(term, c_symbols, 
+            [&](TermPtr<int> a, TermPtr<int> b) {
+                return comp_modulo_bound_vars(a, b, bound_vars);
+            }
+        );
+    }
+
 
     TermPtr<int> wolfram_fullsimplify(Kernel& kernel, ualg::TermPtr<int> term) {
         using namespace astparser;
@@ -586,6 +602,11 @@ namespace diracoq {
                     })
                 })
             });
+
+        // auto ast = AST(
+        //     "FullSimplify", {
+        //         sig.term2ast(term)
+        //     });
 
         // Call the Wolfram Engine
         wstp::ast_to_WS(link, ast);
@@ -3384,6 +3405,51 @@ namespace diracoq {
         return std::nullopt;
     }
 
+    // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1 ... DELTA(i j) ... an) ... MULS(b1 ... DELTA(i j) ... bn)) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1{j/i} ... an{j/i}) ... MULS(b1{j/i} ... bn{j/i})) A{j/i}) ...)))
+    // DIRACOQ_RULE_DEF(R_SUM_ELIM8, kernel, term) {
+        
+    //     auto &sig = kernel.get_sig();
+
+    //     MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A)
+
+    //     MATCH_HEAD(args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A[1], FUN, args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A)
+
+    //     MATCH_HEAD(args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A[2], SUM, args_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A)
+
+    //     // Check that the summation set is the same
+
+    //     if (*args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A[0] != *args_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A[0]) return std::nullopt;
+
+    //     MATCH_HEAD(args_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A[1], FUN, args_FUN_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A)
+
+    //     TermPtr<int> inner_term = args_FUN_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A[2];
+
+    //     while (true) {
+    //         if (inner_term->get_head() == SCR) break;
+    //         // continually match the function and sum inside
+            
+    //         if (inner_term->get_head() == SUM) {
+    //             auto& args = inner_term->get_args();
+            
+    //             MATCH_HEAD(args[1], FUN, ars_fun_inside)
+    //             inner_term = ars_fun_inside[2];
+    //         }
+    //         else {
+    //             return std::nullopt;
+    //         }
+    //     }
+
+    //     MATCH_HEAD(inner_term, SCR, args_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A)
+
+    //     MATCH_HEAD(args_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A[0], ADDS, args_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn)
+
+    //     if (args_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn.size() == 1) return std::nullopt;
+
+    //     auto 
+
+    //     for (int idx_i = 0; idx_i < args_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn[0]->get_args().size()
+    // }
+
     // MULS(b1 ... SUM(M FUN(i T a)) ... bn) -> SUM(M FUN(i T MULS(b1 ... a ... bn)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH0, kernel, term) {
 
@@ -3846,6 +3912,50 @@ namespace diracoq {
         return create_term(ADDS, std::move(new_sum_args));
     }
 
+
+    // SUM(M FUN(i T MULS(b1 ... ADDS(a1 ... an) .. bm))) -> ADDS(SUM(M FUN(i T MULS(b1 ... a1 ... bm))) ... SUM(M FUN(i T MULS(b1 ... an ... bm))))
+    DIRACOQ_RULE_DEF(R_SUM_ADDS1, kernel, term) {
+        auto &sig = kernel.get_sig();
+
+        MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_MULS_b1_ADDS_a1_an_bm)
+
+        MATCH_HEAD(args_SUM_M_fun_i_T_MULS_b1_ADDS_a1_an_bm[1], FUN, args_FUN_i_T_MULS_b1_ADDS_a1_an_bm)
+
+        MATCH_HEAD(args_FUN_i_T_MULS_b1_ADDS_a1_an_bm[2], MULS, args_MULS_b1_ADDS_a1_an_bm)
+
+        if (args_MULS_b1_ADDS_a1_an_bm.size() == 1) return std::nullopt;
+
+        for (auto i = 0; i != args_MULS_b1_ADDS_a1_an_bm.size(); ++i) {
+            if (args_MULS_b1_ADDS_a1_an_bm[i]->get_head() == ADDS) {
+                auto& args_ADDS_a1_an = args_MULS_b1_ADDS_a1_an_bm[i]->get_args();
+
+                ListArgs<int> new_sum_args;
+                for (const auto &arg : args_ADDS_a1_an) {
+                    auto new_var = create_term(kernel.register_symbol(sig.unique_var()));
+                    ListArgs<int> new_mul_args{args_MULS_b1_ADDS_a1_an_bm};
+                    new_mul_args[i] = arg;
+                    new_sum_args.push_back(create_term(SUM, 
+                        {
+                            args_SUM_M_fun_i_T_MULS_b1_ADDS_a1_an_bm[0],
+                            create_term(FUN, 
+                                {
+                                    new_var,
+                                    args_FUN_i_T_MULS_b1_ADDS_a1_an_bm[1],
+                                    subst(sig, create_term(MULS, std::move(new_mul_args)), args_FUN_i_T_MULS_b1_ADDS_a1_an_bm[0]->get_head(), new_var)
+                                }
+                            )
+                        }
+                    ));
+                }
+
+                return create_term(ADDS, std::move(new_sum_args));
+            }
+        }
+
+        return std::nullopt;
+    }
+
+
     // SUM(M FUN(i T ADD(a1 ... an))) -> ADD(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
     DIRACOQ_RULE_DEF(R_SUM_ADD0, kernel, term) {
         auto &sig = kernel.get_sig();
@@ -3997,6 +4107,91 @@ namespace diracoq {
                 )
             }
         );
+    }
+
+    // return the factorized result
+    optional<TermPtr<int>> sum_to_factorize(Kernel& kernel, TermPtr<int> termA, TermPtr<int> termB, vector<pair<int, int>>& bound_var_corr) {
+
+        auto headA = termA->get_head();
+        auto headB = termB->get_head();
+        auto argsA = termA->get_args();
+        auto argsB = termB->get_args();
+
+        if (headA == SUM && headB == SUM && argsA[1]->get_head() == FUN && argsB[1]->get_head() == FUN) {
+            auto& argsA_body = argsA[1]->get_args();
+            auto& argsB_body = argsB[1]->get_args();
+
+            // The types should be equivalent
+            if (*argsA_body[1] == *argsB_body[1]) {    
+                auto bound_varA = argsA_body[0];
+                auto bound_varB = argsB_body[0];
+                
+                bound_var_corr.push_back({bound_varA->get_head(), bound_varB->get_head()});
+                auto inner_res = sum_to_factorize(kernel, argsA_body[2], argsB_body[2], bound_var_corr);
+                bound_var_corr.pop_back();
+
+                if (!inner_res) return std::nullopt;
+
+                return create_term(SUM, {argsA[0], create_term(FUN, {bound_varA, argsA_body[1], inner_res.value()})});
+            }
+        }
+
+        // replace the bound variables on termB
+        auto new_termB = termB;
+        for (const auto& [varA, varB] : bound_var_corr) {
+            new_termB = subst(kernel.get_sig(), new_termB, varB, create_term(varA));
+        }
+
+        headB = new_termB->get_head();
+        argsB = new_termB->get_args();
+
+        // A + A -> (1 + 1).A
+        if (*termA == *new_termB) {
+            return create_term(SCR, {create_term(ADDS, {create_term(ONE), create_term(ONE)}), termA});
+        }
+
+        // a.A + A -> (a + 1).A
+        else if (headA == SCR && *argsA[1] == *new_termB) {
+            return create_term(SCR, {create_term(ADDS, {argsA[0], create_term(ONE)}), new_termB});
+        }
+
+        // A + a.A -> (1 + a).A
+        else if (headB == SCR && *termA == *argsB[1]) {
+            return create_term(SCR, {create_term(ADDS, {create_term(ONE), argsB[0]}), termA});
+        }
+
+        // a.A + b.A -> (a + b).A
+        else if (headA == SCR && headB == SCR && *argsA[1] == *argsB[1]) {
+            return create_term(SCR, {create_term(ADDS, {argsA[0], argsB[0]}), argsA[1]});
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+
+    DIRACOQ_RULE_DEF(R_SUM_FACTOR, kernel, term) {
+        auto head = term->get_head();
+        auto args = term->get_args();
+        if (head != ADD && head != ADDS) return std::nullopt;
+
+        // Find the two terms that can be factorized
+        for (int i = 0; i < args.size(); i++) {
+            for (int j = i + 1; j < args.size(); j++) {
+                vector<pair<int, int>> bound_var_corr;
+                auto factorized = sum_to_factorize(kernel, args[i], args[j], bound_var_corr);
+                if (factorized) {
+                    ListArgs<int> new_args;
+                    for (int k = 0; k < args.size(); k++) {
+                        if (k == i || k == j) continue;
+                        new_args.push_back(args[k]);
+                    }
+                    new_args.push_back(factorized.value());
+                    return create_term(head, std::move(new_args));
+                }
+            }
+        }
+
+        return std::nullopt;
     }
 
 

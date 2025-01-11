@@ -554,11 +554,17 @@ UNEXPECTED_ERROR:
         if (record.rule == R_SUM_ADD0) {
             return "(" + pos_to_string(record.pos) + ", " + "R_SUM_ADD0" + ")";
         }
+        if (record.rule == R_SUM_ADD1) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_SUM_ADD1" + ")";
+        }
         if (record.rule == R_SUM_INDEX0) {
             return "(" + pos_to_string(record.pos) + ", " + "R_SUM_INDEX0" + ")";
         }
         if (record.rule == R_SUM_INDEX1) {
             return "(" + pos_to_string(record.pos) + ", " + "R_SUM_INDEX1" + ")";
+        }
+        if (record.rule == R_SUM_FACTOR) {
+            return "(" + pos_to_string(record.pos) + ", " + "R_SUM_FACTOR" + ")";
         }
 
         return "Some Rule";

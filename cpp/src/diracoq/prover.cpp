@@ -204,29 +204,15 @@ namespace diracoq {
                     // NEED TO CONSIDER DIFFERENT PHASES
 
                     // expand on variables
-                    auto expanded_term = variable_expand(kernel, temp);
+                    temp = variable_expand(kernel, temp);
 
                     // second rewriting
-                    temp = rewrite_with_wolfram(kernel, expanded_term, trace);
+                    temp = rewrite_with_wolfram(kernel, temp, trace);
                     
-                    // cout << "[Normalized]:\t\t\t\t" << kernel.term_to_string(temp) << endl;
-
-                    // calculate the bound variables
-                    auto bound_vars = get_bound_vars(temp);
-
-                    // sorting modulo the bound variables
-                    temp = sort_C_terms(temp, c_symbols, 
-                        [&](TermPtr<int> a, TermPtr<int> b) {
-                            return comp_modulo_bound_vars(a, b, bound_vars);
-                        }
-                    );
-
-                    // cout << "[Sorted    ]:\t\t\t\t" << kernel.term_to_string(temp) << endl;
+                    temp = sort_modulo_bound(kernel, temp);
 
                     // reduce to sum_swap normal form
                     temp = sum_swap_normalization(kernel, temp);
-
-                    // cout << "[Sum Swap  ]:\t\t\t\t" << kernel.term_to_string(temp) << endl;
 
                     auto normalized_term = deBruijn_normalize(kernel, temp);
 
@@ -299,28 +285,18 @@ namespace diracoq {
         vector<PosReplaceRecord> traceA;
         auto renamed_resA = bound_variable_rename(kernel, termA);
         auto tempA = rewrite_with_wolfram(kernel, renamed_resA, traceA);
-        auto expanded_termA = variable_expand(kernel, tempA);
-        tempA = rewrite_with_wolfram(kernel, expanded_termA, traceA);
-        auto bound_varsA = get_bound_vars(tempA);
-        tempA = sort_C_terms(tempA, c_symbols, 
-            [&](TermPtr<int> a, TermPtr<int> b) {
-                return comp_modulo_bound_vars(a, b, bound_varsA);
-            }
-        );
+        tempA = variable_expand(kernel, tempA);
+        tempA = rewrite_with_wolfram(kernel, tempA, traceA);
+        tempA = sort_modulo_bound(kernel, tempA);
         tempA = sum_swap_normalization(kernel, tempA);
         auto normalized_termA = deBruijn_normalize(kernel, tempA);
 
         vector<PosReplaceRecord> traceB;
         auto renamed_resB = bound_variable_rename(kernel, termB);
         auto tempB = rewrite_with_wolfram(kernel, renamed_resB, traceB);
-        auto expanded_termB = variable_expand(kernel, tempB);
-        tempB = rewrite_with_wolfram(kernel, expanded_termB, traceB);
-        auto bound_varsB = get_bound_vars(tempB);
-        tempB = sort_C_terms(tempB, c_symbols, 
-            [&](TermPtr<int> a, TermPtr<int> b) {
-                return comp_modulo_bound_vars(a, b, bound_varsB);
-            }
-        );
+        tempB = variable_expand(kernel, tempB);
+        tempB = rewrite_with_wolfram(kernel, tempB, traceB);
+        tempB = sort_modulo_bound(kernel, tempB);
         tempB = sum_swap_normalization(kernel, tempB);
         auto normalized_termB = deBruijn_normalize(kernel, tempB);
 

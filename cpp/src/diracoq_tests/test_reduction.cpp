@@ -1242,6 +1242,11 @@ TEST(DiracoqReduction, R_SUM_ADDS0) {
     TEST_RULE({R_SUM_ADDS0}, "SUM[M, FUN[i, T, Plus[a, b]]]", "Plus[SUM[M, FUN[$0, T, a]], SUM[M, FUN[$1, T, b]]]");
 }
 
+TEST(DiracoqReduction, R_SUM_ADDS1) {
+    TEST_RULE({R_SUM_ADDS1}, "SUM[M, FUN[i, T, Times[x, Plus[a, b, c]]]]", 
+    "Plus[SUM[M, FUN[$0, T, Times[x, a]]], SUM[M, FUN[$1, T, Times[x, b]]], SUM[M, FUN[$2, T, Times[x, c]]]]");
+}
+
 TEST(DiracoqReduction, R_SUM_ADD0) {
     TEST_RULE({R_SUM_ADD0}, "SUM[M, FUN[i, T, ADD[X, Y]]]", "ADD[SUM[M, FUN[$0, T, X]], SUM[M, FUN[$1, T, Y]]]");
 }

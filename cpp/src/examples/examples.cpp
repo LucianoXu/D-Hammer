@@ -995,6 +995,7 @@ Block[{DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
         {
             "COQQ-19 sumonb_out_bool(CB)",
             R"(
+                Var T : INDEX.
             )",
             "|#0> <#0| + |#1> <#1|",
             "1O[QBIT]"
@@ -1762,7 +1763,7 @@ Block[
                 Var T : INDEX.
                 Var A : OTYPE[T, T].
             )",
-            "cplmt T (cplmt T A )",
+            "cplmt T (cplmt T A)",
             "A",
             false   // It faild because of SUM[ -1 A] + SUM[ 1 A] cannot be reduced now 
         },
@@ -5694,6 +5695,19 @@ Block[
             )",
             "O1_Q;Q O2_(Q,R);(Q,R)",
             "((O1 * 1O[T2]) O2)_(Q,R);(Q,R)"
+        },
+
+        {
+            "Example3",
+            R"(
+                Var T : INDEX.
+                Var M : OTYPE[T, T].
+                Def phi := idx T => Sum nv in USET[T], |(nv, nv)>.
+                Var r1 : REG[T].
+                Var r2 : REG[T].
+            )",
+            "M_r1;r1 (phi T)_(r1, r2)",
+            "(TPO T T M)_r2;r2 (phi T)_(r1, r2)"
         }
     };
 
