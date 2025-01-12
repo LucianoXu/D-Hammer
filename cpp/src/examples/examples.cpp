@@ -1764,8 +1764,7 @@ Block[
                 Var A : OTYPE[T, T].
             )",
             "cplmt T (cplmt T A)",
-            "A",
-            false   // It faild because of SUM[ -1 A] + SUM[ 1 A] cannot be reduced now 
+            "A"
         },
 
 /*
@@ -1791,8 +1790,7 @@ Block[
                 Var T : INDEX.
             )",
             "cplmt T 1O[T]",
-            "0O[T, T]",
-            false
+            "0O[T, T]"
         },
 
 /*
@@ -2171,8 +2169,7 @@ Block[
                 Def E1 := superop S M T1 T2 e f.
             )",
             "addso T1 T2 (oppso T1 T2 E1) E1 X",
-            "abortso T1 T2 X",
-            false
+            "abortso T1 T2 X"
         },
 
 /*

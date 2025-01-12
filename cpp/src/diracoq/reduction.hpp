@@ -12,10 +12,12 @@ namespace diracoq {
 
     // The struct for the rewriting trace. It records which rule is applied, at which position, and the new replacement.
     struct PosReplaceRecord {
-        ualg::TermPtr<int> init_term;
-        PosRewritingRule rule;
+        std::string step;
         ualg::TermPos pos;
+        ualg::TermPtr<int> init_term;
+        ualg::TermPtr<int> matched_term;
         ualg::TermPtr<int> replacement;
+        ualg::TermPtr<int> final_term;
     };
 
 
@@ -121,7 +123,7 @@ namespace diracoq {
      * @param term 
      * @return ualg::TermPtr<int> 
      */
-    ualg::TermPtr<int> wolfram_fullsimplify(Kernel& kernel, ualg::TermPtr<int> term);
+    ualg::TermPtr<int> wolfram_fullsimplify(Kernel& kernel, ualg::TermPtr<int> term, bool distrbute = true);
 
 
 
@@ -576,9 +578,6 @@ namespace diracoq {
     // CATPROD(USET(T1) USET(T2)) -> USET(PROD(T1 T2))
     DIRACOQ_RULE_DEF(R_SET0, kernel, term);
 
-    // CATPROD(USET(T1) USET(T2)) -> USET(PROD(T1 T2))
-    DIRACOQ_RULE_DEF(R_SET0, kernel, term);
-
     // SUM(s FUN(x T 0)) -> 0
     DIRACOQ_RULE_DEF(R_SUM_CONST0, kernel, term);
 
@@ -619,7 +618,7 @@ namespace diracoq {
     DIRACOQ_RULE_DEF(R_SUM_ELIM7, kernel, term);
 
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1 ... DELTA(i j) ... an) ... MULS(b1 ... DELTA(i j) ... bn)) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1{j/i} ... an{j/i}) ... MULS(b1{j/i} ... bn{j/i})) A{j/i}) ...)))
-    DIRACOQ_RULE_DEF(R_SUM_ELIM8, kernel, term);
+    // DIRACOQ_RULE_DEF(R_SUM_ELIM8, kernel, term);
 
     // MULS(b1 ... SUM(M FUN(i T a)) ... bn) -> SUM(M FUN(i T MULS(b1 ... a ... bn)))
     DIRACOQ_RULE_DEF(R_SUM_PUSH0, kernel, term);
@@ -763,7 +762,10 @@ namespace diracoq {
 
 
     // The rule list when combined with wolfram engine. (scalar rules are not included)
-    extern const std::vector<PosRewritingRule> rules_with_wolfram;
+    // distribute rules
+    extern const std::vector<PosRewritingRule> rules_with_wolfram_distr;
+    // merge rules
+    extern const std::vector<PosRewritingRule> rules_with_wolfram_merge;
 
     ///////////////// Trace Output
 

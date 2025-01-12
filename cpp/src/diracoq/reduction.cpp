@@ -24,7 +24,14 @@ namespace diracoq {
             auto apply_res = rule(kernel, term);
             if (apply_res.has_value()) {
                 // return the discovered replacement
-                return PosReplaceRecord{term, rule, current_pos, apply_res.value()};
+                return PosReplaceRecord{
+                    rule_name.at(rule), // rule name
+                    current_pos,    // position
+                    nullptr,           // initial term
+                    term,           // matched term
+                    apply_res.value(), // replacement
+                    nullptr,        // final term
+                };
             }
         }
         
@@ -100,16 +107,16 @@ namespace diracoq {
             auto replace_res = get_pos_replace(kernel, current_term, rules);
             if (replace_res.has_value()) {
 
-                if (trace != nullptr) {
-                    trace->push_back(replace_res.value());
-                }
                 current_term = current_term->replace_at(replace_res->pos, replace_res->replacement);
 
+                if (trace != nullptr) {
+                    // assign the final term
+                    replace_res->final_term = current_term;
+                    trace->push_back(replace_res.value());
 
-                // DEBUG PURPOSE
-                // cout << pos_replace_record_to_string(kernel, replace_res.value()) << endl;
-                // cout << kernel.term_to_string(current_term) << endl;
-                // cout << endl;
+                    // DEBUG PURPOSE
+                    // cout << record_to_string(kernel, replace_res.value()) << endl;
+                }
             }
             else {
                 break;
@@ -581,7 +588,7 @@ namespace diracoq {
     }
 
 
-    TermPtr<int> wolfram_fullsimplify(Kernel& kernel, ualg::TermPtr<int> term) {
+    TermPtr<int> wolfram_fullsimplify(Kernel& kernel, ualg::TermPtr<int> term, bool distribute) {
         using namespace astparser;
         // check whether it has the link
         auto link = kernel.get_wstp_link();
@@ -589,24 +596,28 @@ namespace diracoq {
 
         auto &sig = kernel.get_sig();
 
-        // we use this special simplification to avoid factoring
-        auto ast = AST(
-            "FullSimplify", {
-                sig.term2ast(term), 
-                AST("Rule", {
-                AST("TransformationFunctions"), 
-                    AST("List", {
-                        AST("FunctionExpand"),
-                        AST("TrigExpand"),
-                        AST("PowerExpand")
+        AST ast;
+        if (distribute) {
+            // we use this special simplification to avoid factoring
+            ast = AST(
+                "FullSimplify", {
+                    sig.term2ast(term), 
+                    AST("Rule", {
+                    AST("TransformationFunctions"), 
+                        AST("List", {
+                            AST("FunctionExpand"),
+                            AST("TrigExpand"),
+                            AST("PowerExpand")
+                        })
                     })
-                })
-            });
-
-        // auto ast = AST(
-        //     "FullSimplify", {
-        //         sig.term2ast(term)
-        //     });
+                });
+        }
+        else {
+            ast = AST(
+                "FullSimplify", {
+                    sig.term2ast(term)
+                });
+        }
 
         // Call the Wolfram Engine
         wstp::ast_to_WS(link, ast);
@@ -4838,7 +4849,7 @@ namespace diracoq {
         R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
 
-    const std::vector<PosRewritingRule> rules_with_wolfram = {
+    const std::vector<PosRewritingRule> rules_with_wolfram_distr = {
 
         // pre processing rules
         R_COMPO_SS, R_COMPO_SK, R_COMPO_SB, R_COMPO_SO,
@@ -4886,6 +4897,66 @@ namespace diracoq {
 
         // Qubit rules
         R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM,
+
+        // Labelled Dirac rules
+        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,
+        R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
+        R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
+    };
+
+
+
+    const std::vector<PosRewritingRule> rules_with_wolfram_merge = {
+
+        // pre processing rules
+        R_COMPO_SS, R_COMPO_SK, R_COMPO_SB, R_COMPO_SO,
+        R_COMPO_KS, R_COMPO_KK, R_COMPO_KB,
+        R_COMPO_BS, R_COMPO_BK, R_COMPO_BB, R_COMPO_BO,
+        R_COMPO_OS, R_COMPO_OK,             R_COMPO_OO,
+        R_COMPO_DD,
+        R_COMPO_ARROW, R_COMPO_FORALL,
+        R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD, R_STAR_LTSR,
+        R_ADDG_ADDS, R_ADDG_ADD,
+        R_SSUM, 
+
+        // reduction rules
+        R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_FLATTEN,
+
+        // R_MULS2,    // This rules is still necessary because FullSimplify will not transform a * (b + c) to a * b + a * c
+
+        R_CONJ5, R_CONJ6,
+        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12, 
+        R_DELTA0, R_DELTA1,
+
+        R_SCR0, R_SCR1, R_SCR2, R_SCRK0, R_SCRK1, R_SCRB0, R_SCRB1, R_SCRO0, R_SCRO1,
+
+        R_ADDID, R_ADD0, R_ADD1, R_ADD2, R_ADD3, R_ADDK0, R_ADDB0, R_ADDO0,
+
+        R_ADJ0, R_ADJ1, R_ADJ2, R_ADJ3, R_ADJK0, R_ADJK1, R_ADJK2, R_ADJB0, R_ADJB1, R_ADJB2, R_ADJO0, R_ADJO1, R_ADJO2, R_ADJO3,
+
+        R_TSR0, R_TSR1, R_TSR2, R_TSR3, R_TSRK0, R_TSRK1, R_TSRK2, R_TSRB0, R_TSRB1, R_TSRB2, R_TSRO0, R_TSRO1, R_TSRO2, R_TSRO3,
+
+        R_MULK0, R_MULK1, R_MULK2, R_MULK3, R_MULK4, R_MULK5, R_MULK6, R_MULK7, R_MULK8, R_MULK9, R_MULK10, R_MULK11,
+
+        R_MULB0, R_MULB1, R_MULB2, R_MULB3, R_MULB4, R_MULB5, R_MULB6, R_MULB7, R_MULB8, R_MULB9, R_MULB10, R_MULB11,
+
+        R_OUTER0, R_OUTER1, R_OUTER2, R_OUTER3, R_OUTER4, R_OUTER5,
+
+        R_MULO0, R_MULO1, R_MULO2, R_MULO3, R_MULO4, R_MULO5, R_MULO6, R_MULO7, R_MULO8, R_MULO9, R_MULO10, R_MULO11, R_MULO12,
+
+        R_SET0, R_SUM_CONST0, R_SUM_CONST1, R_SUM_CONST2, R_SUM_CONST3, R_SUM_CONST4,
+
+        R_SUM_ELIM0, R_SUM_ELIM1, R_SUM_ELIM2, R_SUM_ELIM3, R_SUM_ELIM4, R_SUM_ELIM5, R_SUM_ELIM6, R_SUM_ELIM7,
+
+        R_SUM_PUSH0, R_SUM_PUSH1, R_SUM_PUSH2, R_SUM_PUSH3, R_SUM_PUSH4, R_SUM_PUSH5, R_SUM_PUSH6, R_SUM_PUSH7, R_SUM_PUSH8, R_SUM_PUSH9, R_SUM_PUSH10, R_SUM_PUSH11, R_SUM_PUSH12, R_SUM_PUSH13, R_SUM_PUSH14, R_SUM_PUSH15, R_SUM_PUSH16,
+
+        R_SUM_ADDS0, R_SUM_ADD0, R_SUM_INDEX0, R_SUM_INDEX1,
+
+        R_SUM_FACTOR, // for merging
+
+        // Qubit rules
+        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM,
+
 
         // Labelled Dirac rules
         R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,

@@ -5,16 +5,30 @@ namespace diracoq {
     using namespace ualg;
 
 
-    inline TermPtr<int> rewrite_with_wolfram(Kernel& kernel, TermPtr<int> term, vector<PosReplaceRecord>& trace) {
+    inline TermPtr<int> rewrite_with_wolfram(Kernel& kernel, TermPtr<int> term, vector<PosReplaceRecord>& trace, bool distribute) {
         auto temp = term;
 
         // use different rules depending on the wolfram connection
         
         if (kernel.wolfram_connected()) {
             while (true) {
-                temp = pos_rewrite_repeated(kernel, temp, rules_with_wolfram, &trace);
+                if (distribute) {
+                    temp = pos_rewrite_repeated(kernel, temp, rules_with_wolfram_distr, &trace);
+                }
+                else {
+                    temp = pos_rewrite_repeated(kernel, temp, rules_with_wolfram_merge, &trace);
+                }
 
-                auto wolfram_simplified = wolfram_fullsimplify(kernel, temp);
+                auto wolfram_simplified = wolfram_fullsimplify(kernel, temp, distribute);
+
+                trace.push_back({
+                    "Wolfram Engine",
+                    {},
+                    temp,
+                    nullptr,
+                    nullptr,
+                    wolfram_simplified
+                });
 
                 if (*temp == *wolfram_simplified) {
                     break;
@@ -62,6 +76,71 @@ namespace diracoq {
         }
 
         return false;
+    }
+
+
+    TermPtr<int> normalize(Kernel& kernel, TermPtr<int> term, vector<PosReplaceRecord>& trace, bool distribute) {
+
+        // rename to unique variables first
+        auto temp = bound_variable_rename(kernel, term);
+        trace.push_back({
+            "Bound Variable Rename",
+            {},
+            term,
+            nullptr,
+            nullptr,
+            temp
+        });
+
+        // first rewriting
+        temp = rewrite_with_wolfram(kernel, temp, trace, distribute);
+
+        // expand on variables
+        temp = variable_expand(kernel, temp);
+        trace.push_back({
+            "Variable Expand",
+            {},
+            term,
+            nullptr,
+            nullptr,
+            temp
+        });
+
+        // second rewriting
+        temp = rewrite_with_wolfram(kernel, temp, trace, distribute);
+        
+        temp = sort_modulo_bound(kernel, temp);
+        trace.push_back({
+            "Sort Modulo Bound Variables",
+            {},
+            term,
+            nullptr,
+            nullptr,
+            temp
+        });
+
+        // reduce to sum_swap normal form
+        temp = sum_swap_normalization(kernel, temp);
+        trace.push_back({
+            "Sum Swap Normalization",
+            {},
+            term,
+            nullptr,
+            nullptr,
+            temp
+        });
+
+        auto normalized_term = deBruijn_normalize(kernel, temp);
+        trace.push_back({
+            "DeBruijn Normalize",
+            {},
+            term,
+            nullptr,
+            nullptr,
+            normalized_term
+        });
+        
+        return normalized_term;
     }
 
     bool Prover::process(const astparser::AST& ast) {
@@ -194,53 +273,32 @@ namespace diracoq {
                 vector<PosReplaceRecord> trace;
 
                 try {
-                    // rename to unique variables first
-                    auto renamed_res = bound_variable_rename(kernel, term);
 
-                    // first rewriting
-                    TermPtr<int> temp = rewrite_with_wolfram(kernel, renamed_res, trace);
-
-
-                    // NEED TO CONSIDER DIFFERENT PHASES
-
-                    // expand on variables
-                    temp = variable_expand(kernel, temp);
-
-                    // second rewriting
-                    temp = rewrite_with_wolfram(kernel, temp, trace);
-                    
-                    temp = sort_modulo_bound(kernel, temp);
-
-                    // reduce to sum_swap normal form
-                    temp = sum_swap_normalization(kernel, temp);
-
-                    auto normalized_term = deBruijn_normalize(kernel, temp);
-
-                    auto final_term = normalized_term;
+                    auto final_term = normalize(kernel, term, trace, true);
 
                     // if output trace
                     if (ast.children.size() == 2) {
-                        output << "Trace:" << endl;
+                        output << "[Trace]" << endl;
                         for (int i = 0; i < trace.size(); ++i) {
-                            output << "Step " + to_string(i) << endl;
-                            output << kernel.term_to_string(trace[i].init_term) << endl;
-                            output << pos_replace_record_to_string(kernel, trace[i]) << endl;
+                            output << "# " << i << endl;
+                            output << record_to_string(kernel, trace[i]) << endl;
                         }
                     }
                     
                     // Output the normalized term
-                    output << kernel.term_to_string(final_term) + " : " + kernel.term_to_string(type)  << endl;
+                    output << "[Normal Form]" << kernel.term_to_string(final_term) + " : " + kernel.term_to_string(type)  << endl;
 
                     return true;
 
                 }
                 catch (const exception& e) {
                     // output the trace first
-                    output << "Trace:" << endl;
-                    for (int i = 0; i < trace.size(); ++i) {
-                        output << "Step " + to_string(i) << endl;
-                        output << kernel.term_to_string(trace[i].init_term) << endl;
-                        output << pos_replace_record_to_string(kernel, trace[i]) << endl;
+                    if (ast.children.size() == 2) {
+                        output << "[Trace]" << endl;
+                        for (int i = 0; i < trace.size(); ++i) {
+                            output << "# " << i << endl;
+                            output << record_to_string(kernel, trace[i]) << endl;
+                        }
                     }
 
                     throw;
@@ -283,39 +341,35 @@ namespace diracoq {
 
         // calculate the normalized term
         vector<PosReplaceRecord> traceA;
-        auto renamed_resA = bound_variable_rename(kernel, termA);
-        auto tempA = rewrite_with_wolfram(kernel, renamed_resA, traceA);
-        tempA = variable_expand(kernel, tempA);
-        tempA = rewrite_with_wolfram(kernel, tempA, traceA);
-        tempA = sort_modulo_bound(kernel, tempA);
-        tempA = sum_swap_normalization(kernel, tempA);
-        auto normalized_termA = deBruijn_normalize(kernel, tempA);
-
         vector<PosReplaceRecord> traceB;
-        auto renamed_resB = bound_variable_rename(kernel, termB);
-        auto tempB = rewrite_with_wolfram(kernel, renamed_resB, traceB);
-        tempB = variable_expand(kernel, tempB);
-        tempB = rewrite_with_wolfram(kernel, tempB, traceB);
-        tempB = sort_modulo_bound(kernel, tempB);
-        tempB = sum_swap_normalization(kernel, tempB);
-        auto normalized_termB = deBruijn_normalize(kernel, tempB);
+        TermPtr<int> final_termA;
+        TermPtr<int> final_termB;
 
-        auto final_termA = normalized_termA;
-        auto final_termB = normalized_termB;
+        final_termA = normalize(kernel, termA, traceA, true);
+        final_termB = normalize(kernel, termB, traceB, true);
         
         // Output the result
         if (syntax_eq_with_wolfram(kernel, final_termA, final_termB)) {
             output << "The two terms are equal." << endl;
             output << "[Normalized Term] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
-
             return true;
         }
-        else {
-            output << "The two terms are not equal." << endl;
-            output << "[Normalized Term A] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
-            output << "[Normalized Term B] " << kernel.term_to_string(final_termB) << " : " << kernel.term_to_string(typeB) << endl;
-            return false;
+
+        traceA = {};
+        traceB = {};
+        final_termA = normalize(kernel, termA, traceA, false);
+        final_termB = normalize(kernel, termB, traceB, false);
+
+        if (syntax_eq_with_wolfram(kernel, final_termA, final_termB)) {
+            output << "The two terms are equal." << endl;
+            output << "[Normalized Term] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
+            return true;
         }
+
+        output << "The two terms are not equal." << endl;
+        output << "[Normalized Term A] " << kernel.term_to_string(final_termA) << " : " << kernel.term_to_string(typeA) << endl;
+        output << "[Normalized Term B] " << kernel.term_to_string(final_termB) << " : " << kernel.term_to_string(typeB) << endl;
+        return false;
     }
 
     Prover std_prover(WSLINK wstp_link) {
