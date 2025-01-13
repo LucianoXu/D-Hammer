@@ -1,76 +1,76 @@
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
-namespace diracoq {
+namespace dirace {
     using namespace std;
     using namespace ualg;
     using namespace astparser;
 
 
-    class DIRACOQBuilder : public DIRACOQBaseListener {
+    class DIRACEBuilder : public DIRACEBaseListener {
     public:
-        DIRACOQBuilder();
+        DIRACEBuilder();
 
         AST get_root();
 
         // expr
-        void exitCmdSeq(DIRACOQParser::CmdSeqContext *ctx) override;
-        void exitFromTerm(DIRACOQParser::FromTermContext *ctx) override;
+        void exitCmdSeq(DIRACEParser::CmdSeqContext *ctx) override;
+        void exitFromTerm(DIRACEParser::FromTermContext *ctx) override;
 
         // cmd
-        void exitDefinition0(DIRACOQParser::Definition0Context *ctx) override;
-        void exitDefinition1(DIRACOQParser::Definition1Context *ctx) override;
-        void exitAssum(DIRACOQParser::AssumContext *ctx) override;
-        void exitCheck(DIRACOQParser::CheckContext *ctx) override;
-        void exitShow(DIRACOQParser::ShowContext *ctx) override;
-        void exitShowAll(DIRACOQParser::ShowAllContext *ctx) override;
-        void exitNormalize(DIRACOQParser::NormalizeContext *ctx) override;
-        void exitNormalizeTraced(DIRACOQParser::NormalizeTracedContext *ctx) override;
-        void exitCheckEq(DIRACOQParser::CheckEqContext *ctx) override;
+        void exitDefinition0(DIRACEParser::Definition0Context *ctx) override;
+        void exitDefinition1(DIRACEParser::Definition1Context *ctx) override;
+        void exitAssum(DIRACEParser::AssumContext *ctx) override;
+        void exitCheck(DIRACEParser::CheckContext *ctx) override;
+        void exitShow(DIRACEParser::ShowContext *ctx) override;
+        void exitShowAll(DIRACEParser::ShowAllContext *ctx) override;
+        void exitNormalize(DIRACEParser::NormalizeContext *ctx) override;
+        void exitNormalizeTraced(DIRACEParser::NormalizeTracedContext *ctx) override;
+        void exitCheckEq(DIRACEParser::CheckEqContext *ctx) override;
 
         // term
-        void exitBra(DIRACOQParser::BraContext *ctx) override;
-        void exitKet(DIRACOQParser::KetContext *ctx) override;
-        void exitDelta(DIRACOQParser::DeltaContext *ctx) override;
-        void exitPair(DIRACOQParser::PairContext *ctx) override;
-        void exitAdj(DIRACOQParser::AdjContext *ctx) override;
-        void exitConj(DIRACOQParser::ConjContext *ctx) override;
-        void exitScr(DIRACOQParser::ScrContext *ctx) override;
-        void exitCompo(DIRACOQParser::CompoContext *ctx) override;
-        void exitStar(DIRACOQParser::StarContext *ctx) override;
-        void exitAdd(DIRACOQParser::AddContext *ctx) override;
-        void exitArrow(DIRACOQParser::ArrowContext *ctx) override;
-        void exitSum(DIRACOQParser::SumContext *ctx) override;
-        void exitIdx(DIRACOQParser::IdxContext *ctx) override;
-        void exitFun(DIRACOQParser::FunContext *ctx) override;
-        void exitForall(DIRACOQParser::ForallContext *ctx) override;
+        void exitBra(DIRACEParser::BraContext *ctx) override;
+        void exitKet(DIRACEParser::KetContext *ctx) override;
+        void exitDelta(DIRACEParser::DeltaContext *ctx) override;
+        void exitPair(DIRACEParser::PairContext *ctx) override;
+        void exitAdj(DIRACEParser::AdjContext *ctx) override;
+        void exitConj(DIRACEParser::ConjContext *ctx) override;
+        void exitScr(DIRACEParser::ScrContext *ctx) override;
+        void exitCompo(DIRACEParser::CompoContext *ctx) override;
+        void exitStar(DIRACEParser::StarContext *ctx) override;
+        void exitAdd(DIRACEParser::AddContext *ctx) override;
+        void exitArrow(DIRACEParser::ArrowContext *ctx) override;
+        void exitSum(DIRACEParser::SumContext *ctx) override;
+        void exitIdx(DIRACEParser::IdxContext *ctx) override;
+        void exitFun(DIRACEParser::FunContext *ctx) override;
+        void exitForall(DIRACEParser::ForallContext *ctx) override;
 
-        void exitZeroK(DIRACOQParser::ZeroKContext *ctx) override;
-        void exitZeroB(DIRACOQParser::ZeroBContext *ctx) override;
-        void exitZeroO(DIRACOQParser::ZeroOContext *ctx) override;
-        void exitOneO(DIRACOQParser::OneOContext *ctx) override;
+        void exitZeroK(DIRACEParser::ZeroKContext *ctx) override;
+        void exitZeroB(DIRACEParser::ZeroBContext *ctx) override;
+        void exitZeroO(DIRACEParser::ZeroOContext *ctx) override;
+        void exitOneO(DIRACEParser::OneOContext *ctx) override;
 
-        void exitSubscript1(DIRACOQParser::Subscript1Context *ctx) override;
-        void exitSubscript2(DIRACOQParser::Subscript2Context *ctx) override;
+        void exitSubscript1(DIRACEParser::Subscript1Context *ctx) override;
+        void exitSubscript2(DIRACEParser::Subscript2Context *ctx) override;
 
-        void exitBasis0(DIRACOQParser::Basis0Context *ctx) override;
-        void exitBasis1(DIRACOQParser::Basis1Context *ctx) override;
+        void exitBasis0(DIRACEParser::Basis0Context *ctx) override;
+        void exitBasis1(DIRACEParser::Basis1Context *ctx) override;
 
-        void exitRSet(DIRACOQParser::RSetContext *ctx) override;
-        void exitEmptyRSet(DIRACOQParser::EmptyRSetContext *ctx) override;
+        void exitRSet(DIRACEParser::RSetContext *ctx) override;
+        void exitEmptyRSet(DIRACEParser::EmptyRSetContext *ctx) override;
 
-        void exitEmptyApplication(DIRACOQParser::EmptyApplicationContext *ctx) override;
-        void exitApplication(DIRACOQParser::ApplicationContext *ctx) override;
-        void exitParen(DIRACOQParser::ParenContext *ctx) override;
-        void exitIdentifier(DIRACOQParser::IdentifierContext *ctx) override;
+        void exitEmptyApplication(DIRACEParser::EmptyApplicationContext *ctx) override;
+        void exitApplication(DIRACEParser::ApplicationContext *ctx) override;
+        void exitParen(DIRACEParser::ParenContext *ctx) override;
+        void exitIdentifier(DIRACEParser::IdentifierContext *ctx) override;
 
 
     private:
         std::stack<AST> node_stack;
     };
 
-    DIRACOQBuilder::DIRACOQBuilder() {}
+    DIRACEBuilder::DIRACEBuilder() {}
 
-    AST DIRACOQBuilder::get_root() {
+    AST DIRACEBuilder::get_root() {
         if (!node_stack.empty()) {
             return std::move(node_stack.top());
         }
@@ -82,7 +82,7 @@ namespace diracoq {
     // expr
 
     // Handle Command Sequence node
-    void DIRACOQBuilder::exitCmdSeq(DIRACOQParser::CmdSeqContext *ctx) {
+    void DIRACEBuilder::exitCmdSeq(DIRACEParser::CmdSeqContext *ctx) {
         std::vector<AST> commands;
 
         // Pop commands from the stack in reverse order
@@ -96,7 +96,7 @@ namespace diracoq {
     }
 
     // Handle From Term node
-    void DIRACOQBuilder::exitFromTerm(DIRACOQParser::FromTermContext *ctx) {
+    void DIRACEBuilder::exitFromTerm(DIRACEParser::FromTermContext *ctx) {
         // Pop the expression node from the stack
         AST from_term = std::move(node_stack.top());
         node_stack.pop();
@@ -109,7 +109,7 @@ namespace diracoq {
     // cmd
 
     // Handle Definition0 node
-    void DIRACOQBuilder::exitDefinition0(DIRACOQParser::Definition0Context *ctx) {
+    void DIRACEBuilder::exitDefinition0(DIRACEParser::Definition0Context *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Pop the expression node from the stack
@@ -121,7 +121,7 @@ namespace diracoq {
     }
 
     // Handle Definition1 node
-    void DIRACOQBuilder::exitDefinition1(DIRACOQParser::Definition1Context *ctx) {
+    void DIRACEBuilder::exitDefinition1(DIRACEParser::Definition1Context *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Pop the type and body expressions in reverse order
@@ -136,7 +136,7 @@ namespace diracoq {
         );
     }
 
-    void DIRACOQBuilder::exitAssum(DIRACOQParser::AssumContext *ctx) {
+    void DIRACEBuilder::exitAssum(DIRACEParser::AssumContext *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Pop the body expression
@@ -147,7 +147,7 @@ namespace diracoq {
         node_stack.push(AST{"VAR", {AST{def_name, {}}, std::move(definition_body)}});
     }
 
-    void DIRACOQBuilder::exitCheck(DIRACOQParser::CheckContext *ctx) {
+    void DIRACEBuilder::exitCheck(DIRACEParser::CheckContext *ctx) {
         // Pop the checked term
         AST check_body = std::move(node_stack.top());
         node_stack.pop();
@@ -156,19 +156,19 @@ namespace diracoq {
         node_stack.push(AST{"CHECK", {std::move(check_body)}});
     }
 
-    void DIRACOQBuilder::exitShow(DIRACOQParser::ShowContext *ctx) {
+    void DIRACEBuilder::exitShow(DIRACEParser::ShowContext *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Create and push the show node
         node_stack.push(AST{"SHOW", {AST{def_name, {}}}});
     }
 
-    void DIRACOQBuilder::exitShowAll(DIRACOQParser::ShowAllContext *ctx) {
+    void DIRACEBuilder::exitShowAll(DIRACEParser::ShowAllContext *ctx) {
         // Create and push the show all node
         node_stack.push(AST{"SHOWALL", {}});
     }
 
-    void DIRACOQBuilder::exitNormalize(DIRACOQParser::NormalizeContext *ctx) {
+    void DIRACEBuilder::exitNormalize(DIRACEParser::NormalizeContext *ctx) {
         // Pop the expression node from the stack
         AST normalize_body = std::move(node_stack.top());
         node_stack.pop();
@@ -177,7 +177,7 @@ namespace diracoq {
         node_stack.push(AST{"NORMALIZE", {std::move(normalize_body)}});
     }
 
-    void DIRACOQBuilder::exitNormalizeTraced(DIRACOQParser::NormalizeTracedContext *ctx) {
+    void DIRACEBuilder::exitNormalizeTraced(DIRACEParser::NormalizeTracedContext *ctx) {
         // Pop the expression node from the stack
         AST normalize_body = std::move(node_stack.top());
         node_stack.pop();
@@ -186,7 +186,7 @@ namespace diracoq {
         node_stack.push(AST{"NORMALIZE", {std::move(normalize_body), AST{"TRACE", {}}}});
     }
 
-    void DIRACOQBuilder::exitCheckEq(DIRACOQParser::CheckEqContext *ctx) {
+    void DIRACEBuilder::exitCheckEq(DIRACEParser::CheckEqContext *ctx) {
         // Pop the two expression nodes from the stack
         AST rhs = std::move(node_stack.top());
         node_stack.pop();
@@ -200,7 +200,7 @@ namespace diracoq {
     ///////////////////////////////////////////
     // term
 
-    void DIRACOQBuilder::exitBra(DIRACOQParser::BraContext *ctx) {
+    void DIRACEBuilder::exitBra(DIRACEParser::BraContext *ctx) {
         // get term
         AST term = std::move(node_stack.top());
         node_stack.pop();
@@ -209,7 +209,7 @@ namespace diracoq {
         node_stack.push(AST{"BRA", {std::move(term)}});
     }
 
-    void DIRACOQBuilder::exitKet(DIRACOQParser::KetContext *ctx) {
+    void DIRACEBuilder::exitKet(DIRACEParser::KetContext *ctx) {
         // get term
         AST term = std::move(node_stack.top());
         node_stack.pop();
@@ -219,7 +219,7 @@ namespace diracoq {
     }
 
 
-    void DIRACOQBuilder::exitDelta(DIRACOQParser::DeltaContext *ctx) {
+    void DIRACEBuilder::exitDelta(DIRACEParser::DeltaContext *ctx) {
         // get t2
         AST t2 = std::move(node_stack.top());
         node_stack.pop();
@@ -233,7 +233,7 @@ namespace diracoq {
     }
 
     // (e1, e2)
-    void DIRACOQBuilder::exitPair(DIRACOQParser::PairContext *ctx) {
+    void DIRACEBuilder::exitPair(DIRACEParser::PairContext *ctx) {
         // get e2
         AST e2 = std::move(node_stack.top());
         node_stack.pop();
@@ -247,7 +247,7 @@ namespace diracoq {
     }
 
 
-    void DIRACOQBuilder::exitAdj(DIRACOQParser::AdjContext *ctx) {
+    void DIRACEBuilder::exitAdj(DIRACEParser::AdjContext *ctx) {
         // get term
         AST term = std::move(node_stack.top());
         node_stack.pop();
@@ -256,7 +256,7 @@ namespace diracoq {
         node_stack.push(AST{"ADJ", {std::move(term)}});
     }
 
-    void DIRACOQBuilder::exitConj(DIRACOQParser::ConjContext *ctx) {
+    void DIRACEBuilder::exitConj(DIRACEParser::ConjContext *ctx) {
         // get term
         AST term = std::move(node_stack.top());
         node_stack.pop();
@@ -265,7 +265,7 @@ namespace diracoq {
         node_stack.push(AST{"Conjugate", {std::move(term)}});
     }
 
-    void DIRACOQBuilder::exitScr(DIRACOQParser::ScrContext *ctx) {
+    void DIRACEBuilder::exitScr(DIRACEParser::ScrContext *ctx) {
         // get dirac term
         AST dirac_term = std::move(node_stack.top());
         node_stack.pop();
@@ -279,7 +279,7 @@ namespace diracoq {
     }
 
     // COMPO(a b)
-    void DIRACOQBuilder::exitCompo(DIRACOQParser::CompoContext *ctx) {
+    void DIRACEBuilder::exitCompo(DIRACEParser::CompoContext *ctx) {
         // get b
         AST b = std::move(node_stack.top());
         node_stack.pop();
@@ -293,7 +293,7 @@ namespace diracoq {
     }
 
     // STAR(a b)
-    void DIRACOQBuilder::exitStar(DIRACOQParser::StarContext *ctx) {
+    void DIRACEBuilder::exitStar(DIRACEParser::StarContext *ctx) {
         // get b
         AST b = std::move(node_stack.top());
         node_stack.pop();
@@ -307,7 +307,7 @@ namespace diracoq {
     }
 
     // ADDG(a b)
-    void DIRACOQBuilder::exitAdd(DIRACOQParser::AddContext *ctx) {
+    void DIRACEBuilder::exitAdd(DIRACEParser::AddContext *ctx) {
         // get b
         AST b = std::move(node_stack.top());
         node_stack.pop();
@@ -321,7 +321,7 @@ namespace diracoq {
     }
 
     // T1 -> T2
-    void DIRACOQBuilder::exitArrow(DIRACOQParser::ArrowContext *ctx) {
+    void DIRACEBuilder::exitArrow(DIRACEParser::ArrowContext *ctx) {
         // get T2
         AST t2 = std::move(node_stack.top());
         node_stack.pop();
@@ -334,7 +334,7 @@ namespace diracoq {
         node_stack.push(AST{"ARROW", {std::move(t1), std::move(t2)}});
     }
 
-        void DIRACOQBuilder::exitSum(DIRACOQParser::SumContext *ctx) {
+        void DIRACEBuilder::exitSum(DIRACEParser::SumContext *ctx) {
         // get the body
         AST body = std::move(node_stack.top());
         node_stack.pop();
@@ -354,7 +354,7 @@ namespace diracoq {
         });
     }
 
-    void DIRACOQBuilder::exitIdx(DIRACOQParser::IdxContext *ctx) {
+    void DIRACEBuilder::exitIdx(DIRACEParser::IdxContext *ctx) {
         // get the body
         AST body = std::move(node_stack.top());
         node_stack.pop();
@@ -366,7 +366,7 @@ namespace diracoq {
         node_stack.push(AST{"IDX", {AST(name, {}), std::move(body)}});
     }
 
-    void DIRACOQBuilder::exitFun(DIRACOQParser::FunContext *ctx) {
+    void DIRACEBuilder::exitFun(DIRACEParser::FunContext *ctx) {
         // get the body
         AST body = std::move(node_stack.top());
         node_stack.pop();
@@ -383,7 +383,7 @@ namespace diracoq {
     }
 
 
-    void DIRACOQBuilder::exitForall(DIRACOQParser::ForallContext *ctx) {
+    void DIRACEBuilder::exitForall(DIRACEParser::ForallContext *ctx) {
         // get the body
         AST body = std::move(node_stack.top());
         node_stack.pop();
@@ -395,7 +395,7 @@ namespace diracoq {
         node_stack.push(AST{"FORALL", {AST(name, {}), std::move(body)}});
     }
 
-    void DIRACOQBuilder::exitZeroK(DIRACOQParser::ZeroKContext *ctx) {
+    void DIRACEBuilder::exitZeroK(DIRACEParser::ZeroKContext *ctx) {
         // get the type
         AST type = std::move(node_stack.top());
         node_stack.pop();
@@ -404,7 +404,7 @@ namespace diracoq {
         node_stack.push(AST{"ZEROK", {std::move(type)}});
     }
 
-    void DIRACOQBuilder::exitZeroB(DIRACOQParser::ZeroBContext *ctx) {
+    void DIRACEBuilder::exitZeroB(DIRACEParser::ZeroBContext *ctx) {
         // get the type
         AST type = std::move(node_stack.top());
         node_stack.pop();
@@ -413,7 +413,7 @@ namespace diracoq {
         node_stack.push(AST{"ZEROB", {std::move(type)}});
     }
 
-    void DIRACOQBuilder::exitZeroO(DIRACOQParser::ZeroOContext *ctx) {
+    void DIRACEBuilder::exitZeroO(DIRACEParser::ZeroOContext *ctx) {
         // get the type
         AST type2 = std::move(node_stack.top());
         node_stack.pop();
@@ -424,7 +424,7 @@ namespace diracoq {
         node_stack.push(AST{"ZEROO", {std::move(type1), std::move(type2)}});
     }
 
-    void DIRACOQBuilder::exitOneO(DIRACOQParser::OneOContext *ctx) {
+    void DIRACEBuilder::exitOneO(DIRACEParser::OneOContext *ctx) {
         // get the type
         AST type = std::move(node_stack.top());
         node_stack.pop();
@@ -433,15 +433,15 @@ namespace diracoq {
         node_stack.push(AST{"ONEO", {std::move(type)}});
     }
 
-    void DIRACOQBuilder::exitBasis0(DIRACOQParser::Basis0Context *ctx) {
+    void DIRACEBuilder::exitBasis0(DIRACEParser::Basis0Context *ctx) {
         node_stack.push(AST{"BASIS0", {}});
     }
 
-    void DIRACOQBuilder::exitBasis1(DIRACOQParser::Basis1Context *ctx) {
+    void DIRACEBuilder::exitBasis1(DIRACEParser::Basis1Context *ctx) {
         node_stack.push(AST{"BASIS1", {}});
     }
 
-    void DIRACOQBuilder::exitSubscript1(DIRACOQParser::Subscript1Context *ctx) {
+    void DIRACEBuilder::exitSubscript1(DIRACEParser::Subscript1Context *ctx) {
         // get the register
         AST reg = std::move(node_stack.top());
         node_stack.pop();
@@ -454,7 +454,7 @@ namespace diracoq {
         node_stack.push(AST{"SUBS", {std::move(term), std::move(reg)}});
     }
 
-    void DIRACOQBuilder::exitSubscript2(DIRACOQParser::Subscript2Context *ctx) {
+    void DIRACEBuilder::exitSubscript2(DIRACEParser::Subscript2Context *ctx) {
         // get the register2
         AST reg2 = std::move(node_stack.top());
         node_stack.pop();
@@ -473,7 +473,7 @@ namespace diracoq {
 
 
     // '{' ID (',' ID)* '}'
-    void DIRACOQBuilder::exitRSet(DIRACOQParser::RSetContext *ctx) {
+    void DIRACEBuilder::exitRSet(DIRACEParser::RSetContext *ctx) {
         // 2. Collect all IDs in reverse order
         vector<AST> ids;
         for (int i = 0; i < ctx->ID().size(); ++i) {
@@ -486,17 +486,17 @@ namespace diracoq {
     }
 
 
-    void DIRACOQBuilder::exitEmptyRSet(DIRACOQParser::EmptyRSetContext *ctx) {
+    void DIRACEBuilder::exitEmptyRSet(DIRACEParser::EmptyRSetContext *ctx) {
         node_stack.push(AST{"RSET"});
     }
         
 
-    void DIRACOQBuilder::exitEmptyApplication(DIRACOQParser::EmptyApplicationContext *ctx) {
+    void DIRACEBuilder::exitEmptyApplication(DIRACEParser::EmptyApplicationContext *ctx) {
         node_stack.push(AST{ctx->ID()->getText(), {}});
     }
 
     // Handle Application node
-    void DIRACOQBuilder::exitApplication(DIRACOQParser::ApplicationContext *ctx) {
+    void DIRACEBuilder::exitApplication(DIRACEParser::ApplicationContext *ctx) {
         // 1. Get the function identifier (ID)
         std::string function_name = ctx->ID()->getText();
 
@@ -511,12 +511,12 @@ namespace diracoq {
         node_stack.push(AST{function_name, std::move(arguments)});
     }
 
-    void DIRACOQBuilder::exitParen(DIRACOQParser::ParenContext *ctx) {
+    void DIRACEBuilder::exitParen(DIRACEParser::ParenContext *ctx) {
         // pass
     }
 
     // Handle Identifier node
-    void DIRACOQBuilder::exitIdentifier(DIRACOQParser::IdentifierContext *ctx) {
+    void DIRACEBuilder::exitIdentifier(DIRACEParser::IdentifierContext *ctx) {
         std::string identifier_name = ctx->getText();
         node_stack.push(AST{identifier_name, {}});
     }
@@ -539,7 +539,7 @@ namespace diracoq {
         using namespace antlr4;
 
         ANTLRInputStream input(code);
-        DIRACOQLexer lexer(&input);
+        DIRACELexer lexer(&input);
         CommonTokenStream tokens(&lexer);
 
         tokens.fill();
@@ -547,7 +547,7 @@ namespace diracoq {
         // Print the token stream
         if (debug) printTokenStream(tokens);
 
-        DIRACOQParser parser(&tokens);
+        DIRACEParser parser(&tokens);
 
         // Enable parser trace if debug is true
         if (debug) parser.setTrace(true);
@@ -555,7 +555,7 @@ namespace diracoq {
         tree::ParseTree *tree = parser.expr(); // Start from 'expr' rule
 
         // Create the AST builder
-        DIRACOQBuilder treeBuilder;
+        DIRACEBuilder treeBuilder;
 
         // CHECK for syntax errors
         if (parser.getNumberOfSyntaxErrors() == 0) {
@@ -568,4 +568,4 @@ namespace diracoq {
         }
     }
 
-} // namespace diracoq
+} // namespace dirace

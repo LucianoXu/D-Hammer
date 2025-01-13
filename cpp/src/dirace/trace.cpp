@@ -1,6 +1,6 @@
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
-namespace diracoq {
+namespace dirace {
     using namespace std;
     using namespace ualg;
 
@@ -244,4 +244,4 @@ namespace diracoq {
         return res;
     }
 
-}; // namespace diracoq
+}; // namespace dirace

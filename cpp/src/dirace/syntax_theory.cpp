@@ -1,6 +1,6 @@
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
-namespace diracoq {
+namespace dirace {
     using namespace ualg;
     using namespace std;
 

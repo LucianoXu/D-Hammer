@@ -1,6 +1,6 @@
 #pragma once
 
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
 namespace examples {
 

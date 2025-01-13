@@ -1,11 +1,11 @@
 
 #include "ualg.hpp"
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
 
 using namespace ualg;
 using namespace std;
-using namespace diracoq;
+using namespace dirace;
 
 #include <csignal>
 
@@ -20,7 +20,7 @@ int main(int argc, const char **argv) {
     // Register signal handler
     signal(SIGINT, signalHandler);
 
-    cout << "< Diracoq Prover top level built by Yingte Xu." << endl;
+    cout << "< Dirace Prover top level built by Yingte Xu." << endl;
 
     auto [formatted_argc, formatted_argv] = wstp::args_format(argc, argv);
 

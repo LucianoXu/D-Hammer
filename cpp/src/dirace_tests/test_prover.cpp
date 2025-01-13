@@ -1,23 +1,23 @@
 #include <gtest/gtest.h>
 
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace diracoq;
+using namespace dirace;
 
-TEST(DiracoqProver, ShowAll) { 
+TEST(DiraceProver, ShowAll) { 
     Prover prover;
     EXPECT_TRUE(prover.process("SHOWALL."));
 }
 
-TEST(DiracoqProver, Var) {
+TEST(DiraceProver, Var) {
     Prover prover;
     EXPECT_TRUE(prover.process("Var x : TYPE."));
     EXPECT_FALSE(prover.process("Var x : TYPE."));
 }
 
-TEST(DiracoqProver, Normalize) {
+TEST(DiraceProver, Normalize) {
     Prover prover;
     EXPECT_TRUE(prover.process(R"(
         Var a : STYPE.
@@ -29,7 +29,7 @@ TEST(DiracoqProver, Normalize) {
 }
 
 
-TEST(DiracoqProver, CheckEq1) {
+TEST(DiraceProver, CheckEq1) {
     Prover prover;
     EXPECT_TRUE(prover.process(R"(
         Var a : STYPE. 
@@ -40,7 +40,7 @@ TEST(DiracoqProver, CheckEq1) {
     );
 }
 
-TEST(DiracoqProver, CheckEq2) {
+TEST(DiraceProver, CheckEq2) {
     Prover prover;
     EXPECT_TRUE(prover.process(R"(
         Var a : STYPE. 

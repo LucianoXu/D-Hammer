@@ -8,7 +8,7 @@
 #include "calculus.hpp"
 #include "trace.hpp"
 
-namespace diracoq {
+namespace dirace {
     
     class Prover {
     protected:
@@ -80,4 +80,4 @@ namespace diracoq {
      */
     Prover std_prover(WSLINK wstp_link = nullptr);
 
-} // namespace diracoq
+} // namespace dirace

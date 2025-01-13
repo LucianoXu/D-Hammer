@@ -1,6 +1,6 @@
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
-namespace diracoq {
+namespace dirace {
 
     using namespace std;
     using namespace ualg;
@@ -128,7 +128,7 @@ namespace diracoq {
 
 
     TermPtr<int> Kernel::parse(const std::string& code) {
-        auto ast = diracoq::parse(code);
+        auto ast = dirace::parse(code);
         if (ast.has_value()) {
             return sig.ast2term(ast.value());
         }
@@ -1457,4 +1457,4 @@ namespace diracoq {
 
 
 
-} // namespace diracoq
+} // namespace dirace

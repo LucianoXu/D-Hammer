@@ -4,7 +4,7 @@
 #include <string>
 #include <set>
 
-namespace diracoq {
+namespace dirace {
 
     template <class T>
     inline ualg::TermPtr<T> create_term(const T& head) {
@@ -18,12 +18,12 @@ namespace diracoq {
 
     extern const int deBruijn_index_num;
 
-    extern std::vector<std::string> diracoq_symbols;
+    extern std::vector<std::string> dirace_symbols;
 
-    extern const ualg::Signature<int> diracoq_sig;
+    extern const ualg::Signature<int> dirace_sig;
 
     inline bool is_reserved(int symbol) {
-        return diracoq_sig.find_name(symbol) != std::nullopt;
+        return dirace_sig.find_name(symbol) != std::nullopt;
     }
 
     // the symbol for preprocessing
@@ -49,4 +49,4 @@ namespace diracoq {
     extern const std::set<int> a_symbols;
     extern const std::set<int> c_symbols;
     
-} // namespace diracoq
+} // namespace dirace

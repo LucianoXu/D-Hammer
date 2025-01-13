@@ -2,8 +2,8 @@
 
 #include "calculus.hpp"
 
-namespace diracoq {
+namespace dirace {
 
     
 
-}; // namespace diracoq
+}; // namespace dirace

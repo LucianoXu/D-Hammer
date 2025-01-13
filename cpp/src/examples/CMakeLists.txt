@@ -12,7 +12,7 @@ add_library(
 target_link_libraries(
     EXAMPLES
     PUBLIC
-        DIRACOQ
+        DIRACE
 )
 
 
@@ -34,7 +34,7 @@ foreach(test ${tests})
 
     target_link_libraries(
         ${test}
-        gtest_main DIRACOQ EXAMPLES
+        gtest_main DIRACE EXAMPLES
     )
 
     add_test(

@@ -1,12 +1,12 @@
 
 #include <gtest/gtest.h>
 
-#include "diracoq.hpp"
+#include "dirace.hpp"
 #include "examples.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace diracoq;
+using namespace dirace;
 using namespace examples;
 
 

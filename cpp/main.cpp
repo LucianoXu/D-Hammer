@@ -1,12 +1,12 @@
 
 
 #include "ualg.hpp"
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
 
 using namespace ualg;
 using namespace std;
-using namespace diracoq;
+using namespace dirace;
 
 int main(int argc, const char ** argv) {
 

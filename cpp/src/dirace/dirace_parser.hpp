@@ -4,13 +4,13 @@
 #include "astparser.hpp"
 #include "antlr4-runtime.h"
 
-#include "DIRACOQLexer.h"
-#include "DIRACOQParser.h"
-#include "DIRACOQBaseListener.h"
+#include "DIRACELexer.h"
+#include "DIRACEParser.h"
+#include "DIRACEBaseListener.h"
 
 #include <stack>
 
-namespace diracoq {
+namespace dirace {
 
     /**
      * @brief Parse the given code into an AST.

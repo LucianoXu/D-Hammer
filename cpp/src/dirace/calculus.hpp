@@ -4,7 +4,7 @@
 #include "ualg.hpp"
 #include "WSTPinterface.hpp"
 
-namespace diracoq {
+namespace dirace {
 
     /**
      * @brief The function to compute the variable set of the register term
@@ -70,9 +70,9 @@ namespace diracoq {
         }
 
     public:
-        Kernel() : lp(nullptr), sig(diracoq_sig) {}
+        Kernel() : lp(nullptr), sig(dirace_sig) {}
 
-        Kernel(WSLINK _lp) : lp(_lp), sig(diracoq_sig) {}
+        Kernel(WSLINK _lp) : lp(_lp), sig(dirace_sig) {}
 
         // copy constructor
         Kernel(const Kernel& other) : lp(other.lp), sig(other.sig), env(other.env), ctx(other.ctx) {}
@@ -215,4 +215,4 @@ namespace diracoq {
 
         void context_pop();
     };
-} // namespace diracoq
+} // namespace dirace

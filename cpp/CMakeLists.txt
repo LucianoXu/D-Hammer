@@ -17,7 +17,7 @@ target_link_libraries(
     PUBLIC 
         DEPENDENCIES 
         UALG
-        DIRACOQ
+        DIRACE
 )
 
 # Add the "run" target to execute the built executable
@@ -37,7 +37,7 @@ target_link_libraries(
     PUBLIC
         DEPENDENCIES
         UALG
-        DIRACOQ
+        DIRACE
 )
 
 

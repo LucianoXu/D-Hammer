@@ -1,18 +1,18 @@
 #include <gtest/gtest.h>
 
-#include "diracoq.hpp"
+#include "dirace.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace diracoq;
+using namespace dirace;
 
-TEST(DiracoqSpecialEq, Delta) {
+TEST(DiraceSpecialEq, Delta) {
     Prover prover;
     prover.process("Var T : INDEX. Var a : BASIS[T]. Var b : BASIS[T].");
     EXPECT_TRUE(prover.check_eq("DELTA[a, b]", "DELTA[b, a]"));
 }
 
-TEST(DiracoqSpecialEq, SUM_SWAP) {
+TEST(DiraceSpecialEq, SUM_SWAP) {
     Prover prover;
 
     prover.process(
@@ -27,7 +27,7 @@ TEST(DiracoqSpecialEq, SUM_SWAP) {
     ));
 }
 
-TEST(DiracoqSpecialEq, RSET) {
+TEST(DiraceSpecialEq, RSET) {
     Kernel kernel;
 
     EXPECT_TRUE(is_eq_modulo_rset(kernel.parse("RSET[1, 2, 3]"), kernel.parse("RSET[3, 2, 1]")));

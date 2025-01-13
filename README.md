@@ -1,5 +1,5 @@
-# Diracoq Project
-GitHub: https://github.com/LucianoXu/diracoq
+# Dirace Project
+GitHub: https://github.com/LucianoXu/dirace
 
 
 shell code to generate the ANTLR C++ files:

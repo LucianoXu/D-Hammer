@@ -14,7 +14,7 @@ foreach(test ${tests})
 
     target_link_libraries(
         ${test}
-        gtest_main DIRACOQ
+        gtest_main DIRACE
     )
 
     add_test(
