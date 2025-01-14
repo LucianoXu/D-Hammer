@@ -998,7 +998,7 @@ Block[{DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
                 Var T : INDEX.
             )",
             "|#0> <#0| + |#1> <#1|",
-            "1O[QBIT]"
+            "1O[BIT]"
         },
 
 
@@ -5318,14 +5318,14 @@ Block[
                 Var T2 : INDEX.
                 Var T3 : INDEX.
                 Var Nm : SET[Sn].
-                Var e : BASIS[QBIT]->OTYPE[T1, T2].
-                Var fl : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
-                Var fr : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var e : BASIS[BIT]->OTYPE[T1, T2].
+                Var fl : BASIS[BIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[BIT]->BASIS[Sn]->OTYPE[T3, T1].
                 Var X : OTYPE[T2, T2].
 
             )",
-            "ifso QBIT USET[QBIT] T3 T1 T2 e (fun i : BASIS[QBIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
-            "compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso QBIT T1 T2 e #0) X + compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso QBIT T1 T2 e #1) X"
+            "ifso BIT USET[BIT] T3 T1 T2 e (fun i : BASIS[BIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
+            "compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso BIT T1 T2 e #0) X + compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso BIT T1 T2 e #1) X"
         },
 
 // This example involves qubits
@@ -5352,14 +5352,14 @@ Block[
                 Var T2 : INDEX.
                 Var T3 : INDEX.
                 Var Nm : SET[Sn].
-                Var e : BASIS[QBIT]->OTYPE[T1, T2].
-                Var fl : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
-                Var fr : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var e : BASIS[BIT]->OTYPE[T1, T2].
+                Var fl : BASIS[BIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[BIT]->BASIS[Sn]->OTYPE[T3, T1].
                 Var X : OTYPE[T2, T2].
 
             )",
-            "ifso QBIT USET[QBIT] T3 T1 T2 e (fun i : BASIS[QBIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
-            "compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso QBIT T1 T2 e #1) X + compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso QBIT T1 T2 e #0) X"
+            "ifso BIT USET[BIT] T3 T1 T2 e (fun i : BASIS[BIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
+            "compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso BIT T1 T2 e #1) X + compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso BIT T1 T2 e #0) X"
         },
 
 
@@ -5386,14 +5386,14 @@ Block[
                 Var T2 : INDEX.
                 Var T3 : INDEX.
                 Var Nm : SET[Sn].
-                Var e : BASIS[QBIT]->OTYPE[T1, T2].
-                Var fl : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
-                Var fr : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var e : BASIS[BIT]->OTYPE[T1, T2].
+                Var fl : BASIS[BIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[BIT]->BASIS[Sn]->OTYPE[T3, T1].
                 Var X : OTYPE[T2, T2].
 
             )",
-            "ifso QBIT USET[QBIT] T3 T1 T2 e (fun i : BASIS[QBIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
-            "addso T3 T2 (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso QBIT T1 T2 e #0)) (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso QBIT T1 T2 e #1)) X"
+            "ifso BIT USET[BIT] T3 T1 T2 e (fun i : BASIS[BIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
+            "addso T3 T2 (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso BIT T1 T2 e #0)) (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso BIT T1 T2 e #1)) X"
         },
 
 /*
@@ -5419,14 +5419,14 @@ Block[
                 Var T2 : INDEX.
                 Var T3 : INDEX.
                 Var Nm : SET[Sn].
-                Var e : BASIS[QBIT]->OTYPE[T1, T2].
-                Var fl : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
-                Var fr : BASIS[QBIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var e : BASIS[BIT]->OTYPE[T1, T2].
+                Var fl : BASIS[BIT]->BASIS[Sn]->OTYPE[T3, T1].
+                Var fr : BASIS[BIT]->BASIS[Sn]->OTYPE[T3, T1].
                 Var X : OTYPE[T2, T2].
 
             )",
-            "ifso QBIT USET[QBIT] T3 T1 T2 e (fun i : BASIS[QBIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
-            "addso T3 T2 (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso QBIT T1 T2 e #1)) (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso QBIT T1 T2 e #0)) X"
+            "ifso BIT USET[BIT] T3 T1 T2 e (fun i : BASIS[BIT] => superop Sn Nm T3 T1 (fl i) (fr i)) X",
+            "addso T3 T2 (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #1) (fr #1)) (elemso BIT T1 T2 e #1)) (compso T3 T1 T2 (superop Sn Nm T3 T1 (fl #0) (fr #0)) (elemso BIT T1 T2 e #0)) X"
         },
 
 
@@ -5537,7 +5537,7 @@ Block[
 
                 Def Id := |#0> <#0| + |#1> <#1|.
 
-                Def Ct := fun e : OTYPE[QBIT, QBIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
+                Def Ct := fun e : OTYPE[BIT, BIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
 
             )",
             "Ct (Diag u0 u1)",
@@ -5563,7 +5563,7 @@ Block[
             R"(
                 Var u0 : STYPE.
                 Var u1 : STYPE.
-                Var P : OTYPE[QBIT, QBIT].
+                Var P : OTYPE[BIT, BIT].
 
                 (* Diag
                 Diag[c0_, c1_] := c0 Ket[{0}]\[SmallCircle]Bra[{0}] + c1 Ket[{1}]\[SmallCircle]Bra[{1}];
@@ -5576,7 +5576,7 @@ Block[
 
                 Def Id := |#0> <#0| + |#1> <#1|.
 
-                Def Ct := fun e : OTYPE[QBIT, QBIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
+                Def Ct := fun e : OTYPE[BIT, BIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
 
             )",
             "(Id * P) (Ct (Diag u0 u1))",
@@ -5655,7 +5655,7 @@ Block[
                 Ct[e_] := (Ket[{0}]\[SmallCircle]Bra[{0}])\[CircleTimes]Id + (Ket[{1}]\[SmallCircle]Bra[{1}])\[CircleTimes]e;
                 *)
 
-                Def Ct := fun e : OTYPE[QBIT, QBIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
+                Def Ct := fun e : OTYPE[BIT, BIT] => (|#0> <#0|) * Id + (|#1> <#1|) * e.
 
                 Def V := Ct P.
             )",

@@ -37,7 +37,7 @@ namespace dirace {
             "TYPE",
 
             "PROD",
-            "QBIT", "BASIS0", "BASIS1",
+            "BIT", "BASIS0", "BASIS1",
 
             "BASIS",
             "STYPE",
@@ -107,7 +107,7 @@ namespace dirace {
     const auto TYPE = dirace_sig.get_repr("TYPE");
 
     const auto PROD = dirace_sig.get_repr("PROD");
-    const auto QBIT = dirace_sig.get_repr("QBIT");
+    const auto BIT = dirace_sig.get_repr("BIT");
     const auto BASIS0 = dirace_sig.get_repr("BASIS0");
     const auto BASIS1 = dirace_sig.get_repr("BASIS1");
 

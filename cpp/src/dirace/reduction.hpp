@@ -695,13 +695,13 @@ namespace dirace {
 
 
     // DELTA(BASIS0 BASIS1) -> 0
-    DIRACE_RULE_DEF(R_QBIT_DELTA, kernel, term);
+    DIRACE_RULE_DEF(R_BIT_DELTA, kernel, term);
 
-    // ONEO(QBIT) -> ADD(OUTER(KET(#0) BRA(#0)) OUTER(KET(#1) BRA(#1))
-    DIRACE_RULE_DEF(R_QBIT_ONEO, kernel, term);
+    // ONEO(BIT) -> ADD(OUTER(KET(#0) BRA(#0)) OUTER(KET(#1) BRA(#1))
+    DIRACE_RULE_DEF(R_BIT_ONEO, kernel, term);
 
-    // SUM(USET(QBIT) FUN(i BASIS(QBIT) X)) -> ADD(X{i/#0} X{i/#1})
-    DIRACE_RULE_DEF(R_QBIT_SUM, kernel, term);
+    // SUM(USET(BIT) FUN(i BASIS(BIT) X)) -> ADD(X{i/#0} X{i/#1})
+    DIRACE_RULE_DEF(R_BIT_SUM, kernel, term);
 
 
     DIRACE_RULE_DEF(R_LABEL_EXPAND, kernel, term);

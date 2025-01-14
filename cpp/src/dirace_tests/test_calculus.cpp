@@ -329,19 +329,19 @@ TEST(DiraceTypeCheck, Index_Prod) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("PROD[sigma, tau]"), kernel.parse("INDEX")));
 }
 
-TEST(DiraceTypeCheck, Index_Qbit) {
+TEST(DiraceTypeCheck, Index_Bit) {
     Kernel kernel;
-    EXPECT_TRUE(kernel.type_check(kernel.parse("QBIT"), kernel.parse("INDEX")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("BIT"), kernel.parse("INDEX")));
 }
 
 TEST(DiraceTypeCheck, Type_Basis0) {
     Kernel kernel;
-    EXPECT_TRUE(kernel.type_check(kernel.parse("#0"), kernel.parse("BASIS[QBIT]")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("#0"), kernel.parse("BASIS[BIT]")));
 }
 
 TEST(DiraceTypeCheck, Type_Basis1) {
     Kernel kernel;
-    EXPECT_TRUE(kernel.type_check(kernel.parse("#1"), kernel.parse("BASIS[QBIT]")));
+    EXPECT_TRUE(kernel.type_check(kernel.parse("#1"), kernel.parse("BASIS[BIT]")));
 }
 
 TEST(DiraceTypeCheck, Type_Arrow) {

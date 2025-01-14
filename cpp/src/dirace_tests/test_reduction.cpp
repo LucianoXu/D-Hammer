@@ -1263,12 +1263,12 @@ TEST(DiraceReduction, R_SUM_INDEX1) {
     TEST_RULE({R_SUM_INDEX1}, "SUM[CATPROD[M1, M2], FUN[i, BASIS[PROD[T1, T2]], X]]", "SUM[M1, FUN[$0, BASIS[T1], SUM[M2, FUN[$1, BASIS[T2], X]]]]");
 }
 
-TEST(DiraceReduction, R_QBIT_ONEO) {
-    TEST_RULE({R_QBIT_ONEO}, "1O[QBIT]", "ADD[OUTER[KET[#0], BRA[#0]], OUTER[KET[#1], BRA[#1]]]");
+TEST(DiraceReduction, R_BIT_ONEO) {
+    TEST_RULE({R_BIT_ONEO}, "1O[BIT]", "ADD[OUTER[KET[#0], BRA[#0]], OUTER[KET[#1], BRA[#1]]]");
 }
 
-TEST(DiraceReduction, R_QBIT_ZEROO) {
-    TEST_RULE({R_QBIT_SUM}, "SUM[USET[QBIT], FUN[i, BASIS[QBIT], OUTER[KET[i], BRA[i]]]]", "ADD[OUTER[KET[#0], BRA[#0]], OUTER[KET[#1], BRA[#1]]]");
+TEST(DiraceReduction, R_BIT_ZEROO) {
+    TEST_RULE({R_BIT_SUM}, "SUM[USET[BIT], FUN[i, BASIS[BIT], OUTER[KET[i], BRA[i]]]]", "ADD[OUTER[KET[#0], BRA[#0]], OUTER[KET[#1], BRA[#1]]]");
 }
 
 TEST(DiraceReduction, R_LABEL_EXPAND_K) {

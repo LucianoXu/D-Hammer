@@ -4207,7 +4207,7 @@ namespace dirace {
 
 
     // DELTA(BASIS0 BASIS1) -> 0
-    DIRACE_RULE_DEF(R_QBIT_DELTA, kernel, term) {
+    DIRACE_RULE_DEF(R_BIT_DELTA, kernel, term) {
 
         MATCH_HEAD(term, DELTA, args_DELTA_BASIS0_BASIS1)
 
@@ -4219,12 +4219,12 @@ namespace dirace {
         return create_term(ZERO);
     }
 
-    // ONEO(QBIT) -> ADD(OUTER(KET(#0) BRA(#0)) OUTER(KET(#1) BRA(#1))
-    DIRACE_RULE_DEF(R_QBIT_ONEO, kernel, term) {
+    // ONEO(BIT) -> ADD(OUTER(KET(#0) BRA(#0)) OUTER(KET(#1) BRA(#1))
+    DIRACE_RULE_DEF(R_BIT_ONEO, kernel, term) {
 
-        MATCH_HEAD(term, ONEO, args_ONEO_QBIT)
+        MATCH_HEAD(term, ONEO, args_ONEO_BIT)
 
-        if (args_ONEO_QBIT[0]->get_head() != QBIT) return std::nullopt;
+        if (args_ONEO_BIT[0]->get_head() != BIT) return std::nullopt;
 
         return create_term(ADD, 
             {
@@ -4234,22 +4234,22 @@ namespace dirace {
         );
     }
 
-    // SUM(USET(QBIT) FUN(i BASIS(QBIT) X)) -> ADD(X{i/#0} X{i/#1})
-    DIRACE_RULE_DEF(R_QBIT_SUM, kernel, term) {
+    // SUM(USET(BIT) FUN(i BASIS(BIT) X)) -> ADD(X{i/#0} X{i/#1})
+    DIRACE_RULE_DEF(R_BIT_SUM, kernel, term) {
         auto &sig = kernel.get_sig();
 
-        MATCH_HEAD(term, SUM, args_SUM_USET_QBIT_FUN_i_BASIS_QBIT_X)
+        MATCH_HEAD(term, SUM, args_SUM_USET_BIT_FUN_i_BASIS_BIT_X)
 
-        MATCH_HEAD(args_SUM_USET_QBIT_FUN_i_BASIS_QBIT_X[0], USET, args_USET_QBIT)
+        MATCH_HEAD(args_SUM_USET_BIT_FUN_i_BASIS_BIT_X[0], USET, args_USET_BIT)
 
-        if (args_USET_QBIT[0]->get_head() != QBIT) return std::nullopt;
+        if (args_USET_BIT[0]->get_head() != BIT) return std::nullopt;
 
-        MATCH_HEAD(args_SUM_USET_QBIT_FUN_i_BASIS_QBIT_X[1], FUN, args_FUN_i_BASIS_QBIT_X)
+        MATCH_HEAD(args_SUM_USET_BIT_FUN_i_BASIS_BIT_X[1], FUN, args_FUN_i_BASIS_BIT_X)
 
         return create_term(ADD, 
             {
-                subst(sig, args_FUN_i_BASIS_QBIT_X[2], args_FUN_i_BASIS_QBIT_X[0]->get_head(), create_term(BASIS0)),
-                subst(sig, args_FUN_i_BASIS_QBIT_X[2], args_FUN_i_BASIS_QBIT_X[0]->get_head(), create_term(BASIS1))
+                subst(sig, args_FUN_i_BASIS_BIT_X[2], args_FUN_i_BASIS_BIT_X[0]->get_head(), create_term(BASIS0)),
+                subst(sig, args_FUN_i_BASIS_BIT_X[2], args_FUN_i_BASIS_BIT_X[0]->get_head(), create_term(BASIS1))
             }
         );
     }
@@ -4841,7 +4841,7 @@ namespace dirace {
         R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1,
 
         // Qubit rules
-        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM,
+        R_BIT_DELTA, R_BIT_ONEO, R_BIT_SUM,
 
         // Labelled Dirac rules
         R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,
@@ -4896,7 +4896,7 @@ namespace dirace {
         R_SUM_ADDS0, R_SUM_ADD0, R_SUM_ADD1, R_SUM_INDEX0, R_SUM_INDEX1,
 
         // Qubit rules
-        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM,
+        R_BIT_DELTA, R_BIT_ONEO, R_BIT_SUM,
 
         // Labelled Dirac rules
         R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,
@@ -4955,7 +4955,7 @@ namespace dirace {
         R_SUM_FACTOR, // for merging
 
         // Qubit rules
-        R_QBIT_DELTA, R_QBIT_ONEO, R_QBIT_SUM,
+        R_BIT_DELTA, R_BIT_ONEO, R_BIT_SUM,
 
 
         // Labelled Dirac rules

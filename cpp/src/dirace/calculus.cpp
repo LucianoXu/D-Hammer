@@ -497,8 +497,8 @@ namespace dirace {
             return create_term(INDEX);
         }
         
-        // (INDEX-QBIT)
-        if (head == QBIT) {
+        // (INDEX-BIT)
+        if (head == BIT) {
             arg_number_check(args, 0);
             return create_term(INDEX);
         }
@@ -506,7 +506,7 @@ namespace dirace {
         // (TYPE-BASIS0) (TYPE-BASIS1)
         if (head == BASIS0 || head == BASIS1) {
             arg_number_check(args, 0);
-            return create_term(BASIS, {create_term(QBIT)});
+            return create_term(BASIS, {create_term(BIT)});
         }
 
         // (TYPE-ARROW)

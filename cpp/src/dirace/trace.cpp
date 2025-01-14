@@ -204,9 +204,9 @@ namespace dirace {
         {R_SUM_INDEX1, "R_SUM_INDEX1"},
         {R_SUM_FACTOR, "R_SUM_FACTOR"},
         
-        {R_QBIT_DELTA, "R_QBIT_DELTA"},
-        {R_QBIT_ONEO, "R_QBIT_ONEO"},
-        {R_QBIT_SUM, "R_QBIT_SUM"},
+        {R_BIT_DELTA, "R_BIT_DELTA"},
+        {R_BIT_ONEO, "R_BIT_ONEO"},
+        {R_BIT_SUM, "R_BIT_SUM"},
         {R_LABEL_EXPAND, "R_LABEL_EXPAND"},
         {R_ADJD0, "R_ADJD0"},
         {R_ADJD1, "R_ADJD1"},
