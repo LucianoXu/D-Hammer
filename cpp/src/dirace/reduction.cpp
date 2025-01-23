@@ -4234,7 +4234,7 @@ namespace dirace {
         );
     }
 
-    // SUM(USET(BIT) FUN(i BASIS(BIT) X)) -> ADD(X{i/#0} X{i/#1})
+    // SUM(USET(BIT) FUN(i BASIS(BIT) X)) -> ADD(X{i/#0} X{i/#1}) / ADDS(X{i/#0} X{i/#1})
     DIRACE_RULE_DEF(R_BIT_SUM, kernel, term) {
         auto &sig = kernel.get_sig();
 
@@ -4246,7 +4246,17 @@ namespace dirace {
 
         MATCH_HEAD(args_SUM_USET_BIT_FUN_i_BASIS_BIT_X[1], FUN, args_FUN_i_BASIS_BIT_X)
 
-        return create_term(ADD, 
+        // decide the head
+        int new_head;
+        auto type = kernel.calc_type(term);
+        if (type->get_head() == STYPE) {
+            new_head = ADDS;
+        }
+        else {
+            new_head = ADD;
+        }
+
+        return create_term(new_head, 
             {
                 subst(sig, args_FUN_i_BASIS_BIT_X[2], args_FUN_i_BASIS_BIT_X[0]->get_head(), create_term(BASIS0)),
                 subst(sig, args_FUN_i_BASIS_BIT_X[2], args_FUN_i_BASIS_BIT_X[0]->get_head(), create_term(BASIS1))
@@ -4280,6 +4290,88 @@ namespace dirace {
             throw std::runtime_error("get_L_expand_info: invalid term");
         }
     }
+
+
+
+    DIRACE_RULE_DEF(R_DTYPE_SCALAR, kernel, term) {
+        MATCH_HEAD(term, DTYPE, args_DTYPE_rset1_rset2)
+
+        auto rset1 = args_DTYPE_rset1_rset2[0];
+        auto rset2 = args_DTYPE_rset1_rset2[1];
+
+        if (rset1->is_atomic() && rset2->is_atomic()) {
+            return create_term(STYPE);
+        }
+
+        return std::nullopt;
+    }
+
+    DIRACE_RULE_DEF(R_ADD_REDUCE, kernel, term) {
+        MATCH_HEAD(term, ADD, args_ADD_terms)
+        
+        // check the type of the first argument
+        auto type = kernel.calc_type(args_ADD_terms[0]);
+
+        if (type->get_head() != STYPE) return std::nullopt;
+
+        return create_term(ADDS, args_ADD_terms);
+    }
+
+    DIRACE_RULE_DEF(R_SCR_REDUCE, kernel, term) {
+        MATCH_HEAD(term, SCR, args_SCR_a_A)
+
+        auto type = kernel.calc_type(args_SCR_a_A[1]);
+
+        if (type->get_head() != STYPE) return std::nullopt;
+
+        return create_term(MULS, {args_SCR_a_A[0], args_SCR_a_A[1]});
+    }
+
+    DIRACE_RULE_DEF(R_ADJ_REDUCE, kernel, term) {
+        MATCH_HEAD(term, ADJ, args_ADJ_A)
+
+        auto type = kernel.calc_type(args_ADJ_A[0]);
+
+        if (type->get_head() != STYPE) return std::nullopt;
+
+        return create_term(CONJ, {args_ADJ_A[0]});
+    }
+
+
+    DIRACE_RULE_DEF(R_LDOT_REDUCE, kernel, term) {
+        MATCH_HEAD(term, LDOT, args_LDOT_LKET_LBRA)
+
+        auto type1 = kernel.calc_type(args_LDOT_LKET_LBRA[0]);
+        auto type2 = kernel.calc_type(args_LDOT_LKET_LBRA[1]);
+
+        if (type1->get_head() == STYPE) {
+            return create_term(SCR, {args_LDOT_LKET_LBRA[0], args_LDOT_LKET_LBRA[1]});
+        }
+        else if (type2->get_head() == STYPE) {
+            return create_term(SCR, {args_LDOT_LKET_LBRA[1], args_LDOT_LKET_LBRA[0]});
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+
+    DIRACE_RULE_DEF(R_LTSR_REDUCE, kernel, term) {
+        MATCH_HEAD(term, LTSR, args_LTSR_terms)
+
+        auto type1 = kernel.calc_type(args_LTSR_terms[0]);
+        auto type2 = kernel.calc_type(args_LTSR_terms[1]);
+
+        if (type1->get_head() == STYPE) {
+            return create_term(SCR, {args_LTSR_terms[0], args_LTSR_terms[1]});
+        }
+        else if (type2->get_head() == STYPE) {
+            return create_term(SCR, {args_LTSR_terms[1], args_LTSR_terms[0]});
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+
 
     DIRACE_RULE_DEF(R_LABEL_EXPAND, kernel, term) {
         MATCH_HEAD(term, SUBS, args_SUBS_term_reg)
@@ -4490,6 +4582,50 @@ namespace dirace {
                 create_term(LDOT, {args_LDOT_D1_SCR_a_D2[0], args_SCR_a_D2[1]})
             }
         );
+    }
+    // D : DTYPE[s1, s2] => SCR[0, D] -> 0D[s1, s2]
+    DIRACE_RULE_DEF(R_SCRD3, kernel, term) {
+        MATCH_HEAD(term, SCR, args_SCR_0_D)
+
+        MATCH_HEAD(args_SCR_0_D[0], ZERO, args_ZERO)
+
+        if (args_ZERO.size() != 0) return std::nullopt;
+
+        auto type = kernel.calc_type(args_SCR_0_D[1]);
+
+        MATCH_HEAD(type, DTYPE, args_DTYPE_s1_s2)
+
+        return create_term(ZEROD, {args_DTYPE_s1_s2[0], args_DTYPE_s1_s2[1]});
+    }
+
+    // SCR[a, 0D[s1, s2]] -> 0D[s1, s2]
+    DIRACE_RULE_DEF(R_SCRD4, kernel, term) {
+        MATCH_HEAD(term, SCR, args_SCR_a_0D_s1_s2)
+
+        if (args_SCR_a_0D_s1_s2[1]->get_head() != ZEROD) return std::nullopt;
+
+        return args_SCR_a_0D_s1_s2[1];
+    }
+
+    // ADD[D1 ... 0D[s1, s2] ... Dn] -> ADD[D1 ... Dn]
+    DIRACE_RULE_DEF(R_ADDD0, kernel, term) {
+
+        MATCH_HEAD(term, ADD, args_ADD_D1_0D_s1_s2_Dn)
+        
+        ListArgs<int> new_args;
+        for (const auto& arg : args_ADD_D1_0D_s1_s2_Dn) {
+            if (arg->get_head() == ZEROD) {
+                continue;
+            }
+            new_args.push_back(arg);
+        }
+        if (new_args.empty()) {
+            new_args.push_back(args_ADD_D1_0D_s1_s2_Dn[0]);
+        }
+
+        if (new_args.size() == args_ADD_D1_0D_s1_s2_Dn.size()) return std::nullopt;
+
+        return create_term(ADD, std::move(new_args));
     }
 
     // LTSR(X1 ... ADD(D1 ... Dn) ... Xm) -> ADD(LTSR(X1 ... D1 ... Xm) ... LTSR(X1 ... Dn ... Xm))
@@ -4844,7 +4980,8 @@ namespace dirace {
         R_BIT_DELTA, R_BIT_ONEO, R_BIT_SUM,
 
         // Labelled Dirac rules
-        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,
+        R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
+        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
         R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
         R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
@@ -4899,7 +5036,8 @@ namespace dirace {
         R_BIT_DELTA, R_BIT_ONEO, R_BIT_SUM,
 
         // Labelled Dirac rules
-        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,
+        R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
+        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
         R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
         R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
@@ -4959,7 +5097,8 @@ namespace dirace {
 
 
         // Labelled Dirac rules
-        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2,
+        R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
+        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
         R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
         R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };

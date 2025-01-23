@@ -27,6 +27,7 @@ target_include_directories(
 
 set(tests
     test_examples
+    test_timing
 )
 
 foreach(test ${tests})

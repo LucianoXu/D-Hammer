@@ -47,6 +47,7 @@ namespace dirace {
         void exitZeroK(DIRACEParser::ZeroKContext *ctx) override;
         void exitZeroB(DIRACEParser::ZeroBContext *ctx) override;
         void exitZeroO(DIRACEParser::ZeroOContext *ctx) override;
+        void exitZeroD(DIRACEParser::ZeroDContext *ctx) override;
         void exitOneO(DIRACEParser::OneOContext *ctx) override;
 
         void exitSubscript1(DIRACEParser::Subscript1Context *ctx) override;
@@ -422,6 +423,17 @@ namespace dirace {
 
         // push ZeroO node
         node_stack.push(AST{"ZEROO", {std::move(type1), std::move(type2)}});
+    }
+
+    void DIRACEBuilder::exitZeroD(DIRACEParser::ZeroDContext *ctx) {
+        // get the register
+        AST reg2 = std::move(node_stack.top());
+        node_stack.pop();
+        AST reg1 = std::move(node_stack.top());
+        node_stack.pop();
+
+        // push ZeroD node
+        node_stack.push(AST{"ZEROD", {std::move(reg1), std::move(reg2)}});
     }
 
     void DIRACEBuilder::exitOneO(DIRACEParser::OneOContext *ctx) {

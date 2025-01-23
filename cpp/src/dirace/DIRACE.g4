@@ -48,6 +48,7 @@ term:   ID '[' expr (',' expr)* ']'            # Application
     |   '0B' '[' term ']'                      # ZeroB
     |   '0O' '[' term ',' term ']'             # ZeroO
     |   '1O' '[' term ']'                      # OneO
+    |   '0D' '[' term ',' term ']'             # ZeroD
 
     |   '#0'                                   # Basis0
     |   '#1'                                   # Basis1

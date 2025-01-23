@@ -1173,6 +1173,25 @@ namespace dirace {
             return create_term(TYPE);
         }
 
+        // (ZEROD)
+        if (head == ZEROD) {
+            arg_number_check(args, 2);
+            
+            // check the two arguments
+            auto dtype = create_term(DTYPE, {args[0], args[1]});
+            try {
+                auto type_dtype = calc_type(dtype);
+                if (type_dtype->get_head() != TYPE) {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(dtype) + " is not of type TYPE.");
+                }
+            }
+            catch (const std::runtime_error& e) {
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(dtype) + " is not well-typed.");
+            }
+
+            return dtype;
+        }
+
         // (Type-L-BASE-LKET)
         if (head == LKET) {
             arg_number_check(args, 2);

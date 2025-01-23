@@ -84,7 +84,7 @@ namespace dirace {
 
             "RSET",
             "DTYPE", "REG",
-            "LKET", "LBRA", "SUBS", "LTSR", "LDOT"
+            "ZEROD", "LKET", "LBRA", "SUBS", "LTSR", "LDOT"
         };
 
         for (const auto &s : defined) {
@@ -156,6 +156,7 @@ namespace dirace {
     const auto RSET = dirace_sig.get_repr("RSET");
     const auto DTYPE = dirace_sig.get_repr("DTYPE");
     const auto REG = dirace_sig.get_repr("REG");
+    const auto ZEROD = dirace_sig.get_repr("ZEROD");
     const auto LKET = dirace_sig.get_repr("LKET");
     const auto LBRA = dirace_sig.get_repr("LBRA");
     const auto SUBS = dirace_sig.get_repr("SUBS");

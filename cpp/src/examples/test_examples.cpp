@@ -48,9 +48,38 @@ TEST_P(EqExampleTest, CheckEquality) {
 
 // Instantiate the test suite with the example list
 INSTANTIATE_TEST_SUITE_P(
-    EqExampleTests,  // Test suite name
+    QCQI_Benchmark,  // Test suite name
     EqExampleTest,   // Test case class
-    ::testing::ValuesIn(eq_examples)  // Provide the vector of examples
+    ::testing::ValuesIn(QCQI_examples)  // Provide the vector of examples
+);
+
+// Instantiate the test suite with the example list
+INSTANTIATE_TEST_SUITE_P(
+    CoqQ_Benchmark,  // Test suite name
+    EqExampleTest,   // Test case class
+    ::testing::ValuesIn(CoqQ_examples)  // Provide the vector of examples
+);
+
+// Instantiate the test suite with the example list
+INSTANTIATE_TEST_SUITE_P(
+    Circuit_Benchmark,  // Test suite name
+    EqExampleTest,   // Test case class
+    ::testing::ValuesIn(Circuit_examples)  // Provide the vector of examples
+);
+
+// Instantiate the test suite with the example list
+INSTANTIATE_TEST_SUITE_P(
+    Jens2024_Benchmark,  // Test suite name
+    EqExampleTest,   // Test case class
+    ::testing::ValuesIn(Jens2024_examples)  // Provide the vector of examples
+);
+
+
+// Instantiate the test suite with the example list
+INSTANTIATE_TEST_SUITE_P(
+    Others_Benchmark,  // Test suite name
+    EqExampleTest,   // Test case class
+    ::testing::ValuesIn(others_examples)  // Provide the vector of examples
 );
 
 INSTANTIATE_TEST_SUITE_P(

@@ -704,6 +704,19 @@ namespace dirace {
     DIRACE_RULE_DEF(R_BIT_SUM, kernel, term);
 
 
+
+    //////////////////////////////////////////////////////////
+    // for labelled Dirac notation
+
+    // TODO: add unit test for these rules
+    DIRACE_RULE_DEF(R_DTYPE_SCALAR, kernel, term);
+    DIRACE_RULE_DEF(R_ADD_REDUCE, kernel, term);
+    DIRACE_RULE_DEF(R_SCR_REDUCE, kernel, term);
+    DIRACE_RULE_DEF(R_ADJ_REDUCE, kernel, term);
+    DIRACE_RULE_DEF(R_LDOT_REDUCE, kernel, term);
+    DIRACE_RULE_DEF(R_LTSR_REDUCE, kernel, term);
+    //////////////////////////////////////////////////////////
+
     DIRACE_RULE_DEF(R_LABEL_EXPAND, kernel, term);
 
     // ADJ(LTSR(D1 D2 ... Dn)) -> LTSR(ADJ(Dn) ... ADJ(D2) ADJ(D1))
@@ -714,7 +727,7 @@ namespace dirace {
 
     // ADJ(LDOT(D1 D2)) -> LDOT(ADJ(D2) ADJ(D1))
     DIRACE_RULE_DEF(R_ADJD1, kernel, term);
-    
+
     // LTSR(D1 ... SCR(a Dn) ... Dm) -> SCR(a LTSR(D1 ... Dn ... Dm))
     DIRACE_RULE_DEF(R_SCRD0, kernel, term);
 
@@ -723,6 +736,15 @@ namespace dirace {
 
     // LDOT(D1 SCR(a D2)) -> SCR(a LDOT(D1 D2))
     DIRACE_RULE_DEF(R_SCRD2, kernel, term);
+
+    // D : DTYPE[s1, s2] => SCR[0, D] -> 0D[s1, s2]
+    DIRACE_RULE_DEF(R_SCRD3, kernel, term);
+
+    // SCR[a, 0D[s1, s2]] -> 0D[s1, s2]
+    DIRACE_RULE_DEF(R_SCRD4, kernel, term);
+    
+    // ADD[D1 ... 0D[s1, s2] ... Dn] -> ADD[D1 ... Dn]
+    DIRACE_RULE_DEF(R_ADDD0, kernel, term);
 
     // LTSR(X1 ... ADD(D1 ... Dn) ... Xm) -> ADD(LTSR(X1 ... D1 ... Xm) ... LTSR(X1 ... Dn ... Xm))
     DIRACE_RULE_DEF(R_TSRD0, kernel, term);

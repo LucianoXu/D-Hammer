@@ -2,50 +2,7 @@
 
 namespace examples {
 
-    std::vector<EqExample> eq_examples = {
-
-        {
-            "Scalar1",
-            R"(
-                Var a : STYPE.
-            )",
-            "a",
-            "a + 0"
-        },
-
-
-        {
-            "Example 1",
-            R"(
-                Var sigma : INDEX.
-                Var K : KTYPE[sigma].
-            )",
-            "(TPK sigma) ((TPB sigma) K)",
-            "K"
-        },
-
-/*
-PRELIMINARY
-
-Block[
- {DiracCtx = {M -> OType[T, T]}, phi},
- phi[T_] := 
-  With[{nv = Unique[]}, Sum[Ket[{PAIR[nv, nv]}], {nv, USET[T]}]];
- DNEqQ[(M\[CircleTimes]ONEO[T])\[SmallCircle]phi[
-    T], (ONEO[T]\[CircleTimes]TPO[M, T, T])\[SmallCircle]phi[T]]
- ]
- */
-
-        {
-            "PRELIMINARY",
-            R"(
-                Var T : INDEX.
-                Var M : OTYPE[T, T].
-                Def phi := idx T => Sum nv in USET[T], |(nv, nv)>.
-            )",
-            "(M * 1O[T]) (phi T)",
-            "(1O[T] * (TPO T T M)) (phi T)"
-        },
+    std::vector<EqExample> QCQI_examples = {
 /*
 QCQI-1
 
@@ -557,6 +514,10 @@ Block[
             "(A * 1O[T]) sigma",
             "(1O[T] * (TPO T T A)) sigma"
         },
+
+    };
+
+    std::vector<EqExample> CoqQ_examples = {
 
 /*
 COQQ-1 lftrace_baseE
@@ -5507,6 +5468,91 @@ Block[
             "formso T1 T2 A X"
         },
 
+    };
+
+    std::vector<EqExample> Circuit_examples = {
+
+/* QC-1 
+Block[
+ {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
+ DNEqQ[
+  HGate \[SmallCircle] HGate,
+  Id
+  ]
+ ]
+*/
+
+        {
+            "QC-1",
+            R"(
+                Def HGate := Divide[1, Sqrt[2]] (|#0> <#0| + |#0> <#1| + |#1> <#0| + (-1) |#1> <#1|).
+            )",
+            "HGate HGate",
+            "1O[BIT]"
+        },
+
+/* QC-2
+*/
+
+        {
+            "QC-2",
+            R"(
+                Def CX := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Def SW := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #0)| + |(#1, #0)><(#0, #1)| + |(#1, #1)><(#1, #1)|.
+            )",
+            "SW CX SW",
+            "|(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #1)| + |(#1, #0)><(#1, #0)| + |(#1, #1)><(#0, #1)|"
+        },
+
+/* Xin PQC example
+Block[
+ {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
+ Module[{
+   X = (KET[0]~OUTER~BRA[1])~ADDO~(KET[1]~OUTER~BRA[0]),
+   Y = (CPX[-I]~SCRO~(KET[0]~OUTER~BRA[1]))~
+     ADDO~(CPX[I]~SCRO~(KET[1]~OUTER~BRA[0])),
+   Z = (KET[0]~OUTER~BRA[0])~ADDO~(CPX[-1]~SCRO~(KET[1]~OUTER~BRA[1])),
+   I2 = (KET[0]~OUTER~BRA[0])~ADDO~(KET[1]~OUTER~BRA[1])
+   },
+  Module[
+   {
+    Rx = (CPX[Cos[#/2]]~SCRO~I2)~ADDO~(CPX[-I Sin[#/2]]~SCRO~X) &,
+    Ry = (CPX[Cos[#/2]]~SCRO~I2)~ADDO~(CPX[-I Sin[#/2]]~SCRO~Y) &,
+    Rz = (CPX[Cos[#/2]]~SCRO~I2)~ADDO~(CPX[-I Sin[#/2]]~SCRO~Z) &
+    },
+   DNEqQ[
+    (Rz[phi]\[CircleTimes]ONEO[{0, 
+         1}])\[SmallCircle]CX\[SmallCircle](X\[CircleTimes]ONEO[{0, 
+         1}])\[SmallCircle](Rz[theta]\[CircleTimes]ONEO[{0, 1}]),
+    CX\[SmallCircle](X\[CircleTimes]ONEO[{0, 1}])\[SmallCircle](Rz[
+        theta - phi]\[CircleTimes]ONEO[{0, 1}])
+    ]
+   ]
+  ]
+ ]
+*/
+        {
+            "PQC-2",
+            R"(
+                Def X := |#0><#1| + |#1><#0|.
+                Def Y := Minus[I] |#0><#1| + I |#1><#0|.
+                Def Z := |#0><#0| + Minus[1] |#1><#1|.
+                Def I2 := |#0><#0| + |#1><#1|.
+                Def CX := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Def Rx := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] X).
+                Def Ry := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] Y).
+                Def Rz := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] Z).
+            )",
+            "(Rz phi * 1O[BIT]) CX (X * 1O[BIT]) (Rz theta * 1O[BIT])",
+            "CX (X * 1O[BIT]) (Rz (theta + Minus[phi]) * 1O[BIT])"
+        }
+
+    };
+
+
+
+    std::vector<EqExample> Jens2024_examples = {
+
 /*
 Jens2024-1
 
@@ -5664,6 +5710,57 @@ Block[
         },
     };
 
+    std::vector<EqExample> others_examples = {
+
+/*
+PRELIMINARY
+
+Block[
+ {DiracCtx = {M -> OType[T, T]}, phi},
+ phi[T_] := 
+  With[{nv = Unique[]}, Sum[Ket[{PAIR[nv, nv]}], {nv, USET[T]}]];
+ DNEqQ[(M\[CircleTimes]ONEO[T])\[SmallCircle]phi[
+    T], (ONEO[T]\[CircleTimes]TPO[M, T, T])\[SmallCircle]phi[T]]
+ ]
+ */
+
+        {
+            "PRELIMINARY",
+            R"(
+                Var T : INDEX.
+                Var M : OTYPE[T, T].
+                Def phi := idx T => Sum nv in USET[T], |(nv, nv)>.
+            )",
+            "(M * 1O[T]) (phi T)",
+            "(1O[T] * (TPO T T M)) (phi T)"
+        },
+
+/*
+OTHERS-1
+sigma[T_] := 
+  With[{nv = Unique[]}, Sum[Ket[{PAIR[nv, nv]}], {nv, USET[T]}]];
+Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
+ DNEqQ[SuperDagger[
+   sigma[T]]\[SmallCircle](ONEO[
+      T]\[CircleTimes]M1)\[SmallCircle](M2\[CircleTimes]ONEO[
+      T])\[SmallCircle]sigma[T], 
+  DNTr[TPO[M1, T, T]\[SmallCircle]M2, T]]]
+*/
+
+        {
+            "OTHERS-1",
+            R"(
+                Var T : INDEX.
+                Def sigma := idx T => Sum nv in USET[T], |(nv, nv)>.
+                Var M1 : OTYPE[T, T].
+                Var M2 : OTYPE[T, T].
+            )",
+            "(sigma T)^D (1O[T] * M1) (M2 * 1O[T]) (sigma T)",
+            "Tr T ((TPO T T M1) M2)"
+        },
+
+    };
+
 
     std::vector<EqExample> labelled_eq_examples = {
         {
@@ -5705,8 +5802,35 @@ Block[
             )",
             "M_r1;r1 (phi T)_(r1, r2)",
             "(TPO T T M)_r2;r2 (phi T)_(r1, r2)"
+        },
+
+        {
+
+            "Jens2024-L1",
+            R"(
+                Var P0 : OTYPE[BIT, BIT]. Var P1 : OTYPE[BIT, BIT].
+                Var Q0 : OTYPE[BIT, BIT]. Var Q1 : OTYPE[BIT, BIT].
+                Def V1 := |#0> <#0| * P0 + |#1> <#1| * P1.
+                Var V2 : OTYPE[BIT*BIT, BIT*BIT].
+                Def V3 := |#0> <#0| * Q0 + |#1> <#1| * Q1.
+                Var a : REG[BIT]. Var b : REG[BIT]. Var c : REG[BIT].
+            )",
+            "V1_(a, c);(a, c) V2_(b, c);(b, c) V3_(a, c);(a, c)"
         }
     };
 
 
 };
+
+/*
+Var P0 : OTYPE[BIT, BIT]. Var P1 : OTYPE[BIT, BIT].
+Var Q0 : OTYPE[BIT, BIT]. Var Q1 : OTYPE[BIT, BIT].
+Def V1 := |#0> <#0| * P0 + |#1> <#1| * P1.
+Var V2 : OTYPE[BIT*BIT, BIT*BIT].
+Def V3 := |#0> <#0| * Q0 + |#1> <#1| * Q1.
+Var a : REG[BIT]. Var b : REG[BIT]. Var c : REG[BIT].
+Normalize V1_(a, c);(a, c).
+
+
+ADD[SCR[DOT[BRA[BASIS0], MULK[P0, KET[BASIS0]]], LTSR[LKET[BASIS0, c], LKET[BASIS0, a], LBRA[BASIS0, c], LBRA[BASIS0, a]]], SCR[DOT[BRA[BASIS0], MULK[P0, KET[BASIS1]]], LTSR[LKET[BASIS0, c], LKET[BASIS0, a], LBRA[BASIS0, a], LBRA[BASIS1, c]]], SCR[DOT[BRA[BASIS0], MULK[P1, KET[BASIS0]]], LTSR[LKET[BASIS0, c], LKET[BASIS1, a], LBRA[BASIS0, c], LBRA[BASIS1, a]]], SCR[DOT[BRA[BASIS0], MULK[P1, KET[BASIS1]]], LTSR[LKET[BASIS0, c], LKET[BASIS1, a], LBRA[BASIS1, c], LBRA[BASIS1, a]]], SCR[DOT[BRA[BASIS1], MULK[P0, KET[BASIS0]]], LTSR[LKET[BASIS0, a], LKET[BASIS1, c], LBRA[BASIS0, c], LBRA[BASIS0, a]]], SCR[DOT[BRA[BASIS1], MULK[P0, KET[BASIS1]]], LTSR[LKET[BASIS0, a], LKET[BASIS1, c], LBRA[BASIS0, a], LBRA[BASIS1, c]]], SCR[DOT[BRA[BASIS1], MULK[P1, KET[BASIS0]]], LTSR[LKET[BASIS1, c], LKET[BASIS1, a], LBRA[BASIS0, c], LBRA[BASIS1, a]]], SCR[DOT[BRA[BASIS1], MULK[P1, KET[BASIS1]]], LTSR[LKET[BASIS1, c], LKET[BASIS1, a], LBRA[BASIS1, c], LBRA[BASIS1, a]]]]
+*/

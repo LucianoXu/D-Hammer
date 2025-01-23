@@ -12,7 +12,15 @@ namespace examples {
         bool expected_res = true;
     };
 
-    extern std::vector<EqExample> eq_examples;
+    extern std::vector<EqExample> QCQI_examples;
+
+    extern std::vector<EqExample> CoqQ_examples;
+
+    extern std::vector<EqExample> Circuit_examples;
+
+    extern std::vector<EqExample> Jens2024_examples;
+
+    extern std::vector<EqExample> others_examples;
 
     extern std::vector<EqExample> labelled_eq_examples;
 
