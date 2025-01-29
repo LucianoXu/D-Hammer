@@ -473,12 +473,12 @@ namespace dirace {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the function " + sig.term_to_string(func) + " is not of type ARROW.");
             }
 
-            if (args_f[1]->get_head() == STYPE || args_f[1]->get_head() == KTYPE || args_f[1]->get_head() == BTYPE || args_f[1]->get_head() == OTYPE) {
+            if (args_f[1]->get_head() == STYPE || args_f[1]->get_head() == KTYPE || args_f[1]->get_head() == BTYPE || args_f[1]->get_head() == OTYPE || args_f[1]->get_head() == DTYPE) {
                 return args_f[1];
             }
 
             else {
-                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the body " + sig.term_to_string(args[2]) + " is not a scalar, a ket, a bra, or an operator.");
+                throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the body " + sig.term_to_string(args[2]) + " is not a scalar, a ket, a bra, an operator or a labelled notation.");
             }
         }
 

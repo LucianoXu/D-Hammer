@@ -5805,17 +5805,149 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
         },
 
         {
-
-            "Jens2024-L1",
+            "Example4",
             R"(
-                Var P0 : OTYPE[BIT, BIT]. Var P1 : OTYPE[BIT, BIT].
-                Var Q0 : OTYPE[BIT, BIT]. Var Q1 : OTYPE[BIT, BIT].
-                Def V1 := |#0> <#0| * P0 + |#1> <#1| * P1.
-                Var V2 : OTYPE[BIT*BIT, BIT*BIT].
-                Def V3 := |#0> <#0| * Q0 + |#1> <#1| * Q1.
-                Var a : REG[BIT]. Var b : REG[BIT]. Var c : REG[BIT].
+                Var T : INDEX.
+                Var M : OTYPE[T, T].
+                Var N : OTYPE[T, T].
+                Def phi := idx T => Sum nv in USET[T], |(nv, nv)>.
+                Var r1 : REG[T].
+                Var r2 : REG[T].
             )",
-            "V1_(a, c);(a, c) V2_(b, c);(b, c) V3_(a, c);(a, c)"
+            "(phi T)^D_(r1, r2) M_r2;r2 N_r1;r1 (phi T)_(r1, r2)",
+            "Tr T ((TPO T T M) N)"
+        },
+
+        {
+            "Example5",
+            R"(
+                Var T : INDEX.
+                Var O : OTYPE[T, T].
+                Var x : REG[T].
+                Var y : REG[T].
+            )",
+            "Sum i in USET[T], <i|_x O_x;x |i>_x",
+            "Tr T O"
+        },
+
+        {
+            "Example6",
+            R"(
+                Var T : INDEX.
+                Var O : OTYPE[T * T, T * T].
+                Var x : REG[T].
+                Var y : REG[T].
+            )",
+            "Sum j in USET[T], <j|_y (Sum i in USET[T], <i|_x O_(x,y);(x,y) |i>_x) |j>_y",
+            "Tr (T * T) O"
+        },
+
+        {
+            "Example7",
+            R"(
+                Var T : INDEX.
+                Var O : OTYPE[T * T, T * T].
+                Var x : REG[T].
+                Var y : REG[T].
+            )",
+            "Sum i in USET[T * T], <i|_(x, y) O_(x,y);(x,y) |i>_(x, y)",
+            "Tr (T * T) O"
+        },
+
+        {
+            "Example8",
+            R"(
+                Var T : INDEX.
+                Var O : OTYPE[(T * T) * T, (T * T) * T].
+                Var x : REG[T].
+                Var y : REG[T].
+                Var z : REG[T].
+            )",
+            "Sum j in USET[T], <j|_x (Sum i in USET[T], <i|_y O_((y,z),x);((y,z),x) |i>_y) |j>_x",
+            "Sum j in USET[T], <j|_y (Sum i in USET[T], <i|_x O_((y,z),x);((y,z),x) |i>_x) |j>_y"
+        },
+
+        {
+            "Example9",
+            R"(
+                Var T : INDEX.
+                Var O : OTYPE[(T * T) * T, (T * T) * T].
+                Var x : REG[T].
+                Var y : REG[T].
+                Var z : REG[T].
+            )",
+            "Sum j in USET[T], <j|_x (Sum i in USET[T], <i|_y O_((y,z),x);((y,z),x) |i>_y) |j>_x",
+            "Sum i in USET[T * T], <i|_(x, y) O_((y,z),x);((y,z),x) |i>_(x, y)"
+        },
+
+        {
+            "Example10",
+            R"(
+                Var T : INDEX.
+                Var U : OTYPE[T * (T * T), T * (T * T)].
+                Var V : OTYPE[(T * (T * T)) * T, (T * (T * T)) * T].
+                Var s : BASIS[T].
+                Var phi : KTYPE[T * T].
+                Var psi : KTYPE[(T * T) * (T * T)].
+                Var r : REG[T]. Var a : REG[T]. Var b : REG[T]. Var c : REG[T].
+                Var ap : REG[T]. Var bp : REG[T]. Var cp : REG[T].
+            )",
+
+            "Sum j in USET[(T * (T * T)) * T], <j|_((ap,(b,bp)),cp) (Sum i in USET[T], <i|_r U_(r,(a,b));(r,(a,b)) ((|s><s|)_r;r * (V_((ap,(b,bp)),cp);((ap,(b,bp)),cp) ((phi phi^D)_(a,ap);(a,ap) * (psi psi^D)_((b,bp),(c,cp));((b,bp),(c,cp))) V^D_((ap,(b,bp)),cp);((ap,(b,bp)),cp))) U^D_(r,(a,b));(r,(a,b)) |i>_r) |j>_((ap,(b,bp)),cp)",
+
+            "Sum i in USET[((T * T) * (T * T)) * T], <i|_(((r,ap),(b,bp)),cp) U_(r,(a,b));(r,(a,b)) V_((ap,(b,bp)),cp);((ap,(b,bp)),cp) (|s>_r * phi_(a,ap) * psi_((b,bp),(c,cp))) (U_(r,(a,b));(r,(a,b)) V_((ap,(b,bp)),cp);((ap,(b,bp)),cp) (|s>_r * phi_(a,ap) * psi_((b,bp),(c,cp))))^D |i>_(((r,ap),(b,bp)),cp)",
+        },
+
+        {
+            "Example11",
+            R"(
+                Var T1 : INDEX.
+                Var T2 : INDEX.
+                Var T3 : INDEX.
+                Var P : BASIS[T1] -> OTYPE[T2, T2].
+                Var Q : BASIS[T1] -> OTYPE[T3, T3].
+                Def U := Sum i in USET[T1], (|i><i|) * (P i).
+                Def V := Sum i in USET[T1], (|i><i|) * (Q i).
+                Var W : OTYPE[T2 * T3, T2 * T3].
+                Var a : REG[T1]. 
+                Var b : REG[T2]. 
+                Var c : REG[T3].
+            )",
+            "U_(a,b);(a,b) W_(b,c);(b,c) V_(a,c);(a,c)",
+            "Sum i in USET[T1], (|i><i|)_a;a * ((P i)_b;b W_(b,c);(b,c) (Q i)_c;c)"
+        },
+
+        {
+            "Example12",
+            R"(
+                Var T : INDEX.
+                Var i : BASIS[T].
+                Var j : BASIS[T].
+                Var C : OTYPE[T * T, T * T].
+                Var D : OTYPE[T * T, T * T].
+                Var a : REG[T]. Var b : REG[T]. Var c : REG[T]. Var d : REG[T].
+            )",
+            "(|i>_a <j|_b) C_(b,c);(b,c) D_(c, d);(c,d)",
+            "<j|_b C_(b,c);(b,c) D_(c, d);(c,d) |i>_a"
+        },
+
+        {
+            "Example13",
+            R"(
+                Var T : INDEX.
+                Var A : OTYPE[T * T, T * T].
+                Var B : OTYPE[T * T, T * T].
+                Var C : OTYPE[T * T, T * T].
+                Var D : OTYPE[T * T, T * T].
+                Var E : OTYPE[T * T, T * T].
+                Var F : OTYPE[T * T, T * T].
+                Var G : OTYPE[T * T, T * T].
+                Var H : OTYPE[T * T, T * T].
+                Var a : REG[T]. Var b : REG[T]. Var c : REG[T]. 
+                Var d : REG[T]. Var e : REG[T]. Var f : REG[T].
+            )",
+            "(A_(a,b);(a,b) B_(c,d);(c,d) C_(e,f);(e,f)) (D_(b,c);(b,c) E_(d,e);(d,e)) (F_(a,b);(a,b) G_(c,d);(c,d) H_(e,f);(e,f))",
+            "(A_(a,b);(a,b) C_(e,f);(e,f)) (B_(c,d);(c,d) D_(b,c);(b,c)) (E_(d,e);(d,e) G_(c,d);(c,d)) (F_(a,b);(a,b) H_(e,f);(e,f))"
         }
     };
 
@@ -5829,7 +5961,7 @@ Def V1 := |#0> <#0| * P0 + |#1> <#1| * P1.
 Var V2 : OTYPE[BIT*BIT, BIT*BIT].
 Def V3 := |#0> <#0| * Q0 + |#1> <#1| * Q1.
 Var a : REG[BIT]. Var b : REG[BIT]. Var c : REG[BIT].
-Normalize V1_(a, c);(a, c).
+Normalize V1_(a, c);(a, c) V2_(b, c);(b, c).
 
 
 ADD[SCR[DOT[BRA[BASIS0], MULK[P0, KET[BASIS0]]], LTSR[LKET[BASIS0, c], LKET[BASIS0, a], LBRA[BASIS0, c], LBRA[BASIS0, a]]], SCR[DOT[BRA[BASIS0], MULK[P0, KET[BASIS1]]], LTSR[LKET[BASIS0, c], LKET[BASIS0, a], LBRA[BASIS0, a], LBRA[BASIS1, c]]], SCR[DOT[BRA[BASIS0], MULK[P1, KET[BASIS0]]], LTSR[LKET[BASIS0, c], LKET[BASIS1, a], LBRA[BASIS0, c], LBRA[BASIS1, a]]], SCR[DOT[BRA[BASIS0], MULK[P1, KET[BASIS1]]], LTSR[LKET[BASIS0, c], LKET[BASIS1, a], LBRA[BASIS1, c], LBRA[BASIS1, a]]], SCR[DOT[BRA[BASIS1], MULK[P0, KET[BASIS0]]], LTSR[LKET[BASIS0, a], LKET[BASIS1, c], LBRA[BASIS0, c], LBRA[BASIS0, a]]], SCR[DOT[BRA[BASIS1], MULK[P0, KET[BASIS1]]], LTSR[LKET[BASIS0, a], LKET[BASIS1, c], LBRA[BASIS0, a], LBRA[BASIS1, c]]], SCR[DOT[BRA[BASIS1], MULK[P1, KET[BASIS0]]], LTSR[LKET[BASIS1, c], LKET[BASIS1, a], LBRA[BASIS0, c], LBRA[BASIS1, a]]], SCR[DOT[BRA[BASIS1], MULK[P1, KET[BASIS1]]], LTSR[LKET[BASIS1, c], LKET[BASIS1, a], LBRA[BASIS1, c], LBRA[BASIS1, a]]]]

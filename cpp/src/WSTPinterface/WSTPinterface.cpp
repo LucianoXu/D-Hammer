@@ -139,8 +139,11 @@ namespace wstp {
                 return {to_string(int_res), {}};
                 break;
 
+            case WSTKERR:
+                throw runtime_error("WSTK Error: " + string(WSErrorMessage(lp)));
+
             default:
-                throw runtime_error("Unknown type: " + to_string(type));
+                throw runtime_error("Unknown WSTK return type: " + to_string(type));
 
         }
     }

@@ -719,6 +719,12 @@ namespace dirace {
 
     DIRACE_RULE_DEF(R_LABEL_EXPAND, kernel, term);
 
+    // ADJ[LBRA[i, r]] -> LKET[i, r]
+    DIRACE_RULE_DEF(R_ADJDK, kernel, term);
+
+    // ADJ[LKET[i, r]] -> LBRA[i, r]
+    DIRACE_RULE_DEF(R_ADJDB, kernel, term);
+
     // ADJ(LTSR(D1 D2 ... Dn)) -> LTSR(ADJ(Dn) ... ADJ(D2) ADJ(D1))
     DIRACE_RULE_DEF(R_ADJD0, kernel, term);
 
@@ -748,6 +754,9 @@ namespace dirace {
 
     // LTSR(X1 ... ADD(D1 ... Dn) ... Xm) -> ADD(LTSR(X1 ... D1 ... Xm) ... LTSR(X1 ... Dn ... Xm))
     DIRACE_RULE_DEF(R_TSRD0, kernel, term);
+
+    // LTSR[X] -> X
+    DIRACE_RULE_DEF(R_TSRD1, kernel, term);
 
     // LDOT(ADD(X1 ... Xn) Y) -> ADD(LDOT(X1 Y) ... LDOT(Xn Y))
     DIRACE_RULE_DEF(R_DOTD0, kernel, term);

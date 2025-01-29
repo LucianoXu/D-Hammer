@@ -4358,18 +4358,22 @@ namespace dirace {
     DIRACE_RULE_DEF(R_LTSR_REDUCE, kernel, term) {
         MATCH_HEAD(term, LTSR, args_LTSR_terms)
 
-        auto type1 = kernel.calc_type(args_LTSR_terms[0]);
-        auto type2 = kernel.calc_type(args_LTSR_terms[1]);
+        if (args_LTSR_terms.size() < 2) return std::nullopt;
 
-        if (type1->get_head() == STYPE) {
-            return create_term(SCR, {args_LTSR_terms[0], args_LTSR_terms[1]});
+        // search for scalar in LTSR
+        for (int i = 0; i < args_LTSR_terms.size(); ++i) {
+            auto type = kernel.calc_type(args_LTSR_terms[i]);
+            if (type->get_head() == STYPE) {
+            // return the result SCR[arg, LTSR[...]], where ... is the arguments except arg
+            ListArgs<int> new_args;
+            for (int j = 0; j < args_LTSR_terms.size(); ++j) {
+                if (j != i) new_args.push_back(args_LTSR_terms[j]);
+            }
+            return create_term(SCR, {args_LTSR_terms[i], create_term(LTSR, std::move(new_args))});
+            }
         }
-        else if (type2->get_head() == STYPE) {
-            return create_term(SCR, {args_LTSR_terms[1], args_LTSR_terms[0]});
-        }
-        else {
-            return std::nullopt;
-        }
+
+        return std::nullopt;
     }
 
 
@@ -4494,6 +4498,26 @@ namespace dirace {
         }
 
         return inner_term;
+    }
+
+    // ADJ[LBRA[i, r]] -> LKET[i, r]
+    DIRACE_RULE_DEF(R_ADJDK, kernel, term) {
+
+        MATCH_HEAD(term, ADJ, args_ADJ_LBRA_i_r)
+
+        MATCH_HEAD(args_ADJ_LBRA_i_r[0], LBRA, args_LBRA_i_r)
+
+        return create_term(LKET, {args_LBRA_i_r[0], args_LBRA_i_r[1]});
+    }
+
+    // ADJ[LKET[i, r]] -> LBRA[i, r]
+    DIRACE_RULE_DEF(R_ADJDB, kernel, term) {
+        
+        MATCH_HEAD(term, ADJ, args_ADJ_LKET_i_r)
+
+        MATCH_HEAD(args_ADJ_LKET_i_r[0], LKET, args_LKET_i_r)
+
+        return create_term(LBRA, {args_LKET_i_r[0], args_LKET_i_r[1]});
     }
 
     // ADJ(LTSR(D1 D2 ... Dn)) -> LTSR(ADJ(Dn) ... ADJ(D2) ADJ(D1))
@@ -4655,6 +4679,15 @@ namespace dirace {
         }
 
         return create_term(ADD, std::move(new_args));
+    }
+
+    // LTSR[X] -> X
+    DIRACE_RULE_DEF(R_TSRD1, kernel, term) {
+        MATCH_HEAD(term, LTSR, args_LTSR_X)
+
+        if (args_LTSR_X.size() != 1) return std::nullopt;
+
+        return args_LTSR_X[0];
     }
 
     // LDOT(ADD(X1 ... Xn) Y) -> ADD(LDOT(X1 Y) ... LDOT(Xn Y))
@@ -4981,8 +5014,8 @@ namespace dirace {
 
         // Labelled Dirac rules
         R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
-        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
-        R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
+        R_LABEL_EXPAND, R_ADJDK, R_ADJDB, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
+        R_TSRD0, R_TSRD1, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
         R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
 
@@ -5037,8 +5070,8 @@ namespace dirace {
 
         // Labelled Dirac rules
         R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
-        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
-        R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
+        R_LABEL_EXPAND, R_ADJDK, R_ADJDB, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
+        R_TSRD0, R_TSRD1, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
         R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
 
@@ -5098,8 +5131,8 @@ namespace dirace {
 
         // Labelled Dirac rules
         R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
-        R_LABEL_EXPAND, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
-        R_TSRD0, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
+        R_LABEL_EXPAND, R_ADJDK, R_ADJDB, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
+        R_TSRD0, R_TSRD1, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
         R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
 
