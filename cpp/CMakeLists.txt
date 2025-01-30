@@ -18,6 +18,7 @@ target_link_libraries(
         DEPENDENCIES 
         UALG
         DIRACE
+        EXAMPLES
 )
 
 # Add the "run" target to execute the built executable

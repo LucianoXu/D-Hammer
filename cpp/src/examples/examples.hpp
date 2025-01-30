@@ -12,6 +12,15 @@ namespace examples {
         bool expected_res = true;
     };
 
+    /**
+     * @brief Run the examples and return the timing results.
+     * 
+     * @param examples 
+     * @return std::vector<std::pair<std::string, float>> 
+     */
+    std::vector<std::pair<std::string, float>> timing_examples(const std::vector<EqExample>& examples);
+    
+
     extern std::vector<EqExample> QCQI_examples;
 
     extern std::vector<EqExample> CoqQ_examples;
@@ -23,5 +32,6 @@ namespace examples {
     extern std::vector<EqExample> others_examples;
 
     extern std::vector<EqExample> labelled_eq_examples;
+
 
 }   // namespace examples

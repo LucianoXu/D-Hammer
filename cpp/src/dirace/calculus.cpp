@@ -435,7 +435,7 @@ namespace dirace {
             }
 
             // ADDG(K(a) K(a) ... K(a)) : K(a), ...
-            if (typeFirst->get_head() == KTYPE || typeFirst->get_head() == BTYPE || typeFirst->get_head() == OTYPE) {
+            if (typeFirst->get_head() == KTYPE || typeFirst->get_head() == BTYPE || typeFirst->get_head() == OTYPE || typeFirst->get_head() == DTYPE) {
                 for (int i = 1; i < args.size(); i++) {
                     auto typeI = calc_type(args[i]);
                     if (!is_judgemental_eq(typeFirst, typeI)) {
@@ -445,7 +445,7 @@ namespace dirace {
                 return typeFirst;
             }
 
-            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not a scalar, a ket, a bra, or an operator.");
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not a scalar, a ket, a bra, an operator or a labelled notation.");
         }
 
         // SSUM(i set body) (type will be inferred)
@@ -1270,6 +1270,16 @@ namespace dirace {
                     }
 
                     return create_term(DTYPE, {create_term(RSET), reg_to_rset(args[1])});
+                }
+
+                if (type_term->get_head() == OTYPE) {
+
+                    // check the index of the label matches the index of the ket
+                    if (!is_judgemental_eq(type_term->get_args()[0], type_R->get_args()[0]) || !is_judgemental_eq(type_term->get_args()[1], type_R->get_args()[0])) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the indices of the first argument " + sig.term_to_string(args[0]) + " are not the same as the indices of the second and third arguments " + sig.term_to_string(args[1]) + ".");
+                    }
+
+                    return create_term(DTYPE, {reg_to_rset(args[1]), reg_to_rset(args[1])});
                 }
                 
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type KTYPE or BTYPE.");

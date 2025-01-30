@@ -38,7 +38,7 @@ namespace wstp {
     // -linkmode launch -linkname "/Applications/Wolfram Engine.app/Contents/Resources/Wolfram Player.app/Contents/MacOS/WolframKernel" -wstp
     const char* MacOS_args[] = {
         "-linkmode", "launch",
-        "-linkname", "\"/Applications/Wolfram Engine.app/Contents/Resources/Wolfram Player.app/Contents/MacOS/WolframKernel\" -wstp"
+        "-linkname", "\"/Applications/Wolfram Engine.app/Contents/MacOS/WolframKernel\" -wstp"
     }; 
     const int MACOS_ARGC = sizeof(MacOS_args) / sizeof(MacOS_args[0]);
     char** const MACOS_ARGV = const_cast<char** const>(MacOS_args);

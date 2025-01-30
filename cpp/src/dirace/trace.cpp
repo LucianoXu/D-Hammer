@@ -208,6 +208,7 @@ namespace dirace {
         {R_BIT_ONEO, "R_BIT_ONEO"},
         {R_BIT_SUM, "R_BIT_SUM"},
 
+        {R_OPT_SUBS, "R_OPT_SUBS"},
         {R_DTYPE_SCALAR, "R_DTYPE_SCALAR"},
         {R_ADD_REDUCE, "R_ADD_REDUCE"},
         {R_SCR_REDUCE, "R_SCR_REDUCE"},

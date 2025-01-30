@@ -890,12 +890,12 @@ namespace dirace {
         return create_term(ADDS, args);
     }
 
-    // an : KTYPE(T), BTYPE(T) or OTYPE(T1 T2) => ADDG(a1 ... an) -> ADD(a1 ... an)
+    // an : KTYPE(T), BTYPE(T), OTYPE(T1 T2) or DTYPE => ADDG(a1 ... an) -> ADD(a1 ... an)
     DIRACE_RULE_DEF(R_ADDG_ADD, kernel, term) {
         MATCH_HEAD(term, ADDG, args)
         auto type1 = kernel.calc_type(args[0]);
 
-        if (!(type1->get_head() == KTYPE or type1->get_head() == BTYPE or type1->get_head() == OTYPE)) return std::nullopt;
+        if (!(type1->get_head() == KTYPE or type1->get_head() == BTYPE or type1->get_head() == OTYPE or type1->get_head() == DTYPE)) return std::nullopt;
 
         return create_term(ADD, args);
     }
@@ -4291,7 +4291,18 @@ namespace dirace {
         }
     }
 
+    // O : OTYPE[T1, T2] => O_r -> O_r;r
+    DIRACE_RULE_DEF(R_OPT_SUBS, kernel, term) {
+        MATCH_HEAD(term, SUBS, args_SUBS_O_r)
+        
+        if (args_SUBS_O_r.size() != 2) return std::nullopt;
 
+        auto type = kernel.calc_type(args_SUBS_O_r[0]);
+
+        if (type->get_head() != OTYPE) return std::nullopt;
+
+        return create_term(SUBS, {args_SUBS_O_r[0], args_SUBS_O_r[1], args_SUBS_O_r[1]});
+    }
 
     DIRACE_RULE_DEF(R_DTYPE_SCALAR, kernel, term) {
         MATCH_HEAD(term, DTYPE, args_DTYPE_rset1_rset2)
@@ -5013,6 +5024,7 @@ namespace dirace {
         R_BIT_DELTA, R_BIT_ONEO, R_BIT_SUM,
 
         // Labelled Dirac rules
+        R_OPT_SUBS,
         R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
         R_LABEL_EXPAND, R_ADJDK, R_ADJDB, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
         R_TSRD0, R_TSRD1, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
@@ -5069,6 +5081,7 @@ namespace dirace {
         R_BIT_DELTA, R_BIT_ONEO, R_BIT_SUM,
 
         // Labelled Dirac rules
+        R_OPT_SUBS,
         R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
         R_LABEL_EXPAND, R_ADJDK, R_ADJDB, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
         R_TSRD0, R_TSRD1, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,
@@ -5130,6 +5143,7 @@ namespace dirace {
 
 
         // Labelled Dirac rules
+        R_OPT_SUBS,
         R_DTYPE_SCALAR, R_ADD_REDUCE, R_SCR_REDUCE, R_ADJ_REDUCE, R_LDOT_REDUCE, R_LTSR_REDUCE,
         R_LABEL_EXPAND, R_ADJDK, R_ADJDB, R_ADJD0, R_ADJD1, R_SCRD0, R_SCRD1, R_SCRD2, R_SCRD3, R_SCRD4, R_ADDD0,
         R_TSRD0, R_TSRD1, R_DOTD0, R_DOTD1, R_SUM_PUSHD0, R_SUM_PUSHD1, R_SUM_PUSHD2,

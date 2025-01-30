@@ -198,7 +198,7 @@ namespace dirace {
     // an : STYPE => ADDG(a1 ... an) -> ADDS(a1 ... an)
     DIRACE_RULE_DEF(R_ADDG_ADDS, kernel, term);
 
-    // an : KTYPE(T), BTYPE(T) or OTYPE(T1 T2) => ADDG(a1 ... an) -> ADD(a1 ... an)
+    // an : KTYPE(T), BTYPE(T), OTYPE(T1 T2) or DTYPE => ADDG(a1 ... an) -> ADD(a1 ... an)
     DIRACE_RULE_DEF(R_ADDG_ADD, kernel, term);
 
     // S : SET(T) => SSUM(i S e) -> SUM(S FUN(i BASIS(T) e))
@@ -707,6 +707,9 @@ namespace dirace {
 
     //////////////////////////////////////////////////////////
     // for labelled Dirac notation
+
+    // O : OTYPE[T1, T2] => O_r -> O_r;r
+    DIRACE_RULE_DEF(R_OPT_SUBS, kernel, term);
 
     // TODO: add unit test for these rules
     DIRACE_RULE_DEF(R_DTYPE_SCALAR, kernel, term);

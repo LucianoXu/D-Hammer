@@ -1,6 +1,37 @@
 #include "examples.hpp"
 
+
 namespace examples {
+
+    using namespace std;
+    using namespace ualg;
+    using namespace dirace;
+
+    std::vector<std::pair<std::string, float>> timing_examples(const std::vector<EqExample>& examples) {
+
+        // use the Wolfram Engine on MacOS
+        auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
+        
+        auto prover = make_unique<Prover>(std_prover(lp));
+        prover->process("Normalize Times[I, I].");
+
+        vector<std::pair<std::string, float>> res;
+
+        for (auto example : examples) {
+            cout << "Running example: " << example.name << endl;
+            auto start = std::chrono::high_resolution_clock::now();
+            prover = make_unique<Prover>(std_prover(lp));
+            prover->process(example.preproc_code);
+            prover->check_eq(example.termA, example.termB);
+            auto end = std::chrono::high_resolution_clock::now();
+
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+            res.push_back({example.name, duration.count() / 1000.0});
+        }
+
+        return res;
+    }
+
 
     std::vector<EqExample> QCQI_examples = {
 /*
@@ -4449,7 +4480,7 @@ Block[
 */
 
         {
-            "COQQ-128 so2choi_krausso",
+            "COQQ-128 krausso2choiE",
             R"(
                 Var M : INDEX.
                 Var m : SET[M].
@@ -5787,8 +5818,8 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var O1 : OTYPE[T1, T1].
                 Var O2 : OTYPE[T1 * T2, T1 * T2].
             )",
-            "O1_Q;Q O2_(Q,R);(Q,R)",
-            "((O1 * 1O[T2]) O2)_(Q,R);(Q,R)"
+            "O1_Q O2_(Q,R)",
+            "((O1 * 1O[T2]) O2)_(Q,R)"
         },
 
         {
@@ -5800,8 +5831,8 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var r1 : REG[T].
                 Var r2 : REG[T].
             )",
-            "M_r1;r1 (phi T)_(r1, r2)",
-            "(TPO T T M)_r2;r2 (phi T)_(r1, r2)"
+            "M_r1 (phi T)_(r1, r2)",
+            "(TPO T T M)_r2 (phi T)_(r1, r2)"
         },
 
         {
@@ -5814,7 +5845,7 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var r1 : REG[T].
                 Var r2 : REG[T].
             )",
-            "(phi T)^D_(r1, r2) M_r2;r2 N_r1;r1 (phi T)_(r1, r2)",
+            "(phi T)^D_(r1, r2) M_r2 N_r1 (phi T)_(r1, r2)",
             "Tr T ((TPO T T M) N)"
         },
 
@@ -5826,7 +5857,7 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var x : REG[T].
                 Var y : REG[T].
             )",
-            "Sum i in USET[T], <i|_x O_x;x |i>_x",
+            "Sum i in USET[T], <i|_x O_x |i>_x",
             "Tr T O"
         },
 
@@ -5838,7 +5869,7 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var x : REG[T].
                 Var y : REG[T].
             )",
-            "Sum j in USET[T], <j|_y (Sum i in USET[T], <i|_x O_(x,y);(x,y) |i>_x) |j>_y",
+            "Sum j in USET[T], <j|_y (Sum i in USET[T], <i|_x O_(x,y) |i>_x) |j>_y",
             "Tr (T * T) O"
         },
 
@@ -5850,7 +5881,7 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var x : REG[T].
                 Var y : REG[T].
             )",
-            "Sum i in USET[T * T], <i|_(x, y) O_(x,y);(x,y) |i>_(x, y)",
+            "Sum i in USET[T * T], <i|_(x, y) O_(x,y) |i>_(x, y)",
             "Tr (T * T) O"
         },
 
@@ -5863,8 +5894,8 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var y : REG[T].
                 Var z : REG[T].
             )",
-            "Sum j in USET[T], <j|_x (Sum i in USET[T], <i|_y O_((y,z),x);((y,z),x) |i>_y) |j>_x",
-            "Sum j in USET[T], <j|_y (Sum i in USET[T], <i|_x O_((y,z),x);((y,z),x) |i>_x) |j>_y"
+            "Sum j in USET[T], <j|_x (Sum i in USET[T], <i|_y O_((y,z),x) |i>_y) |j>_x",
+            "Sum j in USET[T], <j|_y (Sum i in USET[T], <i|_x O_((y,z),x) |i>_x) |j>_y"
         },
 
         {
@@ -5876,8 +5907,8 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var y : REG[T].
                 Var z : REG[T].
             )",
-            "Sum j in USET[T], <j|_x (Sum i in USET[T], <i|_y O_((y,z),x);((y,z),x) |i>_y) |j>_x",
-            "Sum i in USET[T * T], <i|_(x, y) O_((y,z),x);((y,z),x) |i>_(x, y)"
+            "Sum j in USET[T], <j|_x (Sum i in USET[T], <i|_y O_((y,z),x) |i>_y) |j>_x",
+            "Sum i in USET[T * T], <i|_(x, y) O_((y,z),x) |i>_(x, y)"
         },
 
         {
@@ -5893,9 +5924,9 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var ap : REG[T]. Var bp : REG[T]. Var cp : REG[T].
             )",
 
-            "Sum j in USET[(T * (T * T)) * T], <j|_((ap,(b,bp)),cp) (Sum i in USET[T], <i|_r U_(r,(a,b));(r,(a,b)) ((|s><s|)_r;r * (V_((ap,(b,bp)),cp);((ap,(b,bp)),cp) ((phi phi^D)_(a,ap);(a,ap) * (psi psi^D)_((b,bp),(c,cp));((b,bp),(c,cp))) V^D_((ap,(b,bp)),cp);((ap,(b,bp)),cp))) U^D_(r,(a,b));(r,(a,b)) |i>_r) |j>_((ap,(b,bp)),cp)",
+            "Sum j in USET[(T * (T * T)) * T], <j|_((ap,(b,bp)),cp) (Sum i in USET[T], <i|_r U_(r,(a,b)) ((|s><s|)_r * (V_((ap,(b,bp)),cp) ((phi phi^D)_(a,ap) * (psi psi^D)_((b,bp),(c,cp))) V^D_((ap,(b,bp)),cp))) U^D_(r,(a,b)) |i>_r) |j>_((ap,(b,bp)),cp)",
 
-            "Sum i in USET[((T * T) * (T * T)) * T], <i|_(((r,ap),(b,bp)),cp) U_(r,(a,b));(r,(a,b)) V_((ap,(b,bp)),cp);((ap,(b,bp)),cp) (|s>_r * phi_(a,ap) * psi_((b,bp),(c,cp))) (U_(r,(a,b));(r,(a,b)) V_((ap,(b,bp)),cp);((ap,(b,bp)),cp) (|s>_r * phi_(a,ap) * psi_((b,bp),(c,cp))))^D |i>_(((r,ap),(b,bp)),cp)",
+            "Sum i in USET[((T * T) * (T * T)) * T], <i|_(((r,ap),(b,bp)),cp) U_(r,(a,b)) V_((ap,(b,bp)),cp) (|s>_r * phi_(a,ap) * psi_((b,bp),(c,cp))) (U_(r,(a,b)) V_((ap,(b,bp)),cp) (|s>_r * phi_(a,ap) * psi_((b,bp),(c,cp))))^D |i>_(((r,ap),(b,bp)),cp)",
         },
 
         {
@@ -5913,8 +5944,8 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var b : REG[T2]. 
                 Var c : REG[T3].
             )",
-            "U_(a,b);(a,b) W_(b,c);(b,c) V_(a,c);(a,c)",
-            "Sum i in USET[T1], (|i><i|)_a;a * ((P i)_b;b W_(b,c);(b,c) (Q i)_c;c)"
+            "U_(a,b) W_(b,c) V_(a,c)",
+            "Sum i in USET[T1], (|i><i|)_a * ((P i)_b W_(b,c) (Q i)_c)"
         },
 
         {
@@ -5927,8 +5958,8 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var D : OTYPE[T * T, T * T].
                 Var a : REG[T]. Var b : REG[T]. Var c : REG[T]. Var d : REG[T].
             )",
-            "(|i>_a <j|_b) C_(b,c);(b,c) D_(c, d);(c,d)",
-            "<j|_b C_(b,c);(b,c) D_(c, d);(c,d) |i>_a"
+            "(|i>_a <j|_b) C_(b,c) D_(c, d)",
+            "<j|_b C_(b,c) D_(c, d) |i>_a"
         },
 
         {
@@ -5946,9 +5977,84 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var a : REG[T]. Var b : REG[T]. Var c : REG[T]. 
                 Var d : REG[T]. Var e : REG[T]. Var f : REG[T].
             )",
-            "(A_(a,b);(a,b) B_(c,d);(c,d) C_(e,f);(e,f)) (D_(b,c);(b,c) E_(d,e);(d,e)) (F_(a,b);(a,b) G_(c,d);(c,d) H_(e,f);(e,f))",
-            "(A_(a,b);(a,b) C_(e,f);(e,f)) (B_(c,d);(c,d) D_(b,c);(b,c)) (E_(d,e);(d,e) G_(c,d);(c,d)) (F_(a,b);(a,b) H_(e,f);(e,f))"
-        }
+            "(A_(a,b) B_(c,d) C_(e,f)) (D_(b,c) E_(d,e)) (F_(a,b) G_(c,d) H_(e,f))",
+            "(A_(a,b) C_(e,f)) (B_(c,d) D_(b,c)) (E_(d,e) G_(c,d)) (F_(a,b) H_(e,f))"
+        },
+
+        {
+            "Example14",
+            R"(
+                Def GHZ := Sum i in USET[BIT], |(i, (i, i))>.
+                Def CNOT := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Var p : REG[BIT]. Var q : REG[BIT]. Var r : REG[BIT].
+            )",
+            "CNOT_(r,q) GHZ_(p,(q,r))",
+            "(CNOT |(#0,#0)>)_(r,q) |#0>_p + (CNOT |(#1,#1)>)_(r,q) |#1>_p"
+        },
+
+        {
+            "Example15",
+            R"(
+                Def GHZ := Sum i in USET[BIT], |(i, (i, i))>.
+                Def CNOT := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Var p : REG[BIT]. Var q : REG[BIT]. Var r : REG[BIT].
+            )",
+            "CNOT_(p,q) GHZ_(p,(q,r))",
+            "(CNOT |(#0,#0)>)_(p,q) |#0>_r + (CNOT |(#1,#1)>)_(p,q) |#1>_r"
+        },
+
+        {
+            "Example16",
+            R"(
+                Var T : INDEX.
+                Def GHZ := Sum i in USET[T], |(i, (i, i))>.
+                Var U : BASIS[T] -> BASIS[T] -> OTYPE[T, T].
+                Def M := Sum i in USET[T], Sum j in USET[T], (|(i, j)><(i, j)|) * (U i j).
+                Def N := Sum i in USET[T], (|i><i|) * (U i i).
+                Var p : REG[T]. Var q : REG[T]. Var r : REG[T].
+            )",
+            "M_((p,r),q) GHZ_(p,(r,q))",
+            "N_(r,q) GHZ_(p,(q,r))"
+        },
+
+        {
+            "Example17",
+            R"(
+                Var T : INDEX.
+                Def GHZ := Sum i in USET[T], |(i, (i, i))>.
+                Var U : BASIS[T] -> BASIS[T] -> OTYPE[T, T].
+                Def M := Sum i in USET[T], Sum j in USET[T], (|(i, j)><(i, j)|) * (U i j).
+                Def N := Sum i in USET[T], (|i><i|) * (U i i).
+                Var p : REG[T]. Var q : REG[T]. Var r : REG[T].
+            )",
+            "N_(r,q) GHZ_(p,(q,r))",
+            "N_(p,q) GHZ_(p,(q,r))"
+        },
+
+        {
+            "Example18",
+            R"(
+                Def plus := Divide[1, Sqrt[2]].(|#0> + |#1>).
+                Def minus := Divide[1, Sqrt[2]].(|#0> + (-1)|#1>).
+                Def X := |#0><#1| + |#1><#0|.
+                Var q : REG[BIT]. Var q1 : REG[BIT]. Var q2 : REG[BIT].
+            )",
+            "(-1).|#0>_q (plus minus)_(q1, q2)",
+            "X_q2 |#0>_q (plus minus)_(q1, q2)"
+        },
+
+        // // This example takes a while to compute
+        // {
+        //     "Example19",
+        //     R"(
+        //         Def plus := Divide[1, Sqrt[2]] . (|#0> + |#1>).
+        //         Def minus := Divide[1, Sqrt[2]] . (|#0> + (-1).|#1>).
+        //         Def CNOT := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+        //         Var q : REG[BIT]. Var q1 : REG[BIT]. Var q2 : REG[BIT].
+        //     )",
+        //     "(-1).|#1>_q (minus minus)_(q1, q2)",
+        //     "CNOT_(q1, q2) |#0>_q (plus minus)_(q1, q2)"
+        // }
     };
 
 

@@ -2,8 +2,6 @@
 
 #include <string>
 #include <set>
-#include <boost/container_hash/hash_fwd.hpp>
-#include <boost/functional/hash.hpp>
 
 namespace ualg {
 
