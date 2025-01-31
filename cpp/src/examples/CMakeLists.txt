@@ -12,7 +12,7 @@ add_library(
 target_link_libraries(
     EXAMPLES
     PUBLIC
-        DIRACE
+        DHAMMER
 )
 
 
@@ -35,7 +35,7 @@ foreach(test ${tests})
 
     target_link_libraries(
         ${test}
-        gtest_main DIRACE EXAMPLES
+        gtest_main DHAMMER EXAMPLES
     )
 
     add_test(

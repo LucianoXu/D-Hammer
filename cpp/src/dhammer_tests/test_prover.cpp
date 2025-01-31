@@ -1,23 +1,23 @@
 #include <gtest/gtest.h>
 
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace dirace;
+using namespace dhammer;
 
-TEST(DiraceProver, ShowAll) { 
+TEST(dhammerProver, ShowAll) { 
     Prover prover;
     EXPECT_TRUE(prover.process("SHOWALL."));
 }
 
-TEST(DiraceProver, Var) {
+TEST(dhammerProver, Var) {
     Prover prover;
     EXPECT_TRUE(prover.process("Var x : TYPE."));
     EXPECT_FALSE(prover.process("Var x : TYPE."));
 }
 
-TEST(DiraceProver, Normalize) {
+TEST(dhammerProver, Normalize) {
     Prover prover;
     EXPECT_TRUE(prover.process(R"(
         Var a : STYPE.
@@ -29,7 +29,7 @@ TEST(DiraceProver, Normalize) {
 }
 
 
-TEST(DiraceProver, CheckEq1) {
+TEST(dhammerProver, CheckEq1) {
     Prover prover;
     EXPECT_TRUE(prover.process(R"(
         Var a : STYPE. 
@@ -40,7 +40,7 @@ TEST(DiraceProver, CheckEq1) {
     );
 }
 
-TEST(DiraceProver, CheckEq2) {
+TEST(dhammerProver, CheckEq2) {
     Prover prover;
     EXPECT_TRUE(prover.process(R"(
         Var a : STYPE. 

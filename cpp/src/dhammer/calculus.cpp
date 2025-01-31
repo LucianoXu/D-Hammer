@@ -1,6 +1,6 @@
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
-namespace dirace {
+namespace dhammer {
 
     using namespace std;
     using namespace ualg;
@@ -128,7 +128,7 @@ namespace dirace {
 
 
     TermPtr<int> Kernel::parse(const std::string& code) {
-        auto ast = dirace::parse(code);
+        auto ast = dhammer::parse(code);
         if (ast.has_value()) {
             return sig.ast2term(ast.value());
         }
@@ -1486,4 +1486,4 @@ namespace dirace {
 
 
 
-} // namespace dirace
+} // namespace dhammer

@@ -1,68 +1,68 @@
 #include <gtest/gtest.h>
 
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace dirace;
+using namespace dhammer;
 
-TEST(DiraceParser, Definition0) {
+TEST(dhammerParser, Definition0) {
     auto actual_res = parse("Def a := x.");
     auto expected_res = astparser::parse("GROUP[DEF[a, x]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Definition1) {
+TEST(dhammerParser, Definition1) {
     auto actual_res = parse("Def a := x : type.");
     auto expected_res = astparser::parse("GROUP[DEF[a, x, type]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
 
-TEST(DiraceParser, Assum) {
+TEST(dhammerParser, Assum) {
     auto actual_res = parse("Var a : type.");
     auto expected_res = astparser::parse("GROUP[VAR[a, type]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Check) {
+TEST(dhammerParser, Check) {
     auto actual_res = parse("Check a.");
     auto expected_res = astparser::parse("GROUP[CHECK[a]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Show) {
+TEST(dhammerParser, Show) {
     auto actual_res = parse("Show a.");
     auto expected_res = astparser::parse("GROUP[SHOW[a]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, ShowAll) {
+TEST(dhammerParser, ShowAll) {
     auto actual_res = parse("ShowAll.");
     auto expected_res = astparser::parse("GROUP[SHOWALL]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
 // An extra test for grouping
-TEST(DiraceParser, CmdSeq) {
+TEST(dhammerParser, CmdSeq) {
     auto actual_res = parse("Var a : TYPE. Var b : TYPE. Check a. Check b.");
     auto expected_res = astparser::parse("GROUP[VAR[a, TYPE], VAR[b, TYPE], CHECK[a], CHECK[b]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Normalize) {
+TEST(dhammerParser, Normalize) {
     auto actual_res = parse("Normalize a.");
     auto expected_res = astparser::parse("GROUP[NORMALIZE[a]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, NormalizeTraced) {
+TEST(dhammerParser, NormalizeTraced) {
     auto actual_res = parse("Normalize a with trace.");
     auto expected_res = astparser::parse("GROUP[NORMALIZE[a, TRACE]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, CheckEq) {
+TEST(dhammerParser, CheckEq) {
     auto actual_res = parse("CheckEq a with b.", true);
     auto expected_res = astparser::parse("GROUP[CHECKEQ[a, b]]");
     cout << actual_res->to_string() << endl;
@@ -75,19 +75,19 @@ TEST(DiraceParser, CheckEq) {
 // term
 
 
-TEST(DiraceParser, FORALL) {
+TEST(dhammerParser, FORALL) {
     auto actual_res = parse("forall x. T");
     auto expected_res = astparser::parse("FORALL[x, T]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Fun) {
+TEST(dhammerParser, Fun) {
     auto actual_res = parse("fun x : T => (x, x)");
     auto expected_res = astparser::parse("FUN[x, T, PAIR[x, x]]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Idx) {
+TEST(dhammerParser, Idx) {
     auto actual_res = parse("idx sigma => 0K[sigma]");
     auto expected_res = astparser::parse("IDX[sigma, ZEROK[sigma]]");
     cout << actual_res->to_string() << endl;
@@ -95,7 +95,7 @@ TEST(DiraceParser, Idx) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Sum) {
+TEST(dhammerParser, Sum) {
     auto actual_res = parse("Sum x in S, x x");
     auto expected_res = astparser::parse("SSUM[x, S, COMPO[x, x]]");
     cout << actual_res->to_string() << endl;
@@ -103,7 +103,7 @@ TEST(DiraceParser, Sum) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, ARROW) {
+TEST(dhammerParser, ARROW) {
     auto actual_res = parse("T1 -> T2");
     auto expected_res = astparser::parse("ARROW[T1, T2]");
     EXPECT_EQ(actual_res, expected_res);
@@ -113,13 +113,13 @@ TEST(DiraceParser, ARROW) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Add) {
+TEST(dhammerParser, Add) {
     auto actual_res = parse("a + b");
     auto expected_res = astparser::parse("ADDG[a, b]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Compo) {
+TEST(dhammerParser, Compo) {
     auto actual_res = parse("a b");
     auto expected_res = astparser::parse("COMPO[a, b]");
     EXPECT_EQ(actual_res, expected_res);
@@ -129,7 +129,7 @@ TEST(DiraceParser, Compo) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Star) {
+TEST(dhammerParser, Star) {
     auto actual_res = parse("a * b");
     auto expected_res = astparser::parse("STAR[a, b]");
     EXPECT_EQ(actual_res, expected_res);
@@ -139,62 +139,62 @@ TEST(DiraceParser, Star) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Conj) {
+TEST(dhammerParser, Conj) {
     auto actual_res = parse("a^*");
     auto expected_res = astparser::parse("Conjugate[a]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Adj) {
+TEST(dhammerParser, Adj) {
     auto actual_res = parse("a^D");
     auto expected_res = astparser::parse("ADJ[a]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Scr) {
+TEST(dhammerParser, Scr) {
     auto actual_res = parse("a . b");
     auto expected_res = astparser::parse("SCR[a, b]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Pair) {
+TEST(dhammerParser, Pair) {
     auto actual_res = parse("(T1, T2)");
     auto expected_res = astparser::parse("PAIR[T1, T2]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Delta) {
+TEST(dhammerParser, Delta) {
     auto actual_res = parse("delta(T1, T2)");
     auto expected_res = astparser::parse("DELTA[T1, T2]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Ket) {
+TEST(dhammerParser, Ket) {
     auto actual_res = parse("|a>");
     auto expected_res = astparser::parse("KET[a]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Bra) {
+TEST(dhammerParser, Bra) {
     auto actual_res = parse("<a|");
     auto expected_res = astparser::parse("BRA[a]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
 
-TEST(DiraceParser, Paren) {
+TEST(dhammerParser, Paren) {
     auto actual_res = parse("(T1 -> T2) -> T3");
     auto expected_res = astparser::parse("ARROW[ARROW[T1, T2], T3]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, Application) {
+TEST(dhammerParser, Application) {
     auto actual_res = parse("A[B, C]");
     auto expected_res = astparser::parse("A[B, C]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, RSet) {
+TEST(dhammerParser, RSet) {
     auto actual_res = parse("{a, b, c}");
     auto expected_res = astparser::parse("RSET[a, b, c]");
     EXPECT_EQ(actual_res, expected_res);
@@ -204,13 +204,13 @@ TEST(DiraceParser, RSet) {
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, SUBS1) {
+TEST(dhammerParser, SUBS1) {
     auto actual_res = parse("K_r");
     auto expected_res = astparser::parse("SUBS[K, r]");
     EXPECT_EQ(actual_res, expected_res);
 }
 
-TEST(DiraceParser, SUBS2) {
+TEST(dhammerParser, SUBS2) {
     auto actual_res = parse("K_r;s");
     auto expected_res = astparser::parse("SUBS[K, r, s]");
     EXPECT_EQ(actual_res, expected_res);
@@ -218,7 +218,7 @@ TEST(DiraceParser, SUBS2) {
 
 ////////////////////////////////////////////////////
 // Check Precedence
-TEST(DiraceParser, precedence1) {
+TEST(dhammerParser, precedence1) {
     auto actual_res = parse("a + b c");
     auto expected_res = astparser::parse("ADDG[a, COMPO[b, c]]");
     EXPECT_EQ(actual_res, expected_res);

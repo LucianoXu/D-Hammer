@@ -6,8 +6,8 @@ add_subdirectory(ualg_tests)
 
 add_subdirectory(WSTPinterface)
 
-add_subdirectory(dirace)
+add_subdirectory(dhammer)
 
-add_subdirectory(dirace_tests)
+add_subdirectory(dhammer_tests)
 
 add_subdirectory(examples)

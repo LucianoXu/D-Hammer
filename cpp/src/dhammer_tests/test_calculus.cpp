@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace dirace;
+using namespace dhammer;
 
-TEST(DiraceParsing, Basics1) {
+TEST(dhammerParsing, Basics1) {
     
     Kernel kernel;
 
@@ -29,7 +29,7 @@ TEST(DiraceParsing, Basics1) {
 }
 
 
-TEST(DiraceParsing, Basics2) {
+TEST(dhammerParsing, Basics2) {
     
     Kernel kernel;
 
@@ -40,7 +40,7 @@ TEST(DiraceParsing, Basics2) {
 
 }
 
-TEST(DiraceTypeCalc, assum) {
+TEST(dhammerTypeCalc, assum) {
     Kernel kernel;
 
     // (Assum)
@@ -48,7 +48,7 @@ TEST(DiraceTypeCalc, assum) {
     EXPECT_EQ(*kernel.calc_type(kernel.parse("x")), *kernel.parse("TYPE"));
 }
 
-TEST(DiraceTypeCalc, def_fun) {
+TEST(dhammerTypeCalc, def_fun) {
     Kernel kernel;
 
     // (DEF)
@@ -63,7 +63,7 @@ TEST(DiraceTypeCalc, def_fun) {
 
 // preprocessing symbols
 
-TEST(DiraceTypeCheck, COMPO_SS) {
+TEST(dhammerTypeCheck, COMPO_SS) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
@@ -71,7 +71,7 @@ TEST(DiraceTypeCheck, COMPO_SS) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[a, b]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, COMPO_SK) {
+TEST(dhammerTypeCheck, COMPO_SK) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -80,7 +80,7 @@ TEST(DiraceTypeCheck, COMPO_SK) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[a, K]"), kernel.parse("KTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_SB) {
+TEST(dhammerTypeCheck, COMPO_SB) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -89,7 +89,7 @@ TEST(DiraceTypeCheck, COMPO_SB) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[a, B]"), kernel.parse("BTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_SO) {
+TEST(dhammerTypeCheck, COMPO_SO) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -99,7 +99,7 @@ TEST(DiraceTypeCheck, COMPO_SO) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[a, O]"), kernel.parse("OTYPE[T1, T2]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_KS) {
+TEST(dhammerTypeCheck, COMPO_KS) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -108,7 +108,7 @@ TEST(DiraceTypeCheck, COMPO_KS) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[K, a]"), kernel.parse("KTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_KK) {
+TEST(dhammerTypeCheck, COMPO_KK) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -118,7 +118,7 @@ TEST(DiraceTypeCheck, COMPO_KK) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[K1, K2]"), kernel.parse("KTYPE[PROD[T1, T2]]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_KB) {
+TEST(dhammerTypeCheck, COMPO_KB) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -128,7 +128,7 @@ TEST(DiraceTypeCheck, COMPO_KB) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[K, B]"), kernel.parse("OTYPE[T1, T2]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_BS) {
+TEST(dhammerTypeCheck, COMPO_BS) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -137,7 +137,7 @@ TEST(DiraceTypeCheck, COMPO_BS) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[B, a]"), kernel.parse("BTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_BK) {
+TEST(dhammerTypeCheck, COMPO_BK) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -146,7 +146,7 @@ TEST(DiraceTypeCheck, COMPO_BK) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[B, K]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, COMPO_BB) {
+TEST(dhammerTypeCheck, COMPO_BB) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -156,7 +156,7 @@ TEST(DiraceTypeCheck, COMPO_BB) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[B1, B2]"), kernel.parse("BTYPE[PROD[T1, T2]]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_BO) {
+TEST(dhammerTypeCheck, COMPO_BO) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -166,7 +166,7 @@ TEST(DiraceTypeCheck, COMPO_BO) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[B, O]"), kernel.parse("BTYPE[T2]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_OS) {
+TEST(dhammerTypeCheck, COMPO_OS) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -176,7 +176,7 @@ TEST(DiraceTypeCheck, COMPO_OS) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[O, a]"), kernel.parse("OTYPE[T1, T2]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_OK) {
+TEST(dhammerTypeCheck, COMPO_OK) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -186,7 +186,7 @@ TEST(DiraceTypeCheck, COMPO_OK) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[O, K]"), kernel.parse("KTYPE[T1]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_OO) {
+TEST(dhammerTypeCheck, COMPO_OO) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -197,7 +197,7 @@ TEST(DiraceTypeCheck, COMPO_OO) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[O1, O2]"), kernel.parse("OTYPE[T1, T3]")));
 }
 
-TEST(DiraceTypeCheck, COMPO_DD) {
+TEST(dhammerTypeCheck, COMPO_DD) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -210,7 +210,7 @@ TEST(DiraceTypeCheck, COMPO_DD) {
 
 }
 
-TEST(DiraceTypeCheck, COMPO_Arrow) {
+TEST(dhammerTypeCheck, COMPO_Arrow) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("TYPE"));
@@ -220,7 +220,7 @@ TEST(DiraceTypeCheck, COMPO_Arrow) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[f, a]"), kernel.parse("T2")));
 }
 
-TEST(DiraceTypeCheck, COMPO_Forall) {
+TEST(dhammerTypeCheck, COMPO_Forall) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("f"), kernel.parse("FORALL[x, KTYPE[x]]"));
@@ -228,7 +228,7 @@ TEST(DiraceTypeCheck, COMPO_Forall) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("COMPO[f, a]"), kernel.parse("KTYPE[a]")));
 }
 
-TEST(DiraceTypeCheck, STAR_SType) {
+TEST(dhammerTypeCheck, STAR_SType) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
@@ -237,7 +237,7 @@ TEST(DiraceTypeCheck, STAR_SType) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("STAR[a, b, a, b]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, STAR_Index) {
+TEST(dhammerTypeCheck, STAR_Index) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("INDEX"));
@@ -245,7 +245,7 @@ TEST(DiraceTypeCheck, STAR_Index) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("STAR[a, b]"), kernel.parse("INDEX")));
 }
 
-TEST(DiraceTypeCheck, STAR_TSRO) {
+TEST(dhammerTypeCheck, STAR_TSRO) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -257,7 +257,7 @@ TEST(DiraceTypeCheck, STAR_TSRO) {
 
 }
 
-TEST(DiraceTypeCheck, STAR_SET) {
+TEST(dhammerTypeCheck, STAR_SET) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -266,7 +266,7 @@ TEST(DiraceTypeCheck, STAR_SET) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("STAR[a, b]"), kernel.parse("SET[PROD[T, T]]")));
 }
 
-TEST(DiraceTypeCheck, STAR_DType) {
+TEST(dhammerTypeCheck, STAR_DType) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -278,7 +278,7 @@ TEST(DiraceTypeCheck, STAR_DType) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("STAR[D1, D2]"), kernel.parse("DTYPE[RSET[r1, r2], RSET[r2, r1]]")));
 }
 
-TEST(DiraceTypeCheck, ADDG_SType) {
+TEST(dhammerTypeCheck, ADDG_SType) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
@@ -286,7 +286,7 @@ TEST(DiraceTypeCheck, ADDG_SType) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADDG[a, b]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, ADDG_Other) {
+TEST(dhammerTypeCheck, ADDG_Other) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -305,7 +305,7 @@ TEST(DiraceTypeCheck, ADDG_Other) {
 }
 
 
-TEST(DiraceTypeCheck, SSUM) {
+TEST(dhammerTypeCheck, SSUM) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
 
@@ -316,35 +316,35 @@ TEST(DiraceTypeCheck, SSUM) {
 // main rules (internal symbols)
 
 
-TEST(DiraceTypeCheck, Index_Var) {
+TEST(dhammerTypeCheck, Index_Var) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("sigma"), kernel.parse("INDEX"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("sigma"), kernel.parse("INDEX")));
 }
 
-TEST(DiraceTypeCheck, Index_Prod) {
+TEST(dhammerTypeCheck, Index_Prod) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("sigma"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("tau"), kernel.parse("INDEX"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("PROD[sigma, tau]"), kernel.parse("INDEX")));
 }
 
-TEST(DiraceTypeCheck, Index_Bit) {
+TEST(dhammerTypeCheck, Index_Bit) {
     Kernel kernel;
     EXPECT_TRUE(kernel.type_check(kernel.parse("BIT"), kernel.parse("INDEX")));
 }
 
-TEST(DiraceTypeCheck, Type_Basis0) {
+TEST(dhammerTypeCheck, Type_Basis0) {
     Kernel kernel;
     EXPECT_TRUE(kernel.type_check(kernel.parse("#0"), kernel.parse("BASIS[BIT]")));
 }
 
-TEST(DiraceTypeCheck, Type_Basis1) {
+TEST(dhammerTypeCheck, Type_Basis1) {
     Kernel kernel;
     EXPECT_TRUE(kernel.type_check(kernel.parse("#1"), kernel.parse("BASIS[BIT]")));
 }
 
-TEST(DiraceTypeCheck, Type_Arrow) {
+TEST(dhammerTypeCheck, Type_Arrow) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("TYPE"));
@@ -352,20 +352,20 @@ TEST(DiraceTypeCheck, Type_Arrow) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ARROW[T1, T2]"), kernel.parse("TYPE")));
 }
 
-TEST(DiraceTypeCheck, Type_Index) {
+TEST(dhammerTypeCheck, Type_Index) {
     Kernel kernel;
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("FORALL[x, KTYPE[x]]"), kernel.parse("TYPE")));
 }
 
-TEST(DiraceTypeCheck, Type_Basis) {
+TEST(dhammerTypeCheck, Type_Basis) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("sigma"), kernel.parse("INDEX"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("BASIS[sigma]"), kernel.parse("TYPE")));
 }
 
 
-TEST(DiraceTypeCheck, Type_Ket) {
+TEST(dhammerTypeCheck, Type_Ket) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
@@ -375,7 +375,7 @@ TEST(DiraceTypeCheck, Type_Ket) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("KTYPE[T]"), kernel.parse("TYPE")));
 }
 
-TEST(DiraceTypeCheck, Type_Bra) {
+TEST(dhammerTypeCheck, Type_Bra) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
@@ -385,7 +385,7 @@ TEST(DiraceTypeCheck, Type_Bra) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("BTYPE[T]"), kernel.parse("TYPE")));
 }
 
-TEST(DiraceTypeCheck, Type_Opt) {
+TEST(dhammerTypeCheck, Type_Opt) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
@@ -395,28 +395,28 @@ TEST(DiraceTypeCheck, Type_Opt) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("OTYPE[T, A]"), kernel.parse("TYPE")));
 }
 
-TEST(DiraceTypeCheck, Type_Scalar) {
+TEST(dhammerTypeCheck, Type_Scalar) {
     Kernel kernel;
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("STYPE"), kernel.parse("TYPE")));
 }
 
 
-TEST(DiraceTypeCheck, Type_Set) {
+TEST(dhammerTypeCheck, Type_Set) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("SET[T]"), kernel.parse("TYPE")));
 }
 
-TEST(DiraceTypeCheck, Term_Var1) {
+TEST(dhammerTypeCheck, Term_Var1) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("x"), kernel.parse("TYPE"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("x"), kernel.parse("TYPE")));
 }
 
-TEST(DiraceTypeCheck, Term_Var2) {
+TEST(dhammerTypeCheck, Term_Var2) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("TYPE"));
@@ -424,20 +424,20 @@ TEST(DiraceTypeCheck, Term_Var2) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("f"), kernel.parse("ARROW[T, T]")));
 }
 
-TEST(DiraceTypeCheck, Lam) {
+TEST(dhammerTypeCheck, Lam) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("TYPE"));
     EXPECT_TRUE(kernel.type_check(kernel.parse("FUN[x, T, x]"), kernel.parse("ARROW[T, T]")));
 }
 
-TEST(DiraceTypeCheck, INDEX) {
+TEST(dhammerTypeCheck, INDEX) {
     Kernel kernel;
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("IDX[sigma, 0K[sigma]]"), kernel.parse("FORALL[x, KTYPE[x]]")));
 }
 
-TEST(DiraceTypeCheck, App_Arrow) {
+TEST(dhammerTypeCheck, App_Arrow) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("TYPE"));
@@ -446,7 +446,7 @@ TEST(DiraceTypeCheck, App_Arrow) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("APPLY[f, x]"), kernel.parse("T")));
 }
 
-TEST(DiraceTypeCheck, App_Index) {
+TEST(dhammerTypeCheck, App_Index) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("f"), kernel.parse("FORALL[x, KTYPE[x]]"));
@@ -454,7 +454,7 @@ TEST(DiraceTypeCheck, App_Index) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("APPLY[f, sigma]"), kernel.parse("KTYPE[sigma]")));
 }
 
-TEST(DiraceTypeCheck, Pair_Base) {
+TEST(dhammerTypeCheck, Pair_Base) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
@@ -464,19 +464,19 @@ TEST(DiraceTypeCheck, Pair_Base) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("PAIR[t1, t2]"), kernel.parse("BASIS[PROD[A, B]]")));
 }
 
-TEST(DiraceTypeCheck, Sca_0) {
+TEST(dhammerTypeCheck, Sca_0) {
     Kernel kernel;
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("0"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, Sca_1) {
+TEST(dhammerTypeCheck, Sca_1) {
     Kernel kernel;
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("1"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, Sca_Delta) {
+TEST(dhammerTypeCheck, Sca_Delta) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("A"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("a1"), kernel.parse("BASIS[A]"));
@@ -488,7 +488,7 @@ TEST(DiraceTypeCheck, Sca_Delta) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("DELTA[a1, b]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, Sca_Add) {
+TEST(dhammerTypeCheck, Sca_Add) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
@@ -497,7 +497,7 @@ TEST(DiraceTypeCheck, Sca_Add) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("Plus[a, b, c]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, Sca_Mul) {
+TEST(dhammerTypeCheck, Sca_Mul) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
@@ -506,7 +506,7 @@ TEST(DiraceTypeCheck, Sca_Mul) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("Times[a, b, c]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, Sca_Conj) {
+TEST(dhammerTypeCheck, Sca_Conj) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
@@ -517,7 +517,7 @@ TEST(DiraceTypeCheck, Sca_Conj) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("Conjugate[a, b]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, Sca_Dot) {
+TEST(dhammerTypeCheck, Sca_Dot) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("K1"), kernel.parse("KTYPE[T1]"));
@@ -530,7 +530,7 @@ TEST(DiraceTypeCheck, Sca_Dot) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("DOT[B, K2]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, Ket_0) {
+TEST(dhammerTypeCheck, Ket_0) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -539,7 +539,7 @@ TEST(DiraceTypeCheck, Ket_0) {
     EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("0K[T, T]")));
 }
 
-TEST(DiraceTypeCheck, Ket_Base) {
+TEST(dhammerTypeCheck, Ket_Base) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -548,7 +548,7 @@ TEST(DiraceTypeCheck, Ket_Base) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("KET[t]"), kernel.parse("KTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, Ket_Adj) {
+TEST(dhammerTypeCheck, Ket_Adj) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -557,7 +557,7 @@ TEST(DiraceTypeCheck, Ket_Adj) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADJ[B]"), kernel.parse("KTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, Ket_Scr) {
+TEST(dhammerTypeCheck, Ket_Scr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
@@ -567,7 +567,7 @@ TEST(DiraceTypeCheck, Ket_Scr) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SCR[a, K]"), kernel.parse("KTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, Ket_Add) {
+TEST(dhammerTypeCheck, Ket_Add) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -578,7 +578,7 @@ TEST(DiraceTypeCheck, Ket_Add) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADD[K1, K2, K3]"), kernel.parse("KTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, Ket_MulK) {
+TEST(dhammerTypeCheck, Ket_MulK) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -593,7 +593,7 @@ TEST(DiraceTypeCheck, Ket_MulK) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("MULK[O2, K1]"), kernel.parse("KTYPE[T1]")));
 }
 
-TEST(DiraceTypeCheck, Ket_Tsr) {
+TEST(dhammerTypeCheck, Ket_Tsr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -605,7 +605,7 @@ TEST(DiraceTypeCheck, Ket_Tsr) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("TSR[K1, K2]"), kernel.parse("KTYPE[PROD[T1, T2]]")));
 }
 
-TEST(DiraceTypeCheck, Bra_0) {
+TEST(dhammerTypeCheck, Bra_0) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -614,7 +614,7 @@ TEST(DiraceTypeCheck, Bra_0) {
     EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("0B[T, T]")));
 }
 
-TEST(DiraceTypeCheck, Bra_Base) {
+TEST(dhammerTypeCheck, Bra_Base) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -623,7 +623,7 @@ TEST(DiraceTypeCheck, Bra_Base) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("BRA[t]"), kernel.parse("BTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, Bra_Adj) {
+TEST(dhammerTypeCheck, Bra_Adj) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -632,7 +632,7 @@ TEST(DiraceTypeCheck, Bra_Adj) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADJ[K]"), kernel.parse("BTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, Bra_Scr) {
+TEST(dhammerTypeCheck, Bra_Scr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
@@ -642,7 +642,7 @@ TEST(DiraceTypeCheck, Bra_Scr) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SCR[a, B]"), kernel.parse("BTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, Bra_Add) {
+TEST(dhammerTypeCheck, Bra_Add) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -653,7 +653,7 @@ TEST(DiraceTypeCheck, Bra_Add) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADD[B1, B2, B3]"), kernel.parse("BTYPE[T]")));
 }
 
-TEST(DiraceTypeCheck, Bra_MulB) {
+TEST(dhammerTypeCheck, Bra_MulB) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -668,7 +668,7 @@ TEST(DiraceTypeCheck, Bra_MulB) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("MULB[B2, O1]"), kernel.parse("BTYPE[T2]")));
 }
 
-TEST(DiraceTypeCheck, Bra_Tsr) {
+TEST(dhammerTypeCheck, Bra_Tsr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -679,7 +679,7 @@ TEST(DiraceTypeCheck, Bra_Tsr) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("TSR[B1, B2]"), kernel.parse("BTYPE[PROD[T1, T2]]")));
 }
 
-TEST(DiraceTypeCheck, Opt_0) {
+TEST(dhammerTypeCheck, Opt_0) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -689,7 +689,7 @@ TEST(DiraceTypeCheck, Opt_0) {
     EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("0O[T1]")));
 }
 
-TEST(DiraceTypeCheck, Opt_1) {
+TEST(dhammerTypeCheck, Opt_1) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -699,7 +699,7 @@ TEST(DiraceTypeCheck, Opt_1) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("1O[T1, T2]"), kernel.parse("OTYPE[T1, T1]")));
 }
 
-TEST(DiraceTypeCheck, Opt_Adj) {
+TEST(dhammerTypeCheck, Opt_Adj) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -709,7 +709,7 @@ TEST(DiraceTypeCheck, Opt_Adj) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADJ[O]"), kernel.parse("OTYPE[T2, T1]")));
 }
 
-TEST(DiraceTypeCheck, Opt_Scr) {
+TEST(dhammerTypeCheck, Opt_Scr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
@@ -720,7 +720,7 @@ TEST(DiraceTypeCheck, Opt_Scr) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SCR[a, O]"), kernel.parse("OTYPE[T1, T2]")));
 }
 
-TEST(DiraceTypeCheck, Opt_Add) {
+TEST(dhammerTypeCheck, Opt_Add) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -735,7 +735,7 @@ TEST(DiraceTypeCheck, Opt_Add) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("ADD[O1, O4, O3]"), kernel.parse("OTYPE[T1, T2]")));
 }
     
-TEST(DiraceTypeCheck, Opt_Outer) {
+TEST(dhammerTypeCheck, Opt_Outer) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -746,7 +746,7 @@ TEST(DiraceTypeCheck, Opt_Outer) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("OUTER[K, B]"), kernel.parse("OTYPE[T1, T2]")));
 }
 
-TEST(DiraceTypeCheck, Opt_MulO) {
+TEST(dhammerTypeCheck, Opt_MulO) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -761,7 +761,7 @@ TEST(DiraceTypeCheck, Opt_MulO) {
     EXPECT_ANY_THROW(kernel.calc_type(kernel.parse("MULO[O1, O3]")));
 }
 
-TEST(DiraceTypeCheck, Opt_Tsr) {
+TEST(dhammerTypeCheck, Opt_Tsr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -774,7 +774,7 @@ TEST(DiraceTypeCheck, Opt_Tsr) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("TSR[O1, O2]"), kernel.parse("OTYPE[PROD[T1, T3], PROD[T2, T4]]")));
 }
 
-TEST(DiraceTypeCheck, Set_U) {
+TEST(dhammerTypeCheck, Set_U) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -782,7 +782,7 @@ TEST(DiraceTypeCheck, Set_U) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("USET[T]"), kernel.parse("SET[T]")));
 }
 
-TEST(DiraceTypeCheck, Set_Prod) {
+TEST(dhammerTypeCheck, Set_Prod) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -794,7 +794,7 @@ TEST(DiraceTypeCheck, Set_Prod) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("CATPROD[S1, S2]"), kernel.parse("SET[PROD[T1, T2]]")));
 }
 
-TEST(DiraceTypeCheck, Sum_Scalar) {
+TEST(dhammerTypeCheck, Sum_Scalar) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -804,7 +804,7 @@ TEST(DiraceTypeCheck, Sum_Scalar) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM[s, f]"), kernel.parse("STYPE")));
 }
 
-TEST(DiraceTypeCheck, Sum_Ket) {
+TEST(dhammerTypeCheck, Sum_Ket) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -815,7 +815,7 @@ TEST(DiraceTypeCheck, Sum_Ket) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM[s, f]"), kernel.parse("KTYPE[sigma]")));
 }
 
-TEST(DiraceTypeCheck, Sum_Ket_2) {
+TEST(dhammerTypeCheck, Sum_Ket_2) {
     Kernel kernel;
 
     EXPECT_TRUE(kernel.type_check(
@@ -823,7 +823,7 @@ TEST(DiraceTypeCheck, Sum_Ket_2) {
         kernel.parse("FORALL[sigma, ARROW[KTYPE[sigma], KTYPE[sigma]]]")));
 }
 
-TEST(DiraceTypeCheck, Sum_Bra) {
+TEST(dhammerTypeCheck, Sum_Bra) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -835,7 +835,7 @@ TEST(DiraceTypeCheck, Sum_Bra) {
 }
 
 
-TEST(DiraceTypeCheck, Sum_Opt) {
+TEST(dhammerTypeCheck, Sum_Opt) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -847,7 +847,7 @@ TEST(DiraceTypeCheck, Sum_Opt) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUM[s, f]"), kernel.parse("OTYPE[sigma, tau]")));
 }
 
-TEST(DiraceTypeCheck, Type_Labelled) {
+TEST(dhammerTypeCheck, Type_Labelled) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -860,7 +860,7 @@ TEST(DiraceTypeCheck, Type_Labelled) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("DTYPE[RSET[r2, r1], r1]"), kernel.parse("TYPE")));
 }
 
-TEST(DiraceTypeCheck, Reg_RPair) {
+TEST(dhammerTypeCheck, Reg_RPair) {
     Kernel kernel;
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
@@ -870,7 +870,7 @@ TEST(DiraceTypeCheck, Reg_RPair) {
 }
 
 
-TEST(DiraceTypeCheck, Type_L_Base_Ket) {
+TEST(dhammerTypeCheck, Type_L_Base_Ket) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -880,7 +880,7 @@ TEST(DiraceTypeCheck, Type_L_Base_Ket) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("LKET[k, r]"), kernel.parse("DTYPE[RSET[r], RSET[]]")));
 }
 
-TEST(DiraceTypeCheck, Type_L_Base_Bra) {
+TEST(dhammerTypeCheck, Type_L_Base_Bra) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -890,7 +890,7 @@ TEST(DiraceTypeCheck, Type_L_Base_Bra) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("LBRA[k, r]"), kernel.parse("DTYPE[RSET[], RSET[r]]")));
 }
 
-TEST(DiraceTypeCheck, Type_L_Ket) {
+TEST(dhammerTypeCheck, Type_L_Ket) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -903,7 +903,7 @@ TEST(DiraceTypeCheck, Type_L_Ket) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUBS[TSR[K, K], PAIR[r1, r2]]"), kernel.parse("DTYPE[RSET[r2, r1], RSET[]]")));
 }
 
-TEST(DiraceTypeCheck, Type_L_Bra) {
+TEST(dhammerTypeCheck, Type_L_Bra) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -913,7 +913,7 @@ TEST(DiraceTypeCheck, Type_L_Bra) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUBS[B, r]"), kernel.parse("DTYPE[RSET[], RSET[r]]")));
 }
 
-TEST(DiraceTypeCheck, Type_L_Opt) {
+TEST(dhammerTypeCheck, Type_L_Opt) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -925,7 +925,7 @@ TEST(DiraceTypeCheck, Type_L_Opt) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SUBS[O, r1, r2]"), kernel.parse("DTYPE[RSET[r1], RSET[r2]]")));
 }
 
-TEST(DiraceTypeCheck, Label_Adj) {
+TEST(dhammerTypeCheck, Label_Adj) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -935,7 +935,7 @@ TEST(DiraceTypeCheck, Label_Adj) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADJ[SUBS[K, r]]"), kernel.parse("DTYPE[RSET[], RSET[r]]")));
 }
 
-TEST(DiraceTypeCheck, Label_Scr) {
+TEST(dhammerTypeCheck, Label_Scr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
@@ -946,7 +946,7 @@ TEST(DiraceTypeCheck, Label_Scr) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("SCR[a, SUBS[K, r]]"), kernel.parse("DTYPE[RSET[r], RSET[]]")));
 }
 
-TEST(DiraceTypeCheck, Label_Add) {
+TEST(dhammerTypeCheck, Label_Add) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -963,7 +963,7 @@ TEST(DiraceTypeCheck, Label_Add) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("ADD[SUBS[TSR[K1, K2], PAIR[r1, r2]], SUBS[TSR[K2, K1], PAIR[r2, r1]]]"), kernel.parse("DTYPE[RSET[r1, r2], RSET[]]")));
 }
 
-TEST(DiraceTypeCheck, Label_Tsr) {
+TEST(dhammerTypeCheck, Label_Tsr) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -980,7 +980,7 @@ TEST(DiraceTypeCheck, Label_Tsr) {
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("LTSR[SUBS[K1, r1], SUBS[K2, r1]]"), kernel.parse("DTYPE[RSET[r1], RSET[]]")));
 }
 
-TEST(DiraceTypeCheck, Label_Dot) {
+TEST(dhammerTypeCheck, Label_Dot) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
@@ -995,7 +995,7 @@ TEST(DiraceTypeCheck, Label_Dot) {
     EXPECT_TRUE(kernel.type_check(kernel.parse("LDOT[SUBS[O, r2, r1], SUBS[K, r3]]"), kernel.parse("DTYPE[RSET[r2, r3], RSET[r1]]")));
 }
 
-TEST(DiraceTypeCheck, Sum_Label) {
+TEST(dhammerTypeCheck, Sum_Label) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
@@ -1008,7 +1008,7 @@ TEST(DiraceTypeCheck, Sum_Label) {
 }
 
 ///////////////////////////////////////////////////////////////////////
-TEST(DiraceTypeCheck, Example1) {
+TEST(dhammerTypeCheck, Example1) {
     Kernel kernel;
 
     kernel.def(kernel.register_symbol("Tr"), kernel.parse("idx T => fun O : OTYPE[T, T] => Sum i in USET[T], <i| O |i>"));

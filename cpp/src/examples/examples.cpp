@@ -5,7 +5,7 @@ namespace examples {
 
     using namespace std;
     using namespace ualg;
-    using namespace dirace;
+    using namespace dhammer;
 
     std::vector<std::pair<std::string, float>> timing_examples(const std::vector<EqExample>& examples) {
 

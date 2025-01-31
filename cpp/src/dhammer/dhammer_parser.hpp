@@ -4,13 +4,13 @@
 #include "astparser.hpp"
 #include "antlr4-runtime.h"
 
-#include "DIRACELexer.h"
-#include "DIRACEParser.h"
-#include "DIRACEBaseListener.h"
+#include "DHAMMERLexer.h"
+#include "DHAMMERParser.h"
+#include "DHAMMERBaseListener.h"
 
 #include <stack>
 
-namespace dirace {
+namespace dhammer {
 
     /**
      * @brief Parse the given code into an AST.
@@ -20,4 +20,4 @@ namespace dirace {
      */
     std::optional<astparser::AST> parse(const std::string& code, bool debug = false);
 
-} // namespace ast
+} // namespace dhammer

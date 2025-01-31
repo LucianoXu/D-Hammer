@@ -1,6 +1,6 @@
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
-namespace dirace {
+namespace dhammer {
     using namespace ualg;
     using namespace std;
 

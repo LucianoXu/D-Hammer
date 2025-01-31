@@ -1,4 +1,4 @@
-# Dirace Project
+# D-Hammer Project
 GitHub: https://github.com/LucianoXu/dirace
 
 

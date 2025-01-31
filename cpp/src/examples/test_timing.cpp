@@ -1,12 +1,12 @@
 
 #include <gtest/gtest.h>
 
-#include "dirace.hpp"
+#include "dhammer.hpp"
 #include "examples.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace dirace;
+using namespace dhammer;
 using namespace examples;
 
 #include <chrono>

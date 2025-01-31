@@ -1,6 +1,6 @@
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
-namespace dirace {
+namespace dhammer {
 
     using namespace ualg;
     using namespace std;
@@ -644,7 +644,7 @@ namespace dirace {
 
 
     // a : STYPE, b : STYPE => a @ b -> MULS(a b)
-    DIRACE_RULE_DEF(R_COMPO_SS, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_SS, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeA = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
@@ -655,7 +655,7 @@ namespace dirace {
     }
 
     // a : STYPE, K : KTYPE(T) => a @ K -> SCR(a K)
-    DIRACE_RULE_DEF(R_COMPO_SK, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_SK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeA = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
@@ -666,7 +666,7 @@ namespace dirace {
     }
 
     // a : STYPE, B : BTYPE(T) => a @ B -> SCR(a B)
-    DIRACE_RULE_DEF(R_COMPO_SB, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_SB, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeA = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
@@ -677,7 +677,7 @@ namespace dirace {
     }
 
     // a : STYPE, O : OTYPE(T1 T2) => a @ O -> SCR(a O)
-    DIRACE_RULE_DEF(R_COMPO_SO, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_SO, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeA = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
@@ -689,7 +689,7 @@ namespace dirace {
 
 
     // K : KTYPE(T), a : STYPE => COMPO(K a) -> SCR(a K)
-    DIRACE_RULE_DEF(R_COMPO_KS, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_KS, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeK = kernel.calc_type(args[0]);
         auto typeA = kernel.calc_type(args[1]);
@@ -700,7 +700,7 @@ namespace dirace {
     }
 
     // K1 : KTYPE(T1), K2 : KTYPE(T2) => COMPO(K1 K2) -> TSR(K1 K2)
-    DIRACE_RULE_DEF(R_COMPO_KK, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_KK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeK1 = kernel.calc_type(args[0]);
         auto typeK2 = kernel.calc_type(args[1]);
@@ -711,7 +711,7 @@ namespace dirace {
     }
 
     // K : KTYPE(T1), B : BTYPE(T2) => COMPO(K B) -> OUTER(K B)
-    DIRACE_RULE_DEF(R_COMPO_KB, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_KB, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeK = kernel.calc_type(args[0]);
         auto typeB = kernel.calc_type(args[1]);
@@ -723,7 +723,7 @@ namespace dirace {
 
 
     // B : BTYPE(T), a : STYPE => COMPO(B a) -> SCR(a B)
-    DIRACE_RULE_DEF(R_COMPO_BS, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_BS, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB = kernel.calc_type(args[0]);
         auto typeA = kernel.calc_type(args[1]);
@@ -734,7 +734,7 @@ namespace dirace {
     }
 
     // B : BTYPE(T), K : KTYPE(T) => COMPO(B K) -> DOT(B K)
-    DIRACE_RULE_DEF(R_COMPO_BK, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_BK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB = kernel.calc_type(args[0]);
         auto typeK = kernel.calc_type(args[1]);
@@ -745,7 +745,7 @@ namespace dirace {
     }
 
     // B1 : BTYPE(T1), B2 : BTYPE(T2) => COMPO(B1 B2) -> TSR(B1 B2)
-    DIRACE_RULE_DEF(R_COMPO_BB, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_BB, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB1 = kernel.calc_type(args[0]);
         auto typeB2 = kernel.calc_type(args[1]);
@@ -756,7 +756,7 @@ namespace dirace {
     }
 
     // B : BTYPE(T1), O : OTYPE(T1 T2) => COMPO(B O) -> MULB(B O)
-    DIRACE_RULE_DEF(R_COMPO_BO, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_BO, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeB = kernel.calc_type(args[0]);
         auto typeO = kernel.calc_type(args[1]);
@@ -767,7 +767,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T1 T2), a : STYPE => COMPO(O a) -> SCR(a O)
-    DIRACE_RULE_DEF(R_COMPO_OS, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_OS, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeO = kernel.calc_type(args[0]);
         auto typeA = kernel.calc_type(args[1]);
@@ -778,7 +778,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T1 T2), K : KTYPE(T2) => COMPO(O K) -> MULK(O K)
-    DIRACE_RULE_DEF(R_COMPO_OK, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_OK, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeO = kernel.calc_type(args[0]);
         auto typeK = kernel.calc_type(args[1]);
@@ -789,7 +789,7 @@ namespace dirace {
     }
 
     // O1 : OTYPE(T1 T2), O2 : OTYPE(T2 T3) => COMPO(O1 O2) -> MULO(O1 O2)
-    DIRACE_RULE_DEF(R_COMPO_OO, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_OO, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeO1 = kernel.calc_type(args[0]);
         auto typeO2 = kernel.calc_type(args[1]);
@@ -800,7 +800,7 @@ namespace dirace {
     }
 
     // D1 : DTYPE[...], D2 : DTYPE[...] => COMPO(D1 D2) -> LDOT[D1 D2]
-    DIRACE_RULE_DEF(R_COMPO_DD, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_DD, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeD1 = kernel.calc_type(args[0]);
         auto typeD2 = kernel.calc_type(args[1]);
@@ -811,7 +811,7 @@ namespace dirace {
     }
 
     // f : T1 -> T2 => COMPO(f a) -> APPLY(f a)
-    DIRACE_RULE_DEF(R_COMPO_ARROW, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_ARROW, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeF = kernel.calc_type(args[0]);
 
@@ -821,7 +821,7 @@ namespace dirace {
     }
 
     // f : FORALL(x T1) => COMPO(f a) -> APPLY(f a)
-    DIRACE_RULE_DEF(R_COMPO_FORALL, kernel, term) {
+    DHAMMER_RULE_DEF(R_COMPO_FORALL, kernel, term) {
         MATCH_HEAD(term, COMPO, args)
         auto typeF = kernel.calc_type(args[0]);
 
@@ -831,7 +831,7 @@ namespace dirace {
     }
 
     // T1 : INDEX, T2 : INDEX => STAR(T1 T2) -> PROD(T1 T2)
-    DIRACE_RULE_DEF(R_STAR_PROD, kernel, term) {
+    DHAMMER_RULE_DEF(R_STAR_PROD, kernel, term) {
         MATCH_HEAD(term, STAR, args)
         auto typeA = kernel.calc_type(args[0]);
 
@@ -841,7 +841,7 @@ namespace dirace {
     }
 
     // an : SType => STAR(a1 ... an) -> MULS(a1 ... an)
-    DIRACE_RULE_DEF(R_STAR_MULS, kernel, term) {
+    DHAMMER_RULE_DEF(R_STAR_MULS, kernel, term) {
         MATCH_HEAD(term, STAR, args)
         auto type1 = kernel.calc_type(args[0]);
 
@@ -851,7 +851,7 @@ namespace dirace {
     }
 
     // O1 : OType(T1 T2), O2 : OType(T3 T3) => STAR(O1 O2) -> TSR(O1 O2)
-    DIRACE_RULE_DEF(R_STAR_TSRO, kernel, term) {
+    DHAMMER_RULE_DEF(R_STAR_TSRO, kernel, term) {
         MATCH_HEAD(term, STAR, args)
         auto typeA = kernel.calc_type(args[0]);
         
@@ -861,7 +861,7 @@ namespace dirace {
     }
 
     // S1 : SET(T1), S2 : SET(T2) => STAR(S1 S2) -> CATPROD(S1 S2)
-    DIRACE_RULE_DEF(R_STAR_CATPROD, kernel, term) {
+    DHAMMER_RULE_DEF(R_STAR_CATPROD, kernel, term) {
         MATCH_HEAD(term, STAR, args)
         auto typeA = kernel.calc_type(args[0]);
         
@@ -871,7 +871,7 @@ namespace dirace {
     }
 
     // D1 : DTYPE[...], D2 : DTYPE[...] => STAR(D1 D2) -> LTSR[D1 D2]
-    DIRACE_RULE_DEF(R_STAR_LTSR, kernel, term) {
+    DHAMMER_RULE_DEF(R_STAR_LTSR, kernel, term) {
         MATCH_HEAD(term, STAR, args)
         auto typeA = kernel.calc_type(args[0]);
 
@@ -881,7 +881,7 @@ namespace dirace {
     }
 
     // an : STYPE => ADDG(a1 ... an) -> ADDS(a1 ... an)
-    DIRACE_RULE_DEF(R_ADDG_ADDS, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDG_ADDS, kernel, term) {
         MATCH_HEAD(term, ADDG, args)
         auto type1 = kernel.calc_type(args[0]);
 
@@ -891,7 +891,7 @@ namespace dirace {
     }
 
     // an : KTYPE(T), BTYPE(T), OTYPE(T1 T2) or DTYPE => ADDG(a1 ... an) -> ADD(a1 ... an)
-    DIRACE_RULE_DEF(R_ADDG_ADD, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDG_ADD, kernel, term) {
         MATCH_HEAD(term, ADDG, args)
         auto type1 = kernel.calc_type(args[0]);
 
@@ -901,7 +901,7 @@ namespace dirace {
     }
 
     // S : SET(T) => SSUM(i S e) -> SUM(S FUN(i BASIS(T) e))
-    DIRACE_RULE_DEF(R_SSUM, kernel, term) {
+    DHAMMER_RULE_DEF(R_SSUM, kernel, term) {
         MATCH_HEAD(term, SSUM, args)
         auto typeS = kernel.calc_type(args[1]);
 
@@ -918,21 +918,21 @@ namespace dirace {
     //////////////////////////////////////////////////////////////
     // Main rewriting rules
 
-    DIRACE_RULE_DEF(R_BETA_ARROW, kernel, term) {
+    DHAMMER_RULE_DEF(R_BETA_ARROW, kernel, term) {
         MATCH_HEAD(term, APPLY, args)
         MATCH_HEAD(args[0], FUN, fun_args)
         if (fun_args.size() != 3) return std::nullopt;
         return subst(kernel.get_sig(), fun_args[2], fun_args[0]->get_head(), args[1]);
     }
 
-    DIRACE_RULE_DEF(R_BETA_INDEX, kernel, term) {
+    DHAMMER_RULE_DEF(R_BETA_INDEX, kernel, term) {
         MATCH_HEAD(term, APPLY, args)
         MATCH_HEAD(args[0], IDX, idx_args)
         if (idx_args.size() != 2) return std::nullopt;
         return subst(kernel.get_sig(), idx_args[1], idx_args[0]->get_head(), args[1]);
     }
 
-    DIRACE_RULE_DEF(R_DELTA, kernel, term) {
+    DHAMMER_RULE_DEF(R_DELTA, kernel, term) {
         auto find_res = kernel.find_in_env(term->get_head());
         if (find_res != std::nullopt and find_res->is_def()) {
             // Note that the bound variable renaming is applied
@@ -943,7 +943,7 @@ namespace dirace {
     }
 
     // //////////////// Flattening AC symbols
-    DIRACE_RULE_DEF(R_FLATTEN, kernel, term) {
+    DHAMMER_RULE_DEF(R_FLATTEN, kernel, term) {
         auto res = flatten<int>(term, a_symbols);
         if (*res != *term) {
             return res;
@@ -954,14 +954,14 @@ namespace dirace {
 
     /////////////////////////////////////////////////////////////////////////
     // Properties
-    DIRACE_RULE_DEF(R_ADDSID, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDSID, kernel, term) {
         MATCH_HEAD(term, ADDS, args)
         if (args.size() != 1) return std::nullopt;
 
         return args[0];
     }
 
-    DIRACE_RULE_DEF(R_MULSID, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULSID, kernel, term) {
         MATCH_HEAD(term, MULS, args)
         if (args.size() != 1) return std::nullopt;
 
@@ -972,7 +972,7 @@ namespace dirace {
     // Rewriting Rules
 
     // ADDS(a 0) -> a
-    DIRACE_RULE_DEF(R_ADDS0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDS0, kernel, term) {
         auto zero_term = create_term(ZERO);
 
         MATCH_HEAD(term, ADDS, args_ADDS_a_0)
@@ -994,7 +994,7 @@ namespace dirace {
     }
 
     // MULS(a 0) -> 0
-    DIRACE_RULE_DEF(R_MULS0, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULS0, kernel, term) {
         auto zero_term = create_term(ZERO);
 
         MATCH_HEAD(term, MULS, args_MULS_a_0)
@@ -1009,7 +1009,7 @@ namespace dirace {
     }
 
     // MULS(a 1) -> a
-    DIRACE_RULE_DEF(R_MULS1, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULS1, kernel, term) {
 
         auto one_term = create_term(ONE);
 
@@ -1033,7 +1033,7 @@ namespace dirace {
 
 
     // MULS(a ADDS(b c)) -> ADDS(MULS(a b) MULS(a c))
-    DIRACE_RULE_DEF(R_MULS2, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULS2, kernel, term) {
 
         MATCH_HEAD(term, MULS, args_MULS_a_ADDS_b_c)
 
@@ -1061,7 +1061,7 @@ namespace dirace {
     }
 
     // CONJ(0) -> 0
-    DIRACE_RULE_DEF(R_CONJ0, kernel, term) {
+    DHAMMER_RULE_DEF(R_CONJ0, kernel, term) {
 
         auto zero_term = create_term(ZERO);
         auto CONJ_0_term = create_term(CONJ, {zero_term});
@@ -1074,7 +1074,7 @@ namespace dirace {
     }
 
     // CONJ(1) -> 1
-    DIRACE_RULE_DEF(R_CONJ1, kernel, term) {
+    DHAMMER_RULE_DEF(R_CONJ1, kernel, term) {
 
         auto one_term = create_term(ONE);
         auto CONJ_1_term = create_term(CONJ, {one_term});
@@ -1087,7 +1087,7 @@ namespace dirace {
     }
 
     // CONJ(ADDS(a b)) -> ADDS(CONJ(a) CONJ(b))
-    DIRACE_RULE_DEF(R_CONJ2, kernel, term) {
+    DHAMMER_RULE_DEF(R_CONJ2, kernel, term) {
 
         MATCH_HEAD(term, CONJ, args_CONJ_ADDS_a_b)
 
@@ -1101,7 +1101,7 @@ namespace dirace {
     }
 
     // CONJ(MULS(a b)) -> MULS(CONJ(a) CONJ(b))
-    DIRACE_RULE_DEF(R_CONJ3, kernel, term) {
+    DHAMMER_RULE_DEF(R_CONJ3, kernel, term) {
 
         MATCH_HEAD(term, CONJ, args_CONJ_MULS_a_b)
 
@@ -1115,7 +1115,7 @@ namespace dirace {
     }
 
     // CONJ(CONJ(a)) -> a
-    DIRACE_RULE_DEF(R_CONJ4, kernel, term) {
+    DHAMMER_RULE_DEF(R_CONJ4, kernel, term) {
 
         MATCH_HEAD(term, CONJ, args_CONJ_CONJ_a)
         
@@ -1125,7 +1125,7 @@ namespace dirace {
     }
 
     // CONJ(DELTA(s t)) -> DELTA(s t)
-    DIRACE_RULE_DEF(R_CONJ5, kernel, term) {
+    DHAMMER_RULE_DEF(R_CONJ5, kernel, term) {
 
         MATCH_HEAD(term, CONJ, args_CONJ_DELTA_s_t)
 
@@ -1135,7 +1135,7 @@ namespace dirace {
     }
 
     // CONJ(DOT(B K)) -> DOT(ADJ(K) ADJ(B))
-    DIRACE_RULE_DEF(R_CONJ6, kernel, term) {
+    DHAMMER_RULE_DEF(R_CONJ6, kernel, term) {
 
         MATCH_HEAD(term, CONJ, args_CONJ_DOT_B_K)
         
@@ -1150,7 +1150,7 @@ namespace dirace {
     }
 
     // DOT(0B(sigma) K) -> 0
-    DIRACE_RULE_DEF(R_DOT0, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT0, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_0B_sigma_K)
         
@@ -1160,7 +1160,7 @@ namespace dirace {
     }
 
     // DOT(B 0K(sigma)) -> 0
-    DIRACE_RULE_DEF(R_DOT1, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT1, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_B_0K_sigma)
 
@@ -1170,7 +1170,7 @@ namespace dirace {
     }
 
     // DOT(SCR(a B) K) -> MULS(a DOT(B K))
-    DIRACE_RULE_DEF(R_DOT2, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT2, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_SCR_a_B_K)
         
@@ -1185,7 +1185,7 @@ namespace dirace {
     }
 
     // DOT(B SCR(a K)) -> MULS(a DOT(B K))
-    DIRACE_RULE_DEF(R_DOT3, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT3, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_B_SCR_a_K)
         
@@ -1200,7 +1200,7 @@ namespace dirace {
     }
 
     // DOT(ADD(B1 ... Bn) K) -> ADDS(DOT(B1 K) ... DOT(Bn K))
-    DIRACE_RULE_DEF(R_DOT4, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT4, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_ADD_B1_Bn_K)
         
@@ -1214,7 +1214,7 @@ namespace dirace {
     }
 
     // DOT(B ADD(K1 ... Kn)) -> ADDS(DOT(B K1) ... DOT(B Kn))
-    DIRACE_RULE_DEF(R_DOT5, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT5, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_B_ADD_K1_Kn)
         
@@ -1228,7 +1228,7 @@ namespace dirace {
     }
 
     // DOT(BRA(s) KET(t)) -> DELTA(s t)
-    DIRACE_RULE_DEF(R_DOT6, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT6, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_BRA_s_KET_t)
         
@@ -1240,7 +1240,7 @@ namespace dirace {
     }
 
     // DOT(TSR(B1 B2) KET(PAIR(s t))) -> MULS(DOT(B1 KET(s)) DOT(B2 KET(t)))
-    DIRACE_RULE_DEF(R_DOT7, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT7, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_KET_PAIR_s_t)
 
@@ -1259,7 +1259,7 @@ namespace dirace {
     }
 
     // DOT(BRA(PAIR(s t)) TSR(K1 K2)) -> MULS(DOT(BRA(s) K1) DOT(BRA(t) K2))
-    DIRACE_RULE_DEF(R_DOT8, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT8, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_BRA_PAIR_s_t_TSR_K1_K2)
         
@@ -1278,7 +1278,7 @@ namespace dirace {
     }
 
     // DOT(TSR(B1 B2) TSR(K1 K2)) -> MULS(DOT(B1 K1) DOT(B2 K2))
-    DIRACE_RULE_DEF(R_DOT9, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT9, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_TSR_K1_K2)
         
@@ -1295,7 +1295,7 @@ namespace dirace {
     }
 
     // DOT(MULB(B O) K) -> DOT(B MULK(O K))
-    DIRACE_RULE_DEF(R_DOT10, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT10, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_MULB_B_O_K)
         
@@ -1310,7 +1310,7 @@ namespace dirace {
     }
 
     // DOT(BRA(PAIR(s t)) MULK(TSR(O1 O2) K)) -> DOT(TSR(MULB(BRA(s) O1) MULB(BRA(t) O2)) K)
-    DIRACE_RULE_DEF(R_DOT11, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT11, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K)
 
@@ -1336,7 +1336,7 @@ namespace dirace {
     }
 
     // DOT(TSR(B1 B2) MULK(TSR(O1 O2) K)) -> DOT(TSR(MULB(B1 O1) MULB(B2 O2)) K)
-    DIRACE_RULE_DEF(R_DOT12, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOT12, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K)
         
@@ -1360,7 +1360,7 @@ namespace dirace {
     }
 
     // DELTA(a a) -> 1
-    DIRACE_RULE_DEF(R_DELTA0, kernel, term) {
+    DHAMMER_RULE_DEF(R_DELTA0, kernel, term) {
 
         MATCH_HEAD(term, DELTA, args_DELTA_a_a)
 
@@ -1370,7 +1370,7 @@ namespace dirace {
     }
 
     // DELTA(PAIR(a b) PAIR(c d)) -> MULS(DELTA(a c) DELTA(b d))
-    DIRACE_RULE_DEF(R_DELTA1, kernel, term) {
+    DHAMMER_RULE_DEF(R_DELTA1, kernel, term) {
 
         MATCH_HEAD(term, DELTA, args_DELTA_PAIR_a_b_PAIR_c_d)
         
@@ -1387,7 +1387,7 @@ namespace dirace {
     }
     
     // SCR(1 X) -> X
-    DIRACE_RULE_DEF(R_SCR0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCR0, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_1_X)
         if (args_SCR_1_X[0]->get_head() != ONE) return std::nullopt;
@@ -1396,7 +1396,7 @@ namespace dirace {
     }
 
     // SCR(a SCR(b X)) -> SCR(MULS(a b) X)
-    DIRACE_RULE_DEF(R_SCR1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCR1, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_SCR_b_X)
         
@@ -1411,7 +1411,7 @@ namespace dirace {
     }
 
     // SCR(a ADD(X1 ... Xn)) -> ADD(SCR(a X1) ... SCR(a Xn))
-    DIRACE_RULE_DEF(R_SCR2, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCR2, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_ADD_X1_Xn)
         
@@ -1425,7 +1425,7 @@ namespace dirace {
     }
     
     // K : KTYPE(T) => SCR(0 K) -> 0K(T)
-    DIRACE_RULE_DEF(R_SCRK0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRK0, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_0_K)
         
@@ -1440,7 +1440,7 @@ namespace dirace {
     }
 
     // SCR(a 0K(T)) -> 0K(T)
-    DIRACE_RULE_DEF(R_SCRK1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRK1, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_0K_T)
         
@@ -1450,7 +1450,7 @@ namespace dirace {
     }
 
     // B : BTYPE(T) => SCR(0 B) -> 0B(T)
-    DIRACE_RULE_DEF(R_SCRB0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRB0, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_0_B)
         
@@ -1465,7 +1465,7 @@ namespace dirace {
     }
 
     // SCR(a 0B(T)) -> 0B(T)
-    DIRACE_RULE_DEF(R_SCRB1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRB1, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_0B_T)
         
@@ -1475,7 +1475,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T1 T2) => SCR(0 O) -> 0O(T1 T2)
-    DIRACE_RULE_DEF(R_SCRO0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRO0, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_0_O)
         
@@ -1490,7 +1490,7 @@ namespace dirace {
     }
 
     // SCR(a 0O(T1 T2)) -> 0O(T1 T2)
-    DIRACE_RULE_DEF(R_SCRO1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRO1, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_0O_T1_T2)
         
@@ -1500,7 +1500,7 @@ namespace dirace {
     }
 
     // ADD(X) -> X
-    DIRACE_RULE_DEF(R_ADDID, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDID, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_X)
         if (args_ADD_X.size() != 1) return std::nullopt;
@@ -1509,7 +1509,7 @@ namespace dirace {
     }
     
     // ADD(Y1 ... X ... X ... Yn) -> ADD(Y1 ... Yn SCR(ADDS(1 1) X))
-    DIRACE_RULE_DEF(R_ADD0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADD0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_Y1_X_X_Yn)
         
@@ -1544,7 +1544,7 @@ namespace dirace {
     }
 
     // ADD(Y1 ... X ... SCR(a X) ... Yn) -> ADD(Y1 ... Yn SCR(ADDS(1 a) X))
-    DIRACE_RULE_DEF(R_ADD1, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADD1, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_Y1_X_X_Yn)
         
@@ -1584,7 +1584,7 @@ namespace dirace {
 
 
     // ADD(Y1 ... SCR(a X) ... X ... Yn) -> ADD(Y1 ... Yn SCR(ADDS(a 1) X))
-    DIRACE_RULE_DEF(R_ADD2, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADD2, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_Y1_X_X_Yn)
         
@@ -1624,7 +1624,7 @@ namespace dirace {
     }
 
     // ADD(Y1 ... SCR(a X) ... SCR(b X) ... Yn) -> ADD(Y1 ... Yn SCR(ADDS(a b) X))
-    DIRACE_RULE_DEF(R_ADD3, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADD3, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_Y1_X_X_Yn)
         
@@ -1670,7 +1670,7 @@ namespace dirace {
     }
 
     // ADD(K1 ... 0K(T) ... Kn) -> ADD(K1 ... Kn)
-    DIRACE_RULE_DEF(R_ADDK0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDK0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_K1_0K_T_Kn)
         
@@ -1691,7 +1691,7 @@ namespace dirace {
     }
 
     // ADD(B1 ... 0B(T) ... Bn) -> ADD(B1 ... Bn)
-    DIRACE_RULE_DEF(R_ADDB0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDB0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_B1_0B_T_Bn)
         
@@ -1712,7 +1712,7 @@ namespace dirace {
     }
 
     // ADD(O1 ... 0O(T1 T2) ... On) -> ADD(O1 ... On)
-    DIRACE_RULE_DEF(R_ADDO0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDO0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_O1_0O_T1_T2_On)
         
@@ -1733,7 +1733,7 @@ namespace dirace {
     }
 
     // ADJ(ADJ(X)) -> X
-    DIRACE_RULE_DEF(R_ADJ0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJ0, kernel, term) {
 
         MATCH_HEAD(term, ADJ, args_ADJ_ADJ_X)
         
@@ -1743,7 +1743,7 @@ namespace dirace {
     }
 
     // ADJ(SCR(a X)) -> SCR(CONJ(a) ADJ(X))
-    DIRACE_RULE_DEF(R_ADJ1, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJ1, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_SCR_a_X)
@@ -1759,7 +1759,7 @@ namespace dirace {
     }
 
     // ADJ(ADD(X1 ... Xn)) -> ADD(ADJ(X1) ... ADJ(Xn))
-    DIRACE_RULE_DEF(R_ADJ2, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJ2, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_ADD_X1_Xn)
@@ -1774,7 +1774,7 @@ namespace dirace {
     }
 
     // ADJ(TSR(X Y)) -> TSR(ADJ(X) ADJ(Y))
-    DIRACE_RULE_DEF(R_ADJ3, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJ3, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_TSR_X_Y)
@@ -1790,7 +1790,7 @@ namespace dirace {
     }
 
     // ADJ(0B(T)) -> 0K(T)
-    DIRACE_RULE_DEF(R_ADJK0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJK0, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_0B_T)
@@ -1801,7 +1801,7 @@ namespace dirace {
     }
 
     // ADJ(BRA(t)) -> KET(t)
-    DIRACE_RULE_DEF(R_ADJK1, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJK1, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_BRA_t)
@@ -1812,7 +1812,7 @@ namespace dirace {
     }
 
     // ADJ(MULB(B O)) -> MULK(ADJ(O) ADJ(B))
-    DIRACE_RULE_DEF(R_ADJK2, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJK2, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_MULB_B_O)
@@ -1829,7 +1829,7 @@ namespace dirace {
 
 
     // ADJ(0K(T)) -> 0B(T)
-    DIRACE_RULE_DEF(R_ADJB0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJB0, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_0K_T)
@@ -1840,7 +1840,7 @@ namespace dirace {
     }
 
     // ADJ(KET(t)) -> BRA(t)
-    DIRACE_RULE_DEF(R_ADJB1, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJB1, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_KET_t)
@@ -1851,7 +1851,7 @@ namespace dirace {
     }
 
     // ADJ(MULK(O K)) -> MULB(ADJ(K) ADJ(O))
-    DIRACE_RULE_DEF(R_ADJB2, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJB2, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_MULK_O_K)
@@ -1868,7 +1868,7 @@ namespace dirace {
 
 
     // ADJ(0O(T1 T2)) -> 0O(T2 T1)
-    DIRACE_RULE_DEF(R_ADJO0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJO0, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_0O_T1_T2)
@@ -1879,7 +1879,7 @@ namespace dirace {
     }
 
     // ADJ(1O(T)) -> 1O(T)
-    DIRACE_RULE_DEF(R_ADJO1, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJO1, kernel, term) {
 
         MATCH_HEAD(term, ADJ, args_ADJ_1O_T)
         
@@ -1889,7 +1889,7 @@ namespace dirace {
     }
 
     // ADJ(OUTER(K B)) -> OUTER(ADJ(B) ADJ(K))
-    DIRACE_RULE_DEF(R_ADJO2, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJO2, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_OUTER_K_B)
@@ -1905,7 +1905,7 @@ namespace dirace {
     }
 
     // ADJ(MULO(O1 O2)) -> MULO(ADJ(O2) ADJ(O1))
-    DIRACE_RULE_DEF(R_ADJO3, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJO3, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_MULO_O1_O2)
@@ -1921,7 +1921,7 @@ namespace dirace {
     }
 
     // TSR(SCR(a X1) X2) -> SCR(a TSR(X1 X2))
-    DIRACE_RULE_DEF(R_TSR0, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSR0, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_SCR_a_X1_X2)
@@ -1937,7 +1937,7 @@ namespace dirace {
     }
 
     // TSR(X1 SCR(a X2)) -> SCR(a TSR(X1 X2))
-    DIRACE_RULE_DEF(R_TSR1, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSR1, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_X1_SCR_a_X2)
@@ -1953,7 +1953,7 @@ namespace dirace {
     }
 
     // TSR(ADD(X1 ... Xn) Y) -> ADD(TSR(X1 Y) ... TSR(Xn Y))
-    DIRACE_RULE_DEF(R_TSR2, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSR2, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_ADD_X1_Xn_Y)
@@ -1968,7 +1968,7 @@ namespace dirace {
     }
 
     // TSR(Y ADD(X1 ... Xn)) -> ADD(TSR(Y X1) ... TSR(Y Xn))
-    DIRACE_RULE_DEF(R_TSR3, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSR3, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_Y_ADD_X1_Xn)
@@ -1983,7 +1983,7 @@ namespace dirace {
     }
 
     // K : KTYPE(T2) => TSR(0K(T1) K) -> 0K(PROD(T1 T2))
-    DIRACE_RULE_DEF(R_TSRK0, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRK0, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_0K_T1_K)
@@ -1999,7 +1999,7 @@ namespace dirace {
     }
 
     // K : KTYPE(T1) => TSR(K 0K(T2)) -> 0K(PROD(T1 T2))
-    DIRACE_RULE_DEF(R_TSRK1, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRK1, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_K_0K_T2)
@@ -2015,7 +2015,7 @@ namespace dirace {
     }
 
     // TSR(KET(s) KET(t)) -> KET(PAIR(s t))
-    DIRACE_RULE_DEF(R_TSRK2, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRK2, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_KET_s_KET_t)
@@ -2028,7 +2028,7 @@ namespace dirace {
     }
 
     // B : BTYPE(T2) => TSR(0B(T1) B) -> 0B(PROD(T1 T2))
-    DIRACE_RULE_DEF(R_TSRB0, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRB0, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_0B_T1_B)
@@ -2044,7 +2044,7 @@ namespace dirace {
     }
 
     // B : BTYPE(T1) => TSR(B 0B(T2)) -> 0B(PROD(T1 T2))
-    DIRACE_RULE_DEF(R_TSRB1, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRB1, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_B_0B_T2)
@@ -2060,7 +2060,7 @@ namespace dirace {
     }
     
     // TSR(BRA(s) BRA(t)) -> BRA(PAIR(s t))
-    DIRACE_RULE_DEF(R_TSRB2, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRB2, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_BRA_s_BRA_t)
@@ -2073,7 +2073,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T3 T4) => TSR(0O(T1 T2) O) -> 0O(PROD(T1 T3) PROD(T2 T4))
-    DIRACE_RULE_DEF(R_TSRO0, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRO0, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_0O_T1_T2_O)
@@ -2094,7 +2094,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T1 T2) => TSR(O 0O(T3 T4)) -> 0O(PROD(T1 T3) PROD(T2 T4))
-    DIRACE_RULE_DEF(R_TSRO1, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRO1, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_O_0O_T3_T4)
@@ -2115,7 +2115,7 @@ namespace dirace {
     }
 
     // TSR(1O(T1) 1O(T2)) -> 1O(PROD(T1 T2))
-    DIRACE_RULE_DEF(R_TSRO2, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRO2, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_1O_T1_1O_T2)
@@ -2128,7 +2128,7 @@ namespace dirace {
     }
 
     // TSR(OUTER(K1 B1) OUTER(K2 B2)) -> OUTER(TSR(K1 K2) TSR(B1 B2))
-    DIRACE_RULE_DEF(R_TSRO3, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRO3, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_OUTER_K1_B1_OUTER_K2_B2)
@@ -2146,7 +2146,7 @@ namespace dirace {
     }
 
     // MULK(0O(T1 T2) K) -> 0K(T1)
-    DIRACE_RULE_DEF(R_MULK0, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK0, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_0O_T1_T2_K)
@@ -2157,7 +2157,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T1 T2) => MULK(O 0K(T2)) -> 0K(T1)
-    DIRACE_RULE_DEF(R_MULK1, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK1, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_O_0K_T2)
@@ -2173,7 +2173,7 @@ namespace dirace {
     }
 
     // MULK(1O(T) K) -> K
-    DIRACE_RULE_DEF(R_MULK2, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK2, kernel, term) {
 
         MATCH_HEAD(term, MULK, args_MULK_1O_T_K)
 
@@ -2183,7 +2183,7 @@ namespace dirace {
     }
 
     // MULK(SCR(a O) K) -> SCR(a MULK(O K))
-    DIRACE_RULE_DEF(R_MULK3, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK3, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_SCR_a_O_K)
@@ -2199,7 +2199,7 @@ namespace dirace {
     }
 
     // MULK(O SCR(a K)) -> SCR(a MULK(O K))
-    DIRACE_RULE_DEF(R_MULK4, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK4, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_O_SCR_a_K)
@@ -2215,7 +2215,7 @@ namespace dirace {
     }
 
     // MULK(ADD(O1 ... On) K) -> ADD(MULK(O1 K) ... MULK(On K))
-    DIRACE_RULE_DEF(R_MULK5, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK5, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_ADD_O1_On_K)
@@ -2230,7 +2230,7 @@ namespace dirace {
     }
 
     // MULK(O ADD(K1 ... Kn)) -> ADD(MULK(O K1) ... MULK(O Kn))
-    DIRACE_RULE_DEF(R_MULK6, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK6, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_O_ADD_K1_Kn)
@@ -2245,7 +2245,7 @@ namespace dirace {
     }
 
     // MULK(OUTER(K1 B) K2) -> SCR(DOT(B K2) K1)
-    DIRACE_RULE_DEF(R_MULK7, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK7, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_OUTER_K1_B_K2)
@@ -2261,7 +2261,7 @@ namespace dirace {
     }
 
     // MULK(MULO(O1 O2) K) -> MULK(O1 MULK(O2 K))
-    DIRACE_RULE_DEF(R_MULK8, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK8, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_MULO_O1_O2_K)
@@ -2277,7 +2277,7 @@ namespace dirace {
     }
 
     // MULK(TSR(O1 O2) MULK(TSR(O3 O4) K)) -> MULK(TSR(MULO(O1 O3) MULO(O2 O4)) K)
-    DIRACE_RULE_DEF(R_MULK9, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK9, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_TSR_O1_O2_MULK_TSR_O3_O4_K)
@@ -2302,7 +2302,7 @@ namespace dirace {
     }
 
     // MULK(TSR(O1 O2) KET(PAIR(s t))) -> TSR(MULK(O1 KET(s)) MULK(O2 KET(t)))
-    DIRACE_RULE_DEF(R_MULK10, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK10, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_TSR_O1_O2_KET_PAIR_s_t)
@@ -2322,7 +2322,7 @@ namespace dirace {
     }
 
     // MULK(TSR(O1 O2) TSR(K1 K2)) -> TSR(MULK(O1 K1) MULK(O2 K2))
-    DIRACE_RULE_DEF(R_MULK11, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULK11, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_TSR_O1_O2_TSR_K1_K2)
@@ -2340,7 +2340,7 @@ namespace dirace {
     }
 
     // MULB(B 0O(T1 T2)) -> 0B(T2)
-    DIRACE_RULE_DEF(R_MULB0, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB0, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_B_0O_T1_T2)
@@ -2351,7 +2351,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T1 T2) => MULB(0B(T1) O) -> 0B(T2)
-    DIRACE_RULE_DEF(R_MULB1, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB1, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_0B_T1_O)
@@ -2367,7 +2367,7 @@ namespace dirace {
     }
 
     // MULB(B 1O(T)) -> B
-    DIRACE_RULE_DEF(R_MULB2, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB2, kernel, term) {
 
         MATCH_HEAD(term, MULB, args_MULB_B_1O_T)
 
@@ -2377,7 +2377,7 @@ namespace dirace {
     }
 
     // MULB(SCR(a B) O) -> SCR(a MULB(B O))
-    DIRACE_RULE_DEF(R_MULB3, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB3, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_SCR_a_B_O)
@@ -2393,7 +2393,7 @@ namespace dirace {
     }
 
     // MULB(B SCR(a O)) -> SCR(a MULB(B O))
-    DIRACE_RULE_DEF(R_MULB4, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB4, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_B_SCR_a_O)
@@ -2409,7 +2409,7 @@ namespace dirace {
     }
 
     // MULB(ADD(B1 ... Bn) O) -> ADD(MULB(B1 O) ... MULB(Bn O))
-    DIRACE_RULE_DEF(R_MULB5, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB5, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_ADD_B1_Bn_O)
@@ -2424,7 +2424,7 @@ namespace dirace {
     }
 
     // MULB(B ADD(O1 ... On)) -> ADD(MULB(B O1) ... MULB(B On))
-    DIRACE_RULE_DEF(R_MULB6, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB6, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_B_ADD_O1_On)
@@ -2439,7 +2439,7 @@ namespace dirace {
     }
 
     // MULB(B1 OUTER(K B2)) -> SCR(DOT(B1 K) B2)
-    DIRACE_RULE_DEF(R_MULB7, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB7, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_B1_OUTER_K_B2)
@@ -2455,7 +2455,7 @@ namespace dirace {
     }
 
     // MULB(B MULO(O1 O2)) -> MULB(MULB(B O1) O2)
-    DIRACE_RULE_DEF(R_MULB8, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB8, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_B_MULO_O1_O2)
@@ -2471,7 +2471,7 @@ namespace dirace {
     }
 
     // MULB(MULB(B TSR(O1 O2)) TSR(O3 O4)) -> MULB(B TSR(MULO(O1 O3) MULO(O2 O4)))
-    DIRACE_RULE_DEF(R_MULB9, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB9, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_MULB_B_TSR_O1_O2_TSR_O3_O4)
@@ -2496,7 +2496,7 @@ namespace dirace {
     }
 
     // MULB(BRA(PAIR(s t)) TSR(O1 O2)) -> TSR(MULB(BRA(s) O1) MULB(BRA(t) O2))
-    DIRACE_RULE_DEF(R_MULB10, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB10, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_BRA_PAIR_s_t_TSR_O1_O2)
@@ -2516,7 +2516,7 @@ namespace dirace {
     }
 
     // MULB(TSR(B1 B2) TSR(O1 O2)) -> TSR(MULB(B1 O1) MULB(B2 O2))
-    DIRACE_RULE_DEF(R_MULB11, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULB11, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_TSR_B1_B2_TSR_O1_O2)
@@ -2534,7 +2534,7 @@ namespace dirace {
     }
 
     // B : B(T2) => OUTER(0K(T1) B) -> 0O(T1 T2)
-    DIRACE_RULE_DEF(R_OUTER0, kernel, term) {
+    DHAMMER_RULE_DEF(R_OUTER0, kernel, term) {
 
 
         MATCH_HEAD(term, OUTER, args_OUTER_0K_T1_B)
@@ -2550,7 +2550,7 @@ namespace dirace {
     }
 
     // K : K(T1) => OUTER(K 0B(T2)) -> 0O(T1 T2)
-    DIRACE_RULE_DEF(R_OUTER1, kernel, term) {
+    DHAMMER_RULE_DEF(R_OUTER1, kernel, term) {
 
 
         MATCH_HEAD(term, OUTER, args_OUTER_K_0B_T2)
@@ -2566,7 +2566,7 @@ namespace dirace {
     }
 
     // OUTER(SCR(a K) B) -> SCR(a OUTER(K B))
-    DIRACE_RULE_DEF(R_OUTER2, kernel, term) {
+    DHAMMER_RULE_DEF(R_OUTER2, kernel, term) {
 
 
         MATCH_HEAD(term, OUTER, args_OUTER_SCR_a_K_B)
@@ -2582,7 +2582,7 @@ namespace dirace {
     }
 
     // OUTER(K SCR(a B)) -> SCR(a OUTER(K B))
-    DIRACE_RULE_DEF(R_OUTER3, kernel, term) {
+    DHAMMER_RULE_DEF(R_OUTER3, kernel, term) {
 
 
         MATCH_HEAD(term, OUTER, args_OUTER_K_SCR_a_B)
@@ -2598,7 +2598,7 @@ namespace dirace {
     }
 
     // OUTER(ADD(K1 ... Kn) B) -> ADD(OUTER(K1 B) ... OUTER(Kn B))
-    DIRACE_RULE_DEF(R_OUTER4, kernel, term) {
+    DHAMMER_RULE_DEF(R_OUTER4, kernel, term) {
 
 
         MATCH_HEAD(term, OUTER, args_OUTER_ADD_K1_Kn_B)
@@ -2613,7 +2613,7 @@ namespace dirace {
     }
 
     // OUTER(K ADD(B1 ... Bn)) -> ADD(OUTER(K B1) ... OUTER(K Bn))
-    DIRACE_RULE_DEF(R_OUTER5, kernel, term) {
+    DHAMMER_RULE_DEF(R_OUTER5, kernel, term) {
 
 
         MATCH_HEAD(term, OUTER, args_OUTER_K_ADD_B1_Bn)
@@ -2628,7 +2628,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T2 T3) => MULO(0O(T1 T2) O) -> 0O(T1 T3)
-    DIRACE_RULE_DEF(R_MULO0, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO0, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_0O_T1_T2_O)
@@ -2644,7 +2644,7 @@ namespace dirace {
     }
 
     // O : OTYPE(T1 T2) => MULO(O 0O(T2 T3)) -> 0O(T1 T3)
-    DIRACE_RULE_DEF(R_MULO1, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO1, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_O_0O_T2_T3)
@@ -2660,7 +2660,7 @@ namespace dirace {
     }
 
     // MULO(1O(T) O) -> O
-    DIRACE_RULE_DEF(R_MULO2, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO2, kernel, term) {
         MATCH_HEAD(term, MULO, args_MULO_1O_T_O)
 
         if (args_MULO_1O_T_O[0]->get_head() != ONEO) return std::nullopt;
@@ -2669,7 +2669,7 @@ namespace dirace {
     }
 
     // MULO(O 1O(T)) -> O
-    DIRACE_RULE_DEF(R_MULO3, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO3, kernel, term) {
         MATCH_HEAD(term, MULO, args_MULO_O_1O_T)
 
         if (args_MULO_O_1O_T[1]->get_head() != ONEO) return std::nullopt;
@@ -2678,7 +2678,7 @@ namespace dirace {
     }
 
     // MULO(OUTER(K B) O) -> OUTER(K MULB(B O))
-    DIRACE_RULE_DEF(R_MULO4, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO4, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_OUTER_K_B_O)
@@ -2694,7 +2694,7 @@ namespace dirace {
     }
 
     // MULO(O OUTER(K B)) -> OUTER(MULK(O K) B)
-    DIRACE_RULE_DEF(R_MULO5, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO5, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_O_OUTER_K_B)
@@ -2710,7 +2710,7 @@ namespace dirace {
     }
 
     // MULO(SCR(a O1) O2) -> SCR(a MULO(O1 O2))
-    DIRACE_RULE_DEF(R_MULO6, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO6, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_SCR_a_O1_O2)
@@ -2726,7 +2726,7 @@ namespace dirace {
     }
 
     // MULO(O1 SCR(a O2)) -> SCR(a MULO(O1 O2))
-    DIRACE_RULE_DEF(R_MULO7, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO7, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_O1_SCR_a_O2)
@@ -2742,7 +2742,7 @@ namespace dirace {
     }
 
     // MULO(ADD(O1 ... On) O) -> ADD(MULO(O1 O) ... MULO(On O))
-    DIRACE_RULE_DEF(R_MULO8, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO8, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_ADD_O1_On_O)
@@ -2757,7 +2757,7 @@ namespace dirace {
     }
 
     // MULO(O ADD(O1 ... On)) -> ADD(MULO(O O1) ... MULO(O On))
-    DIRACE_RULE_DEF(R_MULO9, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO9, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_O_ADD_O1_On)
@@ -2772,7 +2772,7 @@ namespace dirace {
     }
 
     // MULO(MULO(O1 O2) O3) -> MULO(O1 MULO(O2 O3))
-    DIRACE_RULE_DEF(R_MULO10, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO10, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_MULO_O1_O2_O3)
@@ -2788,7 +2788,7 @@ namespace dirace {
     }
 
     // MULO(TSR(O1 O2) TSR(O3 O4)) -> TSR(MULO(O1 O3) MULO(O2 O4))
-    DIRACE_RULE_DEF(R_MULO11, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO11, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_TSR_O1_O2_TSR_O3_O4)
@@ -2806,7 +2806,7 @@ namespace dirace {
     }
 
     // MULO(TSR(O1 O2) MULO(TSR(O3 O4) O)) -> MULO(TSR(MULO(O1 O3) MULO(O2 O4)) O)
-    DIRACE_RULE_DEF(R_MULO12, kernel, term) {
+    DHAMMER_RULE_DEF(R_MULO12, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_TSR_O1_O2_MULO_TSR_O3_O4_O)
@@ -2831,7 +2831,7 @@ namespace dirace {
     }
 
     // CATPROD(USET(T1) USET(T2)) -> USET(PROD(T1 T2))
-    DIRACE_RULE_DEF(R_SET0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SET0, kernel, term) {
 
 
         MATCH_HEAD(term, CATPROD, args_CATPROD_USET_T1_USET_T2)
@@ -2844,7 +2844,7 @@ namespace dirace {
     }
 
     // SUM(s FUN(x T 0)) -> 0
-    DIRACE_RULE_DEF(R_SUM_CONST0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_CONST0, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T_0)
 
         MATCH_HEAD(args_SUM_s_fun_x_T_0[1], FUN, args_FUN_x_T_0)
@@ -2855,7 +2855,7 @@ namespace dirace {
     }
 
     // SUM(s FUN(x T1 0K(T2))) -> 0K(T2)
-    DIRACE_RULE_DEF(R_SUM_CONST1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_CONST1, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0K_T2)
 
         MATCH_HEAD(args_SUM_s_fun_x_T1_0K_T2[1], FUN, args_FUN_x_T1_0K_T2)
@@ -2866,7 +2866,7 @@ namespace dirace {
     }
 
     // SUM(s FUN(x T1 0B(T2))) -> 0B(T2)
-    DIRACE_RULE_DEF(R_SUM_CONST2, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_CONST2, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0B_T2)
 
         MATCH_HEAD(args_SUM_s_fun_x_T1_0B_T2[1], FUN, args_FUN_x_T1_0B_T2)
@@ -2877,7 +2877,7 @@ namespace dirace {
     }
 
     // SUM(s FUN(x T1 0O(T2 T3))) -> 0O(T2 T3)
-    DIRACE_RULE_DEF(R_SUM_CONST3, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_CONST3, kernel, term) {
         MATCH_HEAD(term, SUM, args_SUM_s_fun_x_T1_0O_T2_T3)
 
         MATCH_HEAD(args_SUM_s_fun_x_T1_0O_T2_T3[1], FUN, args_FUN_x_T1_0O_T2_T3)
@@ -2888,7 +2888,7 @@ namespace dirace {
     }
 
     // 1O(T) -> SUM(USET(T) FUN(i T OUTER(KET(i) BRA(i))))
-    DIRACE_RULE_DEF(R_SUM_CONST4, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_CONST4, kernel, term) {
         auto &sig = kernel.get_sig();
 
         MATCH_HEAD(term, ONEO, args_ONEO_T)
@@ -2916,7 +2916,7 @@ namespace dirace {
     }
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... DELTA(i t) ...))) -> SUM(... 1 ...)
-    DIRACE_RULE_DEF(R_SUM_ELIM0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ELIM0, kernel, term) {
 
 
         MATCH_HEAD(term, SUM, args_SUM_USET_T_fun_i_T_SUM_DELTA_i_t)
@@ -2964,7 +2964,7 @@ namespace dirace {
     }
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... MULS(a1 ... DELTA(i t) ... an) ...))) -> SUM(... MULS(a1{i/t} ... an{i/t}) ...)
-    DIRACE_RULE_DEF(R_SUM_ELIM1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ELIM1, kernel, term) {
 
         auto &sig = kernel.get_sig();
 
@@ -3038,7 +3038,7 @@ namespace dirace {
     }
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... SCR(DELTA(i t) A) ...))) -> SUM(... A{i/t} ...)
-    DIRACE_RULE_DEF(R_SUM_ELIM2, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ELIM2, kernel, term) {
 
         auto &sig = kernel.get_sig();
 
@@ -3092,7 +3092,7 @@ namespace dirace {
     }
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... SCR(MULS(a1 ... DELTA(i t) ... an) A) ...))) -> SUM(... SCR(MULS(a1{i/t} ... an{i/t}) A{i/t}) ...)
-    DIRACE_RULE_DEF(R_SUM_ELIM3, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ELIM3, kernel, term) {
 
         auto &sig = kernel.get_sig();
 
@@ -3172,7 +3172,7 @@ namespace dirace {
     }
 
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... DELTA(i j) ...))))) -> SUM(M FUN(j T SUM(... 1 ...)))
-    DIRACE_RULE_DEF(R_SUM_ELIM4, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ELIM4, kernel, term) {
 
         MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j)
 
@@ -3213,7 +3213,7 @@ namespace dirace {
     }
 
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... MULS(a1 ... DELTA(i j) ... an) ...))))) -> SUM(M FUN(j T SUM(... MULS(a1{j/i} ... an{j/i}) ...)))
-    DIRACE_RULE_DEF(R_SUM_ELIM5, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ELIM5, kernel, term) {
 
         auto &sig = kernel.get_sig();
 
@@ -3285,7 +3285,7 @@ namespace dirace {
     }
 
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(DELTA(i j) A) ...))))) -> SUM(M FUN(j T SUM(... A{j/i} ...)))
-    DIRACE_RULE_DEF(R_SUM_ELIM6, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ELIM6, kernel, term) {
 
         auto &sig = kernel.get_sig();
 
@@ -3333,7 +3333,7 @@ namespace dirace {
     }
 
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(MULS(a1 ... DELTA(i j) ... an) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(MULS(a1{j/i} ... an{j/i}) A{j/i}) ...)))
-    DIRACE_RULE_DEF(R_SUM_ELIM7, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ELIM7, kernel, term) {
 
         auto &sig = kernel.get_sig();
 
@@ -3417,7 +3417,7 @@ namespace dirace {
     }
 
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1 ... DELTA(i j) ... an) ... MULS(b1 ... DELTA(i j) ... bn)) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1{j/i} ... an{j/i}) ... MULS(b1{j/i} ... bn{j/i})) A{j/i}) ...)))
-    // DIRACE_RULE_DEF(R_SUM_ELIM8, kernel, term) {
+    // DHAMMER_RULE_DEF(R_SUM_ELIM8, kernel, term) {
         
     //     auto &sig = kernel.get_sig();
 
@@ -3462,7 +3462,7 @@ namespace dirace {
     // }
 
     // MULS(b1 ... SUM(M FUN(i T a)) ... bn) -> SUM(M FUN(i T MULS(b1 ... a ... bn)))
-    DIRACE_RULE_DEF(R_SUM_PUSH0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH0, kernel, term) {
 
 
         MATCH_HEAD(term, MULS, args_MULS_b1_SUM_M_fun_i_T_a_bn)
@@ -3506,7 +3506,7 @@ namespace dirace {
     }
 
     // CONJ(SUM(M FUN(i T a))) -> SUM(M FUN(i T CONJ(a)))
-    DIRACE_RULE_DEF(R_SUM_PUSH1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH1, kernel, term) {
 
 
         MATCH_HEAD(term, CONJ, args_CONJ_SUM_M_fun_i_T_a)
@@ -3530,7 +3530,7 @@ namespace dirace {
     }
 
     // ADJ(SUM(M FUN(i T X))) -> SUM(M FUN(i T ADJ(X)))
-    DIRACE_RULE_DEF(R_SUM_PUSH2, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH2, kernel, term) {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_SUM_M_fun_i_T_X)
@@ -3554,7 +3554,7 @@ namespace dirace {
     }
 
     // SCR(a SUM(M FUN(i T X))) -> SUM(M FUN(i T SCR(a X)))
-    DIRACE_RULE_DEF(R_SUM_PUSH3, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH3, kernel, term) {
 
 
         MATCH_HEAD(term, SCR, args_SCR_a_SUM_M_fun_i_T_X)
@@ -3578,7 +3578,7 @@ namespace dirace {
     }
 
     // SCR(SUM(M FUN(i T a)) X) -> SUM(M FUN(i T SCR(a X)))
-    DIRACE_RULE_DEF(R_SUM_PUSH4, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH4, kernel, term) {
 
 
         MATCH_HEAD(term, SCR, args_SCR_SUM_M_fun_i_T_a_X)
@@ -3603,7 +3603,7 @@ namespace dirace {
 
 
     // DOT(SUM(M FUN(i T B)) K) -> SUM(M FUN(i T DOT(B K)))
-    DIRACE_RULE_DEF(R_SUM_PUSH5, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH5, kernel, term) {
 
 
         MATCH_HEAD(term, DOT, args_DOT_SUM_M_fun_i_T_B_K)
@@ -3627,7 +3627,7 @@ namespace dirace {
     }
 
     // MULK(SUM(M FUN(i T O)) K) -> SUM(M FUN(i T MULK(O K)))
-    DIRACE_RULE_DEF(R_SUM_PUSH6, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH6, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_SUM_M_fun_i_T_O_K)
@@ -3651,7 +3651,7 @@ namespace dirace {
     }
 
     // MULB(SUM(M FUN(i T B)) O) -> SUM(M FUN(i T MULB(B O)))
-    DIRACE_RULE_DEF(R_SUM_PUSH7, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH7, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_SUM_M_fun_i_T_B_O)
@@ -3675,7 +3675,7 @@ namespace dirace {
     }
     
     // OUTER(SUM(M FUN(i T K)) B) -> SUM(M FUN(i T OUTER(K B)))
-    DIRACE_RULE_DEF(R_SUM_PUSH8, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH8, kernel, term) {
 
 
         MATCH_HEAD(term, OUTER, args_OUTER_SUM_M_fun_i_T_K_B)
@@ -3699,7 +3699,7 @@ namespace dirace {
     }
     
     // MULO(SUM(M FUN(i T O1)) O2) -> SUM(M FUN(i T MULO(O1 O2)))
-    DIRACE_RULE_DEF(R_SUM_PUSH9, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH9, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_SUM_M_fun_i_T_O1_O2)
@@ -3724,7 +3724,7 @@ namespace dirace {
 
 
     // DOT(B SUM(M FUN(i T K))) -> SUM(M FUN(i T DOT(B K)))
-    DIRACE_RULE_DEF(R_SUM_PUSH10, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH10, kernel, term) {
 
 
         MATCH_HEAD(term, DOT, args_DOT_B_SUM_M_fun_i_T_K)
@@ -3748,7 +3748,7 @@ namespace dirace {
     }
 
     // MULK(O SUM(M FUN(i T K))) -> SUM(M FUN(i T MULK(O K)))
-    DIRACE_RULE_DEF(R_SUM_PUSH11, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH11, kernel, term) {
 
 
         MATCH_HEAD(term, MULK, args_MULK_O_SUM_M_fun_i_T_K)
@@ -3772,7 +3772,7 @@ namespace dirace {
     }
 
     // MULB(B SUM(M FUN(i T O))) -> SUM(M FUN(i T MULB(B O)))
-    DIRACE_RULE_DEF(R_SUM_PUSH12, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH12, kernel, term) {
 
 
         MATCH_HEAD(term, MULB, args_MULB_B_SUM_M_fun_i_T_O)
@@ -3796,7 +3796,7 @@ namespace dirace {
     }
 
     // OUTER(K SUM(M FUN(i T B))) -> SUM(M FUN(i T OUTER(K B)))
-    DIRACE_RULE_DEF(R_SUM_PUSH13, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH13, kernel, term) {
 
 
         MATCH_HEAD(term, OUTER, args_OUTER_K_SUM_M_fun_i_T_B)
@@ -3820,7 +3820,7 @@ namespace dirace {
     }
 
     // MULO(O1 SUM(M FUN(i T O2)) -> SUM(M FUN(i T MULO(O1 O2)))
-    DIRACE_RULE_DEF(R_SUM_PUSH14, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH14, kernel, term) {
 
 
         MATCH_HEAD(term, MULO, args_MULO_O1_SUM_M_fun_i_T_O2)
@@ -3845,7 +3845,7 @@ namespace dirace {
 
 
     // TSR(SUM(M FUN(i T X)) Y) -> SUM(M FUN(i T TSR(X Y)))
-    DIRACE_RULE_DEF(R_SUM_PUSH15, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH15, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_SUM_M_fun_i_T_X_Y)
@@ -3869,7 +3869,7 @@ namespace dirace {
     }
 
     // TSR(X SUM(M FUN(i T Y))) -> SUM(M FUN(i T TSR(X Y)))
-    DIRACE_RULE_DEF(R_SUM_PUSH16, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSH16, kernel, term) {
 
 
         MATCH_HEAD(term, TSR, args_TSR_X_SUM_M_fun_i_T_Y)
@@ -3894,7 +3894,7 @@ namespace dirace {
 
 
     // SUM(M FUN(i T ADDS(a1 ... an))) -> ADDS(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
-    DIRACE_RULE_DEF(R_SUM_ADDS0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ADDS0, kernel, term) {
         auto &sig = kernel.get_sig();
 
         MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_ADDS_a1_an)
@@ -3925,7 +3925,7 @@ namespace dirace {
 
 
     // SUM(M FUN(i T MULS(b1 ... ADDS(a1 ... an) .. bm))) -> ADDS(SUM(M FUN(i T MULS(b1 ... a1 ... bm))) ... SUM(M FUN(i T MULS(b1 ... an ... bm))))
-    DIRACE_RULE_DEF(R_SUM_ADDS1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ADDS1, kernel, term) {
         auto &sig = kernel.get_sig();
 
         MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_MULS_b1_ADDS_a1_an_bm)
@@ -3968,7 +3968,7 @@ namespace dirace {
 
 
     // SUM(M FUN(i T ADD(a1 ... an))) -> ADD(SUM(M FUN(i T a1)) ... SUM(M FUN(i T an)))
-    DIRACE_RULE_DEF(R_SUM_ADD0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ADD0, kernel, term) {
         auto &sig = kernel.get_sig();
 
         MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_ADD_a1_an)
@@ -4000,7 +4000,7 @@ namespace dirace {
 
 
     // SUM(M FUN(i T SCR(ADDS(a1 ... an) X))) -> ADD(SUM(M FUN(i T SCR(a1 X))) ... SUM(M FUN(i T SCR(an X)))
-    DIRACE_RULE_DEF(R_SUM_ADD1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_ADD1, kernel, term) {
         auto &sig = kernel.get_sig();
 
         MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X)
@@ -4033,7 +4033,7 @@ namespace dirace {
     }
 
     // SUM(USET(PROD(T1 T2)) FUN(i BASIS(PROD(T1 T2)) X)) -> SUM(USET(T1) FUN(j BASIS(T1) SUM(USET(T2) FUN(k BASIS(T2) X{i/PAIR(j k)}))))
-    DIRACE_RULE_DEF(R_SUM_INDEX0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_INDEX0, kernel, term) {
         auto &sig = kernel.get_sig();
 
         MATCH_HEAD(term, SUM, args_SUM_USET_Prod_T1_T2_fun_i_Prod_T1_T2_X)
@@ -4079,7 +4079,7 @@ namespace dirace {
 
 
     // SUM(CATPROD(M1 M2) FUN(i BASIS(PROD(T1 T2)) X)) -> SUM(M1 FUN(j BASIS(T1) SUM(M2 FUN(k BASIS(T2) X{i/PAIR(j k)})))
-    DIRACE_RULE_DEF(R_SUM_INDEX1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_INDEX1, kernel, term) {
         auto &sig = kernel.get_sig();
 
         MATCH_HEAD(term, SUM, args_SUM_CATPROD_M1_M2_fun_i_Prod_T1_T2_X)
@@ -4180,7 +4180,7 @@ namespace dirace {
         }
     }
 
-    DIRACE_RULE_DEF(R_SUM_FACTOR, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_FACTOR, kernel, term) {
         auto head = term->get_head();
         auto args = term->get_args();
         if (head != ADD && head != ADDS) return std::nullopt;
@@ -4207,7 +4207,7 @@ namespace dirace {
 
 
     // DELTA(BASIS0 BASIS1) -> 0
-    DIRACE_RULE_DEF(R_BIT_DELTA, kernel, term) {
+    DHAMMER_RULE_DEF(R_BIT_DELTA, kernel, term) {
 
         MATCH_HEAD(term, DELTA, args_DELTA_BASIS0_BASIS1)
 
@@ -4220,7 +4220,7 @@ namespace dirace {
     }
 
     // ONEO(BIT) -> ADD(OUTER(KET(#0) BRA(#0)) OUTER(KET(#1) BRA(#1))
-    DIRACE_RULE_DEF(R_BIT_ONEO, kernel, term) {
+    DHAMMER_RULE_DEF(R_BIT_ONEO, kernel, term) {
 
         MATCH_HEAD(term, ONEO, args_ONEO_BIT)
 
@@ -4235,7 +4235,7 @@ namespace dirace {
     }
 
     // SUM(USET(BIT) FUN(i BASIS(BIT) X)) -> ADD(X{i/#0} X{i/#1}) / ADDS(X{i/#0} X{i/#1})
-    DIRACE_RULE_DEF(R_BIT_SUM, kernel, term) {
+    DHAMMER_RULE_DEF(R_BIT_SUM, kernel, term) {
         auto &sig = kernel.get_sig();
 
         MATCH_HEAD(term, SUM, args_SUM_USET_BIT_FUN_i_BASIS_BIT_X)
@@ -4292,7 +4292,7 @@ namespace dirace {
     }
 
     // O : OTYPE[T1, T2] => O_r -> O_r;r
-    DIRACE_RULE_DEF(R_OPT_SUBS, kernel, term) {
+    DHAMMER_RULE_DEF(R_OPT_SUBS, kernel, term) {
         MATCH_HEAD(term, SUBS, args_SUBS_O_r)
         
         if (args_SUBS_O_r.size() != 2) return std::nullopt;
@@ -4304,7 +4304,7 @@ namespace dirace {
         return create_term(SUBS, {args_SUBS_O_r[0], args_SUBS_O_r[1], args_SUBS_O_r[1]});
     }
 
-    DIRACE_RULE_DEF(R_DTYPE_SCALAR, kernel, term) {
+    DHAMMER_RULE_DEF(R_DTYPE_SCALAR, kernel, term) {
         MATCH_HEAD(term, DTYPE, args_DTYPE_rset1_rset2)
 
         auto rset1 = args_DTYPE_rset1_rset2[0];
@@ -4317,7 +4317,7 @@ namespace dirace {
         return std::nullopt;
     }
 
-    DIRACE_RULE_DEF(R_ADD_REDUCE, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADD_REDUCE, kernel, term) {
         MATCH_HEAD(term, ADD, args_ADD_terms)
         
         // check the type of the first argument
@@ -4328,7 +4328,7 @@ namespace dirace {
         return create_term(ADDS, args_ADD_terms);
     }
 
-    DIRACE_RULE_DEF(R_SCR_REDUCE, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCR_REDUCE, kernel, term) {
         MATCH_HEAD(term, SCR, args_SCR_a_A)
 
         auto type = kernel.calc_type(args_SCR_a_A[1]);
@@ -4338,7 +4338,7 @@ namespace dirace {
         return create_term(MULS, {args_SCR_a_A[0], args_SCR_a_A[1]});
     }
 
-    DIRACE_RULE_DEF(R_ADJ_REDUCE, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJ_REDUCE, kernel, term) {
         MATCH_HEAD(term, ADJ, args_ADJ_A)
 
         auto type = kernel.calc_type(args_ADJ_A[0]);
@@ -4349,7 +4349,7 @@ namespace dirace {
     }
 
 
-    DIRACE_RULE_DEF(R_LDOT_REDUCE, kernel, term) {
+    DHAMMER_RULE_DEF(R_LDOT_REDUCE, kernel, term) {
         MATCH_HEAD(term, LDOT, args_LDOT_LKET_LBRA)
 
         auto type1 = kernel.calc_type(args_LDOT_LKET_LBRA[0]);
@@ -4366,7 +4366,7 @@ namespace dirace {
         }
     }
 
-    DIRACE_RULE_DEF(R_LTSR_REDUCE, kernel, term) {
+    DHAMMER_RULE_DEF(R_LTSR_REDUCE, kernel, term) {
         MATCH_HEAD(term, LTSR, args_LTSR_terms)
 
         if (args_LTSR_terms.size() < 2) return std::nullopt;
@@ -4388,7 +4388,7 @@ namespace dirace {
     }
 
 
-    DIRACE_RULE_DEF(R_LABEL_EXPAND, kernel, term) {
+    DHAMMER_RULE_DEF(R_LABEL_EXPAND, kernel, term) {
         MATCH_HEAD(term, SUBS, args_SUBS_term_reg)
 
         auto type = kernel.calc_type(term);
@@ -4512,7 +4512,7 @@ namespace dirace {
     }
 
     // ADJ[LBRA[i, r]] -> LKET[i, r]
-    DIRACE_RULE_DEF(R_ADJDK, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJDK, kernel, term) {
 
         MATCH_HEAD(term, ADJ, args_ADJ_LBRA_i_r)
 
@@ -4522,7 +4522,7 @@ namespace dirace {
     }
 
     // ADJ[LKET[i, r]] -> LBRA[i, r]
-    DIRACE_RULE_DEF(R_ADJDB, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJDB, kernel, term) {
         
         MATCH_HEAD(term, ADJ, args_ADJ_LKET_i_r)
 
@@ -4532,7 +4532,7 @@ namespace dirace {
     }
 
     // ADJ(LTSR(D1 D2 ... Dn)) -> LTSR(ADJ(Dn) ... ADJ(D2) ADJ(D1))
-    DIRACE_RULE_DEF(R_ADJD0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJD0, kernel, term) {
 
         MATCH_HEAD(term, ADJ, args_ADJ_LTSR_D1_D2_Dn)
 
@@ -4547,7 +4547,7 @@ namespace dirace {
     }
 
     // ADJ(LDOT(D1 D2)) -> LDOT(ADJ(D2) ADJ(D1))
-    DIRACE_RULE_DEF(R_ADJD1, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADJD1, kernel, term) {
 
         MATCH_HEAD(term, ADJ, args_ADJ_LDOT_D1_D2)
 
@@ -4562,7 +4562,7 @@ namespace dirace {
     }
 
     // LTSR(D1 ... SCR(a Dn) ... Dm) -> SCR(a LTSR(D1 ... Dn ... Dm))
-    DIRACE_RULE_DEF(R_SCRD0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRD0, kernel, term) {
 
         MATCH_HEAD(term, LTSR, args_LTSR_D1_SCR_a_Dn_Dm)
 
@@ -4590,7 +4590,7 @@ namespace dirace {
     }
 
     // LDOT(SCR(a D1) D2) -> SCR(a LDOT(D1 D2))
-    DIRACE_RULE_DEF(R_SCRD1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRD1, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_SCR_a_D1_D2)
 
@@ -4605,7 +4605,7 @@ namespace dirace {
     }
 
     // LDOT(D1 SCR(a D2)) -> SCR(a LDOT(D1 D2))
-    DIRACE_RULE_DEF(R_SCRD2, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRD2, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_D1_SCR_a_D2)
 
@@ -4619,7 +4619,7 @@ namespace dirace {
         );
     }
     // D : DTYPE[s1, s2] => SCR[0, D] -> 0D[s1, s2]
-    DIRACE_RULE_DEF(R_SCRD3, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRD3, kernel, term) {
         MATCH_HEAD(term, SCR, args_SCR_0_D)
 
         MATCH_HEAD(args_SCR_0_D[0], ZERO, args_ZERO)
@@ -4634,7 +4634,7 @@ namespace dirace {
     }
 
     // SCR[a, 0D[s1, s2]] -> 0D[s1, s2]
-    DIRACE_RULE_DEF(R_SCRD4, kernel, term) {
+    DHAMMER_RULE_DEF(R_SCRD4, kernel, term) {
         MATCH_HEAD(term, SCR, args_SCR_a_0D_s1_s2)
 
         if (args_SCR_a_0D_s1_s2[1]->get_head() != ZEROD) return std::nullopt;
@@ -4643,7 +4643,7 @@ namespace dirace {
     }
 
     // ADD[D1 ... 0D[s1, s2] ... Dn] -> ADD[D1 ... Dn]
-    DIRACE_RULE_DEF(R_ADDD0, kernel, term) {
+    DHAMMER_RULE_DEF(R_ADDD0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_D1_0D_s1_s2_Dn)
         
@@ -4664,7 +4664,7 @@ namespace dirace {
     }
 
     // LTSR(X1 ... ADD(D1 ... Dn) ... Xm) -> ADD(LTSR(X1 ... D1 ... Xm) ... LTSR(X1 ... Dn ... Xm))
-    DIRACE_RULE_DEF(R_TSRD0, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRD0, kernel, term) {
 
         MATCH_HEAD(term, LTSR, args_LTSR_X1_ADD_D1_Dn_Xm)
 
@@ -4693,7 +4693,7 @@ namespace dirace {
     }
 
     // LTSR[X] -> X
-    DIRACE_RULE_DEF(R_TSRD1, kernel, term) {
+    DHAMMER_RULE_DEF(R_TSRD1, kernel, term) {
         MATCH_HEAD(term, LTSR, args_LTSR_X)
 
         if (args_LTSR_X.size() != 1) return std::nullopt;
@@ -4702,7 +4702,7 @@ namespace dirace {
     }
 
     // LDOT(ADD(X1 ... Xn) Y) -> ADD(LDOT(X1 Y) ... LDOT(Xn Y))
-    DIRACE_RULE_DEF(R_DOTD0, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOTD0, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_ADD_X1_Xn_Y)
 
@@ -4717,7 +4717,7 @@ namespace dirace {
     }
 
     // LDOT(Y ADD(X1 ... Xn)) -> ADD(LDOT(Y X1) ... LDOT(Y Xn))
-    DIRACE_RULE_DEF(R_DOTD1, kernel, term) {
+    DHAMMER_RULE_DEF(R_DOTD1, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_Y_ADD_X1_Xn)
 
@@ -4732,7 +4732,7 @@ namespace dirace {
     }
 
     // LTSR(X1 ... SUM(M FUN(i T Y)) ... Xn) -> SUM(M FUN(i T LTSR(X1 ... Y ... Xn)))
-    DIRACE_RULE_DEF(R_SUM_PUSHD0, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSHD0, kernel, term) {
 
         MATCH_HEAD(term, LTSR, args_LTSR_X1_SUM_M_fun_i_T_Y_Xn)
 
@@ -4775,7 +4775,7 @@ namespace dirace {
 
 
     // LDOT(SUM(M FUN(i T Y)) X) -> SUM(M FUN(i T LDOT(Y X)))
-    DIRACE_RULE_DEF(R_SUM_PUSHD1, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSHD1, kernel, term) {
 
         MATCH_HEAD(term, LDOT, args_LDOT_SUM_M_fun_i_T_Y_X)
 
@@ -4798,7 +4798,7 @@ namespace dirace {
     }
 
     // LDOT(Y SUM(M FUN(i T X)) -> SUM(M FUN(i T LDOT(Y X)))
-    DIRACE_RULE_DEF(R_SUM_PUSHD2, kernel, term) {
+    DHAMMER_RULE_DEF(R_SUM_PUSHD2, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_Y_SUM_M_fun_i_T_X)
 
@@ -4821,7 +4821,7 @@ namespace dirace {
     }
 
     // A : DTYPE[s1, s2], B : DTYPE[s3, s4], s2 || s3 => LDOT(A B) -> LTSR(A B)
-    DIRACE_RULE_DEF(R_L_SORT0, kernel, term) {
+    DHAMMER_RULE_DEF(R_L_SORT0, kernel, term) {
 
         MATCH_HEAD(term, LDOT, args_LDOT_A_B)
 
@@ -4839,7 +4839,7 @@ namespace dirace {
     }
 
     // LDOT(LBRA(i, r), LKET(j, r)) -> DELTA(i j)
-    DIRACE_RULE_DEF(R_L_SORT1, kernel, term) {
+    DHAMMER_RULE_DEF(R_L_SORT1, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_LBRA_i_r_LKET_j_r)
 
@@ -4854,7 +4854,7 @@ namespace dirace {
     }
 
     // LDOT(LBRA(i, r), LTSR(Y1 ... LKET(j, r) ... Yn)) -> SCR(DELTA(i j) LTSR(Y1 ... Yn))
-    DIRACE_RULE_DEF(R_L_SORT2, kernel, term) {
+    DHAMMER_RULE_DEF(R_L_SORT2, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_LBRA_i_r_LTSR_Y1_LKET_j_r_Yn)
 
@@ -4885,7 +4885,7 @@ namespace dirace {
     }
 
     // LDOT(LTSR(X1 ... LBRA(i, r) ... Xn), LKET(j, r)) -> SCR(DELTA(i j) LTSR(X1 ... Xn))
-    DIRACE_RULE_DEF(R_L_SORT3, kernel, term) {
+    DHAMMER_RULE_DEF(R_L_SORT3, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_LTSR_X1_LBRA_i_r_Xn_LKET_j_r)
 
@@ -4917,7 +4917,7 @@ namespace dirace {
     }
 
     // LDOT(LTSR(X1 ... LBRA(i, r) ... Xn), LTSR(Y1 ... LKET(j, r) ... Yn)) -> SCR(DELTA(i j) LDOT(LTSR(X1 ... Xn) LTSR(Y1 ... Yn)))
-    DIRACE_RULE_DEF(R_L_SORT4, kernel, term) {
+    DHAMMER_RULE_DEF(R_L_SORT4, kernel, term) {
         
         MATCH_HEAD(term, LDOT, args_LDOT_LTSR_X1_LBRA_i_r_Xn_LTSR_Y1_LKET_j_r_Yn)
 
@@ -5150,4 +5150,4 @@ namespace dirace {
         R_L_SORT0, R_L_SORT1, R_L_SORT2, R_L_SORT3, R_L_SORT4
     };
 
-} // namespace dirace
+} // namespace dhammer

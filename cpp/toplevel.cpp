@@ -1,11 +1,11 @@
 
 #include "ualg.hpp"
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
 
 using namespace ualg;
 using namespace std;
-using namespace dirace;
+using namespace dhammer;
 
 #include <csignal>
 
@@ -20,7 +20,7 @@ int main(int argc, const char **argv) {
     // Register signal handler
     signal(SIGINT, signalHandler);
 
-    cout << "< Dirace Prover top level built by Yingte Xu." << endl;
+    cout << "< D-Hammer Prover top level built by Yingte Xu." << endl;
 
     auto [formatted_argc, formatted_argv] = wstp::args_format(argc, argv);
 

@@ -4,7 +4,7 @@
 #include <string>
 #include <set>
 
-namespace dirace {
+namespace dhammer {
 
     template <class T>
     inline ualg::TermPtr<T> create_term(const T& head) {
@@ -18,12 +18,12 @@ namespace dirace {
 
     extern const int deBruijn_index_num;
 
-    extern std::vector<std::string> dirace_symbols;
+    extern std::vector<std::string> dhammer_symbols;
 
-    extern const ualg::Signature<int> dirace_sig;
+    extern const ualg::Signature<int> dhammer_sig;
 
     inline bool is_reserved(int symbol) {
-        return dirace_sig.find_name(symbol) != std::nullopt;
+        return dhammer_sig.find_name(symbol) != std::nullopt;
     }
 
     // the symbol for preprocessing
@@ -49,4 +49,4 @@ namespace dirace {
     extern const std::set<int> a_symbols;
     extern const std::set<int> c_symbols;
     
-} // namespace dirace
+} // namespace dhammer

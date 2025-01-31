@@ -17,7 +17,7 @@ target_link_libraries(
     PUBLIC 
         DEPENDENCIES 
         UALG
-        DIRACE
+        DHAMMER
         EXAMPLES
 )
 
@@ -38,7 +38,7 @@ target_link_libraries(
     PUBLIC
         DEPENDENCIES
         UALG
-        DIRACE
+        DHAMMER
 )
 
 

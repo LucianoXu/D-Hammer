@@ -8,7 +8,7 @@
 #include "calculus.hpp"
 #include "trace.hpp"
 
-namespace dirace {
+namespace dhammer {
     
     class Prover {
     protected:
@@ -80,4 +80,4 @@ namespace dirace {
      */
     Prover std_prover(WSLINK wstp_link = nullptr);
 
-} // namespace dirace
+} // namespace dhammer

@@ -1,30 +1,30 @@
 #include <gtest/gtest.h>
 
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace dirace;
+using namespace dhammer;
 
 
-TEST(DiraceSyntaxTheory, FreeIn1) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, FreeIn1) {
+    auto sig = dhammer_sig;
 
     auto term = sig.parse("APPLY[x, y]");
     auto var = sig.parse("x")->get_head();
     EXPECT_FALSE(free_in(term, var));
 }
 
-TEST(DiraceSyntaxTheory, FreeIn2) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, FreeIn2) {
+    auto sig = dhammer_sig;
 
     auto term = sig.parse("APPLY[x, y]");
     auto var = sig.parse("z")->get_head();
     EXPECT_TRUE(free_in(term, var));
 }
 
-TEST(DiraceSyntaxTheory, FreeIn3) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, FreeIn3) {
+    auto sig = dhammer_sig;
 
     auto term = sig.parse("FUN[x, T, APPLY[x, y]]");
     auto var = sig.parse("x")->get_head();
@@ -32,16 +32,16 @@ TEST(DiraceSyntaxTheory, FreeIn3) {
 }
 
 
-TEST(DiraceSyntaxTheory, FreeIn4) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, FreeIn4) {
+    auto sig = dhammer_sig;
 
     auto term = sig.parse("FUN[x, KTYPE[x], APPLY[x, y]]");
     auto var = sig.parse("x")->get_head();
     EXPECT_FALSE(free_in(term, var));
 }
 
-TEST(DiraceSyntaxTheory, Substitution1) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, Substitution1) {
+    auto sig = dhammer_sig;
 
     auto initial_term = sig.parse("IDX[x, T]]");
     auto var = sig.parse("x")->get_head();
@@ -52,8 +52,8 @@ TEST(DiraceSyntaxTheory, Substitution1) {
     EXPECT_EQ(*actual_res, *expected_res);
 }
 
-TEST(DiraceSyntaxTheory, Substitution2) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, Substitution2) {
+    auto sig = dhammer_sig;
 
     auto initial_term = sig.parse("IDX[x, T]]");
     auto var = sig.parse("T")->get_head();
@@ -64,8 +64,8 @@ TEST(DiraceSyntaxTheory, Substitution2) {
     EXPECT_EQ(*actual_res, *expected_res);
 }
 
-TEST(DiraceSyntaxTheory, Substitution3) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, Substitution3) {
+    auto sig = dhammer_sig;
 
     auto initial_term = sig.parse("FUN[x, KTYPE[x], APPLY[x, y]]");
     auto var = sig.parse("x")->get_head();
@@ -76,8 +76,8 @@ TEST(DiraceSyntaxTheory, Substitution3) {
     EXPECT_EQ(*actual_res, *expected_res);
 }
 
-TEST(DiraceSyntaxTheory, to_deBruijn1) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, to_deBruijn1) {
+    auto sig = dhammer_sig;
 
     auto term = sig.parse("FUN[x, KTYPE[x], APPLY[x, y]]");
     auto actual_res = to_deBruijn(sig, term);
@@ -86,8 +86,8 @@ TEST(DiraceSyntaxTheory, to_deBruijn1) {
     EXPECT_EQ(*actual_res, *expected_res);
 }
 
-TEST(DiraceSyntaxTheory, to_deBruijn2) {
-    auto sig = dirace_sig;
+TEST(dhammerSyntaxTheory, to_deBruijn2) {
+    auto sig = dhammer_sig;
 
     auto term = sig.parse("FUN[x, KTYPE[x], APPLY[x, FUN[y, T, APPLY[y, x]]]]");
     auto actual_res = to_deBruijn(sig, term);

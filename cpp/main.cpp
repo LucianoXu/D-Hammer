@@ -1,20 +1,20 @@
 
 
 #include "ualg.hpp"
-#include "dirace.hpp"
+#include "dhammer.hpp"
 #include "examples.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace dirace;
+using namespace dhammer;
 
 int main(int argc, const char ** argv) {
 
 
-    auto res = examples::timing_examples(examples::labelled_eq_examples);
+    auto res = examples::timing_examples(examples::CoqQ_examples);
 
     // output to a csv file
-    ofstream file("timing.csv");
+    ofstream file("newtiming.csv");
     for (auto [name, time] : res) {
         file << name << ", " << time << endl;
     }
@@ -22,7 +22,7 @@ int main(int argc, const char ** argv) {
     exit(0);
 
 
-    cout << "< Dirace Prover top level built by Yingte Xu." << endl;
+    cout << "< D-Hammer Prover top level built by Yingte Xu." << endl;
 
     // use the Wolfram Engine on MacOS
     auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);

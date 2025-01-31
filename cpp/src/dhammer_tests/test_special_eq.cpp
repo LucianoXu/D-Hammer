@@ -1,18 +1,18 @@
 #include <gtest/gtest.h>
 
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
 using namespace ualg;
 using namespace std;
-using namespace dirace;
+using namespace dhammer;
 
-TEST(DiraceSpecialEq, Delta) {
+TEST(dhammerSpecialEq, Delta) {
     Prover prover;
     prover.process("Var T : INDEX. Var a : BASIS[T]. Var b : BASIS[T].");
     EXPECT_TRUE(prover.check_eq("DELTA[a, b]", "DELTA[b, a]"));
 }
 
-TEST(DiraceSpecialEq, SUM_SWAP) {
+TEST(dhammerSpecialEq, SUM_SWAP) {
     Prover prover;
 
     prover.process(
@@ -27,7 +27,7 @@ TEST(DiraceSpecialEq, SUM_SWAP) {
     ));
 }
 
-TEST(DiraceSpecialEq, RSET) {
+TEST(dhammerSpecialEq, RSET) {
     Kernel kernel;
 
     EXPECT_TRUE(is_eq_modulo_rset(kernel.parse("RSET[1, 2, 3]"), kernel.parse("RSET[3, 2, 1]")));

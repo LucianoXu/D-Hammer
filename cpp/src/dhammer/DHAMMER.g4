@@ -1,4 +1,4 @@
-grammar DIRACE;
+grammar DHAMMER;
 
 
 // Lexer rule for multi-line comments

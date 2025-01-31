@@ -1,6 +1,6 @@
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
-namespace dirace {
+namespace dhammer {
     using namespace std;
     using namespace ualg;
 
@@ -528,4 +528,4 @@ namespace dirace {
         return res;
     }
 
-} // namespace dirace
+} // namespace dhammer

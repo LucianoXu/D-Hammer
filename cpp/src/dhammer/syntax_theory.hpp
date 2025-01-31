@@ -2,7 +2,7 @@
 #include "symbols.hpp"
 #include "ualg.hpp"
 
-namespace dirace {
+namespace dhammer {
     inline bool free_in(ualg::TermPtr<int> term, int var) {
         auto head = term->get_head();
         if (head == var) {
@@ -115,4 +115,4 @@ namespace dirace {
         return is_eq_modulo_rset(to_deBruijn(sig, termA), to_deBruijn(sig, termB));
     }
 
-} // namespace dirace
+} // namespace dhammer

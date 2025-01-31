@@ -1,77 +1,77 @@
-#include "dirace.hpp"
+#include "dhammer.hpp"
 
-namespace dirace {
+namespace dhammer {
     using namespace std;
     using namespace ualg;
     using namespace astparser;
 
 
-    class DIRACEBuilder : public DIRACEBaseListener {
+    class DHAMMERBuilder : public DHAMMERBaseListener {
     public:
-        DIRACEBuilder();
+        DHAMMERBuilder();
 
         AST get_root();
 
         // expr
-        void exitCmdSeq(DIRACEParser::CmdSeqContext *ctx) override;
-        void exitFromTerm(DIRACEParser::FromTermContext *ctx) override;
+        void exitCmdSeq(DHAMMERParser::CmdSeqContext *ctx) override;
+        void exitFromTerm(DHAMMERParser::FromTermContext *ctx) override;
 
         // cmd
-        void exitDefinition0(DIRACEParser::Definition0Context *ctx) override;
-        void exitDefinition1(DIRACEParser::Definition1Context *ctx) override;
-        void exitAssum(DIRACEParser::AssumContext *ctx) override;
-        void exitCheck(DIRACEParser::CheckContext *ctx) override;
-        void exitShow(DIRACEParser::ShowContext *ctx) override;
-        void exitShowAll(DIRACEParser::ShowAllContext *ctx) override;
-        void exitNormalize(DIRACEParser::NormalizeContext *ctx) override;
-        void exitNormalizeTraced(DIRACEParser::NormalizeTracedContext *ctx) override;
-        void exitCheckEq(DIRACEParser::CheckEqContext *ctx) override;
+        void exitDefinition0(DHAMMERParser::Definition0Context *ctx) override;
+        void exitDefinition1(DHAMMERParser::Definition1Context *ctx) override;
+        void exitAssum(DHAMMERParser::AssumContext *ctx) override;
+        void exitCheck(DHAMMERParser::CheckContext *ctx) override;
+        void exitShow(DHAMMERParser::ShowContext *ctx) override;
+        void exitShowAll(DHAMMERParser::ShowAllContext *ctx) override;
+        void exitNormalize(DHAMMERParser::NormalizeContext *ctx) override;
+        void exitNormalizeTraced(DHAMMERParser::NormalizeTracedContext *ctx) override;
+        void exitCheckEq(DHAMMERParser::CheckEqContext *ctx) override;
 
         // term
-        void exitBra(DIRACEParser::BraContext *ctx) override;
-        void exitKet(DIRACEParser::KetContext *ctx) override;
-        void exitDelta(DIRACEParser::DeltaContext *ctx) override;
-        void exitPair(DIRACEParser::PairContext *ctx) override;
-        void exitAdj(DIRACEParser::AdjContext *ctx) override;
-        void exitConj(DIRACEParser::ConjContext *ctx) override;
-        void exitScr(DIRACEParser::ScrContext *ctx) override;
-        void exitCompo(DIRACEParser::CompoContext *ctx) override;
-        void exitStar(DIRACEParser::StarContext *ctx) override;
-        void exitAdd(DIRACEParser::AddContext *ctx) override;
-        void exitArrow(DIRACEParser::ArrowContext *ctx) override;
-        void exitSum(DIRACEParser::SumContext *ctx) override;
-        void exitIdx(DIRACEParser::IdxContext *ctx) override;
-        void exitFun(DIRACEParser::FunContext *ctx) override;
-        void exitForall(DIRACEParser::ForallContext *ctx) override;
+        void exitBra(DHAMMERParser::BraContext *ctx) override;
+        void exitKet(DHAMMERParser::KetContext *ctx) override;
+        void exitDelta(DHAMMERParser::DeltaContext *ctx) override;
+        void exitPair(DHAMMERParser::PairContext *ctx) override;
+        void exitAdj(DHAMMERParser::AdjContext *ctx) override;
+        void exitConj(DHAMMERParser::ConjContext *ctx) override;
+        void exitScr(DHAMMERParser::ScrContext *ctx) override;
+        void exitCompo(DHAMMERParser::CompoContext *ctx) override;
+        void exitStar(DHAMMERParser::StarContext *ctx) override;
+        void exitAdd(DHAMMERParser::AddContext *ctx) override;
+        void exitArrow(DHAMMERParser::ArrowContext *ctx) override;
+        void exitSum(DHAMMERParser::SumContext *ctx) override;
+        void exitIdx(DHAMMERParser::IdxContext *ctx) override;
+        void exitFun(DHAMMERParser::FunContext *ctx) override;
+        void exitForall(DHAMMERParser::ForallContext *ctx) override;
 
-        void exitZeroK(DIRACEParser::ZeroKContext *ctx) override;
-        void exitZeroB(DIRACEParser::ZeroBContext *ctx) override;
-        void exitZeroO(DIRACEParser::ZeroOContext *ctx) override;
-        void exitZeroD(DIRACEParser::ZeroDContext *ctx) override;
-        void exitOneO(DIRACEParser::OneOContext *ctx) override;
+        void exitZeroK(DHAMMERParser::ZeroKContext *ctx) override;
+        void exitZeroB(DHAMMERParser::ZeroBContext *ctx) override;
+        void exitZeroO(DHAMMERParser::ZeroOContext *ctx) override;
+        void exitZeroD(DHAMMERParser::ZeroDContext *ctx) override;
+        void exitOneO(DHAMMERParser::OneOContext *ctx) override;
 
-        void exitSubscript1(DIRACEParser::Subscript1Context *ctx) override;
-        void exitSubscript2(DIRACEParser::Subscript2Context *ctx) override;
+        void exitSubscript1(DHAMMERParser::Subscript1Context *ctx) override;
+        void exitSubscript2(DHAMMERParser::Subscript2Context *ctx) override;
 
-        void exitBasis0(DIRACEParser::Basis0Context *ctx) override;
-        void exitBasis1(DIRACEParser::Basis1Context *ctx) override;
+        void exitBasis0(DHAMMERParser::Basis0Context *ctx) override;
+        void exitBasis1(DHAMMERParser::Basis1Context *ctx) override;
 
-        void exitRSet(DIRACEParser::RSetContext *ctx) override;
-        void exitEmptyRSet(DIRACEParser::EmptyRSetContext *ctx) override;
+        void exitRSet(DHAMMERParser::RSetContext *ctx) override;
+        void exitEmptyRSet(DHAMMERParser::EmptyRSetContext *ctx) override;
 
-        void exitEmptyApplication(DIRACEParser::EmptyApplicationContext *ctx) override;
-        void exitApplication(DIRACEParser::ApplicationContext *ctx) override;
-        void exitParen(DIRACEParser::ParenContext *ctx) override;
-        void exitIdentifier(DIRACEParser::IdentifierContext *ctx) override;
+        void exitEmptyApplication(DHAMMERParser::EmptyApplicationContext *ctx) override;
+        void exitApplication(DHAMMERParser::ApplicationContext *ctx) override;
+        void exitParen(DHAMMERParser::ParenContext *ctx) override;
+        void exitIdentifier(DHAMMERParser::IdentifierContext *ctx) override;
 
 
     private:
         std::stack<AST> node_stack;
     };
 
-    DIRACEBuilder::DIRACEBuilder() {}
+    DHAMMERBuilder::DHAMMERBuilder() {}
 
-    AST DIRACEBuilder::get_root() {
+    AST DHAMMERBuilder::get_root() {
         if (!node_stack.empty()) {
             return std::move(node_stack.top());
         }
@@ -83,7 +83,7 @@ namespace dirace {
     // expr
 
     // Handle Command Sequence node
-    void DIRACEBuilder::exitCmdSeq(DIRACEParser::CmdSeqContext *ctx) {
+    void DHAMMERBuilder::exitCmdSeq(DHAMMERParser::CmdSeqContext *ctx) {
         std::vector<AST> commands;
 
         // Pop commands from the stack in reverse order
@@ -97,7 +97,7 @@ namespace dirace {
     }
 
     // Handle From Term node
-    void DIRACEBuilder::exitFromTerm(DIRACEParser::FromTermContext *ctx) {
+    void DHAMMERBuilder::exitFromTerm(DHAMMERParser::FromTermContext *ctx) {
         // Pop the expression node from the stack
         AST from_term = std::move(node_stack.top());
         node_stack.pop();
@@ -110,7 +110,7 @@ namespace dirace {
     // cmd
 
     // Handle Definition0 node
-    void DIRACEBuilder::exitDefinition0(DIRACEParser::Definition0Context *ctx) {
+    void DHAMMERBuilder::exitDefinition0(DHAMMERParser::Definition0Context *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Pop the expression node from the stack
@@ -122,7 +122,7 @@ namespace dirace {
     }
 
     // Handle Definition1 node
-    void DIRACEBuilder::exitDefinition1(DIRACEParser::Definition1Context *ctx) {
+    void DHAMMERBuilder::exitDefinition1(DHAMMERParser::Definition1Context *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Pop the type and body expressions in reverse order
@@ -137,7 +137,7 @@ namespace dirace {
         );
     }
 
-    void DIRACEBuilder::exitAssum(DIRACEParser::AssumContext *ctx) {
+    void DHAMMERBuilder::exitAssum(DHAMMERParser::AssumContext *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Pop the body expression
@@ -148,7 +148,7 @@ namespace dirace {
         node_stack.push(AST{"VAR", {AST{def_name, {}}, std::move(definition_body)}});
     }
 
-    void DIRACEBuilder::exitCheck(DIRACEParser::CheckContext *ctx) {
+    void DHAMMERBuilder::exitCheck(DHAMMERParser::CheckContext *ctx) {
         // Pop the checked term
         AST check_body = std::move(node_stack.top());
         node_stack.pop();
@@ -157,19 +157,19 @@ namespace dirace {
         node_stack.push(AST{"CHECK", {std::move(check_body)}});
     }
 
-    void DIRACEBuilder::exitShow(DIRACEParser::ShowContext *ctx) {
+    void DHAMMERBuilder::exitShow(DHAMMERParser::ShowContext *ctx) {
         std::string def_name = ctx->ID()->getText();
 
         // Create and push the show node
         node_stack.push(AST{"SHOW", {AST{def_name, {}}}});
     }
 
-    void DIRACEBuilder::exitShowAll(DIRACEParser::ShowAllContext *ctx) {
+    void DHAMMERBuilder::exitShowAll(DHAMMERParser::ShowAllContext *ctx) {
         // Create and push the show all node
         node_stack.push(AST{"SHOWALL", {}});
     }
 
-    void DIRACEBuilder::exitNormalize(DIRACEParser::NormalizeContext *ctx) {
+    void DHAMMERBuilder::exitNormalize(DHAMMERParser::NormalizeContext *ctx) {
         // Pop the expression node from the stack
         AST normalize_body = std::move(node_stack.top());
         node_stack.pop();
@@ -178,7 +178,7 @@ namespace dirace {
         node_stack.push(AST{"NORMALIZE", {std::move(normalize_body)}});
     }
 
-    void DIRACEBuilder::exitNormalizeTraced(DIRACEParser::NormalizeTracedContext *ctx) {
+    void DHAMMERBuilder::exitNormalizeTraced(DHAMMERParser::NormalizeTracedContext *ctx) {
         // Pop the expression node from the stack
         AST normalize_body = std::move(node_stack.top());
         node_stack.pop();
@@ -187,7 +187,7 @@ namespace dirace {
         node_stack.push(AST{"NORMALIZE", {std::move(normalize_body), AST{"TRACE", {}}}});
     }
 
-    void DIRACEBuilder::exitCheckEq(DIRACEParser::CheckEqContext *ctx) {
+    void DHAMMERBuilder::exitCheckEq(DHAMMERParser::CheckEqContext *ctx) {
         // Pop the two expression nodes from the stack
         AST rhs = std::move(node_stack.top());
         node_stack.pop();
@@ -201,7 +201,7 @@ namespace dirace {
     ///////////////////////////////////////////
     // term
 
-    void DIRACEBuilder::exitBra(DIRACEParser::BraContext *ctx) {
+    void DHAMMERBuilder::exitBra(DHAMMERParser::BraContext *ctx) {
         // get term
         AST term = std::move(node_stack.top());
         node_stack.pop();
@@ -210,7 +210,7 @@ namespace dirace {
         node_stack.push(AST{"BRA", {std::move(term)}});
     }
 
-    void DIRACEBuilder::exitKet(DIRACEParser::KetContext *ctx) {
+    void DHAMMERBuilder::exitKet(DHAMMERParser::KetContext *ctx) {
         // get term
         AST term = std::move(node_stack.top());
         node_stack.pop();
@@ -220,7 +220,7 @@ namespace dirace {
     }
 
 
-    void DIRACEBuilder::exitDelta(DIRACEParser::DeltaContext *ctx) {
+    void DHAMMERBuilder::exitDelta(DHAMMERParser::DeltaContext *ctx) {
         // get t2
         AST t2 = std::move(node_stack.top());
         node_stack.pop();
@@ -234,7 +234,7 @@ namespace dirace {
     }
 
     // (e1, e2)
-    void DIRACEBuilder::exitPair(DIRACEParser::PairContext *ctx) {
+    void DHAMMERBuilder::exitPair(DHAMMERParser::PairContext *ctx) {
         // get e2
         AST e2 = std::move(node_stack.top());
         node_stack.pop();
@@ -248,7 +248,7 @@ namespace dirace {
     }
 
 
-    void DIRACEBuilder::exitAdj(DIRACEParser::AdjContext *ctx) {
+    void DHAMMERBuilder::exitAdj(DHAMMERParser::AdjContext *ctx) {
         // get term
         AST term = std::move(node_stack.top());
         node_stack.pop();
@@ -257,7 +257,7 @@ namespace dirace {
         node_stack.push(AST{"ADJ", {std::move(term)}});
     }
 
-    void DIRACEBuilder::exitConj(DIRACEParser::ConjContext *ctx) {
+    void DHAMMERBuilder::exitConj(DHAMMERParser::ConjContext *ctx) {
         // get term
         AST term = std::move(node_stack.top());
         node_stack.pop();
@@ -266,7 +266,7 @@ namespace dirace {
         node_stack.push(AST{"Conjugate", {std::move(term)}});
     }
 
-    void DIRACEBuilder::exitScr(DIRACEParser::ScrContext *ctx) {
+    void DHAMMERBuilder::exitScr(DHAMMERParser::ScrContext *ctx) {
         // get dirac term
         AST dirac_term = std::move(node_stack.top());
         node_stack.pop();
@@ -280,7 +280,7 @@ namespace dirace {
     }
 
     // COMPO(a b)
-    void DIRACEBuilder::exitCompo(DIRACEParser::CompoContext *ctx) {
+    void DHAMMERBuilder::exitCompo(DHAMMERParser::CompoContext *ctx) {
         // get b
         AST b = std::move(node_stack.top());
         node_stack.pop();
@@ -294,7 +294,7 @@ namespace dirace {
     }
 
     // STAR(a b)
-    void DIRACEBuilder::exitStar(DIRACEParser::StarContext *ctx) {
+    void DHAMMERBuilder::exitStar(DHAMMERParser::StarContext *ctx) {
         // get b
         AST b = std::move(node_stack.top());
         node_stack.pop();
@@ -308,7 +308,7 @@ namespace dirace {
     }
 
     // ADDG(a b)
-    void DIRACEBuilder::exitAdd(DIRACEParser::AddContext *ctx) {
+    void DHAMMERBuilder::exitAdd(DHAMMERParser::AddContext *ctx) {
         // get b
         AST b = std::move(node_stack.top());
         node_stack.pop();
@@ -322,7 +322,7 @@ namespace dirace {
     }
 
     // T1 -> T2
-    void DIRACEBuilder::exitArrow(DIRACEParser::ArrowContext *ctx) {
+    void DHAMMERBuilder::exitArrow(DHAMMERParser::ArrowContext *ctx) {
         // get T2
         AST t2 = std::move(node_stack.top());
         node_stack.pop();
@@ -335,7 +335,7 @@ namespace dirace {
         node_stack.push(AST{"ARROW", {std::move(t1), std::move(t2)}});
     }
 
-        void DIRACEBuilder::exitSum(DIRACEParser::SumContext *ctx) {
+        void DHAMMERBuilder::exitSum(DHAMMERParser::SumContext *ctx) {
         // get the body
         AST body = std::move(node_stack.top());
         node_stack.pop();
@@ -355,7 +355,7 @@ namespace dirace {
         });
     }
 
-    void DIRACEBuilder::exitIdx(DIRACEParser::IdxContext *ctx) {
+    void DHAMMERBuilder::exitIdx(DHAMMERParser::IdxContext *ctx) {
         // get the body
         AST body = std::move(node_stack.top());
         node_stack.pop();
@@ -367,7 +367,7 @@ namespace dirace {
         node_stack.push(AST{"IDX", {AST(name, {}), std::move(body)}});
     }
 
-    void DIRACEBuilder::exitFun(DIRACEParser::FunContext *ctx) {
+    void DHAMMERBuilder::exitFun(DHAMMERParser::FunContext *ctx) {
         // get the body
         AST body = std::move(node_stack.top());
         node_stack.pop();
@@ -384,7 +384,7 @@ namespace dirace {
     }
 
 
-    void DIRACEBuilder::exitForall(DIRACEParser::ForallContext *ctx) {
+    void DHAMMERBuilder::exitForall(DHAMMERParser::ForallContext *ctx) {
         // get the body
         AST body = std::move(node_stack.top());
         node_stack.pop();
@@ -396,7 +396,7 @@ namespace dirace {
         node_stack.push(AST{"FORALL", {AST(name, {}), std::move(body)}});
     }
 
-    void DIRACEBuilder::exitZeroK(DIRACEParser::ZeroKContext *ctx) {
+    void DHAMMERBuilder::exitZeroK(DHAMMERParser::ZeroKContext *ctx) {
         // get the type
         AST type = std::move(node_stack.top());
         node_stack.pop();
@@ -405,7 +405,7 @@ namespace dirace {
         node_stack.push(AST{"ZEROK", {std::move(type)}});
     }
 
-    void DIRACEBuilder::exitZeroB(DIRACEParser::ZeroBContext *ctx) {
+    void DHAMMERBuilder::exitZeroB(DHAMMERParser::ZeroBContext *ctx) {
         // get the type
         AST type = std::move(node_stack.top());
         node_stack.pop();
@@ -414,7 +414,7 @@ namespace dirace {
         node_stack.push(AST{"ZEROB", {std::move(type)}});
     }
 
-    void DIRACEBuilder::exitZeroO(DIRACEParser::ZeroOContext *ctx) {
+    void DHAMMERBuilder::exitZeroO(DHAMMERParser::ZeroOContext *ctx) {
         // get the type
         AST type2 = std::move(node_stack.top());
         node_stack.pop();
@@ -425,7 +425,7 @@ namespace dirace {
         node_stack.push(AST{"ZEROO", {std::move(type1), std::move(type2)}});
     }
 
-    void DIRACEBuilder::exitZeroD(DIRACEParser::ZeroDContext *ctx) {
+    void DHAMMERBuilder::exitZeroD(DHAMMERParser::ZeroDContext *ctx) {
         // get the register
         AST reg2 = std::move(node_stack.top());
         node_stack.pop();
@@ -436,7 +436,7 @@ namespace dirace {
         node_stack.push(AST{"ZEROD", {std::move(reg1), std::move(reg2)}});
     }
 
-    void DIRACEBuilder::exitOneO(DIRACEParser::OneOContext *ctx) {
+    void DHAMMERBuilder::exitOneO(DHAMMERParser::OneOContext *ctx) {
         // get the type
         AST type = std::move(node_stack.top());
         node_stack.pop();
@@ -445,15 +445,15 @@ namespace dirace {
         node_stack.push(AST{"ONEO", {std::move(type)}});
     }
 
-    void DIRACEBuilder::exitBasis0(DIRACEParser::Basis0Context *ctx) {
+    void DHAMMERBuilder::exitBasis0(DHAMMERParser::Basis0Context *ctx) {
         node_stack.push(AST{"BASIS0", {}});
     }
 
-    void DIRACEBuilder::exitBasis1(DIRACEParser::Basis1Context *ctx) {
+    void DHAMMERBuilder::exitBasis1(DHAMMERParser::Basis1Context *ctx) {
         node_stack.push(AST{"BASIS1", {}});
     }
 
-    void DIRACEBuilder::exitSubscript1(DIRACEParser::Subscript1Context *ctx) {
+    void DHAMMERBuilder::exitSubscript1(DHAMMERParser::Subscript1Context *ctx) {
         // get the register
         AST reg = std::move(node_stack.top());
         node_stack.pop();
@@ -466,7 +466,7 @@ namespace dirace {
         node_stack.push(AST{"SUBS", {std::move(term), std::move(reg)}});
     }
 
-    void DIRACEBuilder::exitSubscript2(DIRACEParser::Subscript2Context *ctx) {
+    void DHAMMERBuilder::exitSubscript2(DHAMMERParser::Subscript2Context *ctx) {
         // get the register2
         AST reg2 = std::move(node_stack.top());
         node_stack.pop();
@@ -485,7 +485,7 @@ namespace dirace {
 
 
     // '{' ID (',' ID)* '}'
-    void DIRACEBuilder::exitRSet(DIRACEParser::RSetContext *ctx) {
+    void DHAMMERBuilder::exitRSet(DHAMMERParser::RSetContext *ctx) {
         // 2. Collect all IDs in reverse order
         vector<AST> ids;
         for (int i = 0; i < ctx->ID().size(); ++i) {
@@ -498,17 +498,17 @@ namespace dirace {
     }
 
 
-    void DIRACEBuilder::exitEmptyRSet(DIRACEParser::EmptyRSetContext *ctx) {
+    void DHAMMERBuilder::exitEmptyRSet(DHAMMERParser::EmptyRSetContext *ctx) {
         node_stack.push(AST{"RSET"});
     }
         
 
-    void DIRACEBuilder::exitEmptyApplication(DIRACEParser::EmptyApplicationContext *ctx) {
+    void DHAMMERBuilder::exitEmptyApplication(DHAMMERParser::EmptyApplicationContext *ctx) {
         node_stack.push(AST{ctx->ID()->getText(), {}});
     }
 
     // Handle Application node
-    void DIRACEBuilder::exitApplication(DIRACEParser::ApplicationContext *ctx) {
+    void DHAMMERBuilder::exitApplication(DHAMMERParser::ApplicationContext *ctx) {
         // 1. Get the function identifier (ID)
         std::string function_name = ctx->ID()->getText();
 
@@ -523,12 +523,12 @@ namespace dirace {
         node_stack.push(AST{function_name, std::move(arguments)});
     }
 
-    void DIRACEBuilder::exitParen(DIRACEParser::ParenContext *ctx) {
+    void DHAMMERBuilder::exitParen(DHAMMERParser::ParenContext *ctx) {
         // pass
     }
 
     // Handle Identifier node
-    void DIRACEBuilder::exitIdentifier(DIRACEParser::IdentifierContext *ctx) {
+    void DHAMMERBuilder::exitIdentifier(DHAMMERParser::IdentifierContext *ctx) {
         std::string identifier_name = ctx->getText();
         node_stack.push(AST{identifier_name, {}});
     }
@@ -551,7 +551,7 @@ namespace dirace {
         using namespace antlr4;
 
         ANTLRInputStream input(code);
-        DIRACELexer lexer(&input);
+        DHAMMERLexer lexer(&input);
         CommonTokenStream tokens(&lexer);
 
         tokens.fill();
@@ -559,7 +559,7 @@ namespace dirace {
         // Print the token stream
         if (debug) printTokenStream(tokens);
 
-        DIRACEParser parser(&tokens);
+        DHAMMERParser parser(&tokens);
 
         // Enable parser trace if debug is true
         if (debug) parser.setTrace(true);
@@ -567,7 +567,7 @@ namespace dirace {
         tree::ParseTree *tree = parser.expr(); // Start from 'expr' rule
 
         // Create the AST builder
-        DIRACEBuilder treeBuilder;
+        DHAMMERBuilder treeBuilder;
 
         // CHECK for syntax errors
         if (parser.getNumberOfSyntaxErrors() == 0) {
@@ -580,4 +580,4 @@ namespace dirace {
         }
     }
 
-} // namespace dirace
+} // namespace dhammer

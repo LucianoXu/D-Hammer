@@ -14,7 +14,7 @@ foreach(test ${tests})
 
     target_link_libraries(
         ${test}
-        gtest_main DIRACE
+        gtest_main DHAMMER
     )
 
     add_test(
