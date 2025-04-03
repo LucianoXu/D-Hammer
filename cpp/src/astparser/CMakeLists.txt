@@ -24,7 +24,7 @@ set(ANTLR_AST_GEN_FILES
 # Custom command for ANTLR
 add_custom_command(
     OUTPUT ${ANTLR_AST_GEN_FILES}
-    COMMAND java -jar /Users/xuyingte/Java3P/antlr-4.13.2-complete.jar -Dlanguage=Cpp -visitor ${CMAKE_CURRENT_SOURCE_DIR}/AST.g4 -o ${ANTLR_AST_DIR}
+    COMMAND java -jar ANTLR -Dlanguage=Cpp -visitor ${CMAKE_CURRENT_SOURCE_DIR}/AST.g4 -o ${ANTLR_AST_DIR}
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/AST.g4
     COMMENT "Running ANTLR to generate C++ code from AST.g4"
 )

@@ -31,6 +31,10 @@ else()
     message(FATAL_ERROR "Boost not found. Please install Boost library for compilation.")
 endif()
 
+# set up ANTLR
+set(ANTLR4 "${CMAKE_CURRENT_SOURCE_DIR}/extern/antlr-4.13.2-complete.jar")
+message(STATUS "ANTLR4 executable: ${ANTLR4}")
+
 
 ####################################################
 # Compiler Setting
