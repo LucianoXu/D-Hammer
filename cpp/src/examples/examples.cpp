@@ -6055,6 +6055,20 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
         //     "(-1).|#1>_q (minus minus)_(q1, q2)",
         //     "CNOT_(q1, q2) |#0>_q (plus minus)_(q1, q2)"
         // }
+
+        {
+            "Example19",
+            R"(
+                Var T : INDEX.
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+                Var D : OTYPE[T, T].
+                Var a : REG[T]. Var b : REG[T].
+            )",
+            "A_a (B_b * C_a) D_b",
+            "(A C)_a (B D)_b"
+        }
     };
 
 

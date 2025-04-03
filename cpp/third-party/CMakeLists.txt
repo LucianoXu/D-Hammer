@@ -26,8 +26,15 @@ if (APPLE)
             "-framework CoreFoundation" # for apple systems
     )
 
-else ()
-# throw an error
-    message(FATAL_ERROR "Unsupported platform. Please use MacOS.")
+# Linux
+elseif (UNIX)
+    target_link_libraries(
+        DEPENDENCIES
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/Wolfram/libWSTPi4.a
+            "-lstdc++fs" # for linux systems
+    )
 
-endif ()
+else()
+    message(FATAL_ERROR "Unsupported platform. Please use MacOS or Linux.")
+endif()
