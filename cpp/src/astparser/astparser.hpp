@@ -8,6 +8,7 @@ See AST.g4 for the grammar definition.
 
 #pragma once
 
+#include <optional>
 #include "antlr4-runtime.h"
 
 #include "ASTLexer.h"

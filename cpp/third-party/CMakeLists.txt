@@ -31,7 +31,7 @@ elseif (UNIX)
     target_link_libraries(
         DEPENDENCIES
         PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}/Wolfram/libWSTPi4.a
+            ${CMAKE_CURRENT_SOURCE_DIR}/Wolfram/libWSTP64i4.so
             "-lstdc++fs" # for linux systems
     )
 
