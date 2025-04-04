@@ -25,7 +25,7 @@ set(ANTLR_DHAMMER_GEN_FILES
 # Custom command for ANTLR
 add_custom_command(
     OUTPUT ${ANTLR_DHAMMER_GEN_FILES}
-    COMMAND java -jar ANTLR -Dlanguage=Cpp -visitor ${CMAKE_CURRENT_SOURCE_DIR}/DHAMMER.g4 -o ${ANTLR_DHAMMER_DIR}
+    COMMAND java -jar ${ANTLR4} -Dlanguage=Cpp -visitor ${CMAKE_CURRENT_SOURCE_DIR}/DHAMMER.g4 -o ${ANTLR_DHAMMER_DIR}
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/DHAMMER.g4  # Declare DHAMMER.g4 as a dependency
     COMMENT "Running ANTLR to generate C++ code from DHAMMER.g4"
 )
