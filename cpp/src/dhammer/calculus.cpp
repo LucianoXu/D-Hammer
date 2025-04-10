@@ -1325,16 +1325,22 @@ namespace dhammer {
                 auto type_X = calc_type(args[i]);
                 auto type_X_head = type_X->get_head();
                 auto& args_X = type_X->get_args();
-                if (type_X_head != DTYPE) {
-                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not of type DTYPE.");
+                
+                if (type_X_head == STYPE) {
+                    continue;
+                }
+                if (type_X_head == DTYPE) {
+                    if (!rset_disjoint(args_X[0], rset1) || !rset_disjoint(args_X[1], rset2)) {
+                        throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not disjoint with the previous arguments.");
+                    }
+    
+                    rset1 = rset_union(rset1, args_X[0]);
+                    rset2 = rset_union(rset2, args_X[1]);
+                }
+                else {
+                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not of type DTYPE or STYPE.");
                 }
 
-                if (!rset_disjoint(args_X[0], rset1) || !rset_disjoint(args_X[1], rset2)) {
-                    throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not disjoint with the previous arguments.");
-                }
-
-                rset1 = rset_union(rset1, args_X[0]);
-                rset2 = rset_union(rset2, args_X[1]);
             }
 
             return create_term(DTYPE, {rset1, rset2});  
