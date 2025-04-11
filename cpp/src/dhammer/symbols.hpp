@@ -36,7 +36,7 @@ namespace dhammer {
     extern const int BASIS, STYPE, KTYPE, BTYPE, OTYPE, ARROW, FORALL, SET;
 
     extern const int PAIR, FUN, IDX, APPLY;
-    
+
     extern const int ZERO, ONE, ADDS, MULS, CONJ, DELTA, DOT, ZEROK, ZEROB, ZEROO, ONEO, KET, BRA, ADJ, SCR, ADD, TSR, MULK, MULB, OUTER, MULO;
 
     extern const int USET, CATPROD, SUM;
@@ -48,5 +48,5 @@ namespace dhammer {
 
     extern const std::set<int> a_symbols;
     extern const std::set<int> c_symbols;
-    
+
 } // namespace dhammer

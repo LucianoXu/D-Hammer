@@ -19,7 +19,7 @@ unique_ptr<Prover> init_prover() {
         auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
 
         cout << "WSTP link: " << lp << endl;
-        
+
         prover = make_unique<Prover>(std_prover(lp));
 
         // avoid using the Wolfram Engine

@@ -39,7 +39,7 @@ namespace wstp {
     const char* MacOS_args[] = {
         "-linkmode", "launch",
         "-linkname", "\"/Applications/Wolfram.app/Contents/MacOS/WolframKernel\" -wstp"
-    }; 
+    };
     const int MACOS_ARGC = sizeof(MacOS_args) / sizeof(MacOS_args[0]);
     char** const MACOS_ARGV = const_cast<char** const>(MacOS_args);
 
@@ -119,7 +119,7 @@ namespace wstp {
                 if (countp == 0) {
                     string head = sp;
                     return {head, {}};
-                } 
+                }
                 else {
                     vector<AST> args;
                     for (int i = 0; i < countp; i++) {
@@ -128,7 +128,7 @@ namespace wstp {
                     return {sp, args};
                 }
                 break;
-            
+
             case WSTKSYM:
                 WSGetSymbol(lp, &sp);
                 return {sp, {}};

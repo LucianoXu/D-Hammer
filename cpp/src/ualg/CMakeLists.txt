@@ -1,6 +1,6 @@
 
 add_library(
-    UALG 
+    UALG
 
     AC_by_vec.cpp
     ualgparser.cpp

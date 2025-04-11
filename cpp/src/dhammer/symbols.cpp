@@ -15,7 +15,7 @@ namespace dhammer {
         for (int i = 0; i < deBruijn_index_num; ++i) {
             res.push_back("$" + to_string(i));
         }
-        
+
         vector<string> defined = {
 
             "GROUP"
@@ -47,12 +47,12 @@ namespace dhammer {
             "ARROW",
             "FORALL",
             "SET",
-            
+
             "PAIR",
             "FUN",
             "IDX",
             "APPLY",
-                    
+
 
             "0",
             "1",

@@ -71,7 +71,7 @@ TEST(dhammerReduction, wolfram_fullsimplify) {
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T]"));
-    
+
     auto temp = wolfram_fullsimplify(kernel, kernel.parse("Plus[Minus[1], 1] . K"));
     actual_res = pos_rewrite_repeated(kernel, temp, {R_SCRK0});
     expected_res = kernel.parse("0K[T]");
@@ -86,12 +86,12 @@ TEST(dhammerReduction, wolfram_fullsimplify) {
 
 /**
  * @brief The helper function for testing a single rewriting rule.
- * 
+ *
  * @param kernel
  * @param rules
- * @param variables 
- * @param input 
- * @param expected 
+ * @param variables
+ * @param input
+ * @param expected
  */
 void TEST_RULE(Kernel& kernel, const vector<PosRewritingRule>& rules, string input, string expected) {
     auto term = kernel.parse(input);
@@ -112,7 +112,7 @@ TEST(dhammerReduction, R_COMPO_SS) {
     kernel.assum(kernel.register_symbol("a"), kernel.parse("STYPE"));
     kernel.assum(kernel.register_symbol("b"), kernel.parse("STYPE"));
     TEST_RULE(kernel, {R_COMPO_SS}, "COMPO[a, b]", "Times[a, b]");
-} 
+}
 
 TEST(dhammerReduction, R_COMPO_SK) {
     Kernel kernel;
@@ -288,7 +288,7 @@ TEST(dhammerReduction, R_STAR_CATPROD) {
 
 TEST(dhammerReduction, R_STAR_LTSR) {
     Kernel kernel;
-    
+
     kernel.assum(kernel.register_symbol("T1"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("T2"), kernel.parse("INDEX"));
     kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T1]"));
@@ -929,26 +929,26 @@ TEST(dhammerReduction, R_SUM_CONST4) {
 
 TEST(dhammerReduction, R_SUM_ELIM0) {
     TEST_RULE({R_SUM_ELIM0}, "SUM[USET[T], FUN[i, T, DELTA[i, j]]]", "1");
-    TEST_RULE({R_SUM_ELIM0}, 
+    TEST_RULE({R_SUM_ELIM0},
         R"(
         SUM[USET[T], FUN[i, T,
-            SUM[USET[T2], FUN[k, T2, 
+            SUM[USET[T2], FUN[k, T2,
                 DELTA[i, j]
             ]]
         ]]
-        )", 
+        )",
         "SUM[USET[T2], FUN[k, T2, 1]]");
-    TEST_RULE({R_SUM_ELIM0}, 
+    TEST_RULE({R_SUM_ELIM0},
         R"(
         SUM[USET[T], FUN[i, T,
-            SUM[USET[T2], FUN[k, T2, 
+            SUM[USET[T2], FUN[k, T2,
                 DELTA[i, i]
             ]]
         ]]
-        )", 
+        )",
         R"(
         SUM[USET[T], FUN[i, T,
-            SUM[USET[T2], FUN[k, T2, 
+            SUM[USET[T2], FUN[k, T2,
                 DELTA[i, i]
             ]]
         ]]
@@ -956,20 +956,20 @@ TEST(dhammerReduction, R_SUM_ELIM0) {
 }
 
 TEST(dhammerReduction, R_SUM_ELIM1) {
-    TEST_RULE({R_SUM_ELIM1}, 
+    TEST_RULE({R_SUM_ELIM1},
         R"(
-            SUM[USET[T], FUN[i, T, 
+            SUM[USET[T], FUN[i, T,
                 Times[
                     DOT[BRA[i], KET[i]],
                     DELTA[i, j]
                 ]
             ]]
-        )", 
+        )",
         "Times[DOT[BRA[j], KET[j]]]");
     TEST_RULE({R_SUM_ELIM1},
         R"(
         SUM[USET[T], FUN[i, T,
-            SUM[USET[T2], FUN[k, T2, 
+            SUM[USET[T2], FUN[k, T2,
                 Times[
                     DELTA[i, j],
                     b,
@@ -977,39 +977,39 @@ TEST(dhammerReduction, R_SUM_ELIM1) {
                 ]
             ]]
         ]]
-        )", 
+        )",
         "SUM[USET[T2], FUN[k, T2, Times[b, c]]]");
 }
 
 TEST(dhammerReduction, R_SUM_ELIM2) {
-    TEST_RULE({R_SUM_ELIM2}, 
+    TEST_RULE({R_SUM_ELIM2},
         R"(
-            SUM[USET[T], FUN[i, T, 
+            SUM[USET[T], FUN[i, T,
                 SCR[
                     DELTA[i, j],
                     A
                 ]
             ]]
-        )", 
+        )",
         "A");
     TEST_RULE({R_SUM_ELIM2},
         R"(
         SUM[USET[T], FUN[i, T,
-            SUM[USET[T2], FUN[k, T2, 
+            SUM[USET[T2], FUN[k, T2,
                 SCR[
                     DELTA[i, j],
                     BRA[i]
                 ]
             ]]
         ]]
-        )", 
+        )",
         "SUM[USET[T2], FUN[k, T2, BRA[j]]]");
 }
 
 TEST(dhammerReduction, R_SUM_ELIM3) {
-    TEST_RULE({R_SUM_ELIM3}, 
+    TEST_RULE({R_SUM_ELIM3},
         R"(
-            SUM[USET[T], FUN[i, T, 
+            SUM[USET[T], FUN[i, T,
                 SCR[
                     Times[
                         DELTA[i, j], a, b
@@ -1017,19 +1017,19 @@ TEST(dhammerReduction, R_SUM_ELIM3) {
                     A
                 ]
             ]]
-        )", 
+        )",
         "SCR[Times[a, b], A]");
     TEST_RULE({R_SUM_ELIM3},
         R"(
         SUM[USET[T], FUN[i, T,
-            SUM[USET[T2], FUN[k, T2, 
+            SUM[USET[T2], FUN[k, T2,
                 SCR[
                     Times[DELTA[i, j], a],
                     BRA[i]
                 ]
             ]]
         ]]
-        )", 
+        )",
         "SUM[USET[T2], FUN[k, T2, SCR[Times[a], BRA[j]]]]");
 }
 
@@ -1037,23 +1037,23 @@ TEST(dhammerReduction, R_SUM_ELIM4) {
     TEST_RULE({R_SUM_ELIM4},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 DELTA[i, j]
             ]]
         ]]
-        )", 
+        )",
         "SUM[M, FUN[j, T, 1]]");
 
     TEST_RULE({R_SUM_ELIM4},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 SUM[N, FUN[k, T,
                     DELTA[i, j]
                 ]]
             ]]
         ]]
-        )", 
+        )",
         "SUM[M, FUN[j, T, SUM[N, FUN[k, T, 1]]]]");
 }
 
@@ -1061,23 +1061,23 @@ TEST(dhammerReduction, R_SUM_ELIM5) {
     TEST_RULE({R_SUM_ELIM5},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 Times[a, DELTA[i, j], b]
             ]]
         ]]
-        )", 
+        )",
         "SUM[M, FUN[j, T, Times[a, b]]]");
-    
+
     TEST_RULE({R_SUM_ELIM5},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 SUM[N, FUN[k, T,
                     Times[a, DELTA[i, j], b]
                 ]]
             ]]
         ]]
-        )", 
+        )",
         "SUM[M, FUN[j, T, SUM[N, FUN[k, T, Times[a, b]]]]]");
 }
 
@@ -1085,33 +1085,33 @@ TEST(dhammerReduction, R_SUM_ELIM6) {
     TEST_RULE({R_SUM_ELIM6},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 SCR[
                     DELTA[i, j],
                     A
                 ]
             ]]
         ]]
-        )", 
+        )",
         "SUM[M, FUN[j, T, A]]");
 
     TEST_RULE({R_SUM_ELIM6},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 SCR[
                     DELTA[j, i],
                     KET[i]
                 ]
             ]]
         ]]
-        )", 
+        )",
         "SUM[M, FUN[j, T, KET[j]]]");
 
     TEST_RULE({R_SUM_ELIM6},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 SUM[N, FUN[k, T,
                     SCR[
                         DELTA[i, j],
@@ -1120,7 +1120,7 @@ TEST(dhammerReduction, R_SUM_ELIM6) {
                 ]]
             ]]
         ]]
-        )", 
+        )",
         "SUM[M, FUN[j, T, SUM[N, FUN[k, T, A]]]]");
 }
 
@@ -1128,20 +1128,20 @@ TEST(dhammerReduction, R_SUM_ELIM7) {
     TEST_RULE({R_SUM_ELIM7},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 SCR[
                     Times[a, DELTA[i, j], b],
                     A
                 ]
             ]]
         ]]
-        )", 
+        )",
         "SUM[M, FUN[j, T, SCR[Times[a, b], A]]]");
-    
+
     TEST_RULE({R_SUM_ELIM7},
         R"(
         SUM[M, FUN[i, T,
-            SUM[M, FUN[j, T, 
+            SUM[M, FUN[j, T,
                 SUM[N, FUN[k, T,
                     SCR[
                         Times[a, DELTA[i, j], b],
@@ -1150,12 +1150,12 @@ TEST(dhammerReduction, R_SUM_ELIM7) {
                 ]]
             ]]
         ]]
-        )", 
+        )",
         R"(
-        SUM[M, FUN[j, T, 
-            SUM[N, FUN[k, T, 
+        SUM[M, FUN[j, T,
+            SUM[N, FUN[k, T,
                 SCR[
-                    Times[a, b], 
+                    Times[a, b],
                     KET[j]
                 ]
             ]]
@@ -1171,7 +1171,7 @@ TEST(dhammerReduction, R_SUM_PUSH0) {
             SUM[M, FUN[i, T, d]],
             d, e
         ]
-        )", 
+        )",
         "SUM[M, FUN[i, T, Times[a, b, c, d, d, e]]]");
 }
 
@@ -1243,7 +1243,7 @@ TEST(dhammerReduction, R_SUM_ADDS0) {
 }
 
 TEST(dhammerReduction, R_SUM_ADDS1) {
-    TEST_RULE({R_SUM_ADDS1}, "SUM[M, FUN[i, T, Times[x, Plus[a, b, c]]]]", 
+    TEST_RULE({R_SUM_ADDS1}, "SUM[M, FUN[i, T, Times[x, Plus[a, b, c]]]]",
     "Plus[SUM[M, FUN[$0, T, Times[x, a]]], SUM[M, FUN[$1, T, Times[x, b]]], SUM[M, FUN[$2, T, Times[x, c]]]]");
 }
 
@@ -1337,11 +1337,11 @@ TEST(dhammerReduction, R_DOTD1) {
 }
 
 TEST(dhammerReduction, R_SUM_PUSHD0) {
-    TEST_RULE({R_SUM_PUSHD0}, "LTSR[X1, SUM[M, FUN[i, BASIS[T], X2]], X3]", "SUM[M, FUN[i, BASIS[T], LTSR[X1, X2, X3]]]"); 
+    TEST_RULE({R_SUM_PUSHD0}, "LTSR[X1, SUM[M, FUN[i, BASIS[T], X2]], X3]", "SUM[M, FUN[i, BASIS[T], LTSR[X1, X2, X3]]]");
 }
 
 TEST(dhammerReduction, R_SUM_PUSHD1) {
-    TEST_RULE({R_SUM_PUSHD1}, "LDOT[SUM[M, FUN[i, BASIS[T], X1]], X2]", "SUM[M, FUN[i, BASIS[T], LDOT[X1, X2]]]"); 
+    TEST_RULE({R_SUM_PUSHD1}, "LDOT[SUM[M, FUN[i, BASIS[T], X1]], X2]", "SUM[M, FUN[i, BASIS[T], LDOT[X1, X2]]]");
 }
 
 TEST(dhammerReduction, R_SUM_PUSHD2) {
@@ -1356,7 +1356,7 @@ TEST(dhammerReduction, R_L_SORT0) {
     kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T2]"));
     kernel.assum(kernel.register_symbol("K"), kernel.parse("KTYPE[T1]"));
     kernel.assum(kernel.register_symbol("B"), kernel.parse("BTYPE[T2]"));
-    
+
     TEST_RULE(kernel, {R_L_SORT0}, "LDOT[SUBS[K, r1], SUBS[B, r2]]", "LTSR[SUBS[K, r1], SUBS[B, r2]]");
 }
 
@@ -1373,9 +1373,9 @@ TEST(dhammerReduction, R_L_SORT3) {
 }
 
 TEST(dhammerReduction, R_L_SORT4) {
-    TEST_RULE({R_L_SORT4}, 
-        "LDOT[LTSR[X1, X2, LBRA[i, r]], LTSR[Y1, LKET[j, r], Y2]]", 
-        "SCR[DELTA[i, j], LDOT[LTSR[X1, X2], LTSR[Y1, Y2]]]"); 
+    TEST_RULE({R_L_SORT4},
+        "LDOT[LTSR[X1, X2, LBRA[i, r]], LTSR[Y1, LKET[j, r], Y2]]",
+        "SCR[DELTA[i, j], LDOT[LTSR[X1, X2], LTSR[Y1, Y2]]]");
 }
 
 // ///////////////////////////////////////////////////////

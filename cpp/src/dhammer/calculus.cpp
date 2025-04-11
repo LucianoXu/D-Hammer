@@ -67,7 +67,7 @@ namespace dhammer {
     TermPtr<int> rset_subtract(TermPtr<int> rset1, TermPtr<int> rset2) {
         set<int> set1 = rset_var_set(rset1);
         set<int> set2 = rset_var_set(rset2);
-        
+
         ListArgs<int> res;
         for (auto var : set1) {
             if (set2.find(var) == set2.end()) {
@@ -204,7 +204,7 @@ namespace dhammer {
                     return typeB;
                 }
             }
-            
+
             if (typeA->get_head() == KTYPE) {
                 // K(A) @ S : K(A)
                 if (typeB->get_head() == STYPE) {
@@ -212,7 +212,7 @@ namespace dhammer {
                 }
                 // K(A) @ K(B) : K(PROD(A B))
                 if (typeB->get_head() == KTYPE) {
-                    return create_term(KTYPE, 
+                    return create_term(KTYPE,
                         {create_term(PROD, {typeA->get_args()[0], typeB->get_args()[0]})});
                 }
                 // K(A) @ B(B) : O(A, B)
@@ -238,7 +238,7 @@ namespace dhammer {
                 }
                 // B(A) @ B(B) : B(PROD(A, B))
                 if (typeB->get_head() == BTYPE) {
-                    return create_term(BTYPE, 
+                    return create_term(BTYPE,
                         {create_term(PROD, {typeA->get_args()[0], typeB->get_args()[0]})});
                 }
                 // B(A) @ O(A, B) : B(B)
@@ -249,7 +249,7 @@ namespace dhammer {
                     else {
                         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(typeA->get_args()[0]) + " of the first term is not equal to the argument " + sig.term_to_string(typeB->get_args()[0]) + " of the second term.");
                     }
-                }   
+                }
             }
             if (typeA->get_head() == OTYPE) {
                 // O(A, B) @ S : O(A, B)
@@ -299,9 +299,9 @@ namespace dhammer {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " and the second argument " + sig.term_to_string(args[1]) + " are not disjoint.");
                 }
 
-                return create_term(DTYPE, 
+                return create_term(DTYPE,
                     {
-                        rset_union(args_X1[0], s2_sub_s1p), 
+                        rset_union(args_X1[0], s2_sub_s1p),
                         rset_union(s1p_sub_s2, args_X2[1])
                     }
                 );
@@ -362,7 +362,7 @@ namespace dhammer {
                 if (typeSecond->get_head() != OTYPE) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[1]) + " is not an operator.");
                 }
-                return create_term(OTYPE, 
+                return create_term(OTYPE,
                     {
                         create_term(PROD, {typeFirst->get_args()[0], typeSecond->get_args()[0]}),
                         create_term(PROD, {typeFirst->get_args()[1], typeSecond->get_args()[1]})
@@ -377,7 +377,7 @@ namespace dhammer {
                 if (typeSecond->get_head() != SET) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[1]) + " is not a set.");
                 }
-                return create_term(SET, 
+                return create_term(SET,
                     {
                         create_term(PROD, {typeFirst->get_args()[0], typeSecond->get_args()[0]})
                     }
@@ -393,7 +393,7 @@ namespace dhammer {
                 auto type_X2 = calc_type(args[1]);
                 auto type_X2_head = type_X2->get_head();
                 auto& args_X2 = type_X2->get_args();
-                
+
                 if (type_X1_head != DTYPE || type_X2_head != DTYPE) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type DTYPE.");
                 }
@@ -403,14 +403,14 @@ namespace dhammer {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " and the second argument " + sig.term_to_string(args[1]) + " are not disjoint.");
                 }
 
-                return create_term(DTYPE, 
+                return create_term(DTYPE,
                     {
-                        rset_union(args_X1[0], args_X2[0]), 
+                        rset_union(args_X1[0], args_X2[0]),
                         rset_union(args_X1[1], args_X2[1])
                     }
-                );  
+                );
 
-            } 
+            }
 
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not a scalar, an index, or a set.");
         }
@@ -459,9 +459,9 @@ namespace dhammer {
             }
 
             // form the function temporarily
-            auto func = create_term(FUN, 
+            auto func = create_term(FUN,
                 {
-                    args[0], 
+                    args[0],
                     create_term(BASIS, {args_s[0]}),
                     args[2]
                 }
@@ -496,7 +496,7 @@ namespace dhammer {
 
             return create_term(INDEX);
         }
-        
+
         // (INDEX-BIT)
         if (head == BIT) {
             arg_number_check(args, 0);
@@ -547,7 +547,7 @@ namespace dhammer {
             }
         }
 
-        // (TYPE-BASIS) 
+        // (TYPE-BASIS)
         if (head == BASIS) {
             arg_number_check(args, 1);
 
@@ -559,7 +559,7 @@ namespace dhammer {
         // (TYPE-Ket)
         if (head == KTYPE) {
             arg_number_check(args, 1);
-            
+
             if (!is_index(args[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
@@ -577,7 +577,7 @@ namespace dhammer {
         // (TYPE-Opt)
         if (head == OTYPE) {
             arg_number_check(args, 2);
-            
+
             if (!(is_index(args[0]) && is_index(args[1]))) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not indices.");
             }
@@ -615,7 +615,7 @@ namespace dhammer {
             context_push(args[0]->get_head(), args[1]);
 
             try {
-                
+
                 // calculate the type of the body
                 auto type_body = calc_type(args[2]);
 
@@ -670,7 +670,7 @@ namespace dhammer {
             auto head_f = type_f->get_head();
             auto& args_f = type_f->get_args();
             if (head_f == ARROW) {
-        
+
                 // check whether the type of u matches
                 if (!type_check(args[1], args_f[0])) {
                     throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the type of the argument " + sig.term_to_string(args[1]) + " does not match the type of the function argument " + sig.term_to_string(args_f[0]) + ".");
@@ -730,7 +730,7 @@ namespace dhammer {
         // (Sca-1)
         if (head == ONE) {
             arg_number_check(args, 0);
-            
+
             return create_term(STYPE);
         }
         // (Sca-Delta)
@@ -749,7 +749,7 @@ namespace dhammer {
             if (!(type_check(args[1], type_a))) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the second argument " + sig.term_to_string(args[1]) + " is not of type " + sig.term_to_string(type_a) + ".");
             }
-            
+
             return create_term(STYPE);
         }
         // (Sca-Add)
@@ -782,7 +782,7 @@ namespace dhammer {
         if (head == CONJ) {
             auto SType_term = create_term(STYPE);
             arg_number_check(args, 1);
-            
+
             if (!type_check(args[0], SType_term)) {
                 throw runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type STYPE.");
             }
@@ -791,7 +791,7 @@ namespace dhammer {
         // (Sca-Dot)
         if (head == DOT) {
             arg_number_check(args, 2);
-            
+
             auto type_B = calc_type(args[0]);
             auto& args_B = type_B->get_args();
             if (type_B->get_head() != BTYPE) {
@@ -832,7 +832,7 @@ namespace dhammer {
                 return create_term(DTYPE, {args_X[1], args_X[0]});
             }
 
-            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type KTYPE, BTYPE, OTYPE or DTYPE.");            
+            throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not of type KTYPE, BTYPE, OTYPE or DTYPE.");
         }
 
         // (Ket-Scr), (Bra-Scr), (Opt-Scr), (Label-Scr)
@@ -895,21 +895,21 @@ namespace dhammer {
             }
             // (Opt-Tsr)
             else if (type_X1_head == OTYPE && type_X2_head == OTYPE) {
-                return create_term(OTYPE, 
+                return create_term(OTYPE,
                     {
-                        create_term(PROD, {args_X1[0], args_X2[0]}), 
+                        create_term(PROD, {args_X1[0], args_X2[0]}),
                         create_term(PROD, {args_X1[1], args_X2[1]})
                     }
                 );
             }
-            
+
             throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type KTYPE, BTYPE or OTYPE.");
         }
 
         // (Ket-0)
         if (head == ZEROK) {
             arg_number_check(args, 1);
-            
+
             if (!is_index(args[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
@@ -1016,7 +1016,7 @@ namespace dhammer {
         // (Opt-1)
         if (head == ONEO) {
             arg_number_check(args, 1);
-            
+
             if (!is_index(args[0])) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[0]) + " is not an index.");
             }
@@ -1091,7 +1091,7 @@ namespace dhammer {
             if (type_a->get_head() != SET || type_b->get_head() != SET) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the arguments " + sig.term_to_string(args[0]) + " and " + sig.term_to_string(args[1]) + " are not of type SET.");
             }
-            
+
             return create_term(
                 SET, {
                     create_term(PROD, {args_a[0], args_b[0]})
@@ -1103,7 +1103,7 @@ namespace dhammer {
         if (head == SUM) {
             arg_number_check(args, 2);
 
-            
+
             auto type_s = calc_type(args[0]);
             auto& args_s = type_s->get_args();
             if (type_s->get_head() != SET) {
@@ -1176,7 +1176,7 @@ namespace dhammer {
         // (ZEROD)
         if (head == ZEROD) {
             arg_number_check(args, 2);
-            
+
             // check the two arguments
             auto dtype = create_term(DTYPE, {args[0], args[1]});
             try {
@@ -1281,7 +1281,7 @@ namespace dhammer {
 
                     return create_term(DTYPE, {reg_to_rset(args[1]), reg_to_rset(args[1])});
                 }
-                
+
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " is not of type KTYPE or BTYPE.");
             }
             else if (args.size() == 3) {
@@ -1313,7 +1313,7 @@ namespace dhammer {
 
         // (Label-LTSR)
         if (head == LTSR) {
-            
+
             if (args.size() < 1) {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because it has less than one arguments.");
             }
@@ -1325,7 +1325,7 @@ namespace dhammer {
                 auto type_X = calc_type(args[i]);
                 auto type_X_head = type_X->get_head();
                 auto& args_X = type_X->get_args();
-                
+
                 if (type_X_head == STYPE) {
                     continue;
                 }
@@ -1333,7 +1333,7 @@ namespace dhammer {
                     if (!rset_disjoint(args_X[0], rset1) || !rset_disjoint(args_X[1], rset2)) {
                         throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the argument " + sig.term_to_string(args[i]) + " is not disjoint with the previous arguments.");
                     }
-    
+
                     rset1 = rset_union(rset1, args_X[0]);
                     rset2 = rset_union(rset2, args_X[1]);
                 }
@@ -1343,8 +1343,8 @@ namespace dhammer {
 
             }
 
-            return create_term(DTYPE, {rset1, rset2});  
-            
+            return create_term(DTYPE, {rset1, rset2});
+
         }
 
         // (Label-LDOT)
@@ -1371,9 +1371,9 @@ namespace dhammer {
                 throw std::runtime_error("Typing error: the term '" + sig.term_to_string(term) + "' is not well-typed, because the first argument " + sig.term_to_string(args[0]) + " and the second argument " + sig.term_to_string(args[1]) + " are not disjoint.");
             }
 
-            return create_term(DTYPE, 
+            return create_term(DTYPE,
                 {
-                    rset_union(args_X1[0], s2_sub_s1p), 
+                    rset_union(args_X1[0], s2_sub_s1p),
                     rset_union(s1p_sub_s2, args_X2[1])
                 }
             );
@@ -1438,7 +1438,7 @@ namespace dhammer {
         }
 
         if (find_in_env(symbol) != std::nullopt) {
-            throw std::runtime_error("The symbol '" + sig.term_to_string(create_term(symbol)) + "' is already in the environment."); 
+            throw std::runtime_error("The symbol '" + sig.term_to_string(create_term(symbol)) + "' is already in the environment.");
         }
 
         auto deducted_type = calc_type(term);
@@ -1488,7 +1488,7 @@ namespace dhammer {
         return is_eq(sig, reduced_A, reduced_B);
     }
 
-    
+
 
 
 

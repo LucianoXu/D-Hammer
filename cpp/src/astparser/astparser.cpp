@@ -4,7 +4,7 @@ namespace astparser {
 
 
     class ASTTermBuilder : public ASTBaseListener {
-        
+
     public:
         ASTTermBuilder();
 
@@ -21,7 +21,7 @@ namespace astparser {
     private:
         std::stack<AST> node_stack;
     };
-    
+
 
     ASTTermBuilder::ASTTermBuilder() {}
 
@@ -29,7 +29,7 @@ namespace astparser {
         if (!node_stack.empty()) {
             return std::move(node_stack.top());
         }
-        
+
         throw std::runtime_error("No root node found.");
     }
 
@@ -70,13 +70,13 @@ namespace astparser {
 
     std::optional<AST> parse(const std::string& code) {
         using namespace antlr4;
-        
+
         ANTLRInputStream input(code);
         ASTLexer lexer(&input);
         CommonTokenStream tokens(&lexer);
 
         tokens.fill();
-        
+
         ASTParser parser(&tokens);
         tree::ParseTree *tree = parser.expr();
 
@@ -87,7 +87,7 @@ namespace astparser {
             antlr4::tree::ParseTreeWalker::DEFAULT.walk(&treeBuilder, tree);
 
             // Retrieve the root of the custom tree
-            return treeBuilder.get_root();            
+            return treeBuilder.get_root();
         } else {
             return std::nullopt;
         }
