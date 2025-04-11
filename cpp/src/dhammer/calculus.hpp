@@ -8,20 +8,20 @@ namespace dhammer {
 
     /**
      * @brief The function to compute the variable set of the register term
-     * 
+     *
      * @param reg shoulbe be a register term
-     * @return set<int> 
+     * @return set<int>
      */
     std::set<int> reg_var_set(ualg::TermPtr<int> reg);
 
 
     /**
      * @brief The function to decide whether two register terms are disjoint
-     * 
-     * @param reg1 
-     * @param reg2 
-     * @return true 
-     * @return false 
+     *
+     * @param reg1
+     * @param reg2
+     * @return true
+     * @return false
      */
     bool reg_disjoint(ualg::TermPtr<int> reg1, ualg::TermPtr<int> reg2);
 
@@ -49,9 +49,9 @@ namespace dhammer {
         }
     };
 
-    /** 
+    /**
      * @brief The kernel of the proof assistant.
-     * 
+     *
      * The kernel of the proof assistant preserves the TermBank and the environment.
      * The environment is guaranteed to be always well-formed.
      */
@@ -98,8 +98,8 @@ namespace dhammer {
 
         /**
          * @brief Find the assumption/definition of the symbol in the env and context, following the shadowing principle.
-         * 
-         * @param symbol 
+         *
+         * @param symbol
          * @return std::optional<Declaration> If the symbol is not found, return `std::nullopt`.
          */
         std::optional<Declaration> find_dec(int symbol);
@@ -107,31 +107,31 @@ namespace dhammer {
         std::optional<Declaration> find_in_env(int symbol);
 
         std::string dec_to_string(const std::string& name, const Declaration& dec) const;
-    
+
         /**
          * @brief Parse the code and return the term.
-         * 
+         *
          * Using the preserved signature and the term bank.
-         * 
-         * @param code 
-         * @return const Term<int>* 
+         *
+         * @param code
+         * @return const Term<int>*
          */
         ualg::TermPtr<int> parse(const std::string& code);
 
 
         /**
          * @brief Parse the code and return the term.
-         * 
-         * @param ast 
-         * @return const ualg::Term<int>* 
+         *
+         * @param ast
+         * @return const ualg::Term<int>*
          */
         ualg::TermPtr<int> parse(const astparser::AST& ast);
 
         /**
          * @brief Transform the term to a string.
-         * 
-         * @param term 
-         * @return string 
+         *
+         * @param term
+         * @return string
          */
         std::string term_to_string(ualg::TermPtr<int> term) const;
 
@@ -139,28 +139,28 @@ namespace dhammer {
 
         /**
          * @brief Checks if the expression is an index.
-         * 
+         *
          * @param term a well-typed term.
-         * @return true 
-         * @return false 
+         * @return true
+         * @return false
          */
         bool is_index(ualg::TermPtr<int> term);
 
         /**
          * @brief Checks if the expression is a type.
-         * 
+         *
          * @param term a well-typed term.
-         * @return true 
-         * @return false 
+         * @return true
+         * @return false
          */
         bool is_type(ualg::TermPtr<int> term);
 
         /**
          * @brief Calculate and return the least type of the term.
-         * 
+         *
          * Raise an error if the term is not well-typed.
-         * 
-         * @param term 
+         *
+         * @param term
          * @return const ualg::Term<int>* , the least type of the term.
          */
         ualg::TermPtr<int> calc_type(ualg::TermPtr<int> term);
@@ -168,21 +168,21 @@ namespace dhammer {
 
         /**
          * @brief Check whether two terms are equivalent under the reduction rules and alpha equivalence.
-         * 
-         * @param termA 
-         * @param termB 
-         * @return true 
-         * @return false 
+         *
+         * @param termA
+         * @param termB
+         * @return true
+         * @return false
          */
         bool is_judgemental_eq(ualg::TermPtr<int> termA, ualg::TermPtr<int> termB);
 
 
         /**
          * @brief Check if the term is well-formed and well-typed. Depending on is_judgemental_eq.
-         * 
-         * @param term 
-         * @return true 
-         * @return false 
+         *
+         * @param term
+         * @return true
+         * @return false
          */
         bool type_check(ualg::TermPtr<int> term, ualg::TermPtr<int> type) {
             return is_judgemental_eq(calc_type(term), type);
@@ -190,24 +190,24 @@ namespace dhammer {
 
         /**
          * @brief Make an assumption in the environment.
-         * 
-         * @param symbol 
-         * @param type 
+         *
+         * @param symbol
+         * @param type
          */
         void assum(int symbol, ualg::TermPtr<int> type);
 
         /**
          * @brief Make a definition in the environment.
-         * 
-         * @param symbol 
-         * @param def 
+         *
+         * @param symbol
+         * @param def
          * @param type if not provided, the type will be calculated.
          */
         void def(int symbol, ualg::TermPtr<int> def, std::optional<ualg::TermPtr<int>> type = std::nullopt);
 
         /**
          * @brief Pop the last assumption/definition in the environment.
-         * 
+         *
          */
         void env_pop();
 

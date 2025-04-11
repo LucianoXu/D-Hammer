@@ -5,7 +5,7 @@
 
 add_library(
     EXAMPLES
-    
+
     examples.cpp
 )
 

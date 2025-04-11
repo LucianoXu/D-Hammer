@@ -36,7 +36,7 @@ namespace dhammer {
         if (head == var) {
             return replacement;
         }
-        
+
         auto& args = term->get_args();
         if (head == IDX || head == FORALL) {
             auto& bound_var = term->get_args()[0]->get_head();
@@ -47,11 +47,11 @@ namespace dhammer {
             if (!free_in(replacement, bound_var)) {
                 auto new_bound_var = sig.register_symbol(sig.unique_var());
                 auto renamed_body = subst(sig, term->get_args()[1], bound_var, create_term(new_bound_var));
-                
+
                 return create_term(head, {create_term(new_bound_var), subst(sig, renamed_body, var, replacement)});
             }
         }
-        
+
         if (head == FUN) {
             auto& args = term->get_args();
             auto& bound_var = args[0]->get_head();
@@ -66,7 +66,7 @@ namespace dhammer {
                 return create_term(head, {args[0], subst(sig, args[1], var, replacement), subst(sig, renamed_body, var, replacement)});
             }
         }
-    
+
         auto new_args = ualg::ListArgs<int>();
         for (const auto& arg : args) {
             new_args.push_back(subst(sig, arg, var, replacement));
@@ -76,10 +76,10 @@ namespace dhammer {
 
     /**
      * @brief Recursively transform a term to the de Bruijn index representation.
-     * 
-     * @param sig 
-     * @param term 
-     * @return ualg::TermPtr<int> 
+     *
+     * @param sig
+     * @param term
+     * @return ualg::TermPtr<int>
      */
     ualg::TermPtr<int> to_deBruijn(ualg::Signature<int>& sig, ualg::TermPtr<int> term);
 
@@ -109,7 +109,7 @@ namespace dhammer {
         }
         return true;
     }
-        
+
 
     inline bool is_eq(ualg::Signature<int>& sig, ualg::TermPtr<int> termA, ualg::TermPtr<int> termB) {
         return is_eq_modulo_rset(to_deBruijn(sig, termA), to_deBruijn(sig, termB));

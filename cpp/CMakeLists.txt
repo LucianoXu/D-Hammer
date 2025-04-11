@@ -13,9 +13,9 @@ add_subdirectory(src)
 add_executable(MAIN main.cpp)
 
 target_link_libraries(
-    MAIN 
-    PUBLIC 
-        DEPENDENCIES 
+    MAIN
+    PUBLIC
+        DEPENDENCIES
         UALG
         DHAMMER
         EXAMPLES

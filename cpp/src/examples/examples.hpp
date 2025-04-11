@@ -14,12 +14,12 @@ namespace examples {
 
     /**
      * @brief Run the examples and return the timing results.
-     * 
-     * @param examples 
-     * @return std::vector<std::pair<std::string, float>> 
+     *
+     * @param examples
+     * @return std::vector<std::pair<std::string, float>>
      */
     std::vector<std::pair<std::string, float>> timing_examples(const std::vector<EqExample>& examples);
-    
+
 
     extern std::vector<EqExample> QCQI_examples;
 

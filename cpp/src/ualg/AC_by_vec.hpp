@@ -12,11 +12,11 @@ namespace ualg {
 
     /**
      * @brief Flatten the term by the AC symbols.
-     * 
-     * @tparam T 
-     * @param term 
-     * @param c_symbols 
-     * @return const Term<T>* 
+     *
+     * @tparam T
+     * @param term
+     * @param c_symbols
+     * @return const Term<T>*
      */
     template <class T>
     TermPtr<T> flatten(TermPtr<T> term, const std::set<T>& c_symbols) {
@@ -42,15 +42,15 @@ namespace ualg {
 
         return std::make_shared<Term<T>>(term->get_head(), std::move(new_args));
     }
-    
+
     /**
      * @brief sort the commutative terms in the term.
-     * 
-     * @tparam T 
+     *
+     * @tparam T
      * @param term
-     * @param c_symbols 
-     * @param comp 
-     * @return const Term<T>* 
+     * @param c_symbols
+     * @param comp
+     * @return const Term<T>*
      */
     template <class T, class Compare>
     TermPtr<T> sort_C_terms(TermPtr<T> term, const std::set<T>& c_symbols, Compare comp) {
@@ -58,7 +58,7 @@ namespace ualg {
         if (term->get_args().size() == 0) return term;
 
         const ListArgs<T>& args = term->get_args();
-        
+
         // sort within the arguments
         ListArgs<T> res_subterm_sort;
         for (unsigned i = 0; i < args.size(); ++i) {
@@ -78,12 +78,12 @@ namespace ualg {
 
     /**
      * @brief The standard comparator for sort_C_terms.
-     * 
-     * @tparam T 
-     * @param a 
-     * @param b 
-     * @return true 
-     * @return false 
+     *
+     * @tparam T
+     * @param a
+     * @param b
+     * @return true
+     * @return false
      */
     template <class T>
     bool std_comp(TermPtr<T> a, TermPtr<T> b) {
@@ -92,10 +92,10 @@ namespace ualg {
 
     /**
      * @brief Check whether the two terms are equivalent under the C theory.
-     * 
-     * @tparam T 
-     * @param termA 
-     * @param termB 
+     *
+     * @tparam T
+     * @param termA
+     * @param termB
      * @return bool
      */
     template <class T>

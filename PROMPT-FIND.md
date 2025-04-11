@@ -25,7 +25,7 @@ term := ID | ID '[' term ( ',' term)* ']'
 ```
 i.e., the LISP-like expression.
 
-The solver language is separated into 3 layers: The *index*, the *typed*, and the *term*. 
+The solver language is separated into 3 layers: The *index*, the *typed*, and the *term*.
 
 ### Index
 Indices are defined as

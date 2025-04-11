@@ -5,7 +5,7 @@
 
 add_library(
     WSTPINTERFACE
-    
+
     WSTPinterface.cpp
 )
 

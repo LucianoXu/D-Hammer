@@ -9,7 +9,7 @@ using namespace std;
 using namespace dhammer;
 
 int main(int argc, const char ** argv) {
-    
+
     cout << "< D-Hammer Prover top level built by Yingte Xu." << endl;
 
     // use the Wolfram Engine with appropriate arguments
@@ -18,8 +18,8 @@ int main(int argc, const char ** argv) {
         cout << argv[i] << " ";
     }
     cout << endl;
-    auto [ep, lp] = (argc > 1) 
-        ? wstp::init_and_openlink(argc, const_cast<char**>(argv)) 
+    auto [ep, lp] = (argc > 1)
+        ? wstp::init_and_openlink(argc, const_cast<char**>(argv))
         : wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
     cout << "WSTP link: " << lp << endl;
 

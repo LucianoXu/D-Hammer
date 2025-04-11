@@ -28,7 +28,7 @@ namespace dhammer {
         }
 
         auto& args = term->get_args();
-        
+
         if (head == IDX || head == FORALL) {
             bound_var_stack.push_back(args[0]->get_head());
             auto res = create_term(head, {to_deBruijn(sig, args[1], bound_var_stack)});

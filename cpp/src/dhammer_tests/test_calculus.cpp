@@ -7,13 +7,13 @@ using namespace std;
 using namespace dhammer;
 
 TEST(dhammerParsing, Basics1) {
-    
+
     Kernel kernel;
 
     auto& sig = kernel.get_sig();
 
     auto actual_res = kernel.parse("FUN[x, y, APPLY[z, x]]");
-    
+
     auto expected_res = create_term(
         sig.get_repr("FUN"), {
             create_term(sig.get_repr("x")),
@@ -30,7 +30,7 @@ TEST(dhammerParsing, Basics1) {
 
 
 TEST(dhammerParsing, Basics2) {
-    
+
     Kernel kernel;
 
     EXPECT_EQ(kernel.term_to_string(kernel.parse("TYPE")), "TYPE");
@@ -589,7 +589,7 @@ TEST(dhammerTypeCheck, Ket_MulK) {
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("MULK[O1, K1]"), kernel.parse("KTYPE[T1]")));
 
-    kernel.assum(kernel.register_symbol("O2"), kernel.parse("OTYPE[T2, T1]"));  
+    kernel.assum(kernel.register_symbol("O2"), kernel.parse("OTYPE[T2, T1]"));
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("MULK[O2, K1]"), kernel.parse("KTYPE[T1]")));
 }
 
@@ -734,7 +734,7 @@ TEST(dhammerTypeCheck, Opt_Add) {
     kernel.assum(kernel.register_symbol("O4"), kernel.parse("OTYPE[T2, T1]"));
     EXPECT_ANY_THROW(kernel.type_check(kernel.parse("ADD[O1, O4, O3]"), kernel.parse("OTYPE[T1, T2]")));
 }
-    
+
 TEST(dhammerTypeCheck, Opt_Outer) {
     Kernel kernel;
 
@@ -778,7 +778,7 @@ TEST(dhammerTypeCheck, Set_U) {
     Kernel kernel;
 
     kernel.assum(kernel.register_symbol("T"), kernel.parse("INDEX"));
-    
+
     EXPECT_TRUE(kernel.type_check(kernel.parse("USET[T]"), kernel.parse("SET[T]")));
 }
 
@@ -819,7 +819,7 @@ TEST(dhammerTypeCheck, Sum_Ket_2) {
     Kernel kernel;
 
     EXPECT_TRUE(kernel.type_check(
-        kernel.parse("IDX[sigma, FUN[K, KTYPE[sigma], SUM[USET[sigma], FUN[x, BASIS[sigma], 0K[sigma]]]]]"), 
+        kernel.parse("IDX[sigma, FUN[K, KTYPE[sigma], SUM[USET[sigma], FUN[x, BASIS[sigma], 0K[sigma]]]]]"),
         kernel.parse("FORALL[sigma, ARROW[KTYPE[sigma], KTYPE[sigma]]]")));
 }
 
@@ -953,7 +953,7 @@ TEST(dhammerTypeCheck, Label_Add) {
     kernel.assum(kernel.register_symbol("r1"), kernel.parse("REG[T]"));
     kernel.assum(kernel.register_symbol("r2"), kernel.parse("REG[T]"));
     kernel.assum(kernel.register_symbol("r3"), kernel.parse("REG[T]"));
-    
+
     kernel.assum(kernel.register_symbol("K1"), kernel.parse("KTYPE[T]"));
     kernel.assum(kernel.register_symbol("K2"), kernel.parse("KTYPE[T]"));
     kernel.assum(kernel.register_symbol("K3"), kernel.parse("KTYPE[T]"));
@@ -1004,7 +1004,7 @@ TEST(dhammerTypeCheck, Sum_Label) {
     kernel.assum(kernel.register_symbol("s"), kernel.parse("SET[T]"));
     kernel.assum(kernel.register_symbol("f"), kernel.parse("ARROW[BASIS[T], DTYPE[RSET[r1], RSET[]]]"));
 
-    EXPECT_TRUE(kernel.type_check(kernel.parse("SUM[s, f]"), kernel.parse("DTYPE[RSET[r1], RSET[]]")));    
+    EXPECT_TRUE(kernel.type_check(kernel.parse("SUM[s, f]"), kernel.parse("DTYPE[RSET[r1], RSET[]]")));
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1019,5 +1019,5 @@ TEST(dhammerTypeCheck, Example1) {
     kernel.assum(kernel.register_symbol("g"), kernel.parse("OTYPE[T, T]"));
 
     EXPECT_TRUE(kernel.type_check(kernel.parse("c * (Tr T f) + Tr T g"), kernel.parse("STYPE")));
-    
+
 }

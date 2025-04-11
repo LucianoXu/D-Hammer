@@ -203,7 +203,7 @@ namespace dhammer {
         {R_SUM_INDEX0, "R_SUM_INDEX0"},
         {R_SUM_INDEX1, "R_SUM_INDEX1"},
         {R_SUM_FACTOR, "R_SUM_FACTOR"},
-        
+
         {R_BIT_DELTA, "R_BIT_DELTA"},
         {R_BIT_ONEO, "R_BIT_ONEO"},
         {R_BIT_SUM, "R_BIT_SUM"},
@@ -247,7 +247,7 @@ namespace dhammer {
         res += "[Initial Term]\t" + kernel.term_to_string(record.init_term) + "\n";
 
         // The matched term and replacement may be null
-        if (record.matched_term != nullptr) {   
+        if (record.matched_term != nullptr) {
             res += "[Matched Term]\t" + kernel.term_to_string(record.matched_term) + "\n";
         }
         if (record.replacement != nullptr) {

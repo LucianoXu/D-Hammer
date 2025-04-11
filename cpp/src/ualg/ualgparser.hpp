@@ -100,9 +100,9 @@ namespace ualg {
 
     /**
      * @brief Complie the Signature from a mapping of symbol names to symbol types.
-     * 
-     * @param symbol_types 
-     * @return Signature<int> 
+     *
+     * @param symbol_types
+     * @return Signature<int>
      */
     Signature<int> compile_string_sig(const std::vector<std::string>& symbols);
 
@@ -111,7 +111,7 @@ namespace ualg {
 
     template <class T>
     TermPtr<T> Signature<T>::ast2term(const astparser::AST& ast) {
-        
+
         auto head = register_symbol(ast.head);
 
         if (ast.children.size() == 0) {

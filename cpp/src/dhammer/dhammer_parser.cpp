@@ -75,7 +75,7 @@ namespace dhammer {
         if (!node_stack.empty()) {
             return std::move(node_stack.top());
         }
-        
+
         throw std::runtime_error("No root node found.");
     }
 
@@ -242,7 +242,7 @@ namespace dhammer {
         // get e1
         AST e1 = std::move(node_stack.top());
         node_stack.pop();
-        
+
         // push Pair node
         node_stack.push(AST{"PAIR", {std::move(e1), std::move(e2)}});
     }
@@ -288,7 +288,7 @@ namespace dhammer {
         // get a
         AST a = std::move(node_stack.top());
         node_stack.pop();
-        
+
         // push Compo node
         node_stack.push(AST{"COMPO", {std::move(a), std::move(b)}});
     }
@@ -302,7 +302,7 @@ namespace dhammer {
         // get a
         AST a = std::move(node_stack.top());
         node_stack.pop();
-        
+
         // push Star node
         node_stack.push(AST{"STAR", {std::move(a), std::move(b)}});
     }
@@ -316,7 +316,7 @@ namespace dhammer {
         // get a
         AST a = std::move(node_stack.top());
         node_stack.pop();
-        
+
         // push Add node
         node_stack.push(AST{"ADDG", {std::move(a), std::move(b)}});
     }
@@ -330,7 +330,7 @@ namespace dhammer {
         // get T1
         AST t1 = std::move(node_stack.top());
         node_stack.pop();
-        
+
         // push ARROW node
         node_stack.push(AST{"ARROW", {std::move(t1), std::move(t2)}});
     }
@@ -348,7 +348,7 @@ namespace dhammer {
         std::string name = ctx->ID()->getText();
 
         // push Sum node
-        node_stack.push(AST{"SSUM", 
+        node_stack.push(AST{"SSUM",
             {
                 AST(name, {}), std::move(set), std::move(body)
             }
@@ -501,7 +501,7 @@ namespace dhammer {
     void DHAMMERBuilder::exitEmptyRSet(DHAMMERParser::EmptyRSetContext *ctx) {
         node_stack.push(AST{"RSET"});
     }
-        
+
 
     void DHAMMERBuilder::exitEmptyApplication(DHAMMERParser::EmptyApplicationContext *ctx) {
         node_stack.push(AST{ctx->ID()->getText(), {}});

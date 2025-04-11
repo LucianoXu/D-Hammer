@@ -23,10 +23,10 @@ cmd :   'Def' ID ':=' expr '.'         # Definition0
 term:   ID '[' expr (',' expr)* ']'            # Application
     |   ID '[' ']'                             # EmptyApplication
     |   '{' ID (',' ID)* '}'                   # RSet
-    |   '{' '}'                                # EmptyRSet 
+    |   '{' '}'                                # EmptyRSet
 
     |   term '_' term                          # Subscript1
-    |   term '_' term ';' term                 # Subscript2 
+    |   term '_' term ';' term                 # Subscript2
 
     |   '<' term '|'                           # Bra
     |   '|' term '>'                           # Ket
