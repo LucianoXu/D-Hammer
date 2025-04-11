@@ -6068,6 +6068,358 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
             )",
             "A_a (B_b * C_a) D_b",
             "(A C)_a (B D)_b"
+        },
+
+        {
+            "LDE27",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var V1 : OTYPE[T * T, T * T].
+                Var V2 : OTYPE[T * T, T * T].
+                Var V3 : OTYPE[T * T, T * T].
+                Var V4 : OTYPE[T * T, T * T].
+                Var P : OTYPE[T, T].
+                Var Q : OTYPE[T, T].
+                Def W1 := V1 (1O[T] * P).
+                Def W2 := ADJ[1O[T] * P] V2 ADJ[Q * 1O[T]].
+                Def W4 := (Q * 1O[T]) V4.
+            )",
+            "W1_(a, c) W2_(b, c) V3_(a, c) W4_(b, c)",
+            "V1_(a, c) (P ADJ[P])_c V2_(b, c) V3_(a, c) (ADJ[Q] Q)_b V4_(b, c)"
+        },
+
+        {
+            "LDE28",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var U1 : OTYPE[T * T, T * T].
+                Var U2 : OTYPE[T * T, T * T].
+                Var U3 : OTYPE[T * T, T * T].
+                Var U4 : OTYPE[T * T, T * T].
+                Var W0 : OTYPE[T, T].
+                Var W1 : OTYPE[T, T].
+                Var W2 : OTYPE[T, T].
+                Def V1 := U1 (W0 * 1O[T]).
+                Def V2 := U2 (1O[T] * W1).
+                Def V3 := ADJ[W0 * W1] U3 (1O[T] * W2).
+                Def V4 := (1O[T] * ADJ[W2]) U4.
+            )",
+            "V1_(a, c) V2_(b, c) V3_(a, c) V4_(b, c)",
+            "U1_(a, c) (W0 ADJ[W0])_a U2_(b, c) (W1 ADJ[W1])_c U3_(a, c) (W2 ADJ[W2])_c U4_(b, c)"
+        },
+
+        {
+            "LDE29.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T * T, T].
+            )",
+            "A_a B_(a, b);c",
+            "((A * 1O[T]) B)_(a, b);c"
+        },
+
+        {
+            "LDE29.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T * T, T].
+            )",
+            "A_b B_(a, b);c",
+            "((1O[T] * A) B)_(a, b);c"
+        },
+
+        {
+            "LDE29.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T * T].
+                Var B : OTYPE[T, T].
+            )",
+            "A_c;(a,b) B_a",
+            "(A (B * 1O[T]))_c;(a,b)"
+        },
+
+        {
+            "LDE29.4",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T * T].
+                Var B : OTYPE[T, T].
+            )",
+            "A_c;(a,b) B_b",
+            "(A (1O[T] * B))_c;(a,b)"
+        },
+
+        {
+            "LDE30.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var v : KTYPE[T * T].
+            )",
+            "A_c;a v_(a, b)",
+            "((A * 1O[T]) v)_(c,b)"
+        },
+
+        {
+            "LDE30.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var v : KTYPE[T * T].
+            )",
+            "A_c;b v_(a, b)",
+            "((1O[T] * A) v)_(a,c)"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE30.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var v : KTYPE[T * T].
+            )",
+            "(ADJ[v])_(a,b) A_a;c",
+            "((ADJ[A] * 1O[T]) v)^D_(c,b)"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE30.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var v : KTYPE[T * T].
+            )",
+            "(ADJ[v])_(a,b) A_b;c",
+            "((1O[T] * ADJ[A]) v)^D_(a,c)"
+        },
+
+        {
+            "LDE31.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+            )",
+            "A_a;b (B_b;c * C_b2;c2)",
+            "(A B)_a;c * C_b2;c2"
+        },
+
+        {
+            "LDE31.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+            )",
+            "A_a;b (C_b2;c2 * B_b;c)",
+            "C_b2;c2 (A B)_a;c"
+        },
+
+        {
+            "LDE31.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+            )",
+            "(A_a;b * C_b2;c2) B_b;c",
+            "(A B)_a;c * C_b2;c2"
+        },
+
+        {
+            "LDE31.4",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+            )",
+            "(C_b2;c2 * A_a;b) B_b;c",
+            "C_b2;c2 (A B)_a;c"
+        },
+
+        {
+            "LDE32.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "A_a;b (v_b * B_b2;c2)",
+            "(A v)_a * B_b2;c2"
+        },
+
+        {
+            "LDE32.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "A_a;b (B_b2;c2 * v_b)",
+            "B_b2;c2 * (A v)_a"
+        },
+
+        {
+            "LDE32.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "(A_a;b * B_b2;c2) v_b",
+            "(A v)_a * B_b2;c2"
+        },
+
+        {
+            "LDE32.4",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "(B_b2;c2 * A_a;b) v_b",
+            "B_b2;c2 * (A v)_a"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE33.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "ADJ[v]_a (A_a;b * B_b2;c2)",
+            "ADJ[ADJ[A] v]_b * B_b2;c2"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE33.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "ADJ[v]_a (B_b2;c2 * A_a;b)",
+            "B_b2;c2 * ADJ[ADJ[A] v]_b"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE33.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "(ADJ[v]_a * B_b2;c2) A_a;b",
+            "ADJ[ADJ[A] v]_b * B_b2;c2"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE33.4",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "(B_b2;c2 * ADJ[v]_a) A_a;b",
+            "B_b2;c2 * ADJ[ADJ[A] v]_b"
         }
     };
 
