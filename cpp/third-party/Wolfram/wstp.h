@@ -741,7 +741,7 @@
 #define mlint64  wsint64
 #define mlextended_double wsextended_double
 
-/* 
+/*
  * ATTENTION: mlapi_result , mlapi_token , mldlg_result
  * Use 'int' instead of these. These were replaced with int for MLINTERFACE >=3.
  * Used in a few places in kernel and FE.
@@ -7553,7 +7553,7 @@ ML_END_EXTERN_C
 #undef mlint64
 #undef mlextended_double
 
-/* 
+/*
  * ATTENTION: mlapi_result , mlapi_token , mldlg_result
  * Use 'int' instead of these. These were replaced with int for MLINTERFACE >=3.
  * Used in a few places in kernel and FE.

@@ -15,9 +15,9 @@ namespace wstp {
 
     /**
      * @brief Format the arguments (this is because name with "" cannot be passed directly).
-     * 
-     * @param argc 
-     * @param argv 
+     *
+     * @param argc
+     * @param argv
      * @return std::pair<int, char**>
      */
     std::pair<int, char **> args_format(int argc, const char** argv);
@@ -31,17 +31,17 @@ namespace wstp {
 
     /**
      * @brief Transform and push the AST to the WSTP link.
-     * 
-     * @param lp 
-     * @param ast 
+     *
+     * @param lp
+     * @param ast
      */
     void ast_to_WS(WSLINK lp, const astparser::AST& ast);
 
     /**
      * @brief Read the WSTP link and transform it into an AST.
-     * 
-     * @param lp 
-     * @return astparser::AST 
+     *
+     * @param lp
+     * @return astparser::AST
      */
     astparser::AST WS_to_ast(WSLINK lp);
 

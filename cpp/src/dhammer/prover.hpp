@@ -9,7 +9,7 @@
 #include "trace.hpp"
 
 namespace dhammer {
-    
+
     class Prover {
     protected:
         Kernel kernel;
@@ -28,7 +28,7 @@ namespace dhammer {
 
     public:
         Kernel& get_kernel() { return kernel; }
-        
+
         Prover(WSLINK wstp_link = nullptr, std::ostream& _output = std::cout) : kernel(wstp_link), output(_output) {}
 
         // copy constructor (coq_file is not copied)
@@ -61,22 +61,22 @@ namespace dhammer {
                 return false;
             }
         }
-        
+
         /**
          * @brief Checks whether the two terms are equal. Return the result as a boolean.
-         * 
-         * @param codeA 
-         * @param codeB 
-         * @return true 
-         * @return false 
+         *
+         * @param codeA
+         * @param codeB
+         * @return true
+         * @return false
          */
         bool check_eq(const astparser::AST& codeA, const astparser::AST& codeB);
     };
 
     /**
      * @brief Return the prover with standard definitions.
-     * 
-     * @return Prover 
+     *
+     * @return Prover
      */
     Prover std_prover(WSLINK wstp_link = nullptr);
 

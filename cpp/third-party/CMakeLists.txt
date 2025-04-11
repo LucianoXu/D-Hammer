@@ -1,7 +1,7 @@
 
 # ANTLR
-file(GLOB_RECURSE 
-    ANTLR_SRCS 
+file(GLOB_RECURSE
+    ANTLR_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/antlr_runtime/*.cpp")
 
 add_library(
@@ -10,8 +10,8 @@ add_library(
 )
 
 target_include_directories(
-    DEPENDENCIES 
-    PUBLIC 
+    DEPENDENCIES
+    PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/antlr_runtime
     ${CMAKE_CURRENT_SOURCE_DIR}/Wolfram)

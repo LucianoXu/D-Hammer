@@ -12,10 +12,10 @@ using namespace examples;
 #include <chrono>
 
 void test_examples(const vector<EqExample>& examples) {
-    
+
     // use the Wolfram Engine on MacOS
     auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
-    
+
     auto prover = make_unique<Prover>(std_prover(lp));
     prover->process("Normalize Times[I, I].");
 
