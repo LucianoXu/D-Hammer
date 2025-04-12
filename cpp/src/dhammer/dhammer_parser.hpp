@@ -14,9 +14,9 @@ namespace dhammer {
 
     /**
      * @brief Parse the given code into an AST.
-     * 
-     * @param code 
-     * @return AST 
+     *
+     * @param code
+     * @return AST
      */
     std::optional<astparser::AST> parse(const std::string& code, bool debug = false);
 

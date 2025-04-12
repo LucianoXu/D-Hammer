@@ -9,7 +9,7 @@ namespace dhammer {
         auto temp = term;
 
         // use different rules depending on the wolfram connection
-        
+
         if (kernel.wolfram_connected()) {
             while (true) {
                 if (distribute) {
@@ -45,12 +45,12 @@ namespace dhammer {
 
     /**
      * @brief Checks if two terms are equal (taking the scalars into consideration) using Wolfram Engine.
-     * 
-     * @param kernel 
-     * @param a 
-     * @param b 
-     * @return true 
-     * @return false 
+     *
+     * @param kernel
+     * @param a
+     * @param b
+     * @return true
+     * @return false
      */
     bool syntax_eq_with_wolfram(Kernel& kernel, TermPtr<int> a, TermPtr<int> b) {
         using namespace astparser;
@@ -108,7 +108,7 @@ namespace dhammer {
 
         // second rewriting
         temp = rewrite_with_wolfram(kernel, temp, trace, distribute);
-        
+
         temp = sort_modulo_bound(kernel, temp);
         trace.push_back({
             "Sort Modulo Bound Variables",
@@ -139,7 +139,7 @@ namespace dhammer {
             nullptr,
             normalized_term
         });
-        
+
         return normalized_term;
     }
 
@@ -187,7 +187,7 @@ namespace dhammer {
                 if (ast.children.size() == 2) {
                     if (!check_id(ast.children[0])) return false;
 
-                    
+
                     auto name = ast.children[0].head;
                     auto type = kernel.parse(ast.children[1]);
                     kernel.assum(kernel.register_symbol(name), type);
@@ -284,7 +284,7 @@ namespace dhammer {
                             output << record_to_string(kernel, trace[i]) << endl;
                         }
                     }
-                    
+
                     // Output the normalized term
                     output << "[Normal Form]" << kernel.term_to_string(final_term) + " : " + kernel.term_to_string(type)  << endl;
 
@@ -326,7 +326,7 @@ namespace dhammer {
     }
 
     bool Prover::check_eq(const astparser::AST& codeA, const astparser::AST& codeB) {
-        
+
         // Typecheck the terms
         auto termA = kernel.parse(codeA);
         auto termB = kernel.parse(codeB);
@@ -347,7 +347,7 @@ namespace dhammer {
 
         final_termA = normalize(kernel, termA, traceA, true);
         final_termB = normalize(kernel, termB, traceB, true);
-        
+
         // Output the result
         if (syntax_eq_with_wolfram(kernel, final_termA, final_termB)) {
             output << "The two terms are equal." << endl;
@@ -391,9 +391,9 @@ namespace dhammer {
         Def SWAP := idx T1 => idx T2 => idx T3 => idx T4 => fun O : OTYPE[T1 * T2, T3 * T4] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T3], Sum l in USET[T4], (<(i, j)| O |(k, l)>).(|(j, i)> <(l, k)|).
 
         (* Partial Trace 1
-        DNPTr1[M_, T_, T1_, T2_]:= 
-	Module[{i, j, k}, 
-	SUMO[IDX[{i, USET[T1]}, {j, USET[T2]}, {k, USET[T]}], 
+        DNPTr1[M_, T_, T1_, T2_]:=
+	Module[{i, j, k},
+	SUMO[IDX[{i, USET[T1]}, {j, USET[T2]}, {k, USET[T]}],
 		(Bra[{PAIR[k, i]}]\[SmallCircle]M\[SmallCircle]Ket[{PAIR[k, j]}])(Ket[{i}]\[SmallCircle]Bra[{j}])]];
         *)
         Def PTr1 := idx T => idx T1 => idx T2 => fun O : OTYPE[T * T1, T * T2] => Sum i in USET[T1], Sum j in USET[T2], Sum k in USET[T], (<(k, i)| O |(k, j)>).(|i> <j|).
@@ -417,28 +417,28 @@ namespace dhammer {
         Def TPB := idx sigma => fun K : KTYPE[sigma] => Sum i in USET[sigma], (<i| K) . <i|.
 
         (* Transpose of Operator
-        TPO[O_, T1_, T2_] := Module[{i, j}, 
+        TPO[O_, T1_, T2_] := Module[{i, j},
 	SUMO[IDX[{i, USET[T2]}, {j, USET[T1]}], (Ket[{i}]\[SmallCircle]Bra[{j}])\[SmallCircle]O\[SmallCircle](Ket[{i}]\[SmallCircle]Bra[{j}])]];
         *)
         Def TPO := idx sigma => idx tau => fun O : OTYPE[sigma, tau] => Sum i in USET[sigma], Sum j in USET[tau], (<i| O |j>).(|j> <i|).
 
 
-        (* Conjugate of Operator 
+        (* Conjugate of Operator
         CONJO[O_, T1_, T2_] := TPO[ADJO[O],T2,T1];
         *)
         Def CONJO := idx sigma => idx tau => fun O : OTYPE[sigma, tau] => TPO tau sigma O^D.
 
-        (* fromlf 
+        (* fromlf
         formlf[A_, X_]:= A \[SmallCircle] X \[SmallCircle] SuperDagger[A];
         *)
         Def formlf := idx T1 => idx T2 => fun A : OTYPE[T1, T2] => fun X : OTYPE[T2, T2] => A X A^D.
 
-        (* super operator 
+        (* super operator
         superop[M_, e_, f_]:= Module[{i}, SUMO[IDX[{i, M}], e[i]\[SmallCircle]#\[SmallCircle](SuperDagger[f[i]])]&];
         *)
         Def superop := idx S => fun M : SET[S] => idx T1 => idx T2 => fun e : BASIS[S]->OTYPE[T1, T2] => fun f : BASIS[S]->OTYPE[T1, T2] => fun X : OTYPE[T2, T2] => Sum i in M, (e i) X (f i)^D.
 
-        (* so2choi 
+        (* so2choi
         so2choi[e_, T1_]:=
             Module[
                 {i, j},
@@ -456,7 +456,7 @@ namespace dhammer {
         krausso[M_, f_]:=superop[M,f,f];
         *)
         Def krausso := idx S => fun M : SET[S] => idx T1 => idx T2 => fun f : BASIS[S]->OTYPE[T1, T2] => superop S M T1 T2 f f.
-        
+
         (* dualso
         dualso[e_, T1_, T2_]:=choi2so[SWAP[TPO[so2choi[e, T1], T1 ~ProdType~ T2, T1 ~ProdType~ T2], T1, T2, T1, T2], T2, T1];
         *)
@@ -472,12 +472,12 @@ namespace dhammer {
         *)
         Def dualqm := idx S => fun M : SET[S] => idx T1 => idx T2 => fun f : BASIS[S] -> OTYPE[T2, T1] => fun X : BASIS[S] -> OTYPE[T2, T2] => Sum i in M, (f i)^D (X i) (f i).
 
-        (* idso 
+        (* idso
         idso[T_] := (#)&;
         *)
         Def idso := idx T => fun X : OTYPE[T, T] => X.
-        
-        (* abortso 
+
+        (* abortso
         abortso[T1_,T2_] := (ZEROO[T1,T1])&;
         *)
         Def abortso := idx T1 => idx T2 => fun X : OTYPE[T2, T2] => 0O[T1, T1].
@@ -488,26 +488,26 @@ namespace dhammer {
         Def formso := idx T1 => idx T2 => fun f : OTYPE[T1, T2] => fun X : OTYPE[T2, T2] => f X f^D.
 
         (* addso
-        addso[e_, f_]:=(e[#] ~ADDO~ f[#])&; 
+        addso[e_, f_]:=(e[#] ~ADDO~ f[#])&;
         *)
         Def addso := idx T1 => idx T2 => fun e : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun f : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => e X + f X.
 
-        (* sumso 
+        (* sumso
         sumso[M_,f_]:=Module[{i}, SUMO[i, M, f[i][#]]&];
         *)
         Def sumso := idx S => fun M : SET[S] => idx T1 => idx T2 => fun f : BASIS[S] -> OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => Sum i in M, f i X.
 
-        (* oppso 
+        (* oppso
         oppso[e_] := (CPX[-1] ~SCRO~ e[#])&;
         *)
         Def oppso := idx T1 => idx T2 => fun e : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => -1 . (e X).
 
-        (* scaleso 
+        (* scaleso
         scaleso[c_, e_]:= (c ~SCRO~ e[#])&;
         *)
         Def scaleso := idx T1 => idx T2 => fun c : STYPE => fun E : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T2, T2] => c (E X).
 
-        (* compso 
+        (* compso
         compso[e_, f_]:= e[f[#]]&;
         *)
         Def compso := idx T1 => idx T2 => idx T3 => fun e : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun f : OTYPE[T3, T3] -> OTYPE[T2, T2] => fun X : OTYPE[T3, T3] => e (f X).
@@ -518,7 +518,7 @@ namespace dhammer {
         Def compsor := idx T1 => idx T2 => idx T3 => fun e : OTYPE[T3, T3] -> OTYPE[T2, T2] => fun f : OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T3, T3] => f (e X).
 
         (* ifso
-        ifso[M_, e_, f_] := Module[{i}, 
+        ifso[M_, e_, f_] := Module[{i},
 	SUMO[IDX[{i, M}], f[i][e[i]\[SmallCircle]#\[SmallCircle]SuperDagger[(e[i])]]]&];
         *)
         Def ifso := idx S => fun M : SET[S] => idx T1 => idx T2 => idx T3 => fun e : BASIS[S] -> OTYPE[T2, T3] => fun F : BASIS[S] -> OTYPE[T2, T2] -> OTYPE[T1, T1] => fun X : OTYPE[T3, T3] => Sum i in M, F i ((e i) X (e i)^D).

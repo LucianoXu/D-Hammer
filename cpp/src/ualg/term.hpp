@@ -33,7 +33,7 @@ namespace ualg {
 
     /**
      * @brief The abstract class for terms.
-     * 
+     *
      * @tparam T The type of the head(data) of the term. The function std::string data_to_string(const T&) and std::size_t hash_value(const T&) should be defined.
      */
     template <class T>
@@ -42,7 +42,7 @@ namespace ualg {
         T head;
         ListArgs<T> args;
 
-    public: 
+    public:
         Term(const T& head);
         Term(const T& head, const ListArgs<T>& args);
         Term(const T& head, ListArgs<T>&& args);
@@ -69,7 +69,7 @@ namespace ualg {
         TermPtr<T> replace_at(const TermPos& pos, TermPtr<T> new_subterm) const;
 
         virtual ~Term() = default;
-    
+
     };
 
 
@@ -123,7 +123,7 @@ namespace ualg {
         }
         return EQUAL;
     }
-    
+
 
     template <class T>
     bool Term<T>::operator == (const Term<T>& other) const {

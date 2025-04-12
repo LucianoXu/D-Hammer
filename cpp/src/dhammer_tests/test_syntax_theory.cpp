@@ -45,7 +45,7 @@ TEST(dhammerSyntaxTheory, Substitution1) {
 
     auto initial_term = sig.parse("IDX[x, T]]");
     auto var = sig.parse("x")->get_head();
-    
+
     auto actual_res = subst(sig, initial_term, var, sig.parse("z"));
     auto expected_res = initial_term;
 
@@ -57,7 +57,7 @@ TEST(dhammerSyntaxTheory, Substitution2) {
 
     auto initial_term = sig.parse("IDX[x, T]]");
     auto var = sig.parse("T")->get_head();
-    
+
     auto actual_res = subst(sig, initial_term, var, sig.parse("APPLY[x, x]"));
     auto expected_res = sig.parse("IDX[$0, APPLY[x, x]]]");
 
@@ -69,7 +69,7 @@ TEST(dhammerSyntaxTheory, Substitution3) {
 
     auto initial_term = sig.parse("FUN[x, KTYPE[x], APPLY[x, y]]");
     auto var = sig.parse("x")->get_head();
-    
+
     auto actual_res = subst(sig, initial_term, var, sig.parse("y"));
     auto expected_res = sig.parse("FUN[x, KTYPE[y], APPLY[x, y]]");
 

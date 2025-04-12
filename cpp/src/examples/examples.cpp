@@ -11,7 +11,7 @@ namespace examples {
 
         // use the Wolfram Engine on MacOS
         auto [ep, lp] = wstp::init_and_openlink(wstp::MACOS_ARGC, wstp::MACOS_ARGV);
-        
+
         auto prover = make_unique<Prover>(std_prover(lp));
         prover->process("Normalize Times[I, I].");
 
@@ -38,7 +38,7 @@ namespace examples {
 QCQI-1
 
 Block[
- {DiracCtx = {A -> OType[T1, T2], M -> SetType[m], a[_] -> SType, 
+ {DiracCtx = {A -> OType[T1, T2], M -> SetType[m], a[_] -> SType,
     v[_] -> KType[T2]}},
  DNEqQ[
   A\[SmallCircle]Sum[a[i] v[i], {i, M}],
@@ -66,7 +66,7 @@ Block[
 QCQI-2
 
 Block[
- {DiracCtx = {v -> KType[T1], M -> SetType[m], lambda[_] -> SType, 
+ {DiracCtx = {v -> KType[T1], M -> SetType[m], lambda[_] -> SType,
     w[_] -> KType[T1]}},
  DNEqQ[
   SuperDagger[v]\[SmallCircle]Sum[lambda[i] w[i], {i, M}],
@@ -113,7 +113,7 @@ Block[
 QCQI-4
 
 Block[
- {DiracCtx = {M -> SetType[m], lambda[_] -> SType, w[_] -> KType[T], 
+ {DiracCtx = {M -> SetType[m], lambda[_] -> SType, w[_] -> KType[T],
     v -> KType[T]}},
  DNEqQ[
   ADJB[SUMK[i, M, lambda[i]~SCRK~w[i]]]~DOT~v,
@@ -224,13 +224,13 @@ DNEqQ[
 QCQI-9
 
 Block[
- {DiracCtx = {M -> SetType[m], T -> SetType[t], w[_] -> KType[T1], 
+ {DiracCtx = {M -> SetType[m], T -> SetType[t], w[_] -> KType[T1],
     A -> OType[T1, T2], v[_] -> KType[T2]}},
  DNEqQ[
-  SUMO[i, M, 
+  SUMO[i, M,
    SUMO[j, T, (w[j]~OUTER~ADJB[w[j]])~MLTO~A~
      MLTO~(v[i]~OUTER~ADJB[v[i]])]],
-  SUMO[i, M, 
+  SUMO[i, M,
    SUMO[j, T, (ADJB[w[j]]~DOT~(A~MLTK~v[i]))~
      SCRO~(w[j]~OUTER~ADJB[v[i]])]]
   ]
@@ -260,7 +260,7 @@ Block[
  {DiracCtx = {v -> KType[T1], w -> KType[T2]}},
  DNEqQ[
   (ADJB[v]~DOT~v)~MLTS~(ADJB[w]~DOT~w),
-  SUMS[i, 
+  SUMS[i,
    USET[T1], (ADJB[v]~DOT~KET[i])~MLTS~(BRA[i]~DOT~v)~
     MLTS~(ADJB[w]~DOT~w)]
   ]
@@ -283,7 +283,7 @@ Block[
 QCQI-11
 
 Block[
- {DiracCtx = {M -> SetType[m], a[_] -> SType, 
+ {DiracCtx = {M -> SetType[m], a[_] -> SType,
     A[_] -> OType[T1, T2]}},
  DNEqQ[
   ADJO[SUMO[i, M, a[i]~SCRO~A[i]]],
@@ -336,8 +336,8 @@ Block[
 QCQI-13
 
 Block[
- {DiracCtx = {M -> SetType[m], A -> OType[T1, R1], 
-    B -> OType[T2, R2], a[_] -> SType, v[_] -> KType[R1], 
+ {DiracCtx = {M -> SetType[m], A -> OType[T1, R1],
+    B -> OType[T2, R2], a[_] -> SType, v[_] -> KType[R1],
     w[_] -> KType[R2]}},
  DNEqQ[
   (A~TSRO~B)~MLTK~SUMK[i, M, a[i]~SCRK~(v[i]~TSRK~w[i])],
@@ -377,14 +377,14 @@ Block[
  DNEqQ[
   (ADJB[SUMK[i, M, a[i]~SCRK~(v[i]~TSRK~w[i])]])~DOT~
    SUMK[j, T, b[j]~SCRK~(v2[j]~TSRK~w2[j])],
-  SUMS[i, M, 
-   SUMS[j, T, 
-    MLTS[CONJS[a[i]], b[j], ADJB[v[i]]~DOT~v2[j], 
+  SUMS[i, M,
+   SUMS[j, T,
+    MLTS[CONJS[a[i]], b[j], ADJB[v[i]]~DOT~v2[j],
      ADJB[w[i]]~DOT~w2[j]]]]
   ]
  ]
 */
-    
+
         {
             "QCQI-14",
             R"(
@@ -403,7 +403,7 @@ Block[
             )",
             "((Sum i in M, (a i).((v i) (w i)))^D) (Sum j in T, (b j).((v2 j) (w2 j)))",
             "Sum i in M, Sum j in T, ((a i)^* * (b j) * ((v i)^D (v2 j))) ((w i)^D (w2 j))"
-        },  
+        },
 
 /*
 QCQI-15
@@ -411,7 +411,7 @@ QCQI-15
 Block[
  {DiracCtx = {v -> KType[T], w -> KType[R]}},
  DNEqQ[
-  SUMS[i, 
+  SUMS[i,
    USET[T], (ADJB[v]~DOT~KET[i])~MLTS~(BRA[i]~DOT~v)~
     MLTS~(ADJB[w]~DOT~w)],
   (ADJB[v]~DOT~v)~MLTS~(ADJB[w]~DOT~w)
@@ -437,7 +437,7 @@ QCQI-16
 Block[
  {DiracCtx = {psi -> KType[T1], M[_] -> OType[T1, T1], m -> T2}},
  DNEqQ[
-  SUMS[i, USET[T2], 
+  SUMS[i, USET[T2],
    SUMS[j, USET[
      T2], (((ADJB[psi]~MLTB~ADJO[M[m]])~TSRB~BRA[i])~
        MLTB~(ONEO[T1]~TSRO~(KET[m]~OUTER~BRA[m])))~
@@ -511,11 +511,11 @@ Block[
                 Var d : STYPE.
             )",
             "Exp[I a] (Rz b) (Ry g) (Rz d)",
-            
+
             R"(
-                Exp[I (a + Minus[half b] + Minus[half d])] Cos[half g] (|#0> <#0|) + 
-                Minus[Exp[I (a + Minus[half b] + (half d))]] Sin[half g] (|#0> <#1|) + 
-                Exp[I (a + (half b) + Minus[half d])] Sin[half g] (|#1> <#0|) + 
+                Exp[I (a + Minus[half b] + Minus[half d])] Cos[half g] (|#0> <#0|) +
+                Minus[Exp[I (a + Minus[half b] + (half d))]] Sin[half g] (|#0> <#1|) +
+                Exp[I (a + (half b) + Minus[half d])] Sin[half g] (|#1> <#0|) +
                 Exp[I (a + (half b) + (half d))] Cos[half g] (|#1> <#1|)
             )"
         },
@@ -528,7 +528,7 @@ Block[
  With[
   {sigma = SUMK[i, USET[T], KET[PAIR[i, i]]]},
   DNEqQ[
-   (A~TSRO~ONEO[T])~MLTK~sigma, 
+   (A~TSRO~ONEO[T])~MLTK~sigma,
    (ONEO[T]~TSRO~TPO[A, T, T])~MLTK~sigma
    ]
   ]
@@ -605,7 +605,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-3 lftrace_is_linear",
             R"(
@@ -652,7 +652,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-5 lftrace_tr",
             R"(
@@ -674,7 +674,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-6 lftrace_conj",
             R"(
@@ -719,7 +719,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-8 sumeb_out",
             R"(
@@ -765,7 +765,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-10 comp_delta_lf_cond",
             R"(
@@ -792,7 +792,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-11 comp_delta_lf",
             R"(
@@ -818,7 +818,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-12 trlf_deltar",
             R"(
@@ -838,7 +838,7 @@ COQQ-13 lfun_sum_delta
 Block[
  {DiracCtx = {A -> OType[T1, T2]}},
  DNEqQ[
-  SUMO[j, USET[T2], 
+  SUMO[j, USET[T2],
    SUMO[i, USET[T1], (BRA[i]~DOT~(A~MLTK~KET[j]))~
      SCRO~(KET[i]~OUTER~BRA[j])]],
   A
@@ -909,7 +909,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-16 outp_complV",
             R"(
@@ -935,7 +935,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-17 outp_comprV",
             R"(
@@ -954,7 +954,7 @@ Block[
 COQQ-18 onb_lfun(CB)
 
 Block[{DiracCtx = {A -> OType[T1, T2]}},
- DNEqQ[A, 
+ DNEqQ[A,
   SUMO[i, USET[T2], (A\[SmallCircle]Ket[{i}])\[SmallCircle]Bra[{i}]]]
  ]
 */
@@ -979,7 +979,7 @@ Block[{DiracCtx = {A -> OType[T1, T2]}},
 /*
 COQQ-19 sumonb_out_bool(CB)
 Block[{DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
- DNEqQ[Ket[{0}]\[SmallCircle]Bra[{0}] + 
+ DNEqQ[Ket[{0}]\[SmallCircle]Bra[{0}] +
    Ket[{1}]\[SmallCircle]Bra[{1}], ONEO[{0, 1}]]
  ]
 */
@@ -1016,7 +1016,7 @@ Block[{DiracCtx = {i -> T}},
 COQQ-21 linear_tensmx
 
 Block[
- {DiracCtx = {a -> SType, A -> OType[T1, T2], B -> OType[T3, T4], 
+ {DiracCtx = {a -> SType, A -> OType[T1, T2], B -> OType[T3, T4],
     D -> OType[T3, T4]}},
  DNEqQ[
   A\[CircleTimes]((a B) ~ADDO~ D),
@@ -1045,7 +1045,7 @@ Block[
 COQQ-22 linear_tensmxr
 
 Block[
- {DiracCtx = {a -> SType, A -> OType[T1, T2], B -> OType[T1, T2], 
+ {DiracCtx = {a -> SType, A -> OType[T1, T2], B -> OType[T1, T2],
     D -> OType[T3, T4]}},
  DNEqQ[
   ((a A)~ADDO~ B)\[CircleTimes]D,
@@ -1107,7 +1107,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-24 mxtrace_tens",
             R"(
@@ -1128,12 +1128,12 @@ Block[
  DNEqQ[
   DNTr[A, T1~ProdType~T2],
   Sum[Sum[
-    Bra[{PAIR[i, j]}]\[SmallCircle]A\[SmallCircle]Ket[{PAIR[i, 
+    Bra[{PAIR[i, j]}]\[SmallCircle]A\[SmallCircle]Ket[{PAIR[i,
         j]}], {i, USET[T1]}], {j, USET[T2]}]
   ]
  ]
 */
-    
+
         {
             "COQQ-25 tr_tens",
             R"(
@@ -1250,7 +1250,7 @@ Block[
 COQQ-30 mxswap_mul
 
 Block[
- {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T4], 
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T4],
     B -> OType[T3~ProdType~T4, T5~ProdType~T6]}},
  DNEqQ[
   SWAP[A, T1, T2, T3, T4]~MLTO~SWAP[B, T3, T4, T5, T6],
@@ -1360,7 +1360,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-34 ptrace1E2",
             R"(
@@ -1405,7 +1405,7 @@ Block[
 COQQ-36 ptrace1_is_linear
 
 Block[
- {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T3], 
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T3],
     B -> OType[T1~ProdType~T2, T1~ProdType~T3], c -> SType}},
  DNEqQ[
   DNPTr1[(c A) ~ADDO~ B, T1, T2, T3],
@@ -1478,7 +1478,7 @@ Block[
 COQQ-39 ptrace1_mul_tens1mx
 
 Block[
- {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T3], 
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T3],
     B -> OType[T3, T4]}},
  DNEqQ[
   DNPTr1[A~MLTO~(ONEO[T1]~TSRO~B), T1, T2, T4],
@@ -1527,12 +1527,12 @@ Block[
 COQQ-41 tensmxE_mid
 
 Block[
- {DiracCtx = {i -> T1, A -> OType[T1, T2~ProdType~T2p], 
+ {DiracCtx = {i -> T1, A -> OType[T1, T2~ProdType~T2p],
     B -> OType[T2~ProdType~T2p, T3], j -> T3}},
  DNEqQ[
-  BRA[i]~DOT~((A~MLTO~B)~MLTK~KET[j]), 
-  SUMS[i1, USET[T2], 
-   SUMS[i2, 
+  BRA[i]~DOT~((A~MLTO~B)~MLTK~KET[j]),
+  SUMS[i1, USET[T2],
+   SUMS[i2,
     USET[T2p], (BRA[i]~DOT~(A~MLTK~KET[PAIR[i1, i2]]))~
      MLTS~(BRA[PAIR[i1, i2]]~DOT~(B~MLTK~KET[j]))]]
   ]
@@ -1559,7 +1559,7 @@ Block[
 COQQ-42 tens_delta_mx1_mulEl
 
 Block[
- {DiracCtx = {k -> T1, p -> T2, i -> T1, j -> T3, 
+ {DiracCtx = {k -> T1, p -> T2, i -> T1, j -> T3,
     A -> OType[T3~ProdType~T2, T5], q -> T5}},
  DNEqQ[
   BRA[PAIR[k, p]]~
@@ -1591,7 +1591,7 @@ Block[
 COQQ-43 tens_delta_mx1_mulEr
 
 Block[
- {DiracCtx = {p -> T1, A -> OType[T1, T2~ProdType~T3], i -> T2, 
+ {DiracCtx = {p -> T1, A -> OType[T1, T2~ProdType~T3], i -> T2,
     j -> T4, k -> T4, q -> T3}},
  DNEqQ[
   BRA[p]~
@@ -1624,7 +1624,7 @@ Block[
 COQQ-44 diag_mx_tens
 
 Block[{DiracCtx = {K1 -> KType[T1], K2 -> KType[T2]}},
- DNEqQ[diagmx[K1\[CircleTimes]K2, T1~ProdType~T2], 
+ DNEqQ[diagmx[K1\[CircleTimes]K2, T1~ProdType~T2],
   diagmx[K1, T1]\[CircleTimes]diagmx[K2, T2]]
  ]
 */
@@ -1632,7 +1632,7 @@ Block[{DiracCtx = {K1 -> KType[T1], K2 -> KType[T2]}},
         {
             "COQQ-44 diag_mx_tens",
             R"(
-                (* diagonal matrix 
+                (* diagonal matrix
                     diagmx[K_,T_]:=Module[{i}, SUMO[IDX[{i, USET[T]}], (Bra[{i}]\[SmallCircle]K)Ket[{i}]\[SmallCircle]Bra[{i}]]];
                 *)
                 Def diagmx := idx sigma => fun K : KTYPE[sigma] => Sum i in USET[sigma], (<i| K) . |i> <i|.
@@ -1650,7 +1650,7 @@ Block[{DiracCtx = {K1 -> KType[T1], K2 -> KType[T2]}},
 COQQ-45 ptrace2_mulmxI
 
 Block[
- {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T2], 
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T3~ProdType~T2],
     B -> OType[T3, T4]}},
  DNEqQ[
   DNPTr2[A~MLTO~(B~TSRO~ONEO[T2]), T2, T1, T4],
@@ -1658,7 +1658,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-45 ptrace2_mulmxI",
             R"(
@@ -1680,17 +1680,17 @@ Block[
  {DiracCtx = {K -> KType[T], B -> OType[T, T], A -> OType[T, T]}},
  DNEqQ[
   A\[SmallCircle]diagmx[K, T]\[SmallCircle]B,
-  Sum[(Bra[{i}] \[SmallCircle]K)  (A \[SmallCircle] 
-       Ket[{i}]) \[SmallCircle] (Bra[{i}] \[SmallCircle] B), {i, 
+  Sum[(Bra[{i}] \[SmallCircle]K)  (A \[SmallCircle]
+       Ket[{i}]) \[SmallCircle] (Bra[{i}] \[SmallCircle] B), {i,
     USET[T]}]
   ]
  ]
 */
-    
+
         {
             "COQQ-46 mulmx_diag_colrow",
             R"(
-                (* diagonal matrix 
+                (* diagonal matrix
                     diagmx[K_,T_]:=Module[{i}, SUMO[IDX[{i, USET[T]}], (Bra[{i}]\[SmallCircle]K)Ket[{i}]\[SmallCircle]Bra[{i}]]];
                 *)
                 Def diagmx := idx sigma => fun K : KTYPE[sigma] => Sum i in USET[sigma], (<i| K) . |i> <i|.
@@ -1715,11 +1715,11 @@ Block[
   ]
  ]
 */
-    
+
         {
             "COQQ-47 cplmtE",
             R"(
-                (* cplmt 
+                (* cplmt
                 cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
                 *)
                 Def cplmt := idx T => fun A : OTYPE[T, T] => 1O[T] + (-1) . A.
@@ -1747,7 +1747,7 @@ Block[
         {
             "COQQ-48 cplmtK",
             R"(
-                (* cplmt 
+                (* cplmt
                 cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
                 *)
                 Def cplmt := idx T => fun A : OTYPE[T, T] => 1O[T] + (-1) . A.
@@ -1774,7 +1774,7 @@ Block[
         {
             "COQQ-49 cplmt1",
             R"(
-                (* cplmt 
+                (* cplmt
                 cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
                 *)
                 Def cplmt := idx T => fun A : OTYPE[T, T] => 1O[T] + (-1) . A.
@@ -1796,11 +1796,11 @@ Block[
   ]
  ]
 */
-    
+
         {
             "COQQ-50 cplmt0",
             R"(
-                (* cplmt 
+                (* cplmt
                 cplmt[A_, T_]:= ONEO[T] ~ADDO~ (CPX[-1]~SCRO~A);
                 *)
                 Def cplmt := idx T => fun A : OTYPE[T, T] => 1O[T] + (-1) . A.
@@ -1817,7 +1817,7 @@ Block[
 COQQ-51 formlf_comp
 
 Block[
- {DiracCtx = {A -> OType[T1, T2], B -> OType[T2, T3], 
+ {DiracCtx = {A -> OType[T1, T2], B -> OType[T2, T3],
     X -> OType[T3, T3]}},
  DNEqQ[
   formlf[A, formlf[B, X]],
@@ -1825,7 +1825,7 @@ Block[
   ]
  ]
 */
-    
+
         {
             "COQQ-51 formlf_comp",
             R"(
@@ -1875,7 +1875,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-53 formlf1E",
             R"(
@@ -1962,7 +1962,7 @@ Block[
 COQQ-57 formlf_linear
 
 Block[
- {DiracCtx = {A -> OType[T1, T2], X -> OType[T2, T2], 
+ {DiracCtx = {A -> OType[T1, T2], X -> OType[T2, T2],
     Y -> OType[T2, T2], c -> SType}},
  DNEqQ[
   formlf[A, (c X) ~ADDO~ Y],
@@ -1989,8 +1989,8 @@ Block[
 COQQ-58 superop_is_linear
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
-    f[_] -> OType[T1, T2], X -> OType[T2, T2], Y -> OType[T2, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
+    f[_] -> OType[T1, T2], X -> OType[T2, T2], Y -> OType[T2, T2],
     a -> SType}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2022,13 +2022,13 @@ Block[
 COQQ-59 addsoA
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T1, T2], 
+    M2 -> SetType[S2], e2[_] -> OType[T1, T2],
     f2[_] -> OType[T1, T2],
     M3 -> SetType[S3], e3[_] -> OType[T1, T2], f3[_] -> OType[T1, T2],
      X -> OType[T2, T2]}},
- E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E3 = superop[M3, e3, f3];
  DNEqQ[
   addso[E1, addso[E2, E3]][X],
@@ -2068,7 +2068,7 @@ Block[
 COQQ-60 addsoC
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
      X -> OType[T2, T2]}},
@@ -2106,7 +2106,7 @@ Block[
 COQQ-61 add0so
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2137,7 +2137,7 @@ Block[
 COQQ-62 addNso
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2168,7 +2168,7 @@ Block[
 COQQ-63 scale1so
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2177,7 +2177,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-63 scale1so",
             R"(
@@ -2199,8 +2199,8 @@ Block[
 COQQ-64 scalesoDl
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
-    f[_] -> OType[T1, T2], X -> OType[T2, T2], a -> SType, 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
+    f[_] -> OType[T1, T2], X -> OType[T2, T2], a -> SType,
     b -> SType}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2234,7 +2234,7 @@ Block[
 COQQ-65 scalesoDr
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2], M2 -> SetType[S2], e2[_] -> OType[T1, T2],
      f2[_] -> OType[T1, T2], X -> OType[T2, T2], a -> SType}},
  E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
@@ -2272,8 +2272,8 @@ Block[
 COQQ-66 scalesoA
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
-    f[_] -> OType[T1, T2], X -> OType[T2, T2], a -> SType, 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
+    f[_] -> OType[T1, T2], X -> OType[T2, T2], a -> SType,
     b -> SType}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2329,7 +2329,7 @@ Block[
 COQQ-68 add_soE
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
      X -> OType[T2, T2]}},
@@ -2340,7 +2340,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-68 add_soE",
             R"(
@@ -2367,7 +2367,7 @@ Block[
 COQQ-69 opp_soE
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2397,8 +2397,8 @@ Block[
 /*
 COQQ-70 sum_soE
 
-Block[{DiracCtx = {M -> SetType[Sm], Ni[_] -> SetType[Sn], 
-    fl[_][_] -> OType[T1, T2], fr[_][_] -> OType[T1, T2], 
+Block[{DiracCtx = {M -> SetType[Sm], Ni[_] -> SetType[Sn],
+    fl[_][_] -> OType[T1, T2], fr[_][_] -> OType[T1, T2],
     X -> OType[T2, T2]}},
  DNEqQ[sumso[M, superop[Ni[#], fl[#], fr[#]] &][X],
   SUMO[i, M, superop[Ni[i], fl[i], fr[i]][X]]]
@@ -2426,7 +2426,7 @@ Block[{DiracCtx = {M -> SetType[Sm], Ni[_] -> SetType[Sn],
 COQQ-71 scale_soE
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2], c -> SType}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2457,9 +2457,9 @@ Block[
 /*
 COQQ-72 comp_soElr
 
-Block[{DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+Block[{DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3],
     f2[_] -> OType[T2, T3], X -> OType[T3, T3]}},
  E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  DNEqQ[compso[E1, E2][X], compsor[E2, E1][X]]
@@ -2492,9 +2492,9 @@ Block[{DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
 /*
 COQQ-73 comp_soErl
 
-Block[{DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T2, T1], 
+Block[{DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T2, T1],
     f1[_] -> OType[T2, T1],
-    M2 -> SetType[S2], e2[_] -> OType[T3, T2], 
+    M2 -> SetType[S2], e2[_] -> OType[T3, T2],
     f2[_] -> OType[T3, T2], X -> OType[T1, T1]}},
  E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  DNEqQ[compsor[E1, E2][X], compso[E2, E1][X]]
@@ -2535,7 +2535,7 @@ Block[
   ]
  ]
 */
-    
+
         {
             "COQQ-74 id_soE",
             R"(
@@ -2551,7 +2551,7 @@ Block[
 COQQ-75 comp_soE
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
      X -> OType[T3, T3]}},
@@ -2590,7 +2590,7 @@ Block[
 COQQ-76 comp_sorE
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
      X -> OType[T3, T3]}},
@@ -2629,13 +2629,13 @@ Block[
 COQQ-77 comp_soA
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3],
     f2[_] -> OType[T2, T3],
     M3 -> SetType[S3], e3[_] -> OType[T3, T4], f3[_] -> OType[T3, T4],
      X -> OType[T4, T4]}},
- E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E3 = superop[M3, e3, f3];
  DNEqQ[
   compso[E1, compso[E2, E3]][X],
@@ -2677,13 +2677,13 @@ Block[
 COQQ-78 comp_sorA
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3],
     f2[_] -> OType[T2, T3],
     M3 -> SetType[S3], e3[_] -> OType[T3, T4], f3[_] -> OType[T3, T4],
      X -> OType[T4, T4]}},
- E3 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+ E3 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E1 = superop[M3, e3, f3];
  DNEqQ[
   compsor[E1, compsor[E2, E3]][X],
@@ -2729,9 +2729,9 @@ Block[
     m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
     e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
     e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
-    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3], 
+    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3],
     X -> OType[T3, T3], a -> SType}},
- E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2];
  E3 = superop[m3, e3, f3];
  DNEqQ[
   compso[E1, addso[scaleso[a, E2], E3]][X],
@@ -2777,9 +2777,9 @@ Block[
     m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
     e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
     e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
-    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3], 
+    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3],
     X -> OType[T3, T3], a -> SType}},
- E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2];
  E3 = superop[m3, e3, f3];
  DNEqQ[
   compso[addso[scaleso[a, E1], E2], E3][X],
@@ -2825,9 +2825,9 @@ Block[
     m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
     e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
     e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
-    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1], 
+    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1],
     X -> OType[T2, T2], a -> SType}},
- E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2];
  E3 = superop[m3, e3, f3];
  DNEqQ[
   compsor[E1, addso[scaleso[a, E2], E3]][X],
@@ -2873,9 +2873,9 @@ Block[
     m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
     e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
     e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
-    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1], 
+    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1],
     X -> OType[T2, T2], a -> SType}},
- E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2];
  E3 = superop[m3, e3, f3];
  DNEqQ[
   compsor[addso[scaleso[a, E1], E2], E3][X],
@@ -2917,7 +2917,7 @@ Block[
 COQQ-83 comp_so1l
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2948,7 +2948,7 @@ Block[
 COQQ-84 comp_so1r
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -2975,11 +2975,11 @@ Block[
             "E1 X"
         },
 
-/*  
+/*
 COQQ-85 comp_so0l
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -3011,7 +3011,7 @@ Block[
 COQQ-86 comp_so0r
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T3, T3]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -3043,13 +3043,13 @@ Block[
 COQQ-87 comp_soDl
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T1, T2], 
+    M2 -> SetType[S2], e2[_] -> OType[T1, T2],
     f2[_] -> OType[T1, T2],
     M3 -> SetType[S3], e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3],
      X -> OType[T3, T3]}},
-   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E3 = superop[M3, e3, f3];
  DNEqQ[
   compso[addso[E1, E2], E3][X],
@@ -3090,13 +3090,13 @@ Block[
 COQQ-88 comp_soDr
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3],
     f2[_] -> OType[T2, T3],
     M3 -> SetType[S3], e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3],
      X -> OType[T3, T3]}},
-   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E3 = superop[M3, e3, f3];
  DNEqQ[
   compso[E1, addso[E2, E3]][X],
@@ -3137,7 +3137,7 @@ Block[
 COQQ-89 comp_soNl
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
      X -> OType[T3, T3]}},
@@ -3177,7 +3177,7 @@ Block[
 COQQ-90 comp_soNr
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
      X -> OType[T3, T3]}},
@@ -3216,7 +3216,7 @@ Block[
 COQQ-91 comp_soZl
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
      X -> OType[T3, T3], a -> SType}},
@@ -3256,7 +3256,7 @@ Block[
 COQQ-92 comp_soZr
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
      X -> OType[T3, T3], a -> SType}},
@@ -3267,7 +3267,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-92 comp_soZr",
             R"(
@@ -3300,9 +3300,9 @@ Block[
     m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
     e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
     e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
-    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3], 
+    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3],
     X -> OType[T3, T3], a -> SType}},
- E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2];
  E3 = superop[m3, e3, f3];
  DNEqQ[
   compso[addso[scaleso[a, E1], E2], E3][X],
@@ -3348,9 +3348,9 @@ Block[
     m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
     e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
     e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
-    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3], 
+    e3[_] -> OType[T2, T3], f3[_] -> OType[T2, T3],
     X -> OType[T3, T3], a -> SType}},
- E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2];
  E3 = superop[m3, e3, f3];
  DNEqQ[
   compso[E1, addso[scaleso[a, E2], E3]][X],
@@ -3392,7 +3392,7 @@ Block[
 COQQ-95 comp_sor1l
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -3423,7 +3423,7 @@ Block[
 COQQ-96 comp_sor1r
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -3454,7 +3454,7 @@ Block[
 COQQ-97 comp_sor0l
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T3, T3]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -3486,7 +3486,7 @@ Block[
 COQQ-98 comp_sor0r
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -3518,13 +3518,13 @@ Block[
 COQQ-99 comp_sorDl
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T1, T2], 
+    M2 -> SetType[S2], e2[_] -> OType[T1, T2],
     f2[_] -> OType[T1, T2],
     M3 -> SetType[S3], e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1],
      X -> OType[T2, T2]}},
-   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E3 = superop[M3, e3, f3];
  DNEqQ[
   compsor[addso[E1, E2], E3][X],
@@ -3565,13 +3565,13 @@ Block[
 COQQ-100 comp_sorDr
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T3, T1], 
+    M2 -> SetType[S2], e2[_] -> OType[T3, T1],
     f2[_] -> OType[T3, T1],
     M3 -> SetType[S3], e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1],
      X -> OType[T2, T2]}},
-   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E3 = superop[M3, e3, f3];
  DNEqQ[
   compsor[E1, addso[E2, E3]][X],
@@ -3612,7 +3612,7 @@ Block[
 COQQ-101 comp_sorNl
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
      X -> OType[T2, T2]}},
@@ -3651,7 +3651,7 @@ Block[
 COQQ-102 comp_sorNr
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
      X -> OType[T2, T2]}},
@@ -3690,7 +3690,7 @@ Block[
 COQQ-103 comp_sorZl
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
      X -> OType[T2, T2], a -> SType}},
@@ -3730,7 +3730,7 @@ Block[
 COQQ-104 comp_sorZr
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
      X -> OType[T2, T2], a -> SType}},
@@ -3774,9 +3774,9 @@ Block[
     m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
     e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
     e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
-    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1], 
+    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1],
     X -> OType[T2, T2], a -> SType}},
- E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2];
  E3 = superop[m3, e3, f3];
  DNEqQ[
   compsor[addso[scaleso[a, E1], E2], E3][X],
@@ -3822,9 +3822,9 @@ Block[
     m1 -> SetType[M1], m2 -> SetType[M2], m3 -> SetType[M3],
     e1[_] -> OType[T1, T2], f1[_] -> OType[T1, T2],
     e2[_] -> OType[T3, T1], f2[_] -> OType[T3, T1],
-    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1], 
+    e3[_] -> OType[T3, T1], f3[_] -> OType[T3, T1],
     X -> OType[T2, T2], a -> SType}},
- E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2]; 
+ E1 = superop[m1, e1, f1]; E2 = superop[m2, e2, f2];
  E3 = superop[m3, e3, f3];
  DNEqQ[
   compsor[E1, addso[scaleso[a, E2], E3]][X],
@@ -3866,15 +3866,15 @@ Block[
 COQQ-107 comp_soACA
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
-    M2 -> SetType[S2], e2[_] -> OType[T2, T3], 
+    M2 -> SetType[S2], e2[_] -> OType[T2, T3],
     f2[_] -> OType[T2, T3],
-    M3 -> SetType[S3], e3[_] -> OType[T3, T4], 
+    M3 -> SetType[S3], e3[_] -> OType[T3, T4],
     f3[_] -> OType[T3, T4],
     M4 -> SetType[S4], e4[_] -> OType[T4, T5], f4[_] -> OType[T4, T5],
      X -> OType[T5, T5]}},
-   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E3 = superop[M3, e3, f3]; E4 = superop[M4, e4, f4];
  DNEqQ[
   compso[compso[compso[E1, E2], E3], E4][X],
@@ -3923,15 +3923,15 @@ Block[
 COQQ-108 comp_sorACA
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T2, T1], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T2, T1],
     f1[_] -> OType[T2, T1],
-    M2 -> SetType[S2], e2[_] -> OType[T3, T2], 
+    M2 -> SetType[S2], e2[_] -> OType[T3, T2],
     f2[_] -> OType[T3, T2],
-    M3 -> SetType[S3], e3[_] -> OType[T4, T3], 
+    M3 -> SetType[S3], e3[_] -> OType[T4, T3],
     f3[_] -> OType[T4, T3],
     M4 -> SetType[S4], e4[_] -> OType[T5, T4], f4[_] -> OType[T5, T4],
      X -> OType[T1, T1]}},
-   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2]; 
+   E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  E3 = superop[M3, e3, f3]; E4 = superop[M4, e4, f4];
  DNEqQ[
   compsor[compsor[compsor[E1, E2], E3], E4][X],
@@ -3979,7 +3979,7 @@ Block[
 COQQ-109 krausso_fun_is_linear
 
 Block[
- {DiracCtx = {m -> SetType[M], e[_] -> OType[T1, T2], a -> SType, 
+ {DiracCtx = {m -> SetType[M], e[_] -> OType[T1, T2], a -> SType,
     X -> OType[T2, T2], Y -> OType[T2, T2]}},
  DNEqQ[
   krausso[m, e][(a~SCRO~X)~ADDO~Y],
@@ -3987,7 +3987,7 @@ Block[
   ]
  ]
 */
-    
+
         {
             "COQQ-109 krausso_fun_is_linear",
             R"(
@@ -4009,7 +4009,7 @@ Block[
 COQQ-110 kraussoE
 
 Block[
- {DiracCtx = {m -> SetType[M], e[_] -> OType[T1, T2], 
+ {DiracCtx = {m -> SetType[M], e[_] -> OType[T1, T2],
     X -> OType[T2, T2]}},
  DNEqQ[
   krausso[m, e][X],
@@ -4086,12 +4086,12 @@ Block[
 COQQ-113 ifso_fun_is_linear
 
 Block[{DiracCtx = {M -> SetType[Sm], e[_] -> OType[T1, T2],
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1],
     a -> SType, X -> OType[T2, T2], Y -> OType[T2, T2]}},
  E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
  DNEqQ[ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][a~SCRO~X + Y],
-  a~SCRO~ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][X] + 
+  a~SCRO~ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][X] +
    ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][Y]]
  ]
 */
@@ -4123,7 +4123,7 @@ COQQ-114 ifsoE
 
 Block[
  {DiracCtx = {M -> SetType[Sm], e[_] -> OType[T1, T2],
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1], X -> OType[T2, T2]}},
  DNEqQ[
   ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][X],
@@ -4164,7 +4164,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-115 formso1",
             R"(
@@ -4183,8 +4183,8 @@ Block[
 COQQ-116 comp_krausso
 
 Block[
- {DiracCtx = {X -> OType[T3, T3], m1 -> SetType[M1], 
-    m2 -> SetType[M2], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {X -> OType[T3, T3], m1 -> SetType[M1],
+    m2 -> SetType[M2], e1[_] -> OType[T1, T2],
     e2[_] -> OType[T2, T3]}},
  DNEqQ[
   compso[krausso[m1, e1], krausso[m2, e2]][X],
@@ -4228,13 +4228,13 @@ COQQ-119 scaleso_krausso omitted : 0 <= c condition
 COQQ-120 choimxE
 
 Block[
- {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], x -> OType[T2, T2]}},
  	E1 = superop[M, e, f];
  DNEqQ[
   DNPTr1[
-   so2choi[E1, 
-     T2]\[SmallCircle](TPO[x, T2, T2]\[CircleTimes]ONEO[T1]), T2, T1, 
+   so2choi[E1,
+     T2]\[SmallCircle](TPO[x, T2, T2]\[CircleTimes]ONEO[T1]), T2, T1,
    T1],
   Sum[e[k]\[SmallCircle]x\[SmallCircle]SuperDagger[f[k]], {k, M}]
   ]
@@ -4262,7 +4262,7 @@ Block[
 COQQ-121 choi2so_fun_is_linear
 
 Block[
- {DiracCtx = {c -> SType, A -> OType[T1~ProdType~T2, T1~ProdType~T2], 
+ {DiracCtx = {c -> SType, A -> OType[T1~ProdType~T2, T1~ProdType~T2],
     B -> OType[T1~ProdType~T2, T1~ProdType~T2], X -> OType[T1, T1]}},
  DNEqQ[
   choi2so[(c ~SCRO~A)~ADDO~B, T1, T2][X],
@@ -4290,7 +4290,7 @@ Block[
 COQQ-122 choi2so_soE
 
 Block[
- {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T2], 
+ {DiracCtx = {A -> OType[T1~ProdType~T2, T1~ProdType~T2],
     X -> OType[T1, T1]}},
  DNEqQ[
   choi2so[A, T1, T2][X],
@@ -4317,7 +4317,7 @@ Block[
 COQQ-123 so2choiK
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -4372,7 +4372,7 @@ Block[
 COQQ-125 so2choi_is_linear
 
 Block[
- {DiracCtx = {c -> SType, M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {c -> SType, M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2], M2 -> SetType[S2], e2[_] -> OType[T1, T2],
      f2[_] -> OType[T1, T2]}},
  E1 = superop[M1, e1, f1]; E2 = superop[M2, e2, f2];
@@ -4409,7 +4409,7 @@ Block[
 COQQ-126 choi2so_is_linear
 
 Block[
- {DiracCtx = {c -> SType, A -> OType[T1~ProdType~T2, T1~ProdType~T2], 
+ {DiracCtx = {c -> SType, A -> OType[T1~ProdType~T2, T1~ProdType~T2],
     B -> OType[T1~ProdType~T2, T1~ProdType~T2], X -> OType[T1, T1]}},
  DNEqQ[
   choi2so[(c ~SCRO~A)~ADDO~B, T1, T2][X],
@@ -4437,7 +4437,7 @@ Block[
 COQQ-127 tr_choi_sep
 
 Block[
- {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2], Y -> OType[T1, T1]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -4470,9 +4470,9 @@ Block[
  {DiracCtx = {e[_] -> OType[T1, T2], m -> SetType[M]}},
  DNEqQ[
   Sum[(Sum[
-      Ket[{i}]\[CircleTimes](e[k]\[SmallCircle]Ket[{i}]), {i, 
+      Ket[{i}]\[CircleTimes](e[k]\[SmallCircle]Ket[{i}]), {i,
        USET[T2]}])\[SmallCircle]SuperDagger[(Sum[
-      Ket[{i}]\[CircleTimes](e[k]\[SmallCircle]Ket[{i}]), {i, 
+      Ket[{i}]\[CircleTimes](e[k]\[SmallCircle]Ket[{i}]), {i,
        USET[T2]}])], {k, m}],
   so2choi[krausso[m, e], T2]
   ]
@@ -4497,7 +4497,7 @@ Block[
 COQQ-129 dualsoK
 
 Block[
- {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[S], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2], X -> OType[T2, T2]}},
  E1 = superop[M, e, f];
  DNEqQ[
@@ -4528,7 +4528,7 @@ Block[
 COQQ-130 dualso_trlfE
 
 Block[
- {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2],
     X -> OType[T2, T2], A -> OType[T1, T1]}},
  E1 = superop[M, e, f];
@@ -4561,7 +4561,7 @@ Block[
 COQQ-131 dualso_trlfEV
 
 Block[
- {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[m], e[_] -> OType[T1, T2],
     f[_] -> OType[T1, T2],
     A -> OType[T2, T2], X -> OType[T1, T1]}},
  E1 = superop[M, e, f];
@@ -4595,7 +4595,7 @@ Block[
 COQQ-132 dualso_krausE
 
 Block[
- {DiracCtx = {e[_] -> OType[T1, T2], X -> OType[T1, T1], 
+ {DiracCtx = {e[_] -> OType[T1, T2], X -> OType[T1, T1],
     m -> SetType[M]}},
  DNEqQ[
   dualso[krausso[m, e], T2, T1][X],
@@ -4623,7 +4623,7 @@ Block[
 COQQ-133 dualso_formE
 
 Block[
- {DiracCtx = {A -> OType[T1, T2], X -> OType[T1, T1], 
+ {DiracCtx = {A -> OType[T1, T2], X -> OType[T1, T1],
     m -> SetType[M]}},
  DNEqQ[
   dualso[formso[A], T2, T1][X],
@@ -4650,7 +4650,7 @@ Block[
 COQQ-134 dualso_krausso
 
 Block[
- {DiracCtx = {e[_] -> OType[T1, T2], X -> OType[T1, T1], 
+ {DiracCtx = {e[_] -> OType[T1, T2], X -> OType[T1, T1],
     m -> SetType[M]}},
  DNEqQ[
   dualso[krausso[m, e], T2, T1][X],
@@ -4703,7 +4703,7 @@ Block[
 COQQ-136 dualso_is_linear
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T1, T2], f2[_] -> OType[T1, T2],
      a -> SType, X -> OType[T1, T1]}},
@@ -4797,7 +4797,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-139 dualso0",
             R"(
@@ -4810,7 +4810,7 @@ Block[
             "abortso T1 T X"
         },
 
-/*  
+/*
 COQQ-140 idso_formE
 
 Block[
@@ -4867,7 +4867,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-142 unitaryso1",
             R"(
@@ -4944,7 +4944,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "COQQ-145 initialso_onb(CB)",
             R"(
@@ -4995,7 +4995,7 @@ Block[
 COQQ-147 dualso_comp
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T1, T2],
     f1[_] -> OType[T1, T2],
     M2 -> SetType[S2], e2[_] -> OType[T2, T3], f2[_] -> OType[T2, T3],
      X -> OType[T1, T1]}},
@@ -5034,7 +5034,7 @@ Block[
 COQQ-148 dualso_compr
 
 Block[
- {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T2, T1], 
+ {DiracCtx = {M1 -> SetType[S1], e1[_] -> OType[T2, T1],
     f1[_] -> OType[T2, T1],
     M2 -> SetType[S2], e2[_] -> OType[T3, T2], f2[_] -> OType[T3, T2],
      X -> OType[T3, T3]}},
@@ -5073,7 +5073,7 @@ Block[
 COQQ-149 elemso_sum
 
 Block[
- {DiracCtx = {M -> SetType[m], f[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[m], f[_] -> OType[T1, T2],
     X -> OType[T2, T2]}},
  DNEqQ[
   sumso[M, elemso[f, #] &][X],
@@ -5102,7 +5102,7 @@ COQQ-150 ifso_elemE
 
 Block[
  {DiracCtx = {M -> SetType[Sm], e[_] -> OType[T1, T2],
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1], X -> OType[T2, T2]}},
  DNEqQ[
   ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][X],
@@ -5136,7 +5136,7 @@ COQQ-151 ifso_elem
 
 Block[
  {DiracCtx = {M -> SetType[Sm], e[_] -> OType[T1, T2],
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1], X -> OType[T2, T2]}},
  DNEqQ[
   ifso[M, e, superop[Nm[#], fl[#], fr[#]] &][X],
@@ -5170,17 +5170,17 @@ COQQ-152 dualso_if
 
 Block[
  {DiracCtx = {M -> SetType[Sm], e[_] -> OType[T1, T2],
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1], X -> OType[T3, T3]}},
  DNEqQ[
   dualso[ifso[M, e, superop[Nm[#], fl[#], fr[#]] &], T2, T3][X],
-  SUMO[IDX[{i, M}], 
+  SUMO[IDX[{i, M}],
    dualso[compso[superop[Nm[i], fl[i], fr[i]], elemso[e, i]], T2, T3][
     X]]
   ]
  ]
 */
-        
+
         {
             "COQQ-152 dualso_if",
             R"(
@@ -5205,7 +5205,7 @@ Block[
 COQQ-153 dualqmE
 
 Block[
- {DiracCtx = {m -> SetType[M], e[_] -> OType[T1, T2], 
+ {DiracCtx = {m -> SetType[M], e[_] -> OType[T1, T2],
     o[_] -> OType[T1, T1]}},
  DNEqQ[
   dualqm[m, e, o],
@@ -5233,7 +5233,7 @@ Block[
 COQQ-154 dualqm_trlfE
 
 Block[
- {DiracCtx = {M -> SetType[m], f[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[m], f[_] -> OType[T1, T2],
     X -> OType[T2, T2], O0[_] -> OType[T1, T1]}},
  DNEqQ[
   SUMS[i, M, DNTr[elemso[f, i][X]~MLTO~O0[i], T1]],
@@ -5261,7 +5261,7 @@ Block[
 COQQ-155 dualqm_trlfEV
 
 Block[
- {DiracCtx = {M -> SetType[m], f[_] -> OType[T1, T2], 
+ {DiracCtx = {M -> SetType[m], f[_] -> OType[T1, T2],
     O0[_] -> OType[T1, T1], X -> OType[T2, T2]}},
  DNEqQ[
   SUMS[i, M, DNTr[O0[i]~MLTO~elemso[f, i][X], T1]],
@@ -5292,11 +5292,11 @@ COQQ-156-1 ifso_boolE
 
 Block[
  {DiracCtx = {e[_] -> OType[T1, T2], 0 -> {0, 1}, 1 -> {0, 1},
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1], X -> OType[T2, T2]}},
  DNEqQ[
   ifso[USET[{0, 1}], e, superop[Nm[#], fl[#], fr[#]] &][X],
-  compso[superop[Nm[0], fl[0], fr[0]], elemso[e, 0]][X] + 
+  compso[superop[Nm[0], fl[0], fr[0]], elemso[e, 0]][X] +
    compso[superop[Nm[1], fl[1], fr[1]], elemso[e, 1]][X]
   ]
  ]
@@ -5326,11 +5326,11 @@ COQQ-156-2 ifso_boolE
 
 Block[
  {DiracCtx = {e[_] -> OType[T1, T2], 0 -> {0, 1}, 1 -> {0, 1},
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1], X -> OType[T2, T2]}},
  DNEqQ[
   ifso[USET[{0, 1}], e, superop[Nm[#], fl[#], fr[#]] &][X],
-  compso[superop[Nm[1], fl[1], fr[1]], elemso[e, 1]][X] + 
+  compso[superop[Nm[1], fl[1], fr[1]], elemso[e, 1]][X] +
    compso[superop[Nm[0], fl[0], fr[0]], elemso[e, 0]][X]
   ]
  ]
@@ -5360,11 +5360,11 @@ COQQ-157-1 ifso_bool
 
 Block[
  {DiracCtx = {e[_] -> OType[T1, T2], 0 -> {0, 1}, 1 -> {0, 1},
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1], X -> OType[T2, T2]}},
  DNEqQ[
   ifso[USET[{0, 1}], e, superop[Nm[#], fl[#], fr[#]] &][X],
-  addso[compso[superop[Nm[0], fl[0], fr[0]], elemso[e, 0]], 
+  addso[compso[superop[Nm[0], fl[0], fr[0]], elemso[e, 0]],
     compso[superop[Nm[1], fl[1], fr[1]], elemso[e, 1]]][X]
   ]
  ]
@@ -5393,11 +5393,11 @@ COQQ-157-2 ifso_bool
 
 Block[
  {DiracCtx = {e[_] -> OType[T1, T2], 0 -> {0, 1}, 1 -> {0, 1},
-    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1], 
+    Nm[_] -> SetType[Sn], fl[_][_] -> OType[T3, T1],
     fr[_][_] -> OType[T3, T1], X -> OType[T2, T2]}},
  DNEqQ[
   ifso[USET[{0, 1}], e, superop[Nm[#], fl[#], fr[#]] &][X],
-  addso[compso[superop[Nm[1], fl[1], fr[1]], elemso[e, 1]], 
+  addso[compso[superop[Nm[1], fl[1], fr[1]], elemso[e, 1]],
     compso[superop[Nm[0], fl[0], fr[0]], elemso[e, 0]]][X]
   ]
  ]
@@ -5450,7 +5450,7 @@ Block[
 COQQ-159 formso_comp
 
 Block[
- {DiracCtx = {A1 -> OType[T1, T2], A2 -> OType[T2, T3], 
+ {DiracCtx = {A1 -> OType[T1, T2], A2 -> OType[T2, T3],
     X -> OType[T3, T3]}},
  DNEqQ[
   compso[formso[A1], formso[A2]][X],
@@ -5503,7 +5503,7 @@ Block[
 
     std::vector<EqExample> Circuit_examples = {
 
-/* QC-1 
+/* QC-1
 Block[
  {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}},
  DNEqQ[
@@ -5552,8 +5552,8 @@ Block[
     Rz = (CPX[Cos[#/2]]~SCRO~I2)~ADDO~(CPX[-I Sin[#/2]]~SCRO~Z) &
     },
    DNEqQ[
-    (Rz[phi]\[CircleTimes]ONEO[{0, 
-         1}])\[SmallCircle]CX\[SmallCircle](X\[CircleTimes]ONEO[{0, 
+    (Rz[phi]\[CircleTimes]ONEO[{0,
+         1}])\[SmallCircle]CX\[SmallCircle](X\[CircleTimes]ONEO[{0,
          1}])\[SmallCircle](Rz[theta]\[CircleTimes]ONEO[{0, 1}]),
     CX\[SmallCircle](X\[CircleTimes]ONEO[{0, 1}])\[SmallCircle](Rz[
         theta - phi]\[CircleTimes]ONEO[{0, 1}])
@@ -5608,7 +5608,7 @@ Block[
                 *)
                 Def Diag := fun c0 : STYPE => fun c1 : STYPE => c0 (|#0> <#0|) + c1 (|#1> <#1|).
 
-                (* Ct 
+                (* Ct
                 Ct[e_] := (Ket[{0}]\[SmallCircle]Bra[{0}])\[CircleTimes]Id + (Ket[{1}]\[SmallCircle]Bra[{1}])\[CircleTimes]e;
                 *)
 
@@ -5625,7 +5625,7 @@ Block[
 Jens2024-2
 
 Block[
- {DiracCtx = {u0 -> SType, u1 -> SType, 0 -> {0, 1}, 1 -> {0, 1}, 
+ {DiracCtx = {u0 -> SType, u1 -> SType, 0 -> {0, 1}, 1 -> {0, 1},
     P -> OType[{0, 1}, {0, 1}]}},
  DNEqQ[
   (Id\[CircleTimes]P)\[SmallCircle]Ct[Diag[u0, u1]],
@@ -5647,7 +5647,7 @@ Block[
                 *)
                 Def Diag := fun c0 : STYPE => fun c1 : STYPE => c0 (|#0> <#0|) + c1 (|#1> <#1|).
 
-                (* Ct 
+                (* Ct
                 Ct[e_] := (Ket[{0}]\[SmallCircle]Bra[{0}])\[CircleTimes]Id + (Ket[{1}]\[SmallCircle]Bra[{1}])\[CircleTimes]e;
                 *)
 
@@ -5665,7 +5665,7 @@ Jens2024-3
 
 Block[
  {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}, P},
- P = CPX[Exp[-I theta/2]] Ket[{0}]\[CircleTimes]Bra[{0}] + 
+ P = CPX[Exp[-I theta/2]] Ket[{0}]\[CircleTimes]Bra[{0}] +
    CPX[Exp[I theta/2]] Ket[{1}]\[CircleTimes]Bra[{1}];
  DNEqQ[
   P \[SmallCircle] XGate \[SmallCircle] P \[SmallCircle] XGate,
@@ -5673,7 +5673,7 @@ Block[
   ]
  ]
 */
-        
+
         {
             "Jens2024-3",
             R"(
@@ -5698,7 +5698,7 @@ Jens2024-4
 
 Block[
  {DiracCtx = {0 -> {0, 1}, 1 -> {0, 1}}, P, U, V},
- P = CPX[Exp[-I theta/2]] Ket[{0}]\[CircleTimes]Bra[{0}] + 
+ P = CPX[Exp[-I theta/2]] Ket[{0}]\[CircleTimes]Bra[{0}] +
    CPX[Exp[I theta/2]] Ket[{1}]\[CircleTimes]Bra[{1}];
  U = (Ket[{0}]\[CircleTimes]Bra[{0}])\[CircleTimes]XGate + (Ket[{1}]\
 \[CircleTimes]Bra[{1}])\[CircleTimes]Id;
@@ -5748,7 +5748,7 @@ PRELIMINARY
 
 Block[
  {DiracCtx = {M -> OType[T, T]}, phi},
- phi[T_] := 
+ phi[T_] :=
   With[{nv = Unique[]}, Sum[Ket[{PAIR[nv, nv]}], {nv, USET[T]}]];
  DNEqQ[(M\[CircleTimes]ONEO[T])\[SmallCircle]phi[
     T], (ONEO[T]\[CircleTimes]TPO[M, T, T])\[SmallCircle]phi[T]]
@@ -5768,13 +5768,13 @@ Block[
 
 /*
 OTHERS-1
-sigma[T_] := 
+sigma[T_] :=
   With[{nv = Unique[]}, Sum[Ket[{PAIR[nv, nv]}], {nv, USET[T]}]];
 Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
  DNEqQ[SuperDagger[
    sigma[T]]\[SmallCircle](ONEO[
       T]\[CircleTimes]M1)\[SmallCircle](M2\[CircleTimes]ONEO[
-      T])\[SmallCircle]sigma[T], 
+      T])\[SmallCircle]sigma[T],
   DNTr[TPO[M1, T, T]\[SmallCircle]M2, T]]]
 */
 
@@ -5940,8 +5940,8 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Def U := Sum i in USET[T1], (|i><i|) * (P i).
                 Def V := Sum i in USET[T1], (|i><i|) * (Q i).
                 Var W : OTYPE[T2 * T3, T2 * T3].
-                Var a : REG[T1]. 
-                Var b : REG[T2]. 
+                Var a : REG[T1].
+                Var b : REG[T2].
                 Var c : REG[T3].
             )",
             "U_(a,b) W_(b,c) V_(a,c)",
@@ -5974,7 +5974,7 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
                 Var F : OTYPE[T * T, T * T].
                 Var G : OTYPE[T * T, T * T].
                 Var H : OTYPE[T * T, T * T].
-                Var a : REG[T]. Var b : REG[T]. Var c : REG[T]. 
+                Var a : REG[T]. Var b : REG[T]. Var c : REG[T].
                 Var d : REG[T]. Var e : REG[T]. Var f : REG[T].
             )",
             "(A_(a,b) B_(c,d) C_(e,f)) (D_(b,c) E_(d,e)) (F_(a,b) G_(c,d) H_(e,f))",
@@ -6068,6 +6068,358 @@ Block[{DiracCtx = {M1 -> OType[T, T], M2 -> OType[T, T]}},
             )",
             "A_a (B_b * C_a) D_b",
             "(A C)_a (B D)_b"
+        },
+
+        {
+            "LDE27",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var V1 : OTYPE[T * T, T * T].
+                Var V2 : OTYPE[T * T, T * T].
+                Var V3 : OTYPE[T * T, T * T].
+                Var V4 : OTYPE[T * T, T * T].
+                Var P : OTYPE[T, T].
+                Var Q : OTYPE[T, T].
+                Def W1 := V1 (1O[T] * P).
+                Def W2 := ADJ[1O[T] * P] V2 ADJ[Q * 1O[T]].
+                Def W4 := (Q * 1O[T]) V4.
+            )",
+            "W1_(a, c) W2_(b, c) V3_(a, c) W4_(b, c)",
+            "V1_(a, c) (P ADJ[P])_c V2_(b, c) V3_(a, c) (ADJ[Q] Q)_b V4_(b, c)"
+        },
+
+        {
+            "LDE28",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var U1 : OTYPE[T * T, T * T].
+                Var U2 : OTYPE[T * T, T * T].
+                Var U3 : OTYPE[T * T, T * T].
+                Var U4 : OTYPE[T * T, T * T].
+                Var W0 : OTYPE[T, T].
+                Var W1 : OTYPE[T, T].
+                Var W2 : OTYPE[T, T].
+                Def V1 := U1 (W0 * 1O[T]).
+                Def V2 := U2 (1O[T] * W1).
+                Def V3 := ADJ[W0 * W1] U3 (1O[T] * W2).
+                Def V4 := (1O[T] * ADJ[W2]) U4.
+            )",
+            "V1_(a, c) V2_(b, c) V3_(a, c) V4_(b, c)",
+            "U1_(a, c) (W0 ADJ[W0])_a U2_(b, c) (W1 ADJ[W1])_c U3_(a, c) (W2 ADJ[W2])_c U4_(b, c)"
+        },
+
+        {
+            "LDE29.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T * T, T].
+            )",
+            "A_a B_(a, b);c",
+            "((A * 1O[T]) B)_(a, b);c"
+        },
+
+        {
+            "LDE29.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T * T, T].
+            )",
+            "A_b B_(a, b);c",
+            "((1O[T] * A) B)_(a, b);c"
+        },
+
+        {
+            "LDE29.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T * T].
+                Var B : OTYPE[T, T].
+            )",
+            "A_c;(a,b) B_a",
+            "(A (B * 1O[T]))_c;(a,b)"
+        },
+
+        {
+            "LDE29.4",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T * T].
+                Var B : OTYPE[T, T].
+            )",
+            "A_c;(a,b) B_b",
+            "(A (1O[T] * B))_c;(a,b)"
+        },
+
+        {
+            "LDE30.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var v : KTYPE[T * T].
+            )",
+            "A_c;a v_(a, b)",
+            "((A * 1O[T]) v)_(c,b)"
+        },
+
+        {
+            "LDE30.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var v : KTYPE[T * T].
+            )",
+            "A_c;b v_(a, b)",
+            "((1O[T] * A) v)_(a,c)"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE30.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var v : KTYPE[T * T].
+            )",
+            "(ADJ[v])_(a,b) A_a;c",
+            "((ADJ[A] * 1O[T]) v)^D_(c,b)"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE30.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var A : OTYPE[T, T].
+                Var v : KTYPE[T * T].
+            )",
+            "(ADJ[v])_(a,b) A_b;c",
+            "((1O[T] * ADJ[A]) v)^D_(a,c)"
+        },
+
+        {
+            "LDE31.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+            )",
+            "A_a;b (B_b;c * C_b2;c2)",
+            "(A B)_a;c * C_b2;c2"
+        },
+
+        {
+            "LDE31.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+            )",
+            "A_a;b (C_b2;c2 * B_b;c)",
+            "C_b2;c2 (A B)_a;c"
+        },
+
+        {
+            "LDE31.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+            )",
+            "(A_a;b * C_b2;c2) B_b;c",
+            "(A B)_a;c * C_b2;c2"
+        },
+
+        {
+            "LDE31.4",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var c : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var C : OTYPE[T, T].
+            )",
+            "(C_b2;c2 * A_a;b) B_b;c",
+            "C_b2;c2 (A B)_a;c"
+        },
+
+        {
+            "LDE32.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "A_a;b (v_b * B_b2;c2)",
+            "(A v)_a * B_b2;c2"
+        },
+
+        {
+            "LDE32.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "A_a;b (B_b2;c2 * v_b)",
+            "B_b2;c2 * (A v)_a"
+        },
+
+        {
+            "LDE32.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "(A_a;b * B_b2;c2) v_b",
+            "(A v)_a * B_b2;c2"
+        },
+
+        {
+            "LDE32.4",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "(B_b2;c2 * A_a;b) v_b",
+            "B_b2;c2 * (A v)_a"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE33.1",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "ADJ[v]_a (A_a;b * B_b2;c2)",
+            "ADJ[ADJ[A] v]_b * B_b2;c2"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE33.2",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "ADJ[v]_a (B_b2;c2 * A_a;b)",
+            "B_b2;c2 * ADJ[ADJ[A] v]_b"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE33.3",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "(ADJ[v]_a * B_b2;c2) A_a;b",
+            "ADJ[ADJ[A] v]_b * B_b2;c2"
+        },
+
+        { // Using adjoint for converting kat into bra
+            "LDE33.4",
+            R"(
+                Var T : INDEX.
+                Var a : REG[T].
+                Var b : REG[T].
+                Var b2 : REG[T].
+                Var c2 : REG[T].
+                Var A : OTYPE[T, T].
+                Var B : OTYPE[T, T].
+                Var v : KTYPE[T].
+            )",
+            "(B_b2;c2 * ADJ[v]_a) A_a;b",
+            "B_b2;c2 * ADJ[ADJ[A] v]_b"
         }
     };
 

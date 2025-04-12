@@ -1,22 +1,22 @@
 
 set(ANTLR_AST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/antlr_generated")
 
-set(ANTLR_AST_GEN_FILES 
-    ${ANTLR_AST_DIR}/AST.interp 
-    ${ANTLR_AST_DIR}/AST.tokens 
-    ${ANTLR_AST_DIR}/ASTBaseListener.cpp 
-    ${ANTLR_AST_DIR}/ASTBaseListener.h 
-    ${ANTLR_AST_DIR}/ASTBaseVisitor.cpp 
-    ${ANTLR_AST_DIR}/ASTBaseVisitor.h 
-    ${ANTLR_AST_DIR}/ASTLexer.cpp 
-    ${ANTLR_AST_DIR}/ASTLexer.h 
-    ${ANTLR_AST_DIR}/ASTLexer.interp 
-    ${ANTLR_AST_DIR}/ASTLexer.tokens 
-    ${ANTLR_AST_DIR}/ASTListener.cpp 
-    ${ANTLR_AST_DIR}/ASTListener.h 
-    ${ANTLR_AST_DIR}/ASTParser.cpp 
-    ${ANTLR_AST_DIR}/ASTParser.h 
-    ${ANTLR_AST_DIR}/ASTVisitor.cpp 
+set(ANTLR_AST_GEN_FILES
+    ${ANTLR_AST_DIR}/AST.interp
+    ${ANTLR_AST_DIR}/AST.tokens
+    ${ANTLR_AST_DIR}/ASTBaseListener.cpp
+    ${ANTLR_AST_DIR}/ASTBaseListener.h
+    ${ANTLR_AST_DIR}/ASTBaseVisitor.cpp
+    ${ANTLR_AST_DIR}/ASTBaseVisitor.h
+    ${ANTLR_AST_DIR}/ASTLexer.cpp
+    ${ANTLR_AST_DIR}/ASTLexer.h
+    ${ANTLR_AST_DIR}/ASTLexer.interp
+    ${ANTLR_AST_DIR}/ASTLexer.tokens
+    ${ANTLR_AST_DIR}/ASTListener.cpp
+    ${ANTLR_AST_DIR}/ASTListener.h
+    ${ANTLR_AST_DIR}/ASTParser.cpp
+    ${ANTLR_AST_DIR}/ASTParser.h
+    ${ANTLR_AST_DIR}/ASTVisitor.cpp
     ${ANTLR_AST_DIR}/ASTVisitor.h
 )
 

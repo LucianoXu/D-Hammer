@@ -23,74 +23,74 @@ namespace dhammer {
 
     /**
      * @brief Get the rewriting record using the rewriting rules.
-     * 
-     * @param kernel 
-     * @param term 
-     * @param rules 
-     * @return std::optional<PosReplaceRecord> 
+     *
+     * @param kernel
+     * @param term
+     * @param rules
+     * @return std::optional<PosReplaceRecord>
      */
     std::optional<PosReplaceRecord> get_pos_replace(Kernel& kernel, ualg::TermPtr<int> term, const std::vector<PosRewritingRule>& rules);
 
 
     /**
      * @brief Rewrite the term repeatedly using the given rewriting rules, until no more rules can apply.
-     * 
-     * @param kernel 
-     * @param term 
-     * @param rules 
+     *
+     * @param kernel
+     * @param term
+     * @param rules
      * @param trace The container to store the trace of the rewriting.
-     * @return const NormalTerm<int>* 
+     * @return const NormalTerm<int>*
      */
-    ualg::TermPtr<int> pos_rewrite_repeated(Kernel& kernel, ualg::TermPtr<int> term, const std::vector<PosRewritingRule>& rules, 
+    ualg::TermPtr<int> pos_rewrite_repeated(Kernel& kernel, ualg::TermPtr<int> term, const std::vector<PosRewritingRule>& rules,
     std::vector<PosReplaceRecord>* trace = nullptr);
 
     /**
      * @brief This function rename all the bound variables in the term and return the result.
-     * 
-     * @param kernel 
-     * @param term 
-     * @param bound_vars 
-     * @return ualg::TermPtr<int> 
+     *
+     * @param kernel
+     * @param term
+     * @param bound_vars
+     * @return ualg::TermPtr<int>
      */
     ualg::TermPtr<int> bound_variable_rename(Kernel& kernel, ualg::TermPtr<int> term);
 
     /**
      * @brief Expand all the variables in the term once.
-     * 
-     * @param kernel 
-     * @param term 
-     * @return ualg::TermPtr<int> 
+     *
+     * @param kernel
+     * @param term
+     * @return ualg::TermPtr<int>
      */
     ualg::TermPtr<int> variable_expand(Kernel& kernel, ualg::TermPtr<int> term);
 
     /**
      * @brief Iterate through the whole term and rename the bound variables.
-     * 
+     *
      * This function should be used in the end of the rewriting process, on the whole term, to ensure that the bound variables are correctly renamed.
-     * 
-     * @param kernel 
-     * @param term 
-     * @return const ualg::NormalTerm<int>* 
+     *
+     * @param kernel
+     * @param term
+     * @return const ualg::NormalTerm<int>*
      */
     inline ualg::TermPtr<int> deBruijn_normalize(Kernel& kernel, ualg::TermPtr<int> term){
         return to_deBruijn(kernel.get_sig(), term);
     }
 
-    
+
     /**
      * @brief Get the bound vars of the term (in the FUN expression)
-     * 
-     * @param term 
-     * @return std::set<int> 
+     *
+     * @param term
+     * @return std::set<int>
      */
     std::set<int> get_bound_vars(ualg::TermPtr<int> term);
 
 
     /**
      * @brief Compare the terms modulo the bound variables.
-     * 
-     * @param termA 
-     * @param termB 
+     *
+     * @param termA
+     * @param termB
      * @param bound_vars
      * @return true termA < termB
      * @return false termA >= termB
@@ -100,28 +100,28 @@ namespace dhammer {
 
     /**
      * @brief Transform a sorted term modulo bound variables to a normal term under sum_swap.
-     * 
-     * @param kernel 
-     * @param term 
-     * @return ualg::TermPtr<int> 
+     *
+     * @param kernel
+     * @param term
+     * @return ualg::TermPtr<int>
      */
     ualg::TermPtr<int> sum_swap_normalization(Kernel& kernel, ualg::TermPtr<int> term);
 
     /**
      * @brief Sort the term modulo the bound variables.
-     * 
-     * @param kernel 
-     * @param term 
-     * @return ualg::TermPtr<int> 
+     *
+     * @param kernel
+     * @param term
+     * @return ualg::TermPtr<int>
      */
     ualg::TermPtr<int> sort_modulo_bound(Kernel& kernel, ualg::TermPtr<int> term);
 
     /**
      * @brief Use the Wolfram engine to simplify the term.
-     * 
-     * @param kernel 
-     * @param term 
-     * @return ualg::TermPtr<int> 
+     *
+     * @param kernel
+     * @param term
+     * @return ualg::TermPtr<int>
      */
     ualg::TermPtr<int> wolfram_fullsimplify(Kernel& kernel, ualg::TermPtr<int> term, bool distrbute = true);
 
@@ -310,7 +310,7 @@ namespace dhammer {
 
     // DELTA(PAIR(a b) PAIR(c d)) -> MULS(DELTA(a c) DELTA(b d))
     DHAMMER_RULE_DEF(R_DELTA1, kernel, term);
-    
+
     // SCR(1 X) -> X
     DHAMMER_RULE_DEF(R_SCR0, kernel, term);
 
@@ -594,16 +594,16 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_SUM_CONST4, kernel, term);
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... DELTA(i t) ...))) -> SUM(... 1 ...)
-    DHAMMER_RULE_DEF(R_SUM_ELIM0, kernel, term); 
+    DHAMMER_RULE_DEF(R_SUM_ELIM0, kernel, term);
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... MULS(a1 ... DELTA(i t) ... an) ...))) -> SUM(... MULS(a1{i/t} ... an{i/t}) ...)
-    DHAMMER_RULE_DEF(R_SUM_ELIM1, kernel, term); 
+    DHAMMER_RULE_DEF(R_SUM_ELIM1, kernel, term);
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... SCR(DELTA(i t) A) ...))) -> SUM(... A{i/t} ...)
-    DHAMMER_RULE_DEF(R_SUM_ELIM2, kernel, term); 
+    DHAMMER_RULE_DEF(R_SUM_ELIM2, kernel, term);
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... SCR(MULS(a1 ... DELTA(i t) ... an) A) ...))) -> SUM(... SCR(MULS(a1{i/t} ... an{i/t}) A{i/t}) ...)
-    DHAMMER_RULE_DEF(R_SUM_ELIM3, kernel, term); 
+    DHAMMER_RULE_DEF(R_SUM_ELIM3, kernel, term);
 
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... DELTA(i j) ...))))) -> SUM(M FUN(j T SUM(... 1 ...)))
     DHAMMER_RULE_DEF(R_SUM_ELIM4, kernel, term);
@@ -643,10 +643,10 @@ namespace dhammer {
 
     // MULB(SUM(M FUN(i T B)) O) -> SUM(M FUN(i T MULB(B O)))
     DHAMMER_RULE_DEF(R_SUM_PUSH7, kernel, term);
-    
+
     // OUTER(SUM(M FUN(i T K)) B) -> SUM(M FUN(i T OUTER(K B)))
     DHAMMER_RULE_DEF(R_SUM_PUSH8, kernel, term);
-    
+
     // MULO(SUM(M FUN(i T O1)) O2) -> SUM(M FUN(i T MULO(O1 O2)))
     DHAMMER_RULE_DEF(R_SUM_PUSH9, kernel, term);
 
@@ -751,7 +751,7 @@ namespace dhammer {
 
     // SCR[a, 0D[s1, s2]] -> 0D[s1, s2]
     DHAMMER_RULE_DEF(R_SCRD4, kernel, term);
-    
+
     // ADD[D1 ... 0D[s1, s2] ... Dn] -> ADD[D1 ... Dn]
     DHAMMER_RULE_DEF(R_ADDD0, kernel, term);
 

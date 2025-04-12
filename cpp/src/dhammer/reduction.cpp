@@ -8,12 +8,12 @@ namespace dhammer {
 
     /**
      * @brief The main function to process the recursive matching. Note that the context will be changed when entering bound variable scopes.
-     * 
-     * @param kernel 
-     * @param term 
-     * @param rules 
-     * @param current_pos 
-     * @return std::optional<PosReplaceRecord> 
+     *
+     * @param kernel
+     * @param term
+     * @param rules
+     * @param current_pos
+     * @return std::optional<PosReplaceRecord>
      */
     std::optional<PosReplaceRecord> get_pos_replace(Kernel& kernel, TermPtr<int> term, const std::vector<PosRewritingRule>& rules, TermPos& current_pos) {
         auto head = term->get_head();
@@ -34,7 +34,7 @@ namespace dhammer {
                 };
             }
         }
-        
+
         // Check whether the rule can be applied to the subterms
         if (head == FUN) {
 
@@ -61,7 +61,7 @@ namespace dhammer {
         }
         else if (head == IDX) {
             kernel.context_push(args[0]->get_head(), create_term(INDEX));
-            
+
             current_pos.push_back(1);
             auto replace_res = get_pos_replace(kernel, args[1], rules, current_pos);
             current_pos.pop_back();
@@ -83,7 +83,7 @@ namespace dhammer {
                 current_pos.pop_back();
             }
 
-            return std::nullopt;        
+            return std::nullopt;
         }
     }
 
@@ -209,7 +209,7 @@ namespace dhammer {
                     }
                 );
             }
-            
+
             // B : BTYPE(A) -> SUM(USET(A) FUN(i BASIS(A) SCR(DOT(B KET(i)) BRA(i))))
             else if (type_head == BTYPE) {
                 auto new_bound = create_term(sig.register_symbol(sig.unique_var()));
@@ -232,7 +232,7 @@ namespace dhammer {
                 );
             }
 
-            // O : BTYPE(A, B) -> SUM(USET(A) FUN(i BASIS(A) 
+            // O : BTYPE(A, B) -> SUM(USET(A) FUN(i BASIS(A)
             //                          SUM(USET(B) FUN(j BASIS(B)
             //                              SCR(
             //                                  DOT(BRA(i) MULK(O KET(j)))
@@ -283,7 +283,7 @@ namespace dhammer {
 
             if (head == FUN) {
                 kernel.context_push(args[0]->get_head(), args[1]);
-                
+
                 new_args.push_back(args[0]);
                 new_args.push_back(args[1]);
                 new_args.push_back(variable_expand(kernel, args[2]));
@@ -292,7 +292,7 @@ namespace dhammer {
             }
             else if (head == IDX) {
                 kernel.context_push(args[0]->get_head(), create_term(INDEX));
-                
+
                 new_args.push_back(args[0]);
                 new_args.push_back(variable_expand(kernel, args[1]));
 
@@ -341,11 +341,11 @@ namespace dhammer {
 
     /**
      * @brief Helper function to compare two terms modulo bound variables. The bound_vars should be provided as a set.
-     * 
-     * @param termA 
-     * @param termB 
-     * @param bound_vars 
-     * @return COMPARE_RESULT 
+     *
+     * @param termA
+     * @param termB
+     * @param bound_vars
+     * @return COMPARE_RESULT
      */
     COMPARE_RESULT _comp_modulo_bound_vars(TermPtr<int> termA, TermPtr<int> termB, std::set<int> bound_vars) {
         auto headA = termA->get_head();
@@ -396,16 +396,16 @@ namespace dhammer {
 
         return _comp_modulo_bound_vars(termA, termB, bound_vars) == LESS;
     }
-    
+
 
     /**
      * @brief Iteratively traverse the term to get the order of the bound variables. Used in the get_order_of_bound_vars.
-     * 
+     *
      * Note that if some bound variable does not appear in the term, it will not be included in this order. Therefore other procedure is needed to assign proper order to these variables (according to sets of summation).
-     * 
-     * @param term 
-     * @param vars_set 
-     * @param vars 
+     *
+     * @param term
+     * @param vars_set
+     * @param vars
      */
     void _iter_for_order(TermPtr<int> term, std::set<int>& vars_set, std::vector<int>& vars, std::map<int, TermPtr<int>>& var_to_sumset) {
         // NOTE: the set is used to store the bound variables that require ordering
@@ -455,9 +455,9 @@ namespace dhammer {
 
     /**
      * @brief Get the order of bound vars. The order will include all the bound variables of the form SUM[s, FUN[i, ...]].
-     * 
-     * @param term 
-     * @return vector<int> 
+     *
+     * @param term
+     * @return vector<int>
      */
     vector<int> get_order_of_bound_vars(TermPtr<int> term) {
         std::set<int> bound_vars_set;
@@ -506,8 +506,8 @@ namespace dhammer {
             if (inner_term->get_head() != SUM) break;
 
             auto& args_sum = inner_term->get_args();
-            
-            if (args_sum[1]->get_head() != FUN) break; 
+
+            if (args_sum[1]->get_head() != FUN) break;
 
             auto& args_fun = args_sum[1]->get_args();
 
@@ -556,7 +556,7 @@ namespace dhammer {
 
             return inner_term;
         }
-            
+
     }
 
     TermPtr<int> sum_swap_normalization(Kernel& kernel, TermPtr<int> term) {
@@ -580,7 +580,7 @@ namespace dhammer {
     TermPtr<int> sort_modulo_bound(Kernel& kernel, TermPtr<int> term) {
         auto bound_vars = get_bound_vars(term);
 
-        return sort_C_terms(term, c_symbols, 
+        return sort_C_terms(term, c_symbols,
             [&](TermPtr<int> a, TermPtr<int> b) {
                 return comp_modulo_bound_vars(a, b, bound_vars);
             }
@@ -601,9 +601,9 @@ namespace dhammer {
             // we use this special simplification to avoid factoring
             ast = AST(
                 "FullSimplify", {
-                    sig.term2ast(term), 
+                    sig.term2ast(term),
                     AST("Rule", {
-                    AST("TransformationFunctions"), 
+                    AST("TransformationFunctions"),
                         AST("List", {
                             AST("FunctionExpand"),
                             AST("TrigExpand"),
@@ -635,7 +635,7 @@ namespace dhammer {
 
 /**
  * @brief The helper macro for the logic of matching the head of a term.
- * 
+ *
  */
 #define MATCH_HEAD(term, head, subterm) \
     if (term->get_head()!=head) return std::nullopt;\
@@ -650,7 +650,7 @@ namespace dhammer {
         auto typeB = kernel.calc_type(args[1]);
 
         if (!(typeA->get_head() == STYPE and typeB->get_head() == STYPE)) return std::nullopt;
-        
+
         return create_term(MULS, args);
     }
 
@@ -661,7 +661,7 @@ namespace dhammer {
         auto typeB = kernel.calc_type(args[1]);
 
         if (!(typeA->get_head() == STYPE and typeB->get_head() == KTYPE)) return std::nullopt;
-        
+
         return create_term(SCR, args);
     }
 
@@ -672,7 +672,7 @@ namespace dhammer {
         auto typeB = kernel.calc_type(args[1]);
 
         if (!(typeA->get_head() == STYPE and typeB->get_head() == BTYPE)) return std::nullopt;
-        
+
         return create_term(SCR, args);
     }
 
@@ -683,7 +683,7 @@ namespace dhammer {
         auto typeB = kernel.calc_type(args[1]);
 
         if (!(typeA->get_head() == STYPE and typeB->get_head() == OTYPE)) return std::nullopt;
-        
+
         return create_term(SCR, args);
     }
 
@@ -695,7 +695,7 @@ namespace dhammer {
         auto typeA = kernel.calc_type(args[1]);
 
         if (!(typeK->get_head() == KTYPE and typeA->get_head() == STYPE)) return std::nullopt;
-        
+
         return create_term(SCR, {args[1], args[0]});
     }
 
@@ -706,7 +706,7 @@ namespace dhammer {
         auto typeK2 = kernel.calc_type(args[1]);
 
         if (!(typeK1->get_head() == KTYPE and typeK2->get_head() == KTYPE)) return std::nullopt;
-        
+
         return create_term(TSR, args);
     }
 
@@ -717,7 +717,7 @@ namespace dhammer {
         auto typeB = kernel.calc_type(args[1]);
 
         if (!(typeK->get_head() == KTYPE and typeB->get_head() == BTYPE)) return std::nullopt;
-        
+
         return create_term(OUTER, args);
     }
 
@@ -729,7 +729,7 @@ namespace dhammer {
         auto typeA = kernel.calc_type(args[1]);
 
         if (!(typeB->get_head() == BTYPE and typeA->get_head() == STYPE)) return std::nullopt;
-        
+
         return create_term(SCR, {args[1], args[0]});
     }
 
@@ -740,7 +740,7 @@ namespace dhammer {
         auto typeK = kernel.calc_type(args[1]);
 
         if (!(typeB->get_head() == BTYPE and typeK->get_head() == KTYPE)) return std::nullopt;
-        
+
         return create_term(DOT, args);
     }
 
@@ -751,7 +751,7 @@ namespace dhammer {
         auto typeB2 = kernel.calc_type(args[1]);
 
         if (!(typeB1->get_head() == BTYPE and typeB2->get_head() == BTYPE)) return std::nullopt;
-        
+
         return create_term(TSR, args);
     }
 
@@ -762,7 +762,7 @@ namespace dhammer {
         auto typeO = kernel.calc_type(args[1]);
 
         if (!(typeB->get_head() == BTYPE and typeO->get_head() == OTYPE)) return std::nullopt;
-        
+
         return create_term(MULB, args);
     }
 
@@ -773,7 +773,7 @@ namespace dhammer {
         auto typeA = kernel.calc_type(args[1]);
 
         if (!(typeO->get_head() == OTYPE and typeA->get_head() == STYPE)) return std::nullopt;
-        
+
         return create_term(SCR, {args[1], args[0]});
     }
 
@@ -784,7 +784,7 @@ namespace dhammer {
         auto typeK = kernel.calc_type(args[1]);
 
         if (!(typeO->get_head() == OTYPE and typeK->get_head() == KTYPE)) return std::nullopt;
-        
+
         return create_term(MULK, args);
     }
 
@@ -795,7 +795,7 @@ namespace dhammer {
         auto typeO2 = kernel.calc_type(args[1]);
 
         if (!(typeO1->get_head() == OTYPE and typeO2->get_head() == OTYPE)) return std::nullopt;
-        
+
         return create_term(MULO, args);
     }
 
@@ -806,7 +806,7 @@ namespace dhammer {
         auto typeD2 = kernel.calc_type(args[1]);
 
         if (!(typeD1->get_head() == DTYPE and typeD2->get_head() == DTYPE)) return std::nullopt;
-        
+
         return create_term(LDOT, args);
     }
 
@@ -816,7 +816,7 @@ namespace dhammer {
         auto typeF = kernel.calc_type(args[0]);
 
         if (!(typeF->get_head() == ARROW)) return std::nullopt;
-        
+
         return create_term(APPLY, args);
     }
 
@@ -826,7 +826,7 @@ namespace dhammer {
         auto typeF = kernel.calc_type(args[0]);
 
         if (!(typeF->get_head() == FORALL)) return std::nullopt;
-        
+
         return create_term(APPLY, args);
     }
 
@@ -854,7 +854,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_STAR_TSRO, kernel, term) {
         MATCH_HEAD(term, STAR, args)
         auto typeA = kernel.calc_type(args[0]);
-        
+
         if (!(typeA->get_head() == OTYPE)) return std::nullopt;
 
         return create_term(TSR, args);
@@ -864,7 +864,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_STAR_CATPROD, kernel, term) {
         MATCH_HEAD(term, STAR, args)
         auto typeA = kernel.calc_type(args[0]);
-        
+
         if (!(typeA->get_head() == SET)) return std::nullopt;
 
         return create_term(CATPROD, args);
@@ -976,7 +976,7 @@ namespace dhammer {
         auto zero_term = create_term(ZERO);
 
         MATCH_HEAD(term, ADDS, args_ADDS_a_0)
-        
+
         ListArgs<int> new_args;
         for (const auto& arg : args_ADDS_a_0) {
             if (*arg == *zero_term) {
@@ -1014,7 +1014,7 @@ namespace dhammer {
         auto one_term = create_term(ONE);
 
         MATCH_HEAD(term, MULS, args_MULS_a_1)
-        
+
         ListArgs<int> new_args;
         for (const auto& arg : args_MULS_a_1) {
             if (*arg == *one_term) {
@@ -1025,7 +1025,7 @@ namespace dhammer {
         if (new_args.empty()) {
             new_args.push_back(one_term);
         }
-        
+
         if (new_args.size() == args_MULS_a_1.size()) return std::nullopt;
 
         return create_term(MULS, std::move(new_args));
@@ -1092,7 +1092,7 @@ namespace dhammer {
         MATCH_HEAD(term, CONJ, args_CONJ_ADDS_a_b)
 
         MATCH_HEAD(args_CONJ_ADDS_a_b[0], ADDS, args_ADDS_a_b)
-        
+
         ListArgs<int> newargs_ADDS_CONJ;
         for (const auto& arg : args_ADDS_a_b) {
             newargs_ADDS_CONJ.push_back(create_term(CONJ, {arg}));
@@ -1106,7 +1106,7 @@ namespace dhammer {
         MATCH_HEAD(term, CONJ, args_CONJ_MULS_a_b)
 
         MATCH_HEAD(args_CONJ_MULS_a_b[0], MULS, args_MULS_a_b)
-            
+
         ListArgs<int> newargs_MULS_CONJ;
         for (const auto& arg : args_MULS_a_b) {
             newargs_MULS_CONJ.push_back(create_term(CONJ, {arg}));
@@ -1118,9 +1118,9 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_CONJ4, kernel, term) {
 
         MATCH_HEAD(term, CONJ, args_CONJ_CONJ_a)
-        
+
         MATCH_HEAD(args_CONJ_CONJ_a[0], CONJ, args_CONJ_a)
-        
+
         return args_CONJ_a[0];
     }
 
@@ -1130,7 +1130,7 @@ namespace dhammer {
         MATCH_HEAD(term, CONJ, args_CONJ_DELTA_s_t)
 
         if (args_CONJ_DELTA_s_t[0]->get_head() != DELTA) return std::nullopt;
-            
+
         return args_CONJ_DELTA_s_t[0];
     }
 
@@ -1138,7 +1138,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_CONJ6, kernel, term) {
 
         MATCH_HEAD(term, CONJ, args_CONJ_DOT_B_K)
-        
+
         MATCH_HEAD(args_CONJ_DOT_B_K[0], DOT, args_DOT_B_K)
 
         return create_term(DOT,
@@ -1153,9 +1153,9 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT0, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_0B_sigma_K)
-        
+
         if (args_DOT_0B_sigma_K[0]->get_head() != ZEROB) return std::nullopt;
-        
+
         return create_term(ZERO);
     }
 
@@ -1165,7 +1165,7 @@ namespace dhammer {
         MATCH_HEAD(term, DOT, args_DOT_B_0K_sigma)
 
         if (args_DOT_B_0K_sigma[1]->get_head() != ZEROK) return std::nullopt;
-        
+
         return create_term(ZERO);
     }
 
@@ -1173,12 +1173,12 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT2, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_SCR_a_B_K)
-        
+
         MATCH_HEAD(args_DOT_SCR_a_B_K[0], SCR, args_SCR_a_B)
-            
-        return create_term(MULS, 
+
+        return create_term(MULS,
             {
-                args_SCR_a_B[0], 
+                args_SCR_a_B[0],
                 create_term(DOT, {args_SCR_a_B[1], args_DOT_SCR_a_B_K[1]})
             }
         );
@@ -1188,12 +1188,12 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT3, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_B_SCR_a_K)
-        
+
         MATCH_HEAD(args_DOT_B_SCR_a_K[1], SCR, args_SCR_a_K)
-            
-        return create_term(MULS, 
+
+        return create_term(MULS,
             {
-                args_SCR_a_K[0], 
+                args_SCR_a_K[0],
                 create_term(DOT, {args_DOT_B_SCR_a_K[0], args_SCR_a_K[1]})
             }
         );
@@ -1203,9 +1203,9 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT4, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_ADD_B1_Bn_K)
-        
+
         MATCH_HEAD(args_DOT_ADD_B1_Bn_K[0], ADD, args_ADD_B1_Bn)
-            
+
         ListArgs<int> new_args;
         for (const auto& arg : args_ADD_B1_Bn) {
             new_args.push_back(create_term(DOT, {arg, args_DOT_ADD_B1_Bn_K[1]}));
@@ -1217,9 +1217,9 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT5, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_B_ADD_K1_Kn)
-        
+
         MATCH_HEAD(args_DOT_B_ADD_K1_Kn[1], ADD, args_ADD_K1_Kn)
-                
+
         ListArgs<int> new_args;
         for (const auto& arg : args_ADD_K1_Kn) {
             new_args.push_back(create_term(DOT, {args_DOT_B_ADD_K1_Kn[0], arg}));
@@ -1231,11 +1231,11 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT6, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_BRA_s_KET_t)
-        
+
         MATCH_HEAD(args_DOT_BRA_s_KET_t[0], BRA, args_BRA_s)
-            
+
         MATCH_HEAD(args_DOT_BRA_s_KET_t[1], KET, args_KET_t)
-        
+
         return create_term(DELTA, {args_BRA_s[0], args_KET_t[0]});
     }
 
@@ -1245,12 +1245,12 @@ namespace dhammer {
         MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_KET_PAIR_s_t)
 
         MATCH_HEAD(args_DOT_TSR_B1_B2_KET_PAIR_s_t[0], TSR, args_TSR_B1_B2)
-        
+
         MATCH_HEAD(args_DOT_TSR_B1_B2_KET_PAIR_s_t[1], KET, args_KET_PAIR_s_t)
 
         MATCH_HEAD(args_KET_PAIR_s_t[0], PAIR, args_PAIR_s_t)
 
-        return create_term(MULS, 
+        return create_term(MULS,
             {
                 create_term(DOT, {args_TSR_B1_B2[0], create_term(KET, {args_PAIR_s_t[0]})}),
                 create_term(DOT, {args_TSR_B1_B2[1], create_term(KET, {args_PAIR_s_t[1]})})
@@ -1262,14 +1262,14 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT8, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_BRA_PAIR_s_t_TSR_K1_K2)
-        
+
         MATCH_HEAD(args_DOT_BRA_PAIR_s_t_TSR_K1_K2[0], BRA, args_BRA_PAIR_s_t)
-            
+
         MATCH_HEAD(args_BRA_PAIR_s_t[0], PAIR, args_PAIR_s_t)
-                
+
         MATCH_HEAD(args_DOT_BRA_PAIR_s_t_TSR_K1_K2[1], TSR, args_TSR_K1_K2)
-                    
-        return create_term(MULS, 
+
+        return create_term(MULS,
             {
                 create_term(DOT, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_K1_K2[0]}),
                 create_term(DOT, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_K1_K2[1]})
@@ -1281,12 +1281,12 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT9, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_TSR_K1_K2)
-        
+
         MATCH_HEAD(args_DOT_TSR_B1_B2_TSR_K1_K2[0], TSR, args_TSR_B1_B2)
-            
+
         MATCH_HEAD(args_DOT_TSR_B1_B2_TSR_K1_K2[1], TSR, args_TSR_K1_K2)
-                
-        return create_term(MULS, 
+
+        return create_term(MULS,
             {
                 create_term(DOT, {args_TSR_B1_B2[0], args_TSR_K1_K2[0]}),
                 create_term(DOT, {args_TSR_B1_B2[1], args_TSR_K1_K2[1]})
@@ -1298,12 +1298,12 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DOT10, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_MULB_B_O_K)
-        
+
         MATCH_HEAD(args_DOT_MULB_B_O_K[0], MULB, args_MULB_B_O)
-            
-        return create_term(DOT, 
+
+        return create_term(DOT,
             {
-                args_MULB_B_O[0], 
+                args_MULB_B_O[0],
                 create_term(MULK, {args_MULB_B_O[1], args_DOT_MULB_B_O_K[1]})
             }
         );
@@ -1315,16 +1315,16 @@ namespace dhammer {
         MATCH_HEAD(term, DOT, args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K)
 
         MATCH_HEAD(args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K[0], BRA, args_BRA_PAIR_s_t)
-        
+
         MATCH_HEAD(args_BRA_PAIR_s_t[0], PAIR, args_PAIR_s_t)
-        
+
         MATCH_HEAD(args_DOT_BRA_PAIR_s_t_MULK_TSR_O1_O2_K[1], MULK, args_MULK_TSR_O1_O2_K)
 
         MATCH_HEAD(args_MULK_TSR_O1_O2_K[0], TSR, args_TSR_O1_O2)
 
-        return create_term(DOT, 
+        return create_term(DOT,
             {
-                create_term(TSR, 
+                create_term(TSR,
                     {
                         create_term(MULB, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_O1_O2[0]}),
                         create_term(MULB, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_O1_O2[1]})
@@ -1332,23 +1332,23 @@ namespace dhammer {
                 ),
                 args_MULK_TSR_O1_O2_K[1]
             }
-        );                
+        );
     }
 
     // DOT(TSR(B1 B2) MULK(TSR(O1 O2) K)) -> DOT(TSR(MULB(B1 O1) MULB(B2 O2)) K)
     DHAMMER_RULE_DEF(R_DOT12, kernel, term) {
 
         MATCH_HEAD(term, DOT, args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K)
-        
+
         MATCH_HEAD(args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K[0], TSR, args_TSR_B1_B2)
 
         MATCH_HEAD(args_DOT_TSR_B1_B2_MULK_TSR_O1_O2_K[1], MULK, args_MULK_TSR_O1_O2_K)
 
         MATCH_HEAD(args_MULK_TSR_O1_O2_K[0], TSR, args_TSR_O1_O2)
 
-        return create_term(DOT, 
+        return create_term(DOT,
             {
-                create_term(TSR, 
+                create_term(TSR,
                     {
                         create_term(MULB, {args_TSR_B1_B2[0], args_TSR_O1_O2[0]}),
                         create_term(MULB, {args_TSR_B1_B2[1], args_TSR_O1_O2[1]})
@@ -1356,7 +1356,7 @@ namespace dhammer {
                 ),
                 args_MULK_TSR_O1_O2_K[1]
             }
-        );                
+        );
     }
 
     // DELTA(a a) -> 1
@@ -1373,19 +1373,19 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_DELTA1, kernel, term) {
 
         MATCH_HEAD(term, DELTA, args_DELTA_PAIR_a_b_PAIR_c_d)
-        
+
         MATCH_HEAD(args_DELTA_PAIR_a_b_PAIR_c_d[0], PAIR, args_PAIR_a_b)
-        
+
         MATCH_HEAD(args_DELTA_PAIR_a_b_PAIR_c_d[1], PAIR, args_PAIR_c_d)
 
-        return create_term(MULS, 
+        return create_term(MULS,
             {
                 create_term(DELTA, {args_PAIR_a_b[0], args_PAIR_c_d[0]}),
                 create_term(DELTA, {args_PAIR_a_b[1], args_PAIR_c_d[1]})
             }
         );
     }
-    
+
     // SCR(1 X) -> X
     DHAMMER_RULE_DEF(R_SCR0, kernel, term) {
 
@@ -1399,10 +1399,10 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_SCR1, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_SCR_b_X)
-        
+
         MATCH_HEAD(args_SCR_a_SCR_b_X[1], SCR, args_SCR_b_X)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 create_term(MULS, {args_SCR_a_SCR_b_X[0], args_SCR_b_X[0]}),
                 args_SCR_b_X[1]
@@ -1414,7 +1414,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_SCR2, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_ADD_X1_Xn)
-        
+
         MATCH_HEAD(args_SCR_a_ADD_X1_Xn[1], ADD, args_ADD_X1_Xn)
 
         ListArgs<int> new_args;
@@ -1423,12 +1423,12 @@ namespace dhammer {
         }
         return create_term(ADD, std::move(new_args));
     }
-    
+
     // K : KTYPE(T) => SCR(0 K) -> 0K(T)
     DHAMMER_RULE_DEF(R_SCRK0, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_0_K)
-        
+
         // Check the typing of K
         auto type_K = kernel.calc_type(args_SCR_0_K[1]);
 
@@ -1443,7 +1443,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_SCRK1, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_0K_T)
-        
+
         if (args_SCR_a_0K_T[1]->get_head() != ZEROK) return std::nullopt;
 
         return args_SCR_a_0K_T[1];
@@ -1453,7 +1453,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_SCRB0, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_0_B)
-        
+
         // Check the typing of B
         auto type_B = kernel.calc_type(args_SCR_0_B[1]);
 
@@ -1468,7 +1468,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_SCRB1, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_0B_T)
-        
+
         if (args_SCR_a_0B_T[1]->get_head() != ZEROB) return std::nullopt;
 
         return args_SCR_a_0B_T[1];
@@ -1478,7 +1478,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_SCRO0, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_0_O)
-        
+
         // Check the typing of O
         auto type_O = kernel.calc_type(args_SCR_0_O[1]);
 
@@ -1493,7 +1493,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_SCRO1, kernel, term) {
 
         MATCH_HEAD(term, SCR, args_SCR_a_0O_T1_T2)
-        
+
         if (args_SCR_a_0O_T1_T2[1]->get_head() != ZEROO) return std::nullopt;
 
         return args_SCR_a_0O_T1_T2[1];
@@ -1507,12 +1507,12 @@ namespace dhammer {
 
         return args_ADD_X[0];
     }
-    
+
     // ADD(Y1 ... X ... X ... Yn) -> ADD(Y1 ... Yn SCR(ADDS(1 1) X))
     DHAMMER_RULE_DEF(R_ADD0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_Y1_X_X_Yn)
-        
+
         if (args_ADD_Y1_X_X_Yn.size() < 2) return std::nullopt;
 
         for (int i = 0; i < args_ADD_Y1_X_X_Yn.size() - 1; i++) {
@@ -1529,7 +1529,7 @@ namespace dhammer {
                         new_args.push_back(args_ADD_Y1_X_X_Yn[k]);
                     }
                     new_args.push_back(
-                        create_term(SCR, 
+                        create_term(SCR,
                             {
                                 create_term(ADDS, {create_term(ONE, {}), create_term(ONE, {})}),
                                 args_ADD_Y1_X_X_Yn[i]
@@ -1547,7 +1547,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADD1, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_Y1_X_X_Yn)
-        
+
         if (args_ADD_Y1_X_X_Yn.size() < 2) return std::nullopt;
 
         for (int i = 0; i < args_ADD_Y1_X_X_Yn.size() - 1; i++) {
@@ -1567,7 +1567,7 @@ namespace dhammer {
                             new_args.push_back(args_ADD_Y1_X_X_Yn[k]);
                         }
                         new_args.push_back(
-                            create_term(SCR, 
+                            create_term(SCR,
                                 {
                                     create_term(ADDS, {create_term(ONE, {}), args_SCR_a_X[0]}),
                                     args_ADD_Y1_X_X_Yn[i]
@@ -1587,7 +1587,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADD2, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_Y1_X_X_Yn)
-        
+
         if (args_ADD_Y1_X_X_Yn.size() < 2) return std::nullopt;
 
         for (int i = 0; i < args_ADD_Y1_X_X_Yn.size() - 1; i++) {
@@ -1608,7 +1608,7 @@ namespace dhammer {
                             new_args.push_back(args_ADD_Y1_X_X_Yn[k]);
                         }
                         new_args.push_back(
-                            create_term(SCR, 
+                            create_term(SCR,
                                 {
                                     create_term(ADDS, {args_SCR_a_X[0], create_term(ONE, {})}),
                                     args_SCR_a_X[1]
@@ -1627,16 +1627,16 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADD3, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_Y1_X_X_Yn)
-        
+
         if (args_ADD_Y1_X_X_Yn.size() < 2) return std::nullopt;
 
         for (int i = 0; i < args_ADD_Y1_X_X_Yn.size() - 1; i++) {
-            
+
             if (args_ADD_Y1_X_X_Yn[i]->get_head() == SCR) {
                 auto& args_SCR_a_X = args_ADD_Y1_X_X_Yn[i]->get_args();
-            
+
                 for (int j = i + 1; j < args_ADD_Y1_X_X_Yn.size(); j++) {
-                    
+
                     if (args_ADD_Y1_X_X_Yn[j]->get_head() == SCR) {
                         auto& args_SCR_b_X = args_ADD_Y1_X_X_Yn[j]->get_args();
 
@@ -1653,7 +1653,7 @@ namespace dhammer {
                                 new_args.push_back(args_ADD_Y1_X_X_Yn[k]);
                             }
                             new_args.push_back(
-                                create_term(SCR, 
+                                create_term(SCR,
                                     {
                                         create_term(ADDS, {args_SCR_a_X[0], args_SCR_b_X[0]}),
                                         args_SCR_a_X[1]
@@ -1673,7 +1673,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADDK0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_K1_0K_T_Kn)
-        
+
         ListArgs<int> new_args;
         for (const auto& arg : args_ADD_K1_0K_T_Kn) {
             if (arg->get_head() == ZEROK) {
@@ -1694,7 +1694,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADDB0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_B1_0B_T_Bn)
-        
+
         ListArgs<int> new_args;
         for (const auto& arg : args_ADD_B1_0B_T_Bn) {
             if (arg->get_head() == ZEROB) {
@@ -1715,7 +1715,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADDO0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_O1_0O_T1_T2_On)
-        
+
         ListArgs<int> new_args;
         for (const auto& arg : args_ADD_O1_0O_T1_T2_On) {
             if (arg->get_head() == ZEROO) {
@@ -1736,9 +1736,9 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADJ0, kernel, term) {
 
         MATCH_HEAD(term, ADJ, args_ADJ_ADJ_X)
-        
+
         MATCH_HEAD(args_ADJ_ADJ_X[0], ADJ, args_ADJ_X)
-        
+
         return args_ADJ_X[0];
     }
 
@@ -1747,10 +1747,10 @@ namespace dhammer {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_SCR_a_X)
-        
+
         MATCH_HEAD(args_ADJ_SCR_a_X[0], SCR, args_SCR_a_X)
-        
-        return create_term(SCR, 
+
+        return create_term(SCR,
             {
                 create_term(CONJ, {args_SCR_a_X[0]}),
                 create_term(ADJ, {args_SCR_a_X[1]})
@@ -1763,9 +1763,9 @@ namespace dhammer {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_ADD_X1_Xn)
-        
+
         MATCH_HEAD(args_ADJ_ADD_X1_Xn[0], ADD, args_ADD_X1_Xn)
-        
+
         ListArgs<int> new_args;
         for (const auto& arg : args_ADD_X1_Xn) {
             new_args.push_back(create_term(ADJ, {arg}));
@@ -1778,10 +1778,10 @@ namespace dhammer {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_TSR_X_Y)
-        
+
         MATCH_HEAD(args_ADJ_TSR_X_Y[0], TSR, args_TSR_X_Y)
-        
-        return create_term(TSR, 
+
+        return create_term(TSR,
             {
                 create_term(ADJ, {args_TSR_X_Y[0]}),
                 create_term(ADJ, {args_TSR_X_Y[1]})
@@ -1794,7 +1794,7 @@ namespace dhammer {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_0B_T)
-        
+
         MATCH_HEAD(args_ADJ_0B_T[0], ZEROB, args_ZEROB_T)
 
         return create_term(ZEROK, {args_ZEROB_T[0]});
@@ -1805,7 +1805,7 @@ namespace dhammer {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_BRA_t)
-        
+
         MATCH_HEAD(args_ADJ_BRA_t[0], BRA, args_BRA_t)
 
         return create_term(KET, {args_BRA_t[0]});
@@ -1819,7 +1819,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_ADJ_MULB_B_O[0], MULB, args_MULB_B_O)
 
-        return create_term(MULK, 
+        return create_term(MULK,
             {
                 create_term(ADJ, {args_MULB_B_O[1]}),
                 create_term(ADJ, {args_MULB_B_O[0]})
@@ -1833,7 +1833,7 @@ namespace dhammer {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_0K_T)
-        
+
         MATCH_HEAD(args_ADJ_0K_T[0], ZEROK, args_ZEROK_T)
 
         return create_term(ZEROB, {args_ZEROK_T[0]});
@@ -1844,7 +1844,7 @@ namespace dhammer {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_KET_t)
-        
+
         MATCH_HEAD(args_ADJ_KET_t[0], KET, args_KET_t)
 
         return create_term(BRA, {args_KET_t[0]});
@@ -1858,7 +1858,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_ADJ_MULK_O_K[0], MULK, args_MULK_O_K)
 
-        return create_term(MULB, 
+        return create_term(MULB,
             {
                 create_term(ADJ, {args_MULK_O_K[1]}),
                 create_term(ADJ, {args_MULK_O_K[0]})
@@ -1872,7 +1872,7 @@ namespace dhammer {
 
 
         MATCH_HEAD(term, ADJ, args_ADJ_0O_T1_T2)
-        
+
         MATCH_HEAD(args_ADJ_0O_T1_T2[0], ZEROO, args_ZEROO_T1_T2)
 
         return create_term(ZEROO, {args_ZEROO_T1_T2[1], args_ZEROO_T1_T2[0]});
@@ -1882,7 +1882,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADJO1, kernel, term) {
 
         MATCH_HEAD(term, ADJ, args_ADJ_1O_T)
-        
+
         if (args_ADJ_1O_T[0]->get_head() != ONEO) return std::nullopt;
 
         return args_ADJ_1O_T[0];
@@ -1896,7 +1896,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_ADJ_OUTER_K_B[0], OUTER, args_OUTER_K_B)
 
-        return create_term(OUTER, 
+        return create_term(OUTER,
             {
                 create_term(ADJ, {args_OUTER_K_B[1]}),
                 create_term(ADJ, {args_OUTER_K_B[0]})
@@ -1912,7 +1912,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_ADJ_MULO_O1_O2[0], MULO, args_MULO_O1_O2)
 
-        return create_term(MULO, 
+        return create_term(MULO,
             {
                 create_term(ADJ, {args_MULO_O1_O2[1]}),
                 create_term(ADJ, {args_MULO_O1_O2[0]})
@@ -1928,7 +1928,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_TSR_SCR_a_X1_X2[0], SCR, args_SCR_a_X1)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_X1[0],
                 create_term(TSR, {args_SCR_a_X1[1], args_TSR_SCR_a_X1_X2[1]})
@@ -1944,7 +1944,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_TSR_X1_SCR_a_X2[1], SCR, args_SCR_a_X2)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_X2[0],
                 create_term(TSR, {args_TSR_X1_SCR_a_X2[0], args_SCR_a_X2[1]})
@@ -2058,7 +2058,7 @@ namespace dhammer {
 
         return create_term(ZEROB, {create_term(PROD, {args_BType_T1[0], args_ZEROB_T2[0]})});
     }
-    
+
     // TSR(BRA(s) BRA(t)) -> BRA(PAIR(s t))
     DHAMMER_RULE_DEF(R_TSRB2, kernel, term) {
 
@@ -2085,7 +2085,7 @@ namespace dhammer {
 
         MATCH_HEAD(type_O, OTYPE, args_OType_T3_T4)
 
-        return create_term(ZEROO, 
+        return create_term(ZEROO,
             {
                 create_term(PROD, {args_ZEROO_T1_T2[0], args_OType_T3_T4[0]}),
                 create_term(PROD, {args_ZEROO_T1_T2[1], args_OType_T3_T4[1]})
@@ -2106,7 +2106,7 @@ namespace dhammer {
 
         MATCH_HEAD(type_O, OTYPE, args_OType_T1_T2)
 
-        return create_term(ZEROO, 
+        return create_term(ZEROO,
             {
                 create_term(PROD, {args_OType_T1_T2[0], args_ZEROO_T3_T4[0]}),
                 create_term(PROD, {args_OType_T1_T2[1], args_ZEROO_T3_T4[1]})
@@ -2137,7 +2137,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_TSR_OUTER_K1_B1_OUTER_K2_B2[1], OUTER, args_OUTER_K2_B2)
 
-        return create_term(OUTER, 
+        return create_term(OUTER,
             {
                 create_term(TSR, {args_OUTER_K1_B1[0], args_OUTER_K2_B2[0]}),
                 create_term(TSR, {args_OUTER_K1_B1[1], args_OUTER_K2_B2[1]})
@@ -2190,7 +2190,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULK_SCR_a_O_K[0], SCR, args_SCR_a_O)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_O[0],
                 create_term(MULK, {args_SCR_a_O[1], args_MULK_SCR_a_O_K[1]})
@@ -2206,7 +2206,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULK_O_SCR_a_K[1], SCR, args_SCR_a_K)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_K[0],
                 create_term(MULK, {args_MULK_O_SCR_a_K[0], args_SCR_a_K[1]})
@@ -2252,7 +2252,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULK_OUTER_K1_B_K2[0], OUTER, args_OUTER_K1_B)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 create_term(DOT, {args_OUTER_K1_B[1], args_MULK_OUTER_K1_B_K2[1]}),
                 args_OUTER_K1_B[0]
@@ -2268,7 +2268,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULK_MULO_O1_O2_K[0], MULO, args_MULO_O1_O2)
 
-        return create_term(MULK, 
+        return create_term(MULK,
             {
                 args_MULO_O1_O2[0],
                 create_term(MULK, {args_MULO_O1_O2[1], args_MULK_MULO_O1_O2_K[1]})
@@ -2288,9 +2288,9 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULK_TSR_O3_O4_K[0], TSR, args_TSR_O3_O4)
 
-        return create_term(MULK, 
+        return create_term(MULK,
             {
-                create_term(TSR, 
+                create_term(TSR,
                     {
                         create_term(MULO, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
                         create_term(MULO, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
@@ -2313,7 +2313,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_KET_PAIR_s_t[0], PAIR, args_PAIR_s_t)
 
-        return create_term(TSR, 
+        return create_term(TSR,
             {
                 create_term(MULK, {args_TSR_O1_O2[0], create_term(KET, {args_PAIR_s_t[0]})}),
                 create_term(MULK, {args_TSR_O1_O2[1], create_term(KET, {args_PAIR_s_t[1]})})
@@ -2331,7 +2331,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULK_TSR_O1_O2_TSR_K1_K2[1], TSR, args_TSR_K1_K2)
 
-        return create_term(TSR, 
+        return create_term(TSR,
             {
                 create_term(MULK, {args_TSR_O1_O2[0], args_TSR_K1_K2[0]}),
                 create_term(MULK, {args_TSR_O1_O2[1], args_TSR_K1_K2[1]})
@@ -2384,7 +2384,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULB_SCR_a_B_O[0], SCR, args_SCR_a_B)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_B[0],
                 create_term(MULB, {args_SCR_a_B[1], args_MULB_SCR_a_B_O[1]})
@@ -2400,7 +2400,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULB_B_SCR_a_O[1], SCR, args_SCR_a_O)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_O[0],
                 create_term(MULB, {args_MULB_B_SCR_a_O[0], args_SCR_a_O[1]})
@@ -2446,7 +2446,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULB_B1_OUTER_K_B2[1], OUTER, args_OUTER_K_B2)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 create_term(DOT, {args_MULB_B1_OUTER_K_B2[0], args_OUTER_K_B2[0]}),
                 args_OUTER_K_B2[1]
@@ -2462,7 +2462,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULB_B_MULO_O1_O2[1], MULO, args_MULO_O1_O2)
 
-        return create_term(MULB, 
+        return create_term(MULB,
             {
                 create_term(MULB, {args_MULB_B_MULO_O1_O2[0], args_MULO_O1_O2[0]}),
                 args_MULO_O1_O2[1]
@@ -2482,10 +2482,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULB_MULB_B_TSR_O1_O2_TSR_O3_O4[1], TSR, args_TSR_O3_O4)
 
-        return create_term(MULB, 
+        return create_term(MULB,
             {
                 args_MULB_B_TSR_O1_O2[0],
-                create_term(TSR, 
+                create_term(TSR,
                     {
                         create_term(MULO, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
                         create_term(MULO, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
@@ -2507,7 +2507,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULB_BRA_PAIR_s_t_TSR_O1_O2[1], TSR, args_TSR_O1_O2)
 
-        return create_term(TSR, 
+        return create_term(TSR,
             {
                 create_term(MULB, {create_term(BRA, {args_PAIR_s_t[0]}), args_TSR_O1_O2[0]}),
                 create_term(MULB, {create_term(BRA, {args_PAIR_s_t[1]}), args_TSR_O1_O2[1]})
@@ -2525,7 +2525,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULB_TSR_B1_B2_TSR_O1_O2[1], TSR, args_TSR_O1_O2)
 
-        return create_term(TSR, 
+        return create_term(TSR,
             {
                 create_term(MULB, {args_TSR_B1_B2[0], args_TSR_O1_O2[0]}),
                 create_term(MULB, {args_TSR_B1_B2[1], args_TSR_O1_O2[1]})
@@ -2573,7 +2573,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_OUTER_SCR_a_K_B[0], SCR, args_SCR_a_K)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_K[0],
                 create_term(OUTER, {args_SCR_a_K[1], args_OUTER_SCR_a_K_B[1]})
@@ -2589,7 +2589,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_OUTER_K_SCR_a_B[1], SCR, args_SCR_a_B)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_B[0],
                 create_term(OUTER, {args_OUTER_K_SCR_a_B[0], args_SCR_a_B[1]})
@@ -2685,7 +2685,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULO_OUTER_K_B_O[0], OUTER, args_OUTER_K_B)
 
-        return create_term(OUTER, 
+        return create_term(OUTER,
             {
                 args_OUTER_K_B[0],
                 create_term(MULB, {args_OUTER_K_B[1], args_MULO_OUTER_K_B_O[1]})
@@ -2701,7 +2701,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULO_O_OUTER_K_B[1], OUTER, args_OUTER_K_B)
 
-        return create_term(OUTER, 
+        return create_term(OUTER,
             {
                 create_term(MULK, {args_MULO_O_OUTER_K_B[0], args_OUTER_K_B[0]}),
                 args_OUTER_K_B[1]
@@ -2717,7 +2717,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULO_SCR_a_O1_O2[0], SCR, args_SCR_a_O1)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_O1[0],
                 create_term(MULO, {args_SCR_a_O1[1], args_MULO_SCR_a_O1_O2[1]})
@@ -2733,7 +2733,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULO_O1_SCR_a_O2[1], SCR, args_SCR_a_O2)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_O2[0],
                 create_term(MULO, {args_MULO_O1_SCR_a_O2[0], args_SCR_a_O2[1]})
@@ -2779,7 +2779,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULO_MULO_O1_O2_O3[0], MULO, args_MULO_O1_O2)
 
-        return create_term(MULO, 
+        return create_term(MULO,
             {
                 args_MULO_O1_O2[0],
                 create_term(MULO, {args_MULO_O1_O2[1], args_MULO_MULO_O1_O2_O3[1]})
@@ -2797,7 +2797,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULO_TSR_O1_O2_TSR_O3_O4[1], TSR, args_TSR_O3_O4)
 
-        return create_term(TSR, 
+        return create_term(TSR,
             {
                 create_term(MULO, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
                 create_term(MULO, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
@@ -2817,9 +2817,9 @@ namespace dhammer {
 
         MATCH_HEAD(args_MULO_TSR_O3_O4_O[0], TSR, args_TSR_O3_O4)
 
-        return create_term(MULO, 
+        return create_term(MULO,
             {
-                create_term(TSR, 
+                create_term(TSR,
                     {
                         create_term(MULO, {args_TSR_O1_O2[0], args_TSR_O3_O4[0]}),
                         create_term(MULO, {args_TSR_O1_O2[1], args_TSR_O3_O4[1]})
@@ -2896,14 +2896,14 @@ namespace dhammer {
         auto new_var_int = kernel.register_symbol(sig.unique_var());
         auto new_var = create_term(new_var_int);
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 create_term(USET, {args_ONEO_T[0]}),
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         new_var,
                         create_term(BASIS, {args_ONEO_T[0]}),
-                        create_term(OUTER, 
+                        create_term(OUTER,
                             {
                                 create_term(KET, {new_var}),
                                 create_term(BRA, {new_var})
@@ -2930,10 +2930,10 @@ namespace dhammer {
         while (true) {
             if (inner_term->get_head() == DELTA) break;
             // continually match the function and sum inside
-            
+
             if (inner_term->get_head() == SUM) {
                 auto& args = inner_term->get_args();
-            
+
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
                 inner_term = ars_fun_inside[2];
             }
@@ -2957,10 +2957,10 @@ namespace dhammer {
         else {
             return std::nullopt;
         }
-            
+
         if (!free_in(t, i->get_head())) return std::nullopt;
 
-        return args_FUN_i_T_SUM_DELTA_i_t[2]->replace_term(inner_term, create_term(ONE));  
+        return args_FUN_i_T_SUM_DELTA_i_t[2]->replace_term(inner_term, create_term(ONE));
     }
 
     // i free in t => SUM(USET(T) FUN(i T SUM(... MULS(a1 ... DELTA(i t) ... an) ...))) -> SUM(... MULS(a1{i/t} ... an{i/t}) ...)
@@ -2979,10 +2979,10 @@ namespace dhammer {
         while (true) {
             if (inner_term->get_head() == MULS) break;
             // continually match the function and sum inside
-            
+
             if (inner_term->get_head() == SUM) {
                 auto& args = inner_term->get_args();
-            
+
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
                 inner_term = ars_fun_inside[2];
             }
@@ -3014,8 +3014,8 @@ namespace dhammer {
                 else {
                     continue;
                 }
-                    
-                
+
+
                 if (!free_in(t, i->get_head())) continue;
 
                 ListArgs<int> new_mul_args;
@@ -3029,7 +3029,7 @@ namespace dhammer {
                 }
 
 
-                return args_FUN_i_T_SUM_a1_DELTA_i_t_an[2]->replace_term(inner_term, create_term(MULS, std::move(new_mul_args)));  
+                return args_FUN_i_T_SUM_a1_DELTA_i_t_an[2]->replace_term(inner_term, create_term(MULS, std::move(new_mul_args)));
 
             }
         }
@@ -3053,10 +3053,10 @@ namespace dhammer {
         while (true) {
             if (inner_term->get_head() == SCR) break;
             // continually match the function and sum inside
-            
+
             if (inner_term->get_head() == SUM) {
                 auto& args = inner_term->get_args();
-                
+
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
                 inner_term = ars_fun_inside[2];
             }
@@ -3082,11 +3082,11 @@ namespace dhammer {
         else {
             return std::nullopt;
         }
-            
+
         if (!free_in(t, i->get_head())) return std::nullopt;
 
         return args_FUN_i_T_SUM_SCR_DELTA_i_t_A[2]->replace_term(
-            inner_term, 
+            inner_term,
             subst(sig, args_SCR_DELTA_i_t_A[1], i->get_head(), t)
         );
     }
@@ -3107,10 +3107,10 @@ namespace dhammer {
         while (true) {
             if (inner_term->get_head() == SCR) break;
             // continually match the function and sum inside
-            
+
             if (inner_term->get_head() == SUM) {
                 auto& args = inner_term->get_args();
-                
+
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
                 inner_term = ars_fun_inside[2];
             }
@@ -3157,10 +3157,10 @@ namespace dhammer {
                 }
 
                 return args_FUN_i_T_SUM_SCR_MULS_a1_DELTA_i_t_an_A[2]->replace_term(
-                    inner_term, 
-                    create_term(SCR, 
+                    inner_term,
+                    create_term(SCR,
                         {
-                            create_term(MULS, std::move(new_mul_args)), 
+                            create_term(MULS, std::move(new_mul_args)),
                             subst(sig, args_SCR_MULS_a1_DELTA_i_t_an_A[1], i->get_head(), t)
                         }
                     )
@@ -3191,10 +3191,10 @@ namespace dhammer {
         while (true) {
             if (inner_term->get_head() == DELTA) break;
             // continually match the function and sum inside
-            
+
             if (inner_term->get_head() == SUM) {
                 auto& args = inner_term->get_args();
-                
+
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
                 inner_term = ars_fun_inside[2];
             }
@@ -3206,7 +3206,7 @@ namespace dhammer {
         MATCH_HEAD(inner_term, DELTA, args_DELTA_i_j)
 
         // Check whether delta variables i and j match the bound variables
-        if (!((*args_DELTA_i_j[0] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0] && *args_DELTA_i_j[1] == *args_FUN_j_T_SUM_DELTA_i_j[0]) || 
+        if (!((*args_DELTA_i_j[0] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0] && *args_DELTA_i_j[1] == *args_FUN_j_T_SUM_DELTA_i_j[0]) ||
             (*args_DELTA_i_j[1] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[0] && *args_DELTA_i_j[0] == *args_FUN_j_T_SUM_DELTA_i_j[0]))) return std::nullopt;
 
         return args_FUN_i_T_SUM_M_fun_j_T_SUM_DELTA_i_j[2]->replace_term(inner_term, create_term(ONE));
@@ -3234,10 +3234,10 @@ namespace dhammer {
         while (true) {
             if (inner_term->get_head() == MULS) break;
             // continually match the function and sum inside
-            
+
             if (inner_term->get_head() == SUM) {
                 auto& args = inner_term->get_args();
-                
+
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
                 inner_term = ars_fun_inside[2];
             }
@@ -3251,12 +3251,12 @@ namespace dhammer {
         if (args_MULS_a1_DELTA_i_j_an.size() == 1) return std::nullopt;
 
         for (int idx_i = 0; idx_i < args_MULS_a1_DELTA_i_j_an.size(); idx_i++) {
-            
+
             if (args_MULS_a1_DELTA_i_j_an[idx_i]->get_head() == DELTA) {
                 auto& args_DELTA_i_j = args_MULS_a1_DELTA_i_j_an[idx_i]->get_args();
 
                 // Check whether delta variables i and j match the bound variables
-                if (!((*args_DELTA_i_j[0] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0] && *args_DELTA_i_j[1] == *args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0]) || 
+                if (!((*args_DELTA_i_j[0] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0] && *args_DELTA_i_j[1] == *args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0]) ||
                     (*args_DELTA_i_j[1] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[0] && *args_DELTA_i_j[0] == *args_FUN_j_T_SUM_MULS_a1_DELTA_i_j_an[0]))) continue;
 
                 ListArgs<int> new_mul_args;
@@ -3275,7 +3275,7 @@ namespace dhammer {
                 }
 
                 return args_FUN_i_T_SUM_M_fun_j_T_SUM_MULS_a1_DELTA_i_j_an[2]->replace_term(
-                    inner_term, 
+                    inner_term,
                     create_term(MULS, std::move(new_mul_args))
                 );
             }
@@ -3306,10 +3306,10 @@ namespace dhammer {
         while (true) {
             if (inner_term->get_head() == SCR) break;
             // continually match the function and sum inside
-            
+
             if (inner_term->get_head() == SUM) {
                 auto& args = inner_term->get_args();
-                
+
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
                 inner_term = ars_fun_inside[2];
             }
@@ -3323,11 +3323,11 @@ namespace dhammer {
         MATCH_HEAD(args_SCR_DELTA_i_j_A[0], DELTA, args_DELTA_i_j)
 
         // Check whether delta variables i and j match the bound variables
-        if (!((*args_DELTA_i_j[0] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0] && *args_DELTA_i_j[1] == *args_FUN_j_T_SUM_DELTA_i_j_A[0]) || 
+        if (!((*args_DELTA_i_j[0] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0] && *args_DELTA_i_j[1] == *args_FUN_j_T_SUM_DELTA_i_j_A[0]) ||
             (*args_DELTA_i_j[1] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0] && *args_DELTA_i_j[0] == *args_FUN_j_T_SUM_DELTA_i_j_A[0]))) return std::nullopt;
 
         return args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[2]->replace_term(
-            inner_term, 
+            inner_term,
             subst(sig, args_SCR_DELTA_i_j_A[1], args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_DELTA_i_j_A[0]->get_head(), args_FUN_j_T_SUM_DELTA_i_j_A[0])
         );
     }
@@ -3354,10 +3354,10 @@ namespace dhammer {
         while (true) {
             if (inner_term->get_head() == SCR) break;
             // continually match the function and sum inside
-            
+
             if (inner_term->get_head() == SUM) {
                 auto& args = inner_term->get_args();
-            
+
                 MATCH_HEAD(args[1], FUN, ars_fun_inside)
                 inner_term = ars_fun_inside[2];
             }
@@ -3373,12 +3373,12 @@ namespace dhammer {
         if (args_MULS_a1_DELTA_i_j_an.size() == 1) return std::nullopt;
 
         for (int idx_i = 0; idx_i < args_MULS_a1_DELTA_i_j_an.size(); idx_i++) {
-            
+
             if (args_MULS_a1_DELTA_i_j_an[idx_i]->get_head() == DELTA) {
                 auto& args_DELTA_i_j = args_MULS_a1_DELTA_i_j_an[idx_i]->get_args();
 
                 // Check whether delta variables i and j match the bound variables
-                if (!((*args_DELTA_i_j[0] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] && *args_DELTA_i_j[1] == *args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]) || 
+                if (!((*args_DELTA_i_j[0] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] && *args_DELTA_i_j[1] == *args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]) ||
                     (*args_DELTA_i_j[1] == *args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0] && *args_DELTA_i_j[0] == *args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]))) continue;
 
                 ListArgs<int> new_mul_args;
@@ -3397,14 +3397,14 @@ namespace dhammer {
                 }
 
                 return args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[2]->replace_term(
-                    inner_term, 
-                    create_term(SCR, 
+                    inner_term,
+                    create_term(SCR,
                         {
-                            create_term(MULS, std::move(new_mul_args)), 
+                            create_term(MULS, std::move(new_mul_args)),
                             subst(
-                                sig, 
-                                args_SCR_MULS_a1_DELTA_i_j_an_A[1], 
-                                args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]->get_head(), 
+                                sig,
+                                args_SCR_MULS_a1_DELTA_i_j_an_A[1],
+                                args_FUN_i_T_SUM_M_fun_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]->get_head(),
                                 args_FUN_j_T_SUM_SCR_MULS_a1_DELTA_i_j_an_A[0]
                             )
                         }
@@ -3418,7 +3418,7 @@ namespace dhammer {
 
     // SUM(M FUN(i T SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1 ... DELTA(i j) ... an) ... MULS(b1 ... DELTA(i j) ... bn)) A) ...))))) -> SUM(M FUN(j T SUM(... SCR(ADDS(MULS(a1{j/i} ... an{j/i}) ... MULS(b1{j/i} ... bn{j/i})) A{j/i}) ...)))
     // DHAMMER_RULE_DEF(R_SUM_ELIM8, kernel, term) {
-        
+
     //     auto &sig = kernel.get_sig();
 
     //     MATCH_HEAD(term, SUM, args_SUM_M_fun_i_T_SUM_M_fun_j_T_SUM_SCR_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn_A)
@@ -3438,10 +3438,10 @@ namespace dhammer {
     //     while (true) {
     //         if (inner_term->get_head() == SCR) break;
     //         // continually match the function and sum inside
-            
+
     //         if (inner_term->get_head() == SUM) {
     //             auto& args = inner_term->get_args();
-            
+
     //             MATCH_HEAD(args[1], FUN, ars_fun_inside)
     //             inner_term = ars_fun_inside[2];
     //         }
@@ -3456,7 +3456,7 @@ namespace dhammer {
 
     //     if (args_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn.size() == 1) return std::nullopt;
 
-    //     auto 
+    //     auto
 
     //     for (int idx_i = 0; idx_i < args_ADDS_MULS_a1_DELTA_i_j_an_MULS_b1_DELTA_i_j_bn[0]->get_args().size()
     // }
@@ -3470,10 +3470,10 @@ namespace dhammer {
         if (args_MULS_b1_SUM_M_fun_i_T_a_bn.size() == 1) return std::nullopt;
 
         for (int idx_i = 0; idx_i < args_MULS_b1_SUM_M_fun_i_T_a_bn.size(); idx_i++) {
-            
+
             if (args_MULS_b1_SUM_M_fun_i_T_a_bn[idx_i]->get_head() != SUM) continue;
             auto& args_SUM_M_fun_i_T_a = args_MULS_b1_SUM_M_fun_i_T_a_bn[idx_i]->get_args();
-            
+
             if (args_SUM_M_fun_i_T_a[1]->get_head() != FUN) continue;
             auto& args_fun_i_T_a = args_SUM_M_fun_i_T_a[1]->get_args();
 
@@ -3488,10 +3488,10 @@ namespace dhammer {
                 }
             }
 
-            return create_term(SUM, 
+            return create_term(SUM,
                 {
                     args_SUM_M_fun_i_T_a[0],
-                    create_term(FUN, 
+                    create_term(FUN,
                         {
                             args_fun_i_T_a[0],
                             args_fun_i_T_a[1],
@@ -3502,7 +3502,7 @@ namespace dhammer {
             );
         }
 
-        return std::nullopt;          
+        return std::nullopt;
     }
 
     // CONJ(SUM(M FUN(i T a))) -> SUM(M FUN(i T CONJ(a)))
@@ -3515,10 +3515,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_a[1], FUN, args_FUN_i_T_a)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_a[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_a[0],
                         args_FUN_i_T_a[1],
@@ -3539,10 +3539,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_X[1], FUN, args_FUN_i_T_X)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_X[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_X[0],
                         args_FUN_i_T_X[1],
@@ -3563,10 +3563,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_X[1], FUN, args_FUN_i_T_X)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_X[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_X[0],
                         args_FUN_i_T_X[1],
@@ -3587,10 +3587,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_a[1], FUN, args_FUN_i_T_a)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_a[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_a[0],
                         args_FUN_i_T_a[1],
@@ -3612,10 +3612,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_B[1], FUN, args_FUN_i_T_B)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_B[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_B[0],
                         args_FUN_i_T_B[1],
@@ -3636,10 +3636,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_O[1], FUN, args_FUN_i_T_O)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_O[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_O[0],
                         args_FUN_i_T_O[1],
@@ -3660,10 +3660,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_B[1], FUN, args_FUN_i_T_B)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_B[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_B[0],
                         args_FUN_i_T_B[1],
@@ -3673,7 +3673,7 @@ namespace dhammer {
             }
         );
     }
-    
+
     // OUTER(SUM(M FUN(i T K)) B) -> SUM(M FUN(i T OUTER(K B)))
     DHAMMER_RULE_DEF(R_SUM_PUSH8, kernel, term) {
 
@@ -3684,10 +3684,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_K[1], FUN, args_FUN_i_T_K)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_K[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_K[0],
                         args_FUN_i_T_K[1],
@@ -3697,7 +3697,7 @@ namespace dhammer {
             }
         );
     }
-    
+
     // MULO(SUM(M FUN(i T O1)) O2) -> SUM(M FUN(i T MULO(O1 O2)))
     DHAMMER_RULE_DEF(R_SUM_PUSH9, kernel, term) {
 
@@ -3708,10 +3708,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_O1[1], FUN, args_FUN_i_T_O1)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_O1[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_O1[0],
                         args_FUN_i_T_O1[1],
@@ -3733,10 +3733,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_K[1], FUN, args_FUN_i_T_K)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_K[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_K[0],
                         args_FUN_i_T_K[1],
@@ -3757,10 +3757,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_K[1], FUN, args_FUN_i_T_K)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_K[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_K[0],
                         args_FUN_i_T_K[1],
@@ -3781,10 +3781,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_O[1], FUN, args_FUN_i_T_O)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_O[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_O[0],
                         args_FUN_i_T_O[1],
@@ -3805,10 +3805,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_B[1], FUN, args_FUN_i_T_B)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_B[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_B[0],
                         args_FUN_i_T_B[1],
@@ -3829,10 +3829,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_O2[1], FUN, args_FUN_i_T_O2)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_O2[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_O2[0],
                         args_FUN_i_T_O2[1],
@@ -3854,10 +3854,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_X[1], FUN, args_FUN_i_T_X)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_X[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_X[0],
                         args_FUN_i_T_X[1],
@@ -3878,10 +3878,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_Y[1], FUN, args_FUN_i_T_Y)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_Y[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_Y[0],
                         args_FUN_i_T_Y[1],
@@ -3906,10 +3906,10 @@ namespace dhammer {
         ListArgs<int> new_sum_args;
         for (const auto &arg : args_ADDS_a1_an) {
             auto new_var = create_term(kernel.register_symbol(sig.unique_var()));
-            new_sum_args.push_back(create_term(SUM, 
+            new_sum_args.push_back(create_term(SUM,
                 {
                     args_SUM_M_fun_i_T_ADDS_a1_an[0],
-                    create_term(FUN, 
+                    create_term(FUN,
                         {
                             new_var,
                             args_FUN_i_T_ADDS_a1_an[1],
@@ -3945,10 +3945,10 @@ namespace dhammer {
                     auto new_var = create_term(kernel.register_symbol(sig.unique_var()));
                     ListArgs<int> new_mul_args{args_MULS_b1_ADDS_a1_an_bm};
                     new_mul_args[i] = arg;
-                    new_sum_args.push_back(create_term(SUM, 
+                    new_sum_args.push_back(create_term(SUM,
                         {
                             args_SUM_M_fun_i_T_MULS_b1_ADDS_a1_an_bm[0],
-                            create_term(FUN, 
+                            create_term(FUN,
                                 {
                                     new_var,
                                     args_FUN_i_T_MULS_b1_ADDS_a1_an_bm[1],
@@ -3980,10 +3980,10 @@ namespace dhammer {
         ListArgs<int> new_sum_args;
         for (const auto &arg : args_ADD_a1_an) {
             auto new_var = create_term(kernel.register_symbol(sig.unique_var()));
-            new_sum_args.push_back(create_term(SUM, 
+            new_sum_args.push_back(create_term(SUM,
                 {
                     args_SUM_M_fun_i_T_ADD_a1_an[0],
-                    create_term(FUN, 
+                    create_term(FUN,
                         {
                             new_var,
                             args_FUN_i_T_ADD_a1_an[1],
@@ -4015,10 +4015,10 @@ namespace dhammer {
 
         for (const auto &arg : args_ADDS_a1_an_X) {
             auto new_var = create_term(kernel.register_symbol(sig.unique_var()));
-            new_sum_args.push_back(create_term(SUM, 
+            new_sum_args.push_back(create_term(SUM,
                 {
                     args_SUM_M_fun_i_T_SCR_ADDS_a1_an_X[0],
-                    create_term(FUN, 
+                    create_term(FUN,
                         {
                             new_var,
                             args_FUN_i_T_SCR_ADDS_a1_an_X[1],
@@ -4051,17 +4051,17 @@ namespace dhammer {
         TermPtr<int> j = create_term(kernel.register_symbol(sig.unique_var()));
         TermPtr<int> k = create_term(kernel.register_symbol(sig.unique_var()));
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 create_term(USET, {args_Prod_T1_T2[0]}),
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         j,
                         create_term(BASIS, {args_Prod_T1_T2[0]}),
-                        create_term(SUM, 
+                        create_term(SUM,
                             {
                                 create_term(USET, {args_Prod_T1_T2[1]}),
-                                create_term(FUN, 
+                                create_term(FUN,
                                     {
                                         k,
                                         create_term(BASIS, {args_Prod_T1_T2[1]}),
@@ -4073,7 +4073,7 @@ namespace dhammer {
                     }
                 )
             }
-        );              
+        );
     }
 
 
@@ -4095,17 +4095,17 @@ namespace dhammer {
         TermPtr<int> j = create_term(kernel.register_symbol(sig.unique_var()));
         TermPtr<int> k = create_term(kernel.register_symbol(sig.unique_var()));
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
-                args_CATPROD_M1_M2[0], 
-                create_term(FUN, 
+                args_CATPROD_M1_M2[0],
+                create_term(FUN,
                     {
                         j,
                         create_term(BASIS, {args_Prod_T1_T2[0]}),
-                        create_term(SUM, 
+                        create_term(SUM,
                             {
                                 args_CATPROD_M1_M2[1],
-                                create_term(FUN, 
+                                create_term(FUN,
                                     {
                                         k,
                                         create_term(BASIS, {args_Prod_T1_T2[1]}),
@@ -4133,10 +4133,10 @@ namespace dhammer {
             auto& argsB_body = argsB[1]->get_args();
 
             // The types should be equivalent
-            if (*argsA_body[1] == *argsB_body[1]) {    
+            if (*argsA_body[1] == *argsB_body[1]) {
                 auto bound_varA = argsA_body[0];
                 auto bound_varB = argsB_body[0];
-                
+
                 bound_var_corr.push_back({bound_varA->get_head(), bound_varB->get_head()});
                 auto inner_res = sum_to_factorize(kernel, argsA_body[2], argsB_body[2], bound_var_corr);
                 bound_var_corr.pop_back();
@@ -4226,7 +4226,7 @@ namespace dhammer {
 
         if (args_ONEO_BIT[0]->get_head() != BIT) return std::nullopt;
 
-        return create_term(ADD, 
+        return create_term(ADD,
             {
                 create_term(OUTER, {create_term(KET, {create_term(BASIS0)}), create_term(BRA, {create_term(BASIS0)})}),
                 create_term(OUTER, {create_term(KET, {create_term(BASIS1)}), create_term(BRA, {create_term(BASIS1)})})
@@ -4256,7 +4256,7 @@ namespace dhammer {
             new_head = ADD;
         }
 
-        return create_term(new_head, 
+        return create_term(new_head,
             {
                 subst(sig, args_FUN_i_BASIS_BIT_X[2], args_FUN_i_BASIS_BIT_X[0]->get_head(), create_term(BASIS0)),
                 subst(sig, args_FUN_i_BASIS_BIT_X[2], args_FUN_i_BASIS_BIT_X[0]->get_head(), create_term(BASIS1))
@@ -4294,7 +4294,7 @@ namespace dhammer {
     // O : OTYPE[T1, T2] => O_r -> O_r;r
     DHAMMER_RULE_DEF(R_OPT_SUBS, kernel, term) {
         MATCH_HEAD(term, SUBS, args_SUBS_O_r)
-        
+
         if (args_SUBS_O_r.size() != 2) return std::nullopt;
 
         auto type = kernel.calc_type(args_SUBS_O_r[0]);
@@ -4319,7 +4319,7 @@ namespace dhammer {
 
     DHAMMER_RULE_DEF(R_ADD_REDUCE, kernel, term) {
         MATCH_HEAD(term, ADD, args_ADD_terms)
-        
+
         // check the type of the first argument
         auto type = kernel.calc_type(args_ADD_terms[0]);
 
@@ -4403,7 +4403,7 @@ namespace dhammer {
 
         // KET-like expansion
         if (rset2->is_atomic()) {
-            
+
             auto reg = args_SUBS_term_reg[1];
 
             auto [basis, info1] = get_L_expand_info(kernel, reg);
@@ -4411,7 +4411,7 @@ namespace dhammer {
             // create LKET_basis
             ListArgs<int> LKET_basis_args;
             for (const auto& elem : info1) {
-                LKET_basis_args.push_back(create_term(LKET, {create_term(elem.bound_var), create_term(elem.reg)})); 
+                LKET_basis_args.push_back(create_term(LKET, {create_term(elem.bound_var), create_term(elem.reg)}));
             }
             auto LKET_basis = create_term(LTSR, std::move(LKET_basis_args));
 
@@ -4425,12 +4425,12 @@ namespace dhammer {
             });
 
             info = std::move(info1);
-            
+
         }
 
         // BRA-like expansion
         else if (rset1->is_atomic()) {
-            
+
             auto reg = args_SUBS_term_reg[1];
 
             auto [basis, info2] = get_L_expand_info(kernel, reg);
@@ -4438,7 +4438,7 @@ namespace dhammer {
             // create LBRA_basis
             ListArgs<int> LBRA_basis_args;
             for (const auto& elem : info2) {
-                LBRA_basis_args.push_back(create_term(LBRA, {create_term(elem.bound_var), create_term(elem.reg)})); 
+                LBRA_basis_args.push_back(create_term(LBRA, {create_term(elem.bound_var), create_term(elem.reg)}));
             }
             auto LBRA_basis = create_term(LTSR, std::move(LBRA_basis_args));
 
@@ -4456,7 +4456,7 @@ namespace dhammer {
 
         // OPT-like expansion
         else {
-            
+
             auto reg1 = args_SUBS_term_reg[1];
             auto reg2 = args_SUBS_term_reg[2];
 
@@ -4466,13 +4466,13 @@ namespace dhammer {
             // create LBRA_basis
             ListArgs<int> LKET_basis_args;
             for (const auto& elem : info1) {
-                LKET_basis_args.push_back(create_term(LKET, {create_term(elem.bound_var), create_term(elem.reg)})); 
+                LKET_basis_args.push_back(create_term(LKET, {create_term(elem.bound_var), create_term(elem.reg)}));
             }
             auto LKET_basis = create_term(LTSR, std::move(LKET_basis_args));
 
             ListArgs<int> LBRA_basis_args;
             for (const auto& elem : info2) {
-                LBRA_basis_args.push_back(create_term(LBRA, {create_term(elem.bound_var), create_term(elem.reg)})); 
+                LBRA_basis_args.push_back(create_term(LBRA, {create_term(elem.bound_var), create_term(elem.reg)}));
             }
             auto LBRA_basis = create_term(LTSR, std::move(LBRA_basis_args));
 
@@ -4495,7 +4495,7 @@ namespace dhammer {
             info = std::move(info1);
 
         }
-    
+
         // wrap with SUM
         for (int i = info.size() - 1; i >= 0; i--) {
             inner_term = create_term(SUM, {
@@ -4523,7 +4523,7 @@ namespace dhammer {
 
     // ADJ[LKET[i, r]] -> LBRA[i, r]
     DHAMMER_RULE_DEF(R_ADJDB, kernel, term) {
-        
+
         MATCH_HEAD(term, ADJ, args_ADJ_LKET_i_r)
 
         MATCH_HEAD(args_ADJ_LKET_i_r[0], LKET, args_LKET_i_r)
@@ -4553,7 +4553,7 @@ namespace dhammer {
 
         MATCH_HEAD(args_ADJ_LDOT_D1_D2[0], LDOT, args_LDOT_D1_D2)
 
-        return create_term(LDOT, 
+        return create_term(LDOT,
             {
                 create_term(ADJ, {args_LDOT_D1_D2[1]}),
                 create_term(ADJ, {args_LDOT_D1_D2[0]})
@@ -4566,7 +4566,7 @@ namespace dhammer {
 
         MATCH_HEAD(term, LTSR, args_LTSR_D1_SCR_a_Dn_Dm)
 
-        auto it = std::find_if(args_LTSR_D1_SCR_a_Dn_Dm.begin(), args_LTSR_D1_SCR_a_Dn_Dm.end(), 
+        auto it = std::find_if(args_LTSR_D1_SCR_a_Dn_Dm.begin(), args_LTSR_D1_SCR_a_Dn_Dm.end(),
             [](const auto& arg) { return arg->get_head() == SCR; });
 
         if (it == args_LTSR_D1_SCR_a_Dn_Dm.end()) return std::nullopt;
@@ -4591,12 +4591,12 @@ namespace dhammer {
 
     // LDOT(SCR(a D1) D2) -> SCR(a LDOT(D1 D2))
     DHAMMER_RULE_DEF(R_SCRD1, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_SCR_a_D1_D2)
 
         MATCH_HEAD(args_LDOT_SCR_a_D1_D2[0], SCR, args_SCR_a_D1)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_D1[0],
                 create_term(LDOT, {args_SCR_a_D1[1], args_LDOT_SCR_a_D1_D2[1]})
@@ -4606,12 +4606,12 @@ namespace dhammer {
 
     // LDOT(D1 SCR(a D2)) -> SCR(a LDOT(D1 D2))
     DHAMMER_RULE_DEF(R_SCRD2, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_D1_SCR_a_D2)
 
         MATCH_HEAD(args_LDOT_D1_SCR_a_D2[1], SCR, args_SCR_a_D2)
 
-        return create_term(SCR, 
+        return create_term(SCR,
             {
                 args_SCR_a_D2[0],
                 create_term(LDOT, {args_LDOT_D1_SCR_a_D2[0], args_SCR_a_D2[1]})
@@ -4646,7 +4646,7 @@ namespace dhammer {
     DHAMMER_RULE_DEF(R_ADDD0, kernel, term) {
 
         MATCH_HEAD(term, ADD, args_ADD_D1_0D_s1_s2_Dn)
-        
+
         ListArgs<int> new_args;
         for (const auto& arg : args_ADD_D1_0D_s1_s2_Dn) {
             if (arg->get_head() == ZEROD) {
@@ -4668,7 +4668,7 @@ namespace dhammer {
 
         MATCH_HEAD(term, LTSR, args_LTSR_X1_ADD_D1_Dn_Xm)
 
-        auto it = std::find_if(args_LTSR_X1_ADD_D1_Dn_Xm.begin(), args_LTSR_X1_ADD_D1_Dn_Xm.end(), 
+        auto it = std::find_if(args_LTSR_X1_ADD_D1_Dn_Xm.begin(), args_LTSR_X1_ADD_D1_Dn_Xm.end(),
             [](const auto& arg) { return arg->get_head() == ADD; });
 
         if (it == args_LTSR_X1_ADD_D1_Dn_Xm.end()) return std::nullopt;
@@ -4703,7 +4703,7 @@ namespace dhammer {
 
     // LDOT(ADD(X1 ... Xn) Y) -> ADD(LDOT(X1 Y) ... LDOT(Xn Y))
     DHAMMER_RULE_DEF(R_DOTD0, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_ADD_X1_Xn_Y)
 
         MATCH_HEAD(args_LDOT_ADD_X1_Xn_Y[0], ADD, args_ADD_X1_Xn)
@@ -4718,7 +4718,7 @@ namespace dhammer {
 
     // LDOT(Y ADD(X1 ... Xn)) -> ADD(LDOT(Y X1) ... LDOT(Y Xn))
     DHAMMER_RULE_DEF(R_DOTD1, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_Y_ADD_X1_Xn)
 
         MATCH_HEAD(args_LDOT_Y_ADD_X1_Xn[1], ADD, args_ADD_X1_Xn)
@@ -4736,7 +4736,7 @@ namespace dhammer {
 
         MATCH_HEAD(term, LTSR, args_LTSR_X1_SUM_M_fun_i_T_Y_Xn)
 
-        auto it = std::find_if(args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.begin(), args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.end(), 
+        auto it = std::find_if(args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.begin(), args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.end(),
             [](const auto& arg) { return arg->get_head() == SUM && arg->get_args()[1]->get_head() == FUN; });
 
         if (it == args_LTSR_X1_SUM_M_fun_i_T_Y_Xn.end()) return std::nullopt;
@@ -4758,10 +4758,10 @@ namespace dhammer {
             }
         }
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 M,
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         i,
                         T,
@@ -4770,7 +4770,7 @@ namespace dhammer {
                 )
             }
         );
-        
+
     }
 
 
@@ -4783,10 +4783,10 @@ namespace dhammer {
 
         MATCH_HEAD(args_SUM_M_fun_i_T_Y[1], FUN, args_FUN_i_T_Y)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_Y[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_Y[0],
                         args_FUN_i_T_Y[1],
@@ -4799,17 +4799,17 @@ namespace dhammer {
 
     // LDOT(Y SUM(M FUN(i T X)) -> SUM(M FUN(i T LDOT(Y X)))
     DHAMMER_RULE_DEF(R_SUM_PUSHD2, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_Y_SUM_M_fun_i_T_X)
 
         MATCH_HEAD(args_LDOT_Y_SUM_M_fun_i_T_X[1], SUM, args_SUM_M_fun_i_T_X)
 
         MATCH_HEAD(args_SUM_M_fun_i_T_X[1], FUN, args_FUN_i_T_X)
 
-        return create_term(SUM, 
+        return create_term(SUM,
             {
                 args_SUM_M_fun_i_T_X[0],
-                create_term(FUN, 
+                create_term(FUN,
                     {
                         args_FUN_i_T_X[0],
                         args_FUN_i_T_X[1],
@@ -4840,7 +4840,7 @@ namespace dhammer {
 
     // LDOT(LBRA(i, r), LKET(j, r)) -> DELTA(i j)
     DHAMMER_RULE_DEF(R_L_SORT1, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_LBRA_i_r_LKET_j_r)
 
         MATCH_HEAD(args_LDOT_LBRA_i_r_LKET_j_r[0], LBRA, args_LBRA_i_r)
@@ -4855,7 +4855,7 @@ namespace dhammer {
 
     // LDOT(LBRA(i, r), LTSR(Y1 ... LKET(j, r) ... Yn)) -> SCR(DELTA(i j) LTSR(Y1 ... Yn))
     DHAMMER_RULE_DEF(R_L_SORT2, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_LBRA_i_r_LTSR_Y1_LKET_j_r_Yn)
 
         MATCH_HEAD(args_LDOT_LBRA_i_r_LTSR_Y1_LKET_j_r_Yn[0], LBRA, args_LBRA_i_r)
@@ -4864,7 +4864,7 @@ namespace dhammer {
 
         if (args_LTSR_Y1_LKET_j_r_Yn.size() < 2) return std::nullopt;
 
-        auto it = std::find_if(args_LTSR_Y1_LKET_j_r_Yn.begin(), args_LTSR_Y1_LKET_j_r_Yn.end(), 
+        auto it = std::find_if(args_LTSR_Y1_LKET_j_r_Yn.begin(), args_LTSR_Y1_LKET_j_r_Yn.end(),
             [&](const auto& arg) { return arg->get_head() == LKET && arg->get_args()[1]->get_head() == args_LBRA_i_r[1]->get_head(); });
 
         if (it == args_LTSR_Y1_LKET_j_r_Yn.end()) return std::nullopt;
@@ -4886,7 +4886,7 @@ namespace dhammer {
 
     // LDOT(LTSR(X1 ... LBRA(i, r) ... Xn), LKET(j, r)) -> SCR(DELTA(i j) LTSR(X1 ... Xn))
     DHAMMER_RULE_DEF(R_L_SORT3, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_LTSR_X1_LBRA_i_r_Xn_LKET_j_r)
 
 
@@ -4896,7 +4896,7 @@ namespace dhammer {
 
         if (args_LTSR_X1_LBRA_i_r_Xn.size() < 2) return std::nullopt;
 
-        auto it = std::find_if(args_LTSR_X1_LBRA_i_r_Xn.begin(), args_LTSR_X1_LBRA_i_r_Xn.end(), 
+        auto it = std::find_if(args_LTSR_X1_LBRA_i_r_Xn.begin(), args_LTSR_X1_LBRA_i_r_Xn.end(),
             [&](const auto& arg) { return arg->get_head() == LBRA && arg->get_args()[1]->get_head() == args_LKET_j_r[1]->get_head(); });
 
         if (it == args_LTSR_X1_LBRA_i_r_Xn.end()) return std::nullopt;
@@ -4918,7 +4918,7 @@ namespace dhammer {
 
     // LDOT(LTSR(X1 ... LBRA(i, r) ... Xn), LTSR(Y1 ... LKET(j, r) ... Yn)) -> SCR(DELTA(i j) LDOT(LTSR(X1 ... Xn) LTSR(Y1 ... Yn)))
     DHAMMER_RULE_DEF(R_L_SORT4, kernel, term) {
-        
+
         MATCH_HEAD(term, LDOT, args_LDOT_LTSR_X1_LBRA_i_r_Xn_LTSR_Y1_LKET_j_r_Yn)
 
         MATCH_HEAD(args_LDOT_LTSR_X1_LBRA_i_r_Xn_LTSR_Y1_LKET_j_r_Yn[0], LTSR, args_LTSR_X1_LBRA_i_r_Xn)
@@ -4985,15 +4985,15 @@ namespace dhammer {
         R_COMPO_ARROW, R_COMPO_FORALL,
         R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD, R_STAR_LTSR,
         R_ADDG_ADDS, R_ADDG_ADD,
-        R_SSUM, 
+        R_SSUM,
 
         // reduction rules
         R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_FLATTEN,
-        
+
         R_ADDSID, R_MULSID, R_ADDS0, R_MULS0, R_MULS1, R_MULS2,
 
         R_CONJ0, R_CONJ1, R_CONJ2, R_CONJ3, R_CONJ4, R_CONJ5, R_CONJ6,
-        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12, 
+        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12,
         R_DELTA0, R_DELTA1,
 
         R_SCR0, R_SCR1, R_SCR2, R_SCRK0, R_SCRK1, R_SCRB0, R_SCRB1, R_SCRO0, R_SCRO1,
@@ -5042,7 +5042,7 @@ namespace dhammer {
         R_COMPO_ARROW, R_COMPO_FORALL,
         R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD, R_STAR_LTSR,
         R_ADDG_ADDS, R_ADDG_ADD,
-        R_SSUM, 
+        R_SSUM,
 
         // reduction rules
         R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_FLATTEN,
@@ -5050,7 +5050,7 @@ namespace dhammer {
         R_MULS2,    // This rules is still necessary because FullSimplify will not transform a * (b + c) to a * b + a * c
 
         R_CONJ5, R_CONJ6,
-        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12, 
+        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12,
         R_DELTA0, R_DELTA1,
 
         R_SCR0, R_SCR1, R_SCR2, R_SCRK0, R_SCRK1, R_SCRB0, R_SCRB1, R_SCRO0, R_SCRO1,
@@ -5101,7 +5101,7 @@ namespace dhammer {
         R_COMPO_ARROW, R_COMPO_FORALL,
         R_STAR_PROD, R_STAR_MULS, R_STAR_TSRO, R_STAR_CATPROD, R_STAR_LTSR,
         R_ADDG_ADDS, R_ADDG_ADD,
-        R_SSUM, 
+        R_SSUM,
 
         // reduction rules
         R_BETA_ARROW, R_BETA_INDEX, R_DELTA, R_FLATTEN,
@@ -5109,7 +5109,7 @@ namespace dhammer {
         // R_MULS2,    // This rules is still necessary because FullSimplify will not transform a * (b + c) to a * b + a * c
 
         R_CONJ5, R_CONJ6,
-        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12, 
+        R_DOT0, R_DOT1, R_DOT2, R_DOT3, R_DOT4, R_DOT5, R_DOT6, R_DOT7, R_DOT8, R_DOT9, R_DOT10, R_DOT11, R_DOT12,
         R_DELTA0, R_DELTA1,
 
         R_SCR0, R_SCR1, R_SCR2, R_SCRK0, R_SCRK1, R_SCRB0, R_SCRB1, R_SCRO0, R_SCRO1,
