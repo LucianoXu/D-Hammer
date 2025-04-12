@@ -5516,9 +5516,17 @@ Block[
         {
             "QC-1",
             R"(
-                Def HGate := Divide[1, Sqrt[2]] (|#0> <#0| + |#0> <#1| + |#1> <#0| + (-1) |#1> <#1|).
+                Def X := |#0><#1| + |#1><#0|.
+                Def Y := Minus[I] |#0><#1| + I |#1><#0|.
+                Def Z := |#0><#0| + Minus[1] |#1><#1|.
+                Def H := Divide[1, Sqrt[2]] (|#0> <#0| + |#0> <#1| + |#1> <#0| + (-1) |#1> <#1|).
+                Def CX := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Def CZ := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #0)| + Minus[1] |(#1, #1)><(#1, #1)|.
+                Def SW := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #0)| + |(#1, #0)><(#0, #1)| + |(#1, #1)><(#1, #1)|.
+                Def Morph3R := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |(i, (j, k))> <((i, j), k)|.
+                Def Morph3L := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |((i, j), k)> <(i, (j, k))|.
             )",
-            "HGate HGate",
+            "H H",
             "1O[BIT]"
         },
 
@@ -5528,12 +5536,102 @@ Block[
         {
             "QC-2",
             R"(
+                Def X := |#0><#1| + |#1><#0|.
+                Def Y := Minus[I] |#0><#1| + I |#1><#0|.
+                Def Z := |#0><#0| + Minus[1] |#1><#1|.
+                Def H := Divide[1, Sqrt[2]] (|#0> <#0| + |#0> <#1| + |#1> <#0| + (-1) |#1> <#1|).
                 Def CX := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Def XC := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #1)| + |(#1, #0)><(#1, #0)| + |(#1, #1)><(#0, #1)|.
+                Def CZ := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #0)| + Minus[1] |(#1, #1)><(#1, #1)|.
                 Def SW := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #0)| + |(#1, #0)><(#0, #1)| + |(#1, #1)><(#1, #1)|.
+                Def Morph3R := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |(i, (j, k))> <((i, j), k)|.
+                Def Morph3L := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |((i, j), k)> <(i, (j, k))|.
             )",
             "SW CX SW",
-            "|(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #1)| + |(#1, #0)><(#1, #0)| + |(#1, #1)><(#0, #1)|"
+            "XC"
         },
+
+/* QC-3
+*/
+        {
+            "QC-3",
+            R"(
+                Def X := |#0><#1| + |#1><#0|.
+                Def Y := Minus[I] |#0><#1| + I |#1><#0|.
+                Def Z := |#0><#0| + Minus[1] |#1><#1|.
+                Def H := Divide[1, Sqrt[2]] (|#0> <#0| + |#0> <#1| + |#1> <#0| + (-1) |#1> <#1|).
+                Def CX := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Def CZ := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #0)| + Minus[1] |(#1, #1)><(#1, #1)|.
+                Def SW := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #0)| + |(#1, #0)><(#0, #1)| + |(#1, #1)><(#1, #1)|.
+                Def Morph3R := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |(i, (j, k))> <((i, j), k)|.
+                Def Morph3L := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |((i, j), k)> <(i, (j, k))|.
+            )",
+            "(1O[BIT] * H) CX (1O[BIT] * H)",
+            "CZ"
+        },
+
+        {
+            "QC-4",
+            R"(
+                Def X := |#0><#1| + |#1><#0|.
+                Def Y := Minus[I] |#0><#1| + I |#1><#0|.
+                Def Z := |#0><#0| + Minus[1] |#1><#1|.
+                Def H := Divide[1, Sqrt[2]] (|#0> <#0| + |#0> <#1| + |#1> <#0| + (-1) |#1> <#1|).
+                Def CX := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Def CZ := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #0)| + Minus[1] |(#1, #1)><(#1, #1)|.
+                Def SW := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #0)| + |(#1, #0)><(#0, #1)| + |(#1, #1)><(#1, #1)|.
+                Def Morph3R := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |(i, (j, k))> <((i, j), k)|.
+                Def Morph3L := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |((i, j), k)> <(i, (j, k))|.
+            )",
+            "X Z X",
+            "Minus[1] Z"
+        },
+
+        {
+            "QC-5",
+            R"(
+                Def X := |#0><#1| + |#1><#0|.
+                Def Y := Minus[I] |#0><#1| + I |#1><#0|.
+                Def Z := |#0><#0| + Minus[1] |#1><#1|.
+                Def I2 := |#0><#0| + |#1><#1|.
+                Def H := Divide[1, Sqrt[2]] (|#0> <#0| + |#0> <#1| + |#1> <#0| + (-1) |#1> <#1|).
+                Def TGate := Exp[Times[Minus[I],Divide[Pi, 8]]] |#0><#0| + Exp[Times[I,Divide[Pi, 8]]] |#1><#1|.
+                Def CX := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Def CZ := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #0)| + Minus[1] |(#1, #1)><(#1, #1)|.
+                Def SW := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #0)| + |(#1, #0)><(#0, #1)| + |(#1, #1)><(#1, #1)|.
+                Def Morph3R := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |(i, (j, k))> <((i, j), k)|.
+                Def Morph3L := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |((i, j), k)> <(i, (j, k))|.
+                Def Rx := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] X).
+                Def Ry := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] Y).
+                Def Rz := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] Z).
+            )",
+            "I (Rx Divide[Pi, 2] * 1O[BIT]) (1O[BIT] * TGate) (Rx Divide[Pi, 2] * 1O[BIT])",
+            "(1O[BIT] * H) (1O[BIT] * H) (H * 1O[BIT]) (Z * 1O[BIT]) (H * 1O[BIT]) (1O[BIT] * TGate)"
+        },
+
+        {
+            "QC-6",
+            R"(
+                Def X := |#0><#1| + |#1><#0|.
+                Def Y := Minus[I] |#0><#1| + I |#1><#0|.
+                Def Z := |#0><#0| + Minus[1] |#1><#1|.
+                Def I2 := |#0><#0| + |#1><#1|.
+                Def H := Divide[1, Sqrt[2]] (|#0> <#0| + |#0> <#1| + |#1> <#0| + (-1) |#1> <#1|).
+                Def TGate := Exp[Times[Minus[I],Divide[Pi, 8]]] |#0><#0| + Exp[Times[I,Divide[Pi, 8]]] |#1><#1|.
+                Def CX := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #1)| + |(#1, #1)><(#1, #0)|.
+                Def XC := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #1)| + |(#1, #0)><(#1, #0)| + |(#1, #1)><(#0, #1)|.
+                Def CZ := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#0, #1)| + |(#1, #0)><(#1, #0)| + Minus[1] |(#1, #1)><(#1, #1)|.
+                Def SW := |(#0, #0)><(#0, #0)| + |(#0, #1)><(#1, #0)| + |(#1, #0)><(#0, #1)| + |(#1, #1)><(#1, #1)|.
+                Def Morph3R := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |(i, (j, k))> <((i, j), k)|.
+                Def Morph3L := Sum i in USET[BIT], Sum j in USET[BIT], Sum k in USET[BIT], |((i, j), k)> <(i, (j, k))|.
+                Def Rx := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] X).
+                Def Ry := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] Y).
+                Def Rz := fun phi : STYPE => (Cos[Divide[phi, 2]] I2) + (Minus[I] Sin[Divide[phi, 2]] Z).
+            )",
+            "(1O[BIT] * XC) (Rz Divide[Pi, 8] * (Rz Divide[Pi, 8] * Rz Divide[Pi, 8])) (H * 1O[BIT * BIT])",
+            "(Rz Divide[Pi, 8] * (H * Rz Divide[Pi, 8])) (1O[BIT] * CZ) (1O[BIT] * (H * 1O[BIT])) (H * (Rz Divide[Pi, 8] * 1O[BIT]))"
+        },
+// (1O[BIT] * SW) (CX * 1O[BIT]) Morph3L (1O[BIT] * SW) Morph3R (CX * 1O[BIT]) ((HGate * 1O[BIT]) *1O[BIT])  
 
 /* Xin PQC example
 Block[
